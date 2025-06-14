@@ -195,7 +195,7 @@ const AdminDashboard = () => {
                 value="chatbot" 
                 className="flex items-center justify-center gap-1 sm:gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-md font-lexend font-medium py-2 px-1 sm:px-3"
               >
-                <BotTraining className="w-3 h-3 sm:w-4 sm:h-4" />
+                <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4" />
                 <span className="hidden sm:inline">Chatbot</span>
               </TabsTrigger>
               <TabsTrigger 

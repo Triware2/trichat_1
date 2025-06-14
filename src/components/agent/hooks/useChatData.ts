@@ -1,18 +1,10 @@
 
 import { useState, useEffect } from 'react';
-
-interface Message {
-  id: number;
-  sender: 'agent' | 'customer';
-  message: string;
-  time: string;
-  type: 'text' | 'image' | 'file';
-  fileName?: string;
-}
+import { ChatMessage } from '@/components/admin/chatbot/types';
 
 export const useChatData = (selectedChatId: number) => {
-  const getMessagesForChat = (chatId: number): Message[] => {
-    const messageMap: { [key: number]: Message[] } = {
+  const getMessagesForChat = (chatId: number): ChatMessage[] => {
+    const messageMap: { [key: number]: ChatMessage[] } = {
       1: [
         {
           id: 1,
@@ -102,7 +94,7 @@ export const useChatData = (selectedChatId: number) => {
     return messageMap[chatId] || [];
   };
 
-  const [messages, setMessages] = useState<Message[]>(getMessagesForChat(selectedChatId));
+  const [messages, setMessages] = useState<ChatMessage[]>(getMessagesForChat(selectedChatId));
 
   // Update messages when chat selection changes
   useEffect(() => {
@@ -114,5 +106,3 @@ export const useChatData = (selectedChatId: number) => {
     setMessages
   };
 };
-
-export type { Message };

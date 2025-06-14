@@ -43,6 +43,7 @@ export interface ChatMessage {
   intent?: string;
   bot_response_id?: string;
   escalation_reason?: 'manual' | 'confidence_low' | 'max_attempts' | 'keyword_triggered';
+  fileName?: string; // Added fileName property
 }
 
 export interface BotSession {
