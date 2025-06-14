@@ -2,6 +2,7 @@
 import { TabsContent } from '@/components/ui/tabs';
 import { ChatInterface } from '@/components/agent/ChatInterface';
 import { ChatList } from '@/components/agent/ChatList';
+import { ContactPropertiesPanel } from '@/components/agent/ContactPropertiesPanel';
 
 interface ChatContentProps {
   chats: Array<{
@@ -45,6 +46,12 @@ export const ChatContent = ({
             customerStatus="Online"
             selectedChatId={selectedChat}
             onSendMessage={onSendMessage}
+          />
+        </div>
+        <div className="w-80 border-l border-slate-200 bg-slate-50 p-4">
+          <ContactPropertiesPanel 
+            chatId={selectedChat}
+            customerName={getSelectedCustomerName()}
           />
         </div>
       </div>
