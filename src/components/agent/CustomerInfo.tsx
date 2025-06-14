@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -16,7 +17,8 @@ import {
   CreditCard,
   MessageSquare,
   ExternalLink,
-  FileText
+  FileText,
+  Search
 } from 'lucide-react';
 
 interface CustomerData {
@@ -40,6 +42,8 @@ interface CustomerInfoProps {
 export const CustomerInfo = ({ customer }: CustomerInfoProps) => {
   const [activeTab, setActiveTab] = useState('profile');
   const [newNote, setNewNote] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentCustomer, setCurrentCustomer] = useState(customer);
   const { toast } = useToast();
 
   const orderHistory = [
@@ -103,6 +107,75 @@ export const CustomerInfo = ({ customer }: CustomerInfoProps) => {
     }
   ]);
 
+  const mockCustomerData = {
+    'john.smith@email.com': {
+      name: 'John Smith',
+      email: 'john.smith@email.com',
+      phone: '+1 (555) 123-4567',
+      location: 'New York, USA',
+      customerSince: '2023-01-15',
+      tier: 'Premium',
+      previousChats: 12,
+      satisfaction: 4.8,
+      lastContact: '2024-01-10',
+      totalOrders: 8,
+      totalSpent: '$2,450.00'
+    },
+    '+1 (555) 987-6543': {
+      name: 'Alice Johnson',
+      email: 'alice.johnson@email.com',
+      phone: '+1 (555) 987-6543',
+      location: 'California, USA',
+      customerSince: '2023-03-20',
+      tier: 'Pro',
+      previousChats: 8,
+      satisfaction: 4.9,
+      lastContact: '2024-01-12',
+      totalOrders: 5,
+      totalSpent: '$1,200.00'
+    },
+    'bob.williams@email.com': {
+      name: 'Bob Williams',
+      email: 'bob.williams@email.com',
+      phone: '+1 (555) 456-7890',
+      location: 'Texas, USA',
+      customerSince: '2023-06-10',
+      tier: 'Basic',
+      previousChats: 3,
+      satisfaction: 4.5,
+      lastContact: '2024-01-08',
+      totalOrders: 2,
+      totalSpent: '$300.00'
+    }
+  };
+
+  const handleSearchCustomer = () => {
+    if (!searchQuery.trim()) {
+      toast({
+        title: "Search query required",
+        description: "Please enter an email or phone number to search.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const foundCustomer = mockCustomerData[searchQuery.trim() as keyof typeof mockCustomerData];
+    
+    if (foundCustomer) {
+      setCurrentCustomer(foundCustomer);
+      toast({
+        title: "Customer found",
+        description: `Customer information loaded for ${foundCustomer.name}.`,
+      });
+    } else {
+      toast({
+        title: "Customer not found",
+        description: "No customer found with that email or phone number.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const getTierBadge = (tier: string) => {
     const variants = {
       'Premium': 'bg-gradient-to-r from-orange-500 to-red-500 text-white',
@@ -149,9 +222,40 @@ export const CustomerInfo = ({ customer }: CustomerInfoProps) => {
           </div>
           <div>
             <h2 className="text-xl font-bold text-slate-900">Customer Information</h2>
-            <p className="text-sm text-slate-600">Complete customer profile and history</p>
+            <p className="text-sm text-slate-600">Search and view customer profiles</p>
           </div>
         </div>
+
+        {/* Customer Search Section */}
+        <Card className="border border-slate-200 shadow-sm mb-4">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Search className="w-5 h-5 text-orange-500" />
+              Search Customer
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="flex gap-3">
+              <Input
+                placeholder="Enter email address or phone number..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="flex-1 border-slate-200 focus:border-orange-300 focus:ring-orange-200"
+                onKeyPress={(e) => e.key === 'Enter' && handleSearchCustomer()}
+              />
+              <Button 
+                onClick={handleSearchCustomer}
+                className="bg-orange-500 hover:bg-orange-600 text-white px-6"
+              >
+                <Search className="w-4 h-4 mr-2" />
+                Search
+              </Button>
+            </div>
+            <p className="text-xs text-slate-600 mt-2">
+              Try: john.smith@email.com, +1 (555) 987-6543, or bob.williams@email.com
+            </p>
+          </CardContent>
+        </Card>
 
         {/* Customer Header Card */}
         <Card className="border border-slate-200 shadow-sm">
@@ -159,20 +263,20 @@ export const CustomerInfo = ({ customer }: CustomerInfoProps) => {
             <div className="flex items-start justify-between">
               <div className="flex items-center space-x-4">
                 <div className="w-16 h-16 bg-gradient-to-br from-slate-400 to-slate-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md">
-                  {customer.name.split(' ').map(n => n[0]).join('')}
+                  {currentCustomer.name.split(' ').map(n => n[0]).join('')}
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-slate-900">{customer.name}</h3>
+                  <h3 className="text-xl font-bold text-slate-900">{currentCustomer.name}</h3>
                   <div className="flex items-center gap-2 mt-1">
-                    {getTierBadge(customer.tier)}
-                    <span className="text-sm text-slate-600">Customer since {customer.customerSince}</span>
+                    {getTierBadge(currentCustomer.tier)}
+                    <span className="text-sm text-slate-600">Customer since {currentCustomer.customerSince}</span>
                   </div>
                 </div>
               </div>
               <div className="text-right">
                 <div className="flex items-center gap-1 mb-1">
                   <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                  <span className="font-semibold text-slate-900">{customer.satisfaction}/5</span>
+                  <span className="font-semibold text-slate-900">{currentCustomer.satisfaction}/5</span>
                 </div>
                 <p className="text-sm text-slate-600">Satisfaction</p>
               </div>
@@ -182,7 +286,7 @@ export const CustomerInfo = ({ customer }: CustomerInfoProps) => {
       </div>
 
       {/* Tabs Content */}
-      <div className="p-6 overflow-y-auto" style={{ height: 'calc(100% - 200px)' }}>
+      <div className="p-6 overflow-y-auto" style={{ height: 'calc(100% - 300px)' }}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full">
           <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="profile" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">
@@ -211,21 +315,21 @@ export const CustomerInfo = ({ customer }: CustomerInfoProps) => {
                     <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
                       <Mail className="w-5 h-5 text-slate-600" />
                       <div>
-                        <p className="text-sm font-medium text-slate-900">{customer.email}</p>
+                        <p className="text-sm font-medium text-slate-900">{currentCustomer.email}</p>
                         <p className="text-xs text-slate-600">Email Address</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
                       <Phone className="w-5 h-5 text-slate-600" />
                       <div>
-                        <p className="text-sm font-medium text-slate-900">{customer.phone}</p>
+                        <p className="text-sm font-medium text-slate-900">{currentCustomer.phone}</p>
                         <p className="text-xs text-slate-600">Phone Number</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
                       <MapPin className="w-5 h-5 text-slate-600" />
                       <div>
-                        <p className="text-sm font-medium text-slate-900">{customer.location}</p>
+                        <p className="text-sm font-medium text-slate-900">{currentCustomer.location}</p>
                         <p className="text-xs text-slate-600">Location</p>
                       </div>
                     </div>
@@ -241,19 +345,19 @@ export const CustomerInfo = ({ customer }: CustomerInfoProps) => {
                 <CardContent>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center p-4 bg-blue-50 rounded-lg">
-                      <p className="text-2xl font-bold text-blue-600">{customer.previousChats}</p>
+                      <p className="text-2xl font-bold text-blue-600">{currentCustomer.previousChats}</p>
                       <p className="text-sm text-blue-700">Previous Chats</p>
                     </div>
                     <div className="text-center p-4 bg-emerald-50 rounded-lg">
-                      <p className="text-2xl font-bold text-emerald-600">{customer.totalOrders}</p>
+                      <p className="text-2xl font-bold text-emerald-600">{currentCustomer.totalOrders}</p>
                       <p className="text-sm text-emerald-700">Total Orders</p>
                     </div>
                     <div className="text-center p-4 bg-purple-50 rounded-lg">
-                      <p className="text-2xl font-bold text-purple-600">{customer.totalSpent}</p>
+                      <p className="text-2xl font-bold text-purple-600">{currentCustomer.totalSpent}</p>
                       <p className="text-sm text-purple-700">Total Spent</p>
                     </div>
                     <div className="text-center p-4 bg-amber-50 rounded-lg">
-                      <p className="text-2xl font-bold text-amber-600">{customer.lastContact}</p>
+                      <p className="text-2xl font-bold text-amber-600">{currentCustomer.lastContact}</p>
                       <p className="text-sm text-amber-700">Last Contact</p>
                     </div>
                   </div>

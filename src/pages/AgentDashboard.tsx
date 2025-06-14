@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ChatInterface } from '@/components/agent/ChatInterface';
@@ -52,6 +53,11 @@ const AgentDashboard = () => {
       totalOrders: 8,
       totalSpent: '$2,450.00'
     };
+  };
+
+  const getSelectedCustomerName = () => {
+    const selectedChatData = chats.find(chat => chat.id === selectedChat);
+    return selectedChatData?.customer || 'John Smith';
   };
 
   const handleStatClick = (statTitle: string) => {
@@ -189,8 +195,9 @@ const AgentDashboard = () => {
                   </div>
                   <div className="flex-1">
                     <ChatInterface
-                      customerName="John Smith"
+                      customerName={getSelectedCustomerName()}
                       customerStatus="Online"
+                      selectedChatId={selectedChat}
                       onSendMessage={handleSendMessage}
                     />
                   </div>
