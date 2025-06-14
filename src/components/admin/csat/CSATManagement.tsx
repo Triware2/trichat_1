@@ -21,9 +21,11 @@ import { CSATDashboard } from './CSATDashboard';
 import { FeedbackAnalysis } from './FeedbackAnalysis';
 import { SentimentMonitoring } from './SentimentMonitoring';
 import { CSATSettings } from './CSATSettings';
+import { SurveyCreationModal } from './SurveyCreationModal';
 
 export const CSATManagement = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [createModalOpen, setCreateModalOpen] = useState(false);
 
   const csatStats = [
     {
@@ -60,6 +62,15 @@ export const CSATManagement = () => {
     }
   ];
 
+  const handleCreateSurvey = () => {
+    setCreateModalOpen(true);
+  };
+
+  const handleSurveyCreated = () => {
+    // Survey created successfully, maybe refresh data or show notification
+    setCreateModalOpen(false);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -70,7 +81,7 @@ export const CSATManagement = () => {
             Manage customer satisfaction surveys and analyze feedback
           </p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700">
+        <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleCreateSurvey}>
           <Plus className="w-4 h-4 mr-2" />
           Create Survey
         </Button>
@@ -199,6 +210,12 @@ export const CSATManagement = () => {
           </TabsContent>
         </div>
       </Tabs>
+
+      <SurveyCreationModal
+        open={createModalOpen}
+        onOpenChange={setCreateModalOpen}
+        onSurveyCreated={handleSurveyCreated}
+      />
     </div>
   );
 };

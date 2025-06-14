@@ -1,18 +1,9 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Plus, 
@@ -26,18 +17,22 @@ import {
   Monitor,
   Clock
 } from 'lucide-react';
+import { SurveyCreationModal } from './SurveyCreationModal';
+import { Survey } from './types';
 
 export const SurveyBuilder = () => {
-  const [surveys, setSurveys] = useState([
+  const [surveys, setSurveys] = useState<Survey[]>([
     {
       id: '1',
       name: 'Post-Ticket CSAT',
       type: 'CSAT',
       description: 'Customer satisfaction survey sent after ticket resolution',
       channels: ['email', 'sms'],
+      triggers: [],
+      questions: [],
       isActive: true,
-      responses: 156,
-      avgRating: 4.3
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     },
     {
       id: '2',
@@ -45,9 +40,11 @@ export const SurveyBuilder = () => {
       type: 'NPS',
       description: 'Net Promoter Score survey for chat interactions',
       channels: ['in-app', 'email'],
+      triggers: [],
+      questions: [],
       isActive: true,
-      responses: 89,
-      avgRating: 7.8
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     },
     {
       id: '3',
@@ -55,12 +52,16 @@ export const SurveyBuilder = () => {
       type: 'CES',
       description: 'Customer Effort Score for support interactions',
       channels: ['email'],
+      triggers: [],
+      questions: [],
       isActive: false,
-      responses: 45,
-      avgRating: 3.2
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     }
   ]);
 
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<'CSAT' | 'NPS' | 'CES' | null>(null);
   const { toast } = useToast();
 
   const getChannelIcon = (channel: string) => {
@@ -82,11 +83,13 @@ export const SurveyBuilder = () => {
     }
   };
 
-  const handleCreateSurvey = () => {
-    toast({
-      title: "Survey Builder",
-      description: "Survey creation modal would open here",
-    });
+  const handleCreateSurvey = (template?: 'CSAT' | 'NPS' | 'CES') => {
+    setSelectedTemplate(template || null);
+    setModalOpen(true);
+  };
+
+  const handleSurveyCreated = (newSurvey: Survey) => {
+    setSurveys(prev => [...prev, newSurvey]);
   };
 
   const handleEditSurvey = (surveyId: string) => {
@@ -118,8 +121,8 @@ export const SurveyBuilder = () => {
         id: Date.now().toString(),
         name: `${survey.name} (Copy)`,
         isActive: false,
-        responses: 0,
-        avgRating: 0
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       };
       setSurveys(prev => [...prev, newSurvey]);
       
@@ -150,7 +153,7 @@ export const SurveyBuilder = () => {
             Create and manage customer satisfaction surveys
           </p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleCreateSurvey}>
+        <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => handleCreateSurvey()}>
           <Plus className="w-4 h-4 mr-2" />
           Create Survey
         </Button>
@@ -164,7 +167,7 @@ export const SurveyBuilder = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer" onClick={handleCreateSurvey}>
+            <div className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer" onClick={() => handleCreateSurvey('CSAT')}>
               <div className="flex items-center gap-2 mb-2">
                 <Star className="w-5 h-5 text-yellow-500" />
                 <h4 className="font-medium">CSAT Survey</h4>
@@ -175,7 +178,7 @@ export const SurveyBuilder = () => {
               <Badge className="bg-blue-100 text-blue-800">Most Popular</Badge>
             </div>
 
-            <div className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer" onClick={handleCreateSurvey}>
+            <div className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer" onClick={() => handleCreateSurvey('NPS')}>
               <div className="flex items-center gap-2 mb-2">
                 <MessageSquare className="w-5 h-5 text-purple-500" />
                 <h4 className="font-medium">NPS Survey</h4>
@@ -186,7 +189,7 @@ export const SurveyBuilder = () => {
               <Badge variant="outline">Recommended</Badge>
             </div>
 
-            <div className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer" onClick={handleCreateSurvey}>
+            <div className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer" onClick={() => handleCreateSurvey('CES')}>
               <div className="flex items-center gap-2 mb-2">
                 <Clock className="w-5 h-5 text-green-500" />
                 <h4 className="font-medium">CES Survey</h4>
@@ -272,12 +275,8 @@ export const SurveyBuilder = () => {
                   
                   <div className="flex items-center gap-6 text-sm">
                     <div className="text-center">
-                      <p className="text-gray-600">Responses</p>
-                      <p className="font-medium">{survey.responses}</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-gray-600">Avg Rating</p>
-                      <p className="font-medium">{survey.avgRating}</p>
+                      <p className="text-gray-600">Created</p>
+                      <p className="font-medium">{new Date(survey.createdAt).toLocaleDateString()}</p>
                     </div>
                   </div>
                 </div>
@@ -286,6 +285,13 @@ export const SurveyBuilder = () => {
           </div>
         </CardContent>
       </Card>
+
+      <SurveyCreationModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        onSurveyCreated={handleSurveyCreated}
+        template={selectedTemplate}
+      />
     </div>
   );
 };
