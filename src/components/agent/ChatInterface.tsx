@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -272,8 +273,8 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
         />
       </div>
 
-      {/* Fixed Floating Input Section at bottom */}
-      <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-30">
+      {/* Floating Input Section - Truly floating within middle section */}
+      <div className="absolute bottom-4 left-4 right-4 bg-white border border-slate-200 rounded-lg shadow-lg z-30">
         {/* Canned Responses Toggle */}
         <div className="px-6 py-2 border-b border-slate-100">
           <Button
@@ -301,9 +302,9 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
         />
       </div>
 
-      {/* Canned Responses Panel - Fixed position above input */}
+      {/* Canned Responses Panel - Floating above input */}
       {showCannedResponses && (
-        <div className="absolute bottom-32 left-4 right-4 h-96 border border-slate-200 bg-white shadow-lg z-20 rounded-lg">
+        <div className="absolute bottom-44 left-4 right-4 h-96 border border-slate-200 bg-white shadow-lg z-20 rounded-lg">
           <CannedResponses 
             onSelectResponse={handleCannedResponseSelect}
             isSelectionMode={true}
@@ -311,7 +312,7 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
         </div>
       )}
 
-      {/* Quick Responses - Fixed position */}
+      {/* Quick Responses - Floating position */}
       <div className="absolute bottom-6 right-6 z-50">
         <QuickResponses responses={quickResponses} onResponseSelect={handleQuickResponse} />
       </div>
