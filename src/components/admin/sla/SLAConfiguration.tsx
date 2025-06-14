@@ -31,6 +31,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Plus, 
   Edit, 
@@ -46,6 +47,18 @@ export const SLAConfiguration = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedSLA, setSelectedSLA] = useState<SLATier | null>(null);
+  const [slaData, setSlaData] = useState<SLATier[]>([]);
+  const { toast } = useToast();
+
+  // Form state for creating new SLA
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    customerSegments: '',
+    contractTypes: '',
+    supportPlans: '',
+    status: 'active'
+  });
 
   const mockSLAs: SLATier[] = [
     {
@@ -98,6 +111,76 @@ export const SLAConfiguration = () => {
     ]
   };
 
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleCreateSLA = () => {
+    console.log('Creating SLA with data:', formData);
+    
+    // Validate required fields
+    if (!formData.name.trim() || !formData.description.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Create new SLA object
+    const newSLA: SLATier = {
+      id: Date.now().toString(),
+      name: formData.name.trim(),
+      description: formData.description.trim(),
+      customerSegments: formData.customerSegments.split(',').map(s => s.trim()).filter(s => s),
+      contractTypes: formData.contractTypes.split(',').map(s => s.trim()).filter(s => s),
+      supportPlans: formData.supportPlans.split(',').map(s => s.trim()).filter(s => s),
+      isActive: formData.status === 'active',
+      createdAt: new Date().toISOString().split('T')[0],
+      updatedAt: new Date().toISOString().split('T')[0]
+    };
+
+    // Add to SLA data (in a real app, this would be an API call)
+    setSlaData(prev => [...prev, newSLA]);
+
+    // Reset form
+    setFormData({
+      name: '',
+      description: '',
+      customerSegments: '',
+      contractTypes: '',
+      supportPlans: '',
+      status: 'active'
+    });
+
+    // Close modal
+    setIsCreateModalOpen(false);
+
+    // Show success toast
+    toast({
+      title: "SLA Created",
+      description: `SLA "${newSLA.name}" has been created successfully.`,
+    });
+  };
+
+  const handleDeleteSLA = (slaId: string, slaName: string) => {
+    console.log('Deleting SLA:', slaId);
+    
+    // Remove from SLA data (in a real app, this would be an API call)
+    setSlaData(prev => prev.filter(sla => sla.id !== slaId));
+
+    toast({
+      title: "SLA Deleted",
+      description: `SLA "${slaName}" has been deleted successfully.`,
+    });
+  };
+
+  const allSLAs = [...mockSLAs, ...slaData];
+
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'critical': return 'bg-red-100 text-red-800';
@@ -142,12 +225,17 @@ export const SLAConfiguration = () => {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="name">SLA Name</Label>
-                  <Input id="name" placeholder="e.g., Enterprise VIP" />
+                  <Label htmlFor="name">SLA Name *</Label>
+                  <Input 
+                    id="name" 
+                    placeholder="e.g., Enterprise VIP" 
+                    value={formData.name}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
+                  />
                 </div>
                 <div>
                   <Label htmlFor="status">Status</Label>
-                  <Select defaultValue="active">
+                  <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -159,21 +247,44 @@ export const SLAConfiguration = () => {
                 </div>
               </div>
               <div>
-                <Label htmlFor="description">Description</Label>
-                <Textarea id="description" placeholder="Describe this SLA tier..." />
+                <Label htmlFor="description">Description *</Label>
+                <Textarea 
+                  id="description" 
+                  placeholder="Describe this SLA tier..." 
+                  value={formData.description}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                />
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="segments">Customer Segments</Label>
-                  <Input id="segments" placeholder="Enterprise, VIP" />
+                  <Input 
+                    id="segments" 
+                    placeholder="Enterprise, VIP" 
+                    value={formData.customerSegments}
+                    onChange={(e) => handleInputChange('customerSegments', e.target.value)}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Separate with commas</p>
                 </div>
                 <div>
                   <Label htmlFor="contracts">Contract Types</Label>
-                  <Input id="contracts" placeholder="Premium, Enterprise" />
+                  <Input 
+                    id="contracts" 
+                    placeholder="Premium, Enterprise" 
+                    value={formData.contractTypes}
+                    onChange={(e) => handleInputChange('contractTypes', e.target.value)}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Separate with commas</p>
                 </div>
                 <div>
                   <Label htmlFor="plans">Support Plans</Label>
-                  <Input id="plans" placeholder="24/7 Premium" />
+                  <Input 
+                    id="plans" 
+                    placeholder="24/7 Premium" 
+                    value={formData.supportPlans}
+                    onChange={(e) => handleInputChange('supportPlans', e.target.value)}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Separate with commas</p>
                 </div>
               </div>
             </div>
@@ -181,7 +292,9 @@ export const SLAConfiguration = () => {
               <Button variant="outline" onClick={() => setIsCreateModalOpen(false)}>
                 Cancel
               </Button>
-              <Button className="bg-blue-600 hover:bg-blue-700">Create SLA</Button>
+              <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleCreateSLA}>
+                Create SLA
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -189,7 +302,7 @@ export const SLAConfiguration = () => {
 
       {/* SLA Tiers List */}
       <div className="grid gap-6">
-        {mockSLAs.map((sla) => (
+        {allSLAs.map((sla) => (
           <Card key={sla.id} className="border border-gray-200">
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
@@ -209,7 +322,12 @@ export const SLAConfiguration = () => {
                   <Button variant="ghost" size="sm">
                     <Edit className="w-4 h-4" />
                   </Button>
-                  <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-red-600 hover:text-red-700"
+                    onClick={() => handleDeleteSLA(sla.id, sla.name)}
+                  >
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>

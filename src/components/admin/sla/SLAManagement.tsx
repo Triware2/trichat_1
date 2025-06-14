@@ -59,6 +59,11 @@ export const SLAManagement = () => {
     }
   ];
 
+  const handleCreateSLA = () => {
+    console.log('Create SLA clicked - switching to configuration tab');
+    setActiveTab('configuration');
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -69,7 +74,7 @@ export const SLAManagement = () => {
             Configure and monitor Service Level Agreements across your platform
           </p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700">
+        <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleCreateSLA}>
           <Plus className="w-4 h-4 mr-2" />
           Create SLA
         </Button>
