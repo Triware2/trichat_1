@@ -1,27 +1,43 @@
 
 import { Button } from '@/components/ui/button';
-import { Download, Plus } from 'lucide-react';
+import { Search, Bell, Settings, Plus } from 'lucide-react';
 
 export const DashboardHeader = () => {
   return (
-    <div className="mb-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-2">
-        <div className="min-w-0 flex-1">
-          <h1 className="text-2xl lg:text-3xl font-lexend font-semibold text-slate-900 tracking-tight">
-            Admin Command Center
-          </h1>
-          <p className="text-base text-slate-600 mt-2 font-lexend font-normal leading-relaxed">
-            Manage users, monitor system performance, and configure settings
-          </p>
+    <div className="bg-white border-b border-gray-200 px-6 py-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <div>
+            <h1 className="text-xl font-semibold text-gray-900">
+              Admin Dashboard
+            </h1>
+            <p className="text-sm text-gray-600 mt-1">
+              Manage your organization's resources and settings
+            </p>
+          </div>
         </div>
-        <div className="flex items-center gap-3 flex-shrink-0">
-          <Button variant="outline" size="default" className="font-lexend font-medium h-9 px-5 text-sm">
-            <Download className="w-4 h-4 mr-2" />
-            Export Data
+        
+        <div className="flex items-center space-x-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search resources..."
+              className="pl-10 pr-4 py-2 w-80 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+          
+          <Button variant="ghost" size="sm" className="p-2">
+            <Bell className="w-4 h-4" />
           </Button>
-          <Button size="default" className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 font-lexend font-medium h-9 px-5 text-sm shadow-lg">
+          
+          <Button variant="ghost" size="sm" className="p-2">
+            <Settings className="w-4 h-4" />
+          </Button>
+          
+          <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white px-4">
             <Plus className="w-4 h-4 mr-2" />
-            Quick Setup
+            Create
           </Button>
         </div>
       </div>

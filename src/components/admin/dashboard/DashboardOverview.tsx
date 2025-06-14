@@ -5,15 +5,11 @@ import { QuickActions } from './QuickActions';
 
 export const DashboardOverview = () => {
   return (
-    <div className="space-y-6 lg:space-y-8">
-      {/* Stats Grid */}
+    <div className="space-y-6">
       <AdminStats />
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
-        {/* Recent Activity */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         <RecentActivities />
-
-        {/* Quick Actions */}
         <QuickActions />
       </div>
     </div>

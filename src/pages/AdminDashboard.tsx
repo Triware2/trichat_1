@@ -17,53 +17,53 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-orange-50">
+    <div className="min-h-screen bg-gray-50">
       <NavigationHeader 
         title="Admin Dashboard" 
         role="admin"
         userEmail="admin@trichat.com"
       />
       
-      <div className="w-full min-h-[calc(100vh-64px)] px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6 lg:py-8">
-        <div className="w-full max-w-[1920px] mx-auto">
-          <DashboardHeader />
+      <DashboardHeader />
+      
+      <div className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <DashboardTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6 lg:space-y-8">
-            <DashboardTabs activeTab={activeTab} onTabChange={setActiveTab} />
-
-            <TabsContent value="overview" className="space-y-6 lg:space-y-8">
+          <div className="px-6 py-6">
+            <TabsContent value="overview" className="mt-0">
               <DashboardOverview />
             </TabsContent>
 
-            <TabsContent value="users">
+            <TabsContent value="users" className="mt-0">
               <UserManagement />
             </TabsContent>
 
-            <TabsContent value="access">
+            <TabsContent value="access" className="mt-0">
               <AccessManagement />
             </TabsContent>
 
-            <TabsContent value="chatbot">
+            <TabsContent value="chatbot" className="mt-0">
               <BotTraining />
             </TabsContent>
 
-            <TabsContent value="api-keys">
+            <TabsContent value="api-keys" className="mt-0">
               <ApiKeyManagement />
             </TabsContent>
 
-            <TabsContent value="analytics">
+            <TabsContent value="analytics" className="mt-0">
               <AnalyticsDashboard />
             </TabsContent>
 
-            <TabsContent value="widget">
+            <TabsContent value="widget" className="mt-0">
               <ChatWidgetGenerator />
             </TabsContent>
 
-            <TabsContent value="settings">
+            <TabsContent value="settings" className="mt-0">
               <SystemSettings />
             </TabsContent>
-          </Tabs>
-        </div>
+          </div>
+        </Tabs>
       </div>
     </div>
   );

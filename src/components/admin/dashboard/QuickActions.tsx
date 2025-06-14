@@ -1,71 +1,74 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { 
-  Shield, 
   UserPlus, 
   BarChart3, 
   Globe,
-  Settings
+  Settings,
+  ChevronRight
 } from 'lucide-react';
 
 interface QuickActionItem {
   title: string;
   description: string;
   icon: React.ComponentType<{ className?: string }>;
-  color: string;
+  buttonText: string;
 }
 
 export const QuickActions = () => {
   const quickActions: QuickActionItem[] = [
     {
-      title: "Add New User",
-      description: "Create new agent or supervisor account",
+      title: "Add new user",
+      description: "Create agent or supervisor account",
       icon: UserPlus,
-      color: "from-blue-500 to-blue-600"
+      buttonText: "Create user"
     },
     {
-      title: "Generate Report",
-      description: "Create comprehensive analytics report",
+      title: "View analytics",
+      description: "Generate comprehensive report",
       icon: BarChart3,
-      color: "from-emerald-500 to-emerald-600"
+      buttonText: "Open analytics"
     },
     {
-      title: "Update Chat Widget",
-      description: "Modify widget settings and appearance",
+      title: "Configure widget",
+      description: "Update chat widget settings",
       icon: Globe,
-      color: "from-orange-500 to-orange-600"
+      buttonText: "Configure"
     },
     {
-      title: "System Settings",
-      description: "Configure system-wide preferences",
+      title: "System settings",
+      description: "Manage system preferences",
       icon: Settings,
-      color: "from-purple-500 to-purple-600"
+      buttonText: "Open settings"
     }
   ];
 
   return (
-    <Card className="border-0 shadow-lg bg-white">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-lg font-lexend font-medium">
-          <Shield className="w-4 h-4 text-orange-600" />
-          Quick Actions
+    <Card className="border border-gray-200">
+      <CardHeader className="pb-4">
+        <CardTitle className="text-lg font-semibold text-gray-900">
+          Quick actions
         </CardTitle>
-        <CardDescription className="mt-1 text-sm font-lexend">
+        <CardDescription className="text-sm text-gray-600">
           Common administrative tasks
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-1">
         {quickActions.map((action, index) => (
-          <div key={index} className="group p-3 rounded-xl border border-slate-200 hover:border-orange-200 hover:bg-orange-50 transition-all cursor-pointer">
-            <div className="flex items-center gap-3">
-              <div className={`w-8 h-8 rounded-xl bg-gradient-to-r ${action.color} flex items-center justify-center shadow-md group-hover:scale-110 transition-transform`}>
-                <action.icon className="w-4 h-4 text-white" />
+          <div key={index} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors group">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                <action.icon className="w-4 h-4 text-blue-600" />
               </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="font-lexend font-medium text-slate-900 group-hover:text-orange-700 transition-colors text-sm">{action.title}</h4>
-                <p className="text-xs font-lexend text-slate-600">{action.description}</p>
+              <div>
+                <h4 className="text-sm font-medium text-gray-900">{action.title}</h4>
+                <p className="text-xs text-gray-500">{action.description}</p>
               </div>
             </div>
+            <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
+              <ChevronRight className="w-4 h-4" />
+            </Button>
           </div>
         ))}
       </CardContent>
