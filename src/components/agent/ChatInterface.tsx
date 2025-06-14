@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -258,8 +259,8 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
     <div className="h-full flex flex-col bg-white relative">
       <ChatHeader customerName={customerName} customerStatus={customerStatus} />
       
-      {/* Messages Area - with padding bottom for floating input */}
-      <div className="flex-1 flex flex-col min-h-0 pb-32">
+      {/* Messages Area - scrollable middle section */}
+      <div className="flex-1 overflow-y-auto pb-32">
         <MessageList 
           messages={messages} 
           privateNotes={privateNotes}
@@ -267,12 +268,10 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
           onDeleteNote={handleDeleteNote}
           canDeleteNote={canDeleteNote}
         />
-
-        <QuickResponses responses={quickResponses} onResponseSelect={handleQuickResponse} />
       </div>
 
       {/* Floating Input Section */}
-      <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg">
+      <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg z-30">
         {/* Canned Responses Toggle */}
         <div className="px-6 py-2">
           <Button
@@ -302,13 +301,16 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
 
       {/* Canned Responses Panel */}
       {showCannedResponses && (
-        <div className="absolute bottom-24 left-0 right-0 h-96 border-t border-slate-200 bg-white shadow-lg z-10">
+        <div className="absolute bottom-24 left-0 right-0 h-96 border-t border-slate-200 bg-white shadow-lg z-20">
           <CannedResponses 
             onSelectResponse={handleCannedResponseSelect}
             isSelectionMode={true}
           />
         </div>
       )}
+
+      {/* Floating Quick Responses */}
+      <QuickResponses responses={quickResponses} onResponseSelect={handleQuickResponse} />
     </div>
   );
 };

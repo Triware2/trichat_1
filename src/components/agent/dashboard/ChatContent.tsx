@@ -37,7 +37,8 @@ export const ChatContent = ({
   return (
     <TabsContent value="chat" className="h-full m-0">
       <div className="flex h-full">
-        <div className="w-80 border-r border-slate-200 bg-white">
+        {/* Left Section - Chat List (Fixed) */}
+        <div className="w-80 border-r border-slate-200 bg-white flex-shrink-0">
           <ChatList 
             chats={chats}
             selectedChat={selectedChat}
@@ -45,7 +46,9 @@ export const ChatContent = ({
             onFilter={onFilter}
           />
         </div>
-        <div className="flex-1 relative">
+        
+        {/* Middle Section - Chat Interface (Scrollable) */}
+        <div className="flex-1 relative overflow-hidden">
           <ChatInterface
             customerName={getSelectedCustomerName()}
             customerStatus="Online"
@@ -53,7 +56,9 @@ export const ChatContent = ({
             onSendMessage={onSendMessage}
           />
         </div>
-        <div className="w-80 border-l border-slate-200 bg-slate-50 flex flex-col">
+        
+        {/* Right Section - Customer Info (Fixed) */}
+        <div className="w-80 border-l border-slate-200 bg-slate-50 flex flex-col flex-shrink-0">
           <div className="flex-1 overflow-y-auto p-3">
             <CustomerComplaintsPreview 
               chatId={selectedChat}
