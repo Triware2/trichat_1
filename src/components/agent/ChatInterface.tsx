@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { MessageList } from './MessageList';
 import { QuickResponses } from './QuickResponses';
@@ -6,15 +7,23 @@ import { FloatingInputSection } from './chat/FloatingInputSection';
 import { usePrivateNotes } from './PrivateNotes';
 import { useChatData } from './hooks/useChatData';
 import { useMessageHandling } from './hooks/useMessageHandling';
+import { ChatMessage } from '@/components/admin/chatbot/types';
 
 interface ChatInterfaceProps {
   customerName: string;
   customerStatus: string;
   selectedChatId: number;
   onSendMessage: (message: string) => void;
+  botConversationHistory?: ChatMessage[];
 }
 
-export const ChatInterface = ({ customerName, customerStatus, selectedChatId, onSendMessage }: ChatInterfaceProps) => {
+export const ChatInterface = ({ 
+  customerName, 
+  customerStatus, 
+  selectedChatId, 
+  onSendMessage,
+  botConversationHistory = []
+}: ChatInterfaceProps) => {
   const [showCannedResponses, setShowCannedResponses] = useState(false);
   
   // Use private notes hook with current user context
@@ -39,7 +48,7 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
     handleCannedResponseSelect,
     handleFileUpload,
     handleImageUpload
-  } = useMessageHandling(messages, setMessages, onSendMessage, addNote);
+  } = useMessageHandling(messages, setMessages, onSendMessage, addNote, botConversationHistory);
 
   const quickResponses = [
     "Thank you for contacting us!",
@@ -73,6 +82,7 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
             isTyping={isTyping}
             onDeleteNote={handleDeleteNote}
             canDeleteNote={canDeleteNote}
+            botConversationHistory={botConversationHistory}
           />
         </div>
 

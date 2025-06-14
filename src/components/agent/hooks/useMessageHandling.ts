@@ -1,15 +1,7 @@
 
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-
-interface Message {
-  id: number;
-  sender: 'agent' | 'customer';
-  message: string;
-  time: string;
-  type: 'text' | 'image' | 'file';
-  fileName?: string;
-}
+import { ChatMessage } from '@/components/admin/chatbot/types';
 
 interface CannedResponse {
   id: number;
@@ -20,10 +12,11 @@ interface CannedResponse {
 }
 
 export const useMessageHandling = (
-  messages: Message[],
-  setMessages: (messages: Message[]) => void,
+  messages: ChatMessage[],
+  setMessages: (messages: ChatMessage[]) => void,
   onSendMessage: (message: string) => void,
-  addNote: (note: string) => void
+  addNote: (note: string) => void,
+  botConversationHistory?: ChatMessage[]
 ) => {
   const [message, setMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -39,7 +32,7 @@ export const useMessageHandling = (
         setIsPrivateNoteMode(false);
       } else {
         // Send as regular message
-        const newMessage: Message = {
+        const newMessage: ChatMessage = {
           id: messages.length + 1,
           sender: 'agent',
           message: message.trim(),
@@ -56,11 +49,12 @@ export const useMessageHandling = (
           description: "Your message has been delivered to the customer.",
         });
 
+        // Simulate customer response
         setTimeout(() => {
           setIsTyping(true);
           setTimeout(() => {
             setIsTyping(false);
-            const customerResponse: Message = {
+            const customerResponse: ChatMessage = {
               id: messages.length + 2,
               sender: 'customer',
               message: "Thank you for the quick response!",
@@ -91,7 +85,7 @@ export const useMessageHandling = (
   };
 
   const handleFileUpload = () => {
-    const fileMessage: Message = {
+    const fileMessage: ChatMessage = {
       id: messages.length + 1,
       sender: 'agent',
       message: "File uploaded: troubleshooting_guide.pdf",
@@ -107,7 +101,7 @@ export const useMessageHandling = (
   };
 
   const handleImageUpload = () => {
-    const imageMessage: Message = {
+    const imageMessage: ChatMessage = {
       id: messages.length + 1,
       sender: 'agent',
       message: "Image shared: product_screenshot.png",
@@ -132,6 +126,7 @@ export const useMessageHandling = (
     handleQuickResponse,
     handleCannedResponseSelect,
     handleFileUpload,
-    handleImageUpload
+    handleImageUpload,
+    botConversationHistory
   };
 };

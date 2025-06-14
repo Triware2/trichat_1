@@ -29,6 +29,7 @@ import { SystemSettings } from '@/components/admin/SystemSettings';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 import { ChatWidgetGenerator } from '@/components/admin/ChatWidgetGenerator';
 import { AccessManagement } from '@/components/admin/access/AccessManagement';
+import { BotTraining } from '@/components/admin/chatbot/BotTraining';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -168,7 +169,7 @@ const AdminDashboard = () => {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6 lg:space-y-8">
-            <TabsList className="grid w-full grid-cols-6 bg-white border shadow-sm rounded-xl p-1 h-auto">
+            <TabsList className="grid w-full grid-cols-7 bg-white border shadow-sm rounded-xl p-1 h-auto">
               <TabsTrigger 
                 value="overview" 
                 className="flex items-center justify-center gap-1 sm:gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-md font-lexend font-medium py-2 px-1 sm:px-3"
@@ -189,6 +190,13 @@ const AdminDashboard = () => {
               >
                 <Lock className="w-3 h-3 sm:w-4 sm:h-4" />
                 <span className="hidden sm:inline">Access</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="chatbot" 
+                className="flex items-center justify-center gap-1 sm:gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-md font-lexend font-medium py-2 px-1 sm:px-3"
+              >
+                <BotTraining className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Chatbot</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="analytics" 
@@ -312,6 +320,10 @@ const AdminDashboard = () => {
 
             <TabsContent value="access">
               <AccessManagement />
+            </TabsContent>
+
+            <TabsContent value="chatbot">
+              <BotTraining />
             </TabsContent>
 
             <TabsContent value="analytics">
