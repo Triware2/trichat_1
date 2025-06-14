@@ -14,7 +14,6 @@ import {
   Lightbulb,
   Target
 } from 'lucide-react';
-import { AgentCSATWidget } from '../csat/AgentCSATWidget';
 
 interface Customer {
   name: string;
@@ -137,14 +136,6 @@ export const OtherTabsContent = ({ customer }: OtherTabsContentProps) => {
             </div>
           </CardContent>
         </Card>
-      </TabsContent>
-
-      <TabsContent value="csat" className="p-6">
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-900">Customer Satisfaction</h2>
-          <p className="text-gray-600">Your CSAT scores and customer feedback</p>
-        </div>
-        <AgentCSATWidget />
       </TabsContent>
 
       <TabsContent value="settings" className="p-6 space-y-6">

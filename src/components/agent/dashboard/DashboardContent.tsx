@@ -3,10 +3,11 @@ import { TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { DashboardStats } from '@/components/agent/DashboardStats';
 import { QueueStatus } from '@/components/agent/QueueStatus';
 import { RecentActivity } from '@/components/agent/RecentActivity';
-import { Search, Filter } from 'lucide-react';
+import { Search, Filter, Star, TrendingUp, MessageSquare, Award } from 'lucide-react';
 import { useState } from 'react';
 
 interface DashboardContentProps {
@@ -51,6 +52,42 @@ export const DashboardContent = ({
     }
   };
 
+  // CSAT data for the agent
+  const csatData = {
+    averageCSAT: 4.6,
+    totalResponses: 89,
+    responseRate: 72,
+    npsScore: 54,
+    recentFeedback: [
+      {
+        rating: 5,
+        feedback: 'Excellent service! Very knowledgeable and helpful.',
+        customer: 'John S.',
+        date: '2 hours ago'
+      },
+      {
+        rating: 4,
+        feedback: 'Good support, resolved my issue quickly.',
+        customer: 'Sarah M.',
+        date: '1 day ago'
+      },
+      {
+        rating: 5,
+        feedback: 'Amazing support! Solved my issue in minutes.',
+        customer: 'Mike R.',
+        date: '2 days ago'
+      }
+    ]
+  };
+
+  const getRatingStars = (rating: number) => {
+    return Array.from({ length: 5 }, (_, i) => (
+      <span key={i} className={`text-sm ${i < rating ? 'text-yellow-400' : 'text-gray-300'}`}>
+        ★
+      </span>
+    ));
+  };
+
   return (
     <TabsContent value="dashboard" className="h-full p-6 overflow-y-auto">
       <div className="space-y-6">
@@ -92,6 +129,77 @@ export const DashboardContent = ({
         </Card>
 
         <DashboardStats stats={stats} onStatClick={onStatClick} />
+
+        {/* CSAT Performance Overview */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Star className="w-5 h-5 text-yellow-500" />
+              My CSAT Performance
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              <div className="text-center p-4 bg-blue-50 rounded-lg">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <Star className="w-5 h-5 text-yellow-500" />
+                  <span className="text-sm text-gray-600">CSAT Score</span>
+                </div>
+                <p className="text-2xl font-bold text-gray-900">{csatData.averageCSAT}</p>
+                <Badge className="bg-green-100 text-green-800 text-xs mt-1">+0.3</Badge>
+              </div>
+
+              <div className="text-center p-4 bg-green-50 rounded-lg">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <MessageSquare className="w-5 h-5 text-blue-500" />
+                  <span className="text-sm text-gray-600">Response Rate</span>
+                </div>
+                <p className="text-2xl font-bold text-gray-900">{csatData.responseRate}%</p>
+                <Badge className="bg-blue-100 text-blue-800 text-xs mt-1">+5%</Badge>
+              </div>
+
+              <div className="text-center p-4 bg-purple-50 rounded-lg">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <TrendingUp className="w-5 h-5 text-purple-500" />
+                  <span className="text-sm text-gray-600">NPS Score</span>
+                </div>
+                <p className="text-2xl font-bold text-gray-900">{csatData.npsScore}</p>
+                <Badge className="bg-purple-100 text-purple-800 text-xs mt-1">+8</Badge>
+              </div>
+
+              <div className="text-center p-4 bg-orange-50 rounded-lg">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <Award className="w-5 h-5 text-orange-500" />
+                  <span className="text-sm text-gray-600">Total Reviews</span>
+                </div>
+                <p className="text-2xl font-bold text-gray-900">{csatData.totalResponses}</p>
+                <Badge className="bg-gray-100 text-gray-800 text-xs mt-1">This month</Badge>
+              </div>
+            </div>
+
+            {/* Recent Feedback */}
+            <div>
+              <h4 className="font-medium text-gray-900 mb-3">Recent Customer Feedback</h4>
+              <div className="space-y-3">
+                {csatData.recentFeedback.map((feedback, index) => (
+                  <div key={index} className="border rounded-lg p-3 bg-gray-50">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center">
+                          {getRatingStars(feedback.rating)}
+                        </div>
+                        <span className="text-xs text-gray-500">{feedback.date}</span>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-800 mb-1">"{feedback.feedback}"</p>
+                    <p className="text-xs text-gray-600">- {feedback.customer}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           <QueueStatus chats={chats} onQueueAction={onQueueAction} />
           <RecentActivity activities={activities} />
