@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -141,12 +140,12 @@ export const CustomerInfo = ({ customer }: CustomerInfoProps) => {
   };
 
   return (
-    <div className="h-full flex flex-col bg-white">
+    <div className="h-full bg-white">
       {/* Header */}
       <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
-            <User className="w-6 h-6 text-white" />
+          <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
+            <User className="w-5 h-5 text-white" />
           </div>
           <div>
             <h2 className="text-xl font-bold text-slate-900">Customer Information</h2>
@@ -183,9 +182,9 @@ export const CustomerInfo = ({ customer }: CustomerInfoProps) => {
       </div>
 
       {/* Tabs Content */}
-      <div className="flex-1 overflow-hidden">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-          <TabsList className="grid w-full grid-cols-3 mx-6 mt-4">
+      <div className="p-6 overflow-y-auto" style={{ height: 'calc(100% - 200px)' }}>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="profile" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">
               <User className="w-4 h-4 mr-2" />
               Profile
@@ -200,7 +199,7 @@ export const CustomerInfo = ({ customer }: CustomerInfoProps) => {
             </TabsTrigger>
           </TabsList>
 
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="space-y-6">
             <TabsContent value="profile" className="space-y-6 mt-0">
               {/* Contact Information */}
               <Card>

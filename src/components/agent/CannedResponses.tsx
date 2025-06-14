@@ -31,6 +31,7 @@ interface CannedResponsesProps {
 
 export const CannedResponses = ({ onSelectResponse, isSelectionMode = false }: CannedResponsesProps) => {
   const { toast } = useToast();
+
   const [responses, setResponses] = useState<CannedResponse[]>([
     {
       id: 1,
@@ -184,7 +185,7 @@ export const CannedResponses = ({ onSelectResponse, isSelectionMode = false }: C
   };
 
   return (
-    <div className="h-full flex flex-col bg-white">
+    <div className="h-full bg-white">
       {/* Header */}
       <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
         <div className="flex items-center justify-between mb-4">
@@ -233,7 +234,7 @@ export const CannedResponses = ({ onSelectResponse, isSelectionMode = false }: C
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+      <div className="p-6 space-y-4 overflow-y-auto" style={{ height: 'calc(100% - 200px)' }}>
         {(isCreating || editingId !== null) && (
           <Card className="border-2 border-orange-200 shadow-md">
             <CardContent className="p-4">
@@ -258,7 +259,11 @@ export const CannedResponses = ({ onSelectResponse, isSelectionMode = false }: C
                   className="border-slate-200 focus:border-orange-300 focus:ring-orange-200"
                 />
                 <div className="flex gap-2">
-                  <Button size="sm" onClick={() => {}} className="bg-orange-500 hover:bg-orange-600 text-white">
+                  <Button 
+                    size="sm" 
+                    onClick={editingId ? handleUpdate : handleCreate} 
+                    className="bg-orange-500 hover:bg-orange-600 text-white"
+                  >
                     <Save className="w-4 h-4 mr-2" />
                     {editingId ? 'Update' : 'Create'}
                   </Button>
@@ -309,10 +314,10 @@ export const CannedResponses = ({ onSelectResponse, isSelectionMode = false }: C
                       </div>
                       {!isSelectionMode && (
                         <div className="flex gap-1">
-                          <Button size="sm" variant="ghost" onClick={() => {}} className="h-8 w-8 p-0 hover:bg-slate-100">
+                          <Button size="sm" variant="ghost" onClick={() => handleEdit(response.id)} className="h-8 w-8 p-0 hover:bg-slate-100">
                             <Edit className="w-4 h-4" />
                           </Button>
-                          <Button size="sm" variant="ghost" onClick={() => {}} className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600">
+                          <Button size="sm" variant="ghost" onClick={() => handleDelete(response.id)} className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600">
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
@@ -323,7 +328,7 @@ export const CannedResponses = ({ onSelectResponse, isSelectionMode = false }: C
                       <Button 
                         size="sm" 
                         className="w-full bg-orange-500 hover:bg-orange-600 text-white"
-                        onClick={() => onSelectResponse && onSelectResponse(response)}
+                        onClick={() => handleSelect(response)}
                       >
                         Use This Response
                       </Button>
