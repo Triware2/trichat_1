@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -144,252 +145,298 @@ const SupervisorDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gray-50">
       <NavigationHeader 
         title="Supervisor Dashboard" 
         role="supervisor"
         userEmail="supervisor@trichat.com"
       />
       
-      <div className="w-full min-h-[calc(100vh-64px)] px-4 lg:px-8 py-6 lg:py-8">
-        <div className="w-full max-w-[1920px] mx-auto">
-          <div className="mb-8">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-2">
-              <div className="min-w-0 flex-1">
-                <h1 className="text-2xl lg:text-3xl font-lexend font-semibold text-slate-900 tracking-tight">
-                  Supervisor Control Hub
-                </h1>
-                <p className="text-base text-slate-600 mt-2 font-lexend font-normal leading-relaxed">
-                  Monitor team performance and optimize support operations
-                </p>
-              </div>
-              <div className="flex items-center gap-3 flex-shrink-0">
-                <Button variant="outline" size="default" className="font-lexend font-medium h-9 px-5 text-sm">
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  Refresh
-                </Button>
-                <Button size="default" className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 font-lexend font-medium h-9 px-5 text-sm shadow-lg">
-                  <Download className="w-4 h-4 mr-2" />
-                  Export Report
-                </Button>
-              </div>
+      <div className="p-6">
+        {/* Header */}
+        <div className="bg-white shadow-sm border-b border-gray-200 -mx-6 px-6 py-4 mb-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-semibold text-gray-900">
+                Supervisor Dashboard
+              </h1>
+              <p className="text-sm text-gray-600 mt-1">
+                Monitor team performance and optimize support operations
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Refresh
+              </Button>
+              <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+                <Download className="w-4 h-4 mr-2" />
+                Export Report
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          {/* Navigation Tabs */}
+          <div className="bg-white border-b border-gray-200">
+            <div className="-mb-px">
+              <TabsList className="h-auto p-0 bg-transparent w-full justify-start">
+                <div className="flex space-x-0">
+                  <TabsTrigger
+                    value="overview"
+                    onClick={() => setActiveTab('overview')}
+                    className={`
+                      flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all duration-200
+                      border-b-2 border-transparent whitespace-nowrap
+                      ${activeTab === 'overview' 
+                        ? 'text-blue-600 border-blue-600 bg-blue-50/50' 
+                        : 'text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                      }
+                    `}
+                  >
+                    <Activity className="w-4 h-4" />
+                    Overview
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="chats"
+                    onClick={() => setActiveTab('chats')}
+                    className={`
+                      flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all duration-200
+                      border-b-2 border-transparent whitespace-nowrap
+                      ${activeTab === 'chats' 
+                        ? 'text-blue-600 border-blue-600 bg-blue-50/50' 
+                        : 'text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                      }
+                    `}
+                  >
+                    <Eye className="w-4 h-4" />
+                    Chat Supervision
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="team"
+                    onClick={() => setActiveTab('team')}
+                    className={`
+                      flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all duration-200
+                      border-b-2 border-transparent whitespace-nowrap
+                      ${activeTab === 'team' 
+                        ? 'text-blue-600 border-blue-600 bg-blue-50/50' 
+                        : 'text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                      }
+                    `}
+                  >
+                    <Users className="w-4 h-4" />
+                    Team Monitor
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="queue"
+                    onClick={() => setActiveTab('queue')}
+                    className={`
+                      flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all duration-200
+                      border-b-2 border-transparent whitespace-nowrap
+                      ${activeTab === 'queue' 
+                        ? 'text-blue-600 border-blue-600 bg-blue-50/50' 
+                        : 'text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                      }
+                    `}
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    Queue Management
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="reports"
+                    onClick={() => setActiveTab('reports')}
+                    className={`
+                      flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all duration-200
+                      border-b-2 border-transparent whitespace-nowrap
+                      ${activeTab === 'reports' 
+                        ? 'text-blue-600 border-blue-600 bg-blue-50/50' 
+                        : 'text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                      }
+                    `}
+                  >
+                    <BarChart3 className="w-4 h-4" />
+                    Reports
+                  </TabsTrigger>
+                </div>
+              </TabsList>
             </div>
           </div>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-            <TabsList className="grid w-full grid-cols-5 bg-white border shadow-sm rounded-xl p-1 h-auto">
-              <TabsTrigger 
-                value="overview" 
-                className="flex items-center justify-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-md font-lexend font-medium text-sm py-2.5 px-3"
-              >
-                <Activity className="w-4 h-4" />
-                <span className="hidden sm:inline">Overview</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="chats" 
-                className="flex items-center justify-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-md font-lexend font-medium text-sm py-2.5 px-3"
-              >
-                <Eye className="w-4 h-4" />
-                <span className="hidden sm:inline">Chat Supervision</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="team" 
-                className="flex items-center justify-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-md font-lexend font-medium text-sm py-2.5 px-3"
-              >
-                <Users className="w-4 h-4" />
-                <span className="hidden sm:inline">Team Monitor</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="queue" 
-                className="flex items-center justify-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-md font-lexend font-medium text-sm py-2.5 px-3"
-              >
-                <MessageSquare className="w-4 h-4" />
-                <span className="hidden sm:inline">Queue Management</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="reports" 
-                className="flex items-center justify-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-md font-lexend font-medium text-sm py-2.5 px-3"
-              >
-                <BarChart3 className="w-4 h-4" />
-                <span className="hidden sm:inline">Reports</span>
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="overview" className="space-y-8">
-              {/* Team Stats */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {teamStats.map((stat, index) => (
-                  <Card key={index} className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-white">
-                    <CardContent className="p-5">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-r ${stat.color} flex items-center justify-center shadow-md`}>
-                          <stat.icon className="w-5 h-5 text-white" />
-                        </div>
-                        <Badge className={`${stat.bgColor} ${stat.textColor} border-0 font-lexend font-medium text-xs px-2 py-1`}>
-                          <TrendingUp className="w-3 h-3 mr-1" />
-                          {stat.change}
-                        </Badge>
+          <TabsContent value="overview" className="space-y-6">
+            {/* Team Stats */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {teamStats.map((stat, index) => (
+                <Card key={index} className="border border-gray-200 hover:shadow-md transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="p-2 bg-gray-50 rounded-lg">
+                        <stat.icon className="w-5 h-5 text-gray-600" />
                       </div>
-                      <div>
-                        <p className="text-xs font-lexend font-medium text-slate-600 mb-1 tracking-wide uppercase">{stat.title}</p>
-                        <p className="text-xl font-lexend font-bold text-slate-900 tracking-tight">{stat.value}</p>
-                        <p className="text-xs font-lexend text-slate-500 mt-1">from last hour</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                {/* Team Performance */}
-                <Card className="border-0 shadow-md bg-white">
-                  <CardHeader className="pb-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle className="flex items-center gap-3 text-lg font-lexend font-semibold text-slate-900">
-                          <UserCheck className="w-5 h-5 text-blue-600" />
-                          Agent Performance
-                        </CardTitle>
-                        <CardDescription className="mt-2 text-sm font-lexend text-slate-600">
-                          Real-time team member status and metrics
-                        </CardDescription>
-                      </div>
-                      <Button variant="outline" size="sm" className="font-lexend font-medium">
-                        <Filter className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {agentPerformance.map((agent, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors">
-                          <div className="flex items-center gap-3 flex-1 min-w-0">
-                            <div className={`w-2 h-2 rounded-full ${agent.statusColor} flex-shrink-0`}></div>
-                            <div className="flex items-center gap-2 min-w-0">
-                              <div className="w-8 h-8 bg-gradient-to-br from-slate-200 to-slate-300 rounded-full flex items-center justify-center text-slate-700 font-medium text-xs flex-shrink-0">
-                                {agent.name.split(' ').map(n => n[0]).join('')}
-                              </div>
-                              <div className="min-w-0">
-                                <p className="font-medium text-slate-900 text-sm truncate">{agent.name}</p>
-                                <p className="text-xs text-slate-600">{agent.status}</p>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2 flex-shrink-0">
-                            <div className="text-right hidden sm:block">
-                              <p className="text-xs font-medium text-slate-900">{agent.chats} chats</p>
-                              <p className="text-xs text-slate-500">{agent.avgResponse} avg</p>
-                            </div>
-                            <Badge className={`${getPerformanceBadge(agent.performance)} border text-xs`}>
-                              {agent.satisfaction}
-                            </Badge>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Alerts */}
-                <Card className="border-0 shadow-md bg-white">
-                  <CardHeader className="pb-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle className="flex items-center gap-3 text-lg font-lexend font-semibold text-slate-900">
-                          <AlertTriangle className="w-5 h-5 text-blue-600" />
-                          System Alerts
-                        </CardTitle>
-                        <CardDescription className="mt-2 text-sm font-lexend text-slate-600">
-                          Important notifications requiring attention
-                        </CardDescription>
-                      </div>
-                      <Badge className="bg-red-100 text-red-800 border-red-200 font-lexend font-medium text-xs px-2 py-1">
-                        {alerts.length} Active
+                      <Badge className={`${stat.bgColor} ${stat.textColor} border-0 text-xs px-2 py-1`}>
+                        <TrendingUp className="w-3 h-3 mr-1" />
+                        {stat.change}
                       </Badge>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {alerts.map((alert, index) => (
-                        <div key={index} className={`flex items-start gap-3 p-3 rounded-xl border-l-4 ${alert.color} transition-all hover:shadow-md`}>
-                          <AlertTriangle className={`w-4 h-4 ${alert.iconColor} mt-0.5 flex-shrink-0`} />
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between mb-1">
-                              <p className="font-medium text-slate-900 text-sm">{alert.type}</p>
-                              <Badge variant="outline" className="text-xs">
-                                {alert.severity}
-                              </Badge>
+                    <div>
+                      <p className="text-lg font-semibold text-gray-900 mb-1">{stat.value}</p>
+                      <p className="text-sm font-medium text-gray-900 mb-1">{stat.title}</p>
+                      <p className="text-xs text-gray-500">from last hour</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              {/* Team Performance */}
+              <Card className="border border-gray-200">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center gap-2 text-base font-semibold text-gray-900">
+                        <UserCheck className="w-4 h-4 text-blue-600" />
+                        Agent Performance
+                      </CardTitle>
+                      <CardDescription className="mt-1 text-sm text-gray-600">
+                        Real-time team member status and metrics
+                      </CardDescription>
+                    </div>
+                    <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
+                      <Filter className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {agentPerformance.map((agent, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className={`w-2 h-2 rounded-full ${agent.statusColor} flex-shrink-0`}></div>
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div className="w-7 h-7 bg-gray-200 rounded-full flex items-center justify-center text-gray-700 font-medium text-xs flex-shrink-0">
+                              {agent.name.split(' ').map(n => n[0]).join('')}
                             </div>
-                            <p className="text-xs text-slate-700 mb-2">{alert.message}</p>
-                            <p className="text-xs text-slate-500">{alert.time}</p>
+                            <div className="min-w-0">
+                              <p className="font-medium text-gray-900 text-sm truncate">{agent.name}</p>
+                              <p className="text-xs text-gray-600">{agent.status}</p>
+                            </div>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Performance Metrics */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="border-0 shadow-md bg-gradient-to-br from-emerald-500 to-teal-500 text-white">
-                  <CardContent className="p-5">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-emerald-100 text-xs font-lexend font-medium tracking-wide uppercase">Today's Target</p>
-                        <p className="text-2xl font-lexend font-bold tracking-tight">95%</p>
-                        <p className="text-emerald-100 text-xs font-lexend">Resolution Rate</p>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <div className="text-right hidden sm:block">
+                            <p className="text-xs font-medium text-gray-900">{agent.chats} chats</p>
+                            <p className="text-xs text-gray-500">{agent.avgResponse} avg</p>
+                          </div>
+                          <Badge className={`${getPerformanceBadge(agent.performance)} border text-xs`}>
+                            {agent.satisfaction}
+                          </Badge>
+                        </div>
                       </div>
-                      <Target className="w-7 h-7 text-emerald-100" />
-                    </div>
-                  </CardContent>
-                </Card>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
 
-                <Card className="border-0 shadow-md bg-gradient-to-br from-blue-500 to-cyan-500 text-white">
-                  <CardContent className="p-5">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-blue-100 text-xs font-lexend font-medium tracking-wide uppercase">Peak Performance</p>
-                        <p className="text-2xl font-lexend font-bold tracking-tight">98.2%</p>
-                        <p className="text-blue-100 text-xs font-lexend">This Week</p>
+              {/* Alerts */}
+              <Card className="border border-gray-200">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center gap-2 text-base font-semibold text-gray-900">
+                        <AlertTriangle className="w-4 h-4 text-blue-600" />
+                        System Alerts
+                      </CardTitle>
+                      <CardDescription className="mt-1 text-sm text-gray-600">
+                        Important notifications requiring attention
+                      </CardDescription>
+                    </div>
+                    <Badge className="bg-red-100 text-red-800 border-red-200 text-xs px-2 py-1">
+                      {alerts.length} Active
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {alerts.map((alert, index) => (
+                      <div key={index} className={`flex items-start gap-3 p-3 rounded-lg border-l-4 ${alert.color} transition-all hover:shadow-sm`}>
+                        <AlertTriangle className={`w-4 h-4 ${alert.iconColor} mt-0.5 flex-shrink-0`} />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-1">
+                            <p className="font-medium text-gray-900 text-sm">{alert.type}</p>
+                            <Badge variant="outline" className="text-xs">
+                              {alert.severity}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-gray-700 mb-1">{alert.message}</p>
+                          <p className="text-xs text-gray-500">{alert.time}</p>
+                        </div>
                       </div>
-                      <Zap className="w-7 h-7 text-blue-100" />
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Performance Metrics */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card className="border border-emerald-200 bg-emerald-50">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-emerald-800 text-xs font-medium tracking-wide uppercase">Today's Target</p>
+                      <p className="text-xl font-semibold text-emerald-900 tracking-tight">95%</p>
+                      <p className="text-emerald-700 text-xs">Resolution Rate</p>
                     </div>
-                  </CardContent>
-                </Card>
+                    <Target className="w-6 h-6 text-emerald-600" />
+                  </div>
+                </CardContent>
+              </Card>
 
-                <Card className="border-0 shadow-md bg-gradient-to-br from-purple-500 to-pink-500 text-white">
-                  <CardContent className="p-5">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-purple-100 text-xs font-lexend font-medium tracking-wide uppercase">Team Efficiency</p>
-                        <p className="text-2xl font-lexend font-bold tracking-tight">89%</p>
-                        <p className="text-purple-100 text-xs font-lexend">Above Baseline</p>
-                      </div>
-                      <TrendingUp className="w-7 h-7 text-purple-100" />
+              <Card className="border border-blue-200 bg-blue-50">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-blue-800 text-xs font-medium tracking-wide uppercase">Peak Performance</p>
+                      <p className="text-xl font-semibold text-blue-900 tracking-tight">98.2%</p>
+                      <p className="text-blue-700 text-xs">This Week</p>
                     </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
+                    <Zap className="w-6 h-6 text-blue-600" />
+                  </div>
+                </CardContent>
+              </Card>
 
-            <TabsContent value="chats">
-              <ChatSupervision />
-            </TabsContent>
+              <Card className="border border-purple-200 bg-purple-50">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-purple-800 text-xs font-medium tracking-wide uppercase">Team Efficiency</p>
+                      <p className="text-xl font-semibold text-purple-900 tracking-tight">89%</p>
+                      <p className="text-purple-700 text-xs">Above Baseline</p>
+                    </div>
+                    <TrendingUp className="w-6 h-6 text-purple-600" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
 
-            <TabsContent value="team">
-              <TeamMonitor />
-            </TabsContent>
+          <TabsContent value="chats">
+            <ChatSupervision />
+          </TabsContent>
 
-            <TabsContent value="queue">
-              <QueueManagement />
-            </TabsContent>
+          <TabsContent value="team">
+            <TeamMonitor />
+          </TabsContent>
 
-            <TabsContent value="reports">
-              <Reports />
-            </TabsContent>
-          </Tabs>
-        </div>
+          <TabsContent value="queue">
+            <QueueManagement />
+          </TabsContent>
+
+          <TabsContent value="reports">
+            <Reports />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

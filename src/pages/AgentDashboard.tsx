@@ -16,10 +16,10 @@ const AgentDashboard = () => {
   const [selectedChat, setSelectedChat] = useState(1);
 
   const [stats, setStats] = useState([
-    { title: 'Open Tickets', value: '24', icon: MessageSquare, color: 'bg-gradient-to-br from-blue-500 to-blue-600' },
-    { title: 'Active Users', value: '150', icon: Users, color: 'bg-gradient-to-br from-emerald-500 to-emerald-600' },
-    { title: 'Avg. Wait Time', value: '3 mins', icon: Clock, color: 'bg-gradient-to-br from-amber-500 to-amber-600' },
-    { title: 'Resolution Rate', value: '95%', icon: CheckCircle, color: 'bg-gradient-to-br from-violet-500 to-violet-600' },
+    { title: 'Open Tickets', value: '24', icon: MessageSquare, color: 'bg-blue-50 text-blue-600 border-blue-200' },
+    { title: 'Active Users', value: '150', icon: Users, color: 'bg-emerald-50 text-emerald-600 border-emerald-200' },
+    { title: 'Avg. Wait Time', value: '3 mins', icon: Clock, color: 'bg-amber-50 text-amber-600 border-amber-200' },
+    { title: 'Resolution Rate', value: '95%', icon: CheckCircle, color: 'bg-violet-50 text-violet-600 border-violet-200' },
   ]);
 
   const [chats, setChats] = useState([
@@ -81,7 +81,7 @@ const AgentDashboard = () => {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="h-screen bg-gray-50">
       <NavigationHeader 
         title="Agent Dashboard" 
         role="agent"
