@@ -4,6 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
 import { 
   MessageSquare, 
   Clock,
@@ -12,7 +14,9 @@ import {
   History,
   CheckCircle,
   AlertCircle,
-  Phone
+  Phone,
+  Search,
+  Filter
 } from 'lucide-react';
 import { NavigationHeader } from '@/components/NavigationHeader';
 import { ChatInterface } from '@/components/agent/ChatInterface';
@@ -21,6 +25,8 @@ import { CustomerInfo } from '@/components/agent/CustomerInfo';
 const AgentDashboard = () => {
   const [activeTab, setActiveTab] = useState('chats');
   const [selectedChat, setSelectedChat] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
+  const { toast } = useToast();
 
   const activeChats = [
     {
@@ -125,11 +131,53 @@ const AgentDashboard = () => {
 
   const handleSendMessage = (message: string) => {
     console.log('Sending message:', message);
-    // Implementation would send the message to the backend
+    toast({
+      title: "Message sent",
+      description: "Your message has been delivered to the customer.",
+    });
   };
 
   const handleChatSelect = (chatId: number) => {
     setSelectedChat(chatId);
+    toast({
+      title: "Chat selected",
+      description: `Switched to conversation with ${activeChats.find(c => c.id === chatId)?.customer}`,
+    });
+  };
+
+  const handleSearchChats = () => {
+    toast({
+      title: "Searching chats",
+      description: `Searching for: "${searchTerm}"`,
+    });
+  };
+
+  const handleFilterChats = () => {
+    toast({
+      title: "Filter applied",
+      description: "Chat filters have been applied.",
+    });
+  };
+
+  const handleViewHistory = () => {
+    toast({
+      title: "Opening history",
+      description: "Loading detailed chat history...",
+    });
+  };
+
+  const handleStatClick = (statTitle: string) => {
+    toast({
+      title: "Stat details",
+      description: `Viewing details for: ${statTitle}`,
+    });
+  };
+
+  const handleQueueAction = (customer: string) => {
+    toast({
+      title: "Queue action",
+      description: `Opening conversation with ${customer}`,
+    });
   };
 
   const selectedChatData = activeChats.find(chat => chat.id === selectedChat);
@@ -151,6 +199,11 @@ const AgentDashboard = () => {
     } as const;
     return <Badge variant={variants[status as keyof typeof variants]}>{status}</Badge>;
   };
+
+  const filteredChats = activeChats.filter(chat =>
+    chat.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    chat.lastMessage.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -185,12 +238,26 @@ const AgentDashboard = () => {
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                       <span>Active Chats</span>
-                      <Badge variant="outline">{activeChats.length}</Badge>
+                      <Badge variant="outline">{filteredChats.length}</Badge>
                     </CardTitle>
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        <Input
+                          placeholder="Search chats..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className="pl-10"
+                        />
+                      </div>
+                      <Button variant="outline" size="sm" onClick={handleFilterChats}>
+                        <Filter className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </CardHeader>
                   <CardContent className="p-0">
                     <div className="space-y-1">
-                      {activeChats.map((chat) => (
+                      {filteredChats.map((chat) => (
                         <div 
                           key={chat.id} 
                           className={`p-4 hover:bg-gray-50 cursor-pointer border-b transition-colors ${
@@ -250,7 +317,7 @@ const AgentDashboard = () => {
             {/* Today's Stats */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {todayStats.map((stat, index) => (
-                <Card key={index} className="hover:shadow-lg transition-shadow">
+                <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => handleStatClick(stat.title)}>
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
@@ -283,7 +350,7 @@ const AgentDashboard = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           {getPriorityBadge(chat.priority)}
-                          <Button size="sm" variant="outline">
+                          <Button size="sm" variant="outline" onClick={() => handleQueueAction(chat.customer)}>
                             <MessageSquare className="w-4 h-4" />
                           </Button>
                         </div>
@@ -330,17 +397,17 @@ const AgentDashboard = () => {
               <CardContent>
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="p-4 border rounded-lg">
+                    <div className="p-4 border rounded-lg cursor-pointer hover:bg-gray-50" onClick={() => handleStatClick("Today")}>
                       <h4 className="font-medium mb-2">Today</h4>
                       <p className="text-2xl font-bold text-blue-600">12</p>
                       <p className="text-sm text-gray-600">Conversations</p>
                     </div>
-                    <div className="p-4 border rounded-lg">
+                    <div className="p-4 border rounded-lg cursor-pointer hover:bg-gray-50" onClick={() => handleStatClick("This Week")}>
                       <h4 className="font-medium mb-2">This Week</h4>
                       <p className="text-2xl font-bold text-green-600">58</p>
                       <p className="text-sm text-gray-600">Conversations</p>
                     </div>
-                    <div className="p-4 border rounded-lg">
+                    <div className="p-4 border rounded-lg cursor-pointer hover:bg-gray-50" onClick={() => handleStatClick("This Month")}>
                       <h4 className="font-medium mb-2">This Month</h4>
                       <p className="text-2xl font-bold text-purple-600">247</p>
                       <p className="text-sm text-gray-600">Conversations</p>
@@ -350,7 +417,7 @@ const AgentDashboard = () => {
                   <div className="text-center py-8">
                     <History className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                     <p className="text-gray-500">Detailed chat history interface would appear here</p>
-                    <Button variant="outline" className="mt-4">
+                    <Button variant="outline" className="mt-4" onClick={handleViewHistory}>
                       View Full History
                     </Button>
                   </div>

@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
 import { 
   User, 
   History, 
@@ -38,6 +39,8 @@ interface CustomerInfoProps {
 
 export const CustomerInfo = ({ customer }: CustomerInfoProps) => {
   const [activeTab, setActiveTab] = useState('profile');
+  const [newNote, setNewNote] = useState('');
+  const { toast } = useToast();
 
   const orderHistory = [
     {
@@ -87,7 +90,7 @@ export const CustomerInfo = ({ customer }: CustomerInfoProps) => {
     }
   ];
 
-  const notes = [
+  const [notes, setNotes] = useState([
     {
       date: "2024-01-10",
       agent: "Sarah Johnson",
@@ -98,7 +101,7 @@ export const CustomerInfo = ({ customer }: CustomerInfoProps) => {
       agent: "Mike Chen",
       note: "Resolved login issue. Updated security settings as requested."
     }
-  ];
+  ]);
 
   const getTierBadge = (tier: string) => {
     const variants = {
@@ -115,6 +118,43 @@ export const CustomerInfo = ({ customer }: CustomerInfoProps) => {
         {status}
       </Badge>
     );
+  };
+
+  const handleViewProfile = () => {
+    toast({
+      title: "Opening full profile",
+      description: `Loading detailed profile for ${customer.name}...`,
+    });
+  };
+
+  const handleViewBilling = () => {
+    toast({
+      title: "Opening billing details",
+      description: "Loading billing information...",
+    });
+  };
+
+  const handleViewOrders = () => {
+    toast({
+      title: "Opening order history",
+      description: "Loading complete order history...",
+    });
+  };
+
+  const handleAddNote = () => {
+    if (newNote.trim()) {
+      const note = {
+        date: new Date().toLocaleDateString(),
+        agent: "Current Agent",
+        note: newNote.trim()
+      };
+      setNotes([note, ...notes]);
+      setNewNote('');
+      toast({
+        title: "Note added",
+        description: "Customer note has been saved successfully.",
+      });
+    }
   };
 
   return (
@@ -195,15 +235,15 @@ export const CustomerInfo = ({ customer }: CustomerInfoProps) => {
             <div className="border-t pt-4 space-y-2">
               <h5 className="font-medium text-gray-900">Quick Actions</h5>
               <div className="flex flex-col gap-2">
-                <Button variant="outline" size="sm" className="justify-start">
+                <Button variant="outline" size="sm" className="justify-start" onClick={handleViewProfile}>
                   <ExternalLink className="w-4 h-4 mr-2" />
                   View Full Profile
                 </Button>
-                <Button variant="outline" size="sm" className="justify-start">
+                <Button variant="outline" size="sm" className="justify-start" onClick={handleViewBilling}>
                   <CreditCard className="w-4 h-4 mr-2" />
                   Billing Details
                 </Button>
-                <Button variant="outline" size="sm" className="justify-start">
+                <Button variant="outline" size="sm" className="justify-start" onClick={handleViewOrders}>
                   <ShoppingCart className="w-4 h-4 mr-2" />
                   Order History
                 </Button>
@@ -257,7 +297,9 @@ export const CustomerInfo = ({ customer }: CustomerInfoProps) => {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h5 className="font-medium text-gray-900">Agent Notes</h5>
-                <Button size="sm" variant="outline">Add Note</Button>
+                <Button size="sm" variant="outline" onClick={handleAddNote} disabled={!newNote.trim()}>
+                  Add Note
+                </Button>
               </div>
               
               <div className="space-y-3">
@@ -277,9 +319,13 @@ export const CustomerInfo = ({ customer }: CustomerInfoProps) => {
                   placeholder="Add a note about this customer..."
                   className="w-full p-2 border rounded-lg text-sm resize-none"
                   rows={3}
+                  value={newNote}
+                  onChange={(e) => setNewNote(e.target.value)}
                 />
                 <div className="flex justify-end mt-2">
-                  <Button size="sm">Save Note</Button>
+                  <Button size="sm" onClick={handleAddNote} disabled={!newNote.trim()}>
+                    Save Note
+                  </Button>
                 </div>
               </div>
             </div>

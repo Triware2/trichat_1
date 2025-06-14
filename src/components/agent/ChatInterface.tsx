@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Send,
   Paperclip,
@@ -34,6 +35,7 @@ export const ChatInterface = ({ customerName, customerStatus, onSendMessage }: C
   const [message, setMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -105,6 +107,11 @@ export const ChatInterface = ({ customerName, customerStatus, onSendMessage }: C
       setMessages([...messages, newMessage]);
       onSendMessage(message.trim());
       setMessage('');
+      
+      toast({
+        title: "Message sent",
+        description: "Your message has been delivered to the customer.",
+      });
 
       // Simulate customer typing response
       setTimeout(() => {
@@ -133,10 +140,13 @@ export const ChatInterface = ({ customerName, customerStatus, onSendMessage }: C
 
   const handleQuickResponse = (response: string) => {
     setMessage(response);
+    toast({
+      title: "Quick response selected",
+      description: "Message has been added to your input field.",
+    });
   };
 
   const handleFileUpload = () => {
-    // Simulate file upload
     const fileMessage: Message = {
       id: messages.length + 1,
       sender: 'agent',
@@ -146,6 +156,54 @@ export const ChatInterface = ({ customerName, customerStatus, onSendMessage }: C
       fileName: 'troubleshooting_guide.pdf'
     };
     setMessages([...messages, fileMessage]);
+    toast({
+      title: "File uploaded",
+      description: "Document has been shared with the customer.",
+    });
+  };
+
+  const handleImageUpload = () => {
+    const imageMessage: Message = {
+      id: messages.length + 1,
+      sender: 'agent',
+      message: "Image shared: product_screenshot.png",
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      type: 'image',
+      fileName: 'product_screenshot.png'
+    };
+    setMessages([...messages, imageMessage]);
+    toast({
+      title: "Image uploaded",
+      description: "Screenshot has been shared with the customer.",
+    });
+  };
+
+  const handleVoiceCall = () => {
+    toast({
+      title: "Voice call initiated",
+      description: `Starting voice call with ${customerName}...`,
+    });
+  };
+
+  const handleVideoCall = () => {
+    toast({
+      title: "Video call initiated",
+      description: `Starting video call with ${customerName}...`,
+    });
+  };
+
+  const handleMoreOptions = () => {
+    toast({
+      title: "More options",
+      description: "Additional options menu opened.",
+    });
+  };
+
+  const handleEmojiPicker = () => {
+    toast({
+      title: "Emoji picker",
+      description: "Emoji picker opened.",
+    });
   };
 
   return (
@@ -165,13 +223,13 @@ export const ChatInterface = ({ customerName, customerStatus, onSendMessage }: C
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" title="Voice Call">
+            <Button variant="ghost" size="sm" title="Voice Call" onClick={handleVoiceCall}>
               <Phone className="w-4 h-4" />
             </Button>
-            <Button variant="ghost" size="sm" title="Video Call">
+            <Button variant="ghost" size="sm" title="Video Call" onClick={handleVideoCall}>
               <Video className="w-4 h-4" />
             </Button>
-            <Button variant="ghost" size="sm" title="More Options">
+            <Button variant="ghost" size="sm" title="More Options" onClick={handleMoreOptions}>
               <MoreHorizontal className="w-4 h-4" />
             </Button>
           </div>
@@ -191,6 +249,11 @@ export const ChatInterface = ({ customerName, customerStatus, onSendMessage }: C
                 {msg.type === 'file' ? (
                   <div className="flex items-center gap-2">
                     <File className="w-4 h-4" />
+                    <span className="text-sm">{msg.fileName}</span>
+                  </div>
+                ) : msg.type === 'image' ? (
+                  <div className="flex items-center gap-2">
+                    <Image className="w-4 h-4" />
                     <span className="text-sm">{msg.fileName}</span>
                   </div>
                 ) : (
@@ -243,7 +306,7 @@ export const ChatInterface = ({ customerName, customerStatus, onSendMessage }: C
             <Button variant="ghost" size="sm" onClick={handleFileUpload} title="Attach File">
               <Paperclip className="w-4 h-4" />
             </Button>
-            <Button variant="ghost" size="sm" title="Add Image">
+            <Button variant="ghost" size="sm" title="Add Image" onClick={handleImageUpload}>
               <Image className="w-4 h-4" />
             </Button>
             <Input 
@@ -253,7 +316,7 @@ export const ChatInterface = ({ customerName, customerStatus, onSendMessage }: C
               onKeyPress={handleKeyPress}
               className="flex-1"
             />
-            <Button variant="ghost" size="sm" title="Add Emoji">
+            <Button variant="ghost" size="sm" title="Add Emoji" onClick={handleEmojiPicker}>
               <Smile className="w-4 h-4" />
             </Button>
             <Button 
