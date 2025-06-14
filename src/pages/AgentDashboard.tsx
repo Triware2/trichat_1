@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ChatInterface } from '@/components/agent/ChatInterface';
@@ -33,6 +34,24 @@ const AgentDashboard = () => {
     { customer: 'Emily Brown', action: 'Reported a problem', time: '11:15 AM', type: 'error' },
   ]);
 
+  // Customer data for the selected chat
+  const getSelectedCustomer = () => {
+    const selectedChatData = chats.find(chat => chat.id === selectedChat);
+    return {
+      name: selectedChatData?.customer || 'John Smith',
+      email: 'john.smith@email.com',
+      phone: '+1 (555) 123-4567',
+      location: 'New York, USA',
+      customerSince: '2023-01-15',
+      tier: 'Premium',
+      previousChats: 12,
+      satisfaction: 4.8,
+      lastContact: '2024-01-10',
+      totalOrders: 8,
+      totalSpent: '$2,450.00'
+    };
+  };
+
   const handleStatClick = (statTitle: string) => {
     alert(`Clicked on stat: ${statTitle}`);
   };
@@ -51,31 +70,31 @@ const AgentDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <div className="flex-1 p-4 lg:p-6">
-        <div className="mb-6">
-          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Agent Dashboard</h1>
-          <p className="text-gray-600">Manage customer conversations and support requests</p>
+      <div className="flex-1 flex flex-col p-2 lg:p-6 max-h-screen overflow-hidden">
+        <div className="mb-4 lg:mb-6 flex-shrink-0">
+          <h1 className="text-xl lg:text-3xl font-bold text-gray-900">Agent Dashboard</h1>
+          <p className="text-sm lg:text-base text-gray-600">Manage customer conversations and support requests</p>
         </div>
 
-        <Tabs defaultValue="dashboard" className="h-full">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
-            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="chat">Chat</TabsTrigger>
-            <TabsTrigger value="responses">Canned Responses</TabsTrigger>
-            <TabsTrigger value="customer">Customer Info</TabsTrigger>
+        <Tabs defaultValue="dashboard" className="flex-1 flex flex-col min-h-0">
+          <TabsList className="grid w-full grid-cols-4 mb-4 lg:mb-6 flex-shrink-0">
+            <TabsTrigger value="dashboard" className="text-xs lg:text-sm">Dashboard</TabsTrigger>
+            <TabsTrigger value="chat" className="text-xs lg:text-sm">Chat</TabsTrigger>
+            <TabsTrigger value="responses" className="text-xs lg:text-sm">Canned Responses</TabsTrigger>
+            <TabsTrigger value="customer" className="text-xs lg:text-sm">Customer Info</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="dashboard" className="space-y-6">
+          <TabsContent value="dashboard" className="flex-1 space-y-4 lg:space-y-6 overflow-y-auto">
             <DashboardStats stats={stats} onStatClick={handleStatClick} />
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6">
               <QueueStatus chats={chats} onQueueAction={handleQueueAction} />
               <RecentActivity activities={activities} />
             </div>
           </TabsContent>
 
-          <TabsContent value="chat" className="h-full">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
-              <div className="lg:col-span-1">
+          <TabsContent value="chat" className="flex-1 min-h-0">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 h-full">
+              <div className="lg:col-span-1 min-h-0">
                 <ChatList 
                   chats={chats}
                   selectedChat={selectedChat}
@@ -83,7 +102,7 @@ const AgentDashboard = () => {
                   onFilter={handleFilter}
                 />
               </div>
-              <div className="lg:col-span-2">
+              <div className="lg:col-span-2 min-h-0">
                 <ChatInterface
                   customerName="John Smith"
                   customerStatus="Online"
@@ -93,12 +112,12 @@ const AgentDashboard = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="responses" className="h-full">
+          <TabsContent value="responses" className="flex-1 min-h-0">
             <CannedResponses onSelectResponse={() => {}} isSelectionMode={false} />
           </TabsContent>
 
-          <TabsContent value="customer" className="h-full">
-            <CustomerInfo customerId={selectedChat} />
+          <TabsContent value="customer" className="flex-1 min-h-0">
+            <CustomerInfo customer={getSelectedCustomer()} />
           </TabsContent>
         </Tabs>
       </div>
