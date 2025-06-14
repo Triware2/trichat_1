@@ -18,7 +18,7 @@ import {
 import { CannedResponses } from './CannedResponses';
 import { MessageList } from './MessageList';
 import { QuickResponses } from './QuickResponses';
-import { PrivateNotes, usePrivateNotes } from './PrivateNotes';
+import { usePrivateNotes } from './PrivateNotes';
 import { PrivateNoteInput } from './PrivateNoteInput';
 
 interface Message {
@@ -50,7 +50,13 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
   const [isTyping, setIsTyping] = useState(false);
   const [showCannedResponses, setShowCannedResponses] = useState(false);
   const { toast } = useToast();
-  const { addNote } = usePrivateNotes(selectedChatId);
+  
+  // Use private notes hook with current user context
+  const { notes: privateNotes, addNote, handleDeleteNote, canDeleteNote } = usePrivateNotes(
+    selectedChatId, 
+    'agent', // This would come from user context in a real app
+    'Current Agent'
+  );
 
   // Different message sets for different customers
   const getMessagesForChat = (chatId: number): Message[] => {
@@ -313,12 +319,15 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
         </div>
       </div>
       
-      {/* Private Notes - Always Visible */}
-      <PrivateNotes chatId={selectedChatId} />
-      
-      {/* Messages */}
+      {/* Messages with Private Notes */}
       <div className="flex-1 flex flex-col min-h-0">
-        <MessageList messages={messages} isTyping={isTyping} />
+        <MessageList 
+          messages={messages} 
+          privateNotes={privateNotes}
+          isTyping={isTyping}
+          onDeleteNote={handleDeleteNote}
+          canDeleteNote={canDeleteNote}
+        />
 
         <QuickResponses responses={quickResponses} onResponseSelect={handleQuickResponse} />
 
