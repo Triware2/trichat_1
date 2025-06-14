@@ -1,8 +1,7 @@
 
 import { useRef, useEffect } from 'react';
-import { File, Image, Video, Clock, Check, CheckCheck, StickyNote, X, Paperclip, Bot, User, AlertTriangle } from 'lucide-react';
+import { File, Image, Video, Clock, Check, CheckCheck, StickyNote, X, Paperclip, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { ChatMessage } from '@/components/admin/chatbot/types';
 
 interface PrivateNote {
@@ -42,14 +41,8 @@ export const MessageList = ({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, privateNotes]);
 
-  // Combine bot conversation history, current messages and notes, sort by time
+  // Combine current messages and notes, sort by time
   const allItems = [
-    // Add bot conversation history with a special flag
-    ...botConversationHistory.map(msg => ({ 
-      ...msg, 
-      itemType: 'bot-history' as const,
-      originalSender: msg.sender
-    })),
     // Add current messages
     ...messages.map(msg => ({ ...msg, itemType: 'message' as const })),
     // Add private notes
@@ -66,68 +59,6 @@ export const MessageList = ({
   });
 
   const renderMessage = (item: any) => {
-    // Handle bot conversation history
-    if (item.itemType === 'bot-history') {
-      return (
-        <div key={`bot-history-${item.id}`} className="relative">
-          {/* First message in bot history gets a header */}
-          {botConversationHistory[0]?.id === item.id && (
-            <div className="flex justify-center mb-4">
-              <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-2 text-center">
-                <div className="flex items-center gap-2 text-blue-700">
-                  <Bot className="w-4 h-4" />
-                  <span className="text-sm font-medium">Previous Bot Conversation</span>
-                </div>
-                <p className="text-xs text-blue-600 mt-1">
-                  Customer was escalated from bot to agent
-                </p>
-              </div>
-            </div>
-          )}
-          
-          <div className={`flex ${item.originalSender === 'customer' ? 'justify-end' : 'justify-start'} opacity-75`}>
-            <div className={`max-w-xs lg:max-w-md flex gap-2 ${item.originalSender === 'customer' ? 'flex-row-reverse' : 'flex-row'}`}>
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
-                item.originalSender === 'customer' 
-                  ? 'bg-blue-400 text-white' 
-                  : 'bg-gray-300 text-gray-600'
-              }`}>
-                {item.originalSender === 'customer' ? <User className="w-3 h-3" /> : <Bot className="w-3 h-3" />}
-              </div>
-              
-              <div className={`px-3 py-2 rounded-xl text-sm ${
-                item.originalSender === 'customer'
-                  ? 'bg-blue-100 text-blue-900 border border-blue-200'
-                  : item.type === 'escalation'
-                  ? 'bg-orange-50 text-orange-800 border border-orange-200'
-                  : 'bg-gray-50 text-gray-800 border border-gray-200'
-              }`}>
-                <p>{item.message}</p>
-                
-                {item.type === 'escalation' && (
-                  <div className="flex items-center gap-1 mt-1 text-xs">
-                    <AlertTriangle className="w-3 h-3" />
-                    <span>Escalated to agent</span>
-                  </div>
-                )}
-                
-                {item.confidence !== undefined && item.confidence < 0.7 && item.originalSender === 'bot' && (
-                  <div className="flex items-center gap-1 mt-1 text-xs text-orange-600">
-                    <AlertTriangle className="w-3 h-3" />
-                    <span>Low confidence: {Math.round(item.confidence * 100)}%</span>
-                  </div>
-                )}
-              </div>
-            </div>
-            
-            <div className={`text-xs text-gray-400 mt-1 ${item.originalSender === 'customer' ? 'text-right' : 'text-left'}`}>
-              {item.time}
-            </div>
-          </div>
-        </div>
-      );
-    }
-
     // Handle private notes
     if (item.itemType === 'private-note') {
       return (
@@ -185,9 +116,9 @@ export const MessageList = ({
           {msg.sender === 'customer' && (
             <div className="flex items-center mb-2">
               <div className="w-6 h-6 bg-gradient-to-br from-slate-400 to-slate-600 rounded-full flex items-center justify-center text-white text-xs font-medium">
-                JS
+                <User className="w-3 h-3" />
               </div>
-              <span className="ml-2 text-xs text-slate-600">John Smith</span>
+              <span className="ml-2 text-xs text-slate-600">Customer</span>
             </div>
           )}
           
@@ -235,16 +166,6 @@ export const MessageList = ({
 
   return (
     <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50">
-      {/* Show escalation notice if bot conversation history exists */}
-      {botConversationHistory.length > 0 && (
-        <div className="flex justify-center">
-          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300">
-            <Bot className="w-3 h-3 mr-1" />
-            Chat escalated from bot to agent
-          </Badge>
-        </div>
-      )}
-
       {allItems.map(renderMessage)}
       
       {isTyping && (

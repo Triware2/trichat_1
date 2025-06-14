@@ -4,6 +4,7 @@ import { MessageList } from './MessageList';
 import { QuickResponses } from './QuickResponses';
 import { ChatHeader } from './ChatHeader';
 import { FloatingInputSection } from './chat/FloatingInputSection';
+import { BotConversationSection } from './BotConversationSection';
 import { usePrivateNotes } from './PrivateNotes';
 import { useChatData } from './hooks/useChatData';
 import { useMessageHandling } from './hooks/useMessageHandling';
@@ -76,13 +77,20 @@ export const ChatInterface = ({
       <div className="flex-1 relative overflow-hidden">
         {/* Messages container with its own scroll and padding for floating input */}
         <div className="absolute inset-0 overflow-y-auto pb-48">
+          {/* Bot Conversation Section - Only show if there's bot history */}
+          {botConversationHistory.length > 0 && (
+            <div className="p-4 border-b border-blue-200 bg-blue-50/30">
+              <BotConversationSection botConversationHistory={botConversationHistory} />
+            </div>
+          )}
+          
           <MessageList 
             messages={messages} 
             privateNotes={privateNotes}
             isTyping={isTyping}
             onDeleteNote={handleDeleteNote}
             canDeleteNote={canDeleteNote}
-            botConversationHistory={botConversationHistory}
+            botConversationHistory={[]} // Don't pass bot history to MessageList anymore since we have separate section
           />
         </div>
 
