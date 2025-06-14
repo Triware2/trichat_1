@@ -253,9 +253,9 @@ export const ContactsContent = () => {
         </Card>
 
         <AddContactModal
-          isOpen={showAddModal}
-          onClose={() => setShowAddModal(false)}
-          onAdd={handleAddContact}
+          open={showAddModal}
+          onOpenChange={setShowAddModal}
+          onContactAdded={handleAddContact}
         />
       </div>
     </div>

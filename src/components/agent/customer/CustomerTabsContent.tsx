@@ -7,109 +7,21 @@ import { InteractionsTab } from './InteractionsTab';
 import { IssuesTab } from './IssuesTab';
 import { ProfileTab } from './ProfileTab';
 import { NotesTab } from './NotesTab';
+import { useCustomerData } from './CustomerDataProvider';
 
-interface CustomerData {
-  name: string;
-  email: string;
-  phone: string;
-  location: string;
-  customerSince: string;
-  tier: string;
-  previousChats: number;
-  satisfaction: number;
-  lastContact: string;
-  totalOrders: number;
-  totalSpent: string;
-}
-
-interface CustomerInsights {
-  healthScore: number;
-  riskLevel: string;
-  sentimentTrend: string;
-  responseTime: string;
-  resolutionRate: string;
-  escalationRate: string;
-  preferredChannel: string;
-  timezone: string;
-  lastLoginDate: string;
-  accountStatus: string;
-  paymentStatus: string;
-  contractExpiry: string;
-}
-
-interface InteractionTimeline {
-  date: string;
-  type: 'chat' | 'email' | 'phone';
-  subject: string;
-  agent: string;
-  duration: string;
-  sentiment: 'positive' | 'neutral' | 'negative';
-  resolution: string;
-  satisfaction: number;
-}
-
-interface IssueCategory {
-  category: string;
-  count: number;
-  trend: 'up' | 'down' | 'stable';
-  lastIssue: string;
-}
-
-interface ProductUsage {
-  product: string;
-  usage: string;
-  status: string;
-  lastUsed: string;
-}
-
-interface CommunicationPreferences {
-  preferredChannel: string;
-  preferredTime: string;
-  language: string;
-  notifications: string;
-  frequency: string;
-}
-
-interface OrderHistory {
-  id: string;
-  date: string;
-  amount: string;
-  status: string;
-  items: string;
-  satisfaction: number;
-}
-
-interface Note {
-  date: string;
-  agent: string;
-  note: string;
-  type: string;
-}
-
-interface CustomerTabsContentProps {
-  customer: CustomerData;
-  customerInsights: CustomerInsights;
-  interactionTimeline: InteractionTimeline[];
-  issueCategories: IssueCategory[];
-  productUsage: ProductUsage[];
-  communicationPreferences: CommunicationPreferences;
-  orderHistory: OrderHistory[];
-  notes: Note[];
-  onAddNote: (note: any) => void;
-}
-
-export const CustomerTabsContent = ({
-  customer,
-  customerInsights,
-  interactionTimeline,
-  issueCategories,
-  productUsage,
-  communicationPreferences,
-  orderHistory,
-  notes,
-  onAddNote
-}: CustomerTabsContentProps) => {
+export const CustomerTabsContent = () => {
   const [activeTab, setActiveTab] = useState('overview');
+  const {
+    customer,
+    customerInsights,
+    interactionTimeline,
+    issueCategories,
+    productUsage,
+    communicationPreferences,
+    orderHistory,
+    notes,
+    onAddNote
+  } = useCustomerData();
 
   return (
     <div className="p-6">

@@ -1,5 +1,145 @@
 
-import { CustomerInsights, InteractionTimeline, IssueCategory, ProductUsage, CommunicationPreferences, OrderHistory, Note } from './CustomerDataTypes';
+import React, { createContext, useContext, ReactNode } from 'react';
+import { 
+  CustomerData, 
+  CustomerInsights, 
+  InteractionTimeline, 
+  IssueCategory, 
+  ProductUsage, 
+  CommunicationPreferences, 
+  OrderHistory, 
+  Note 
+} from './CustomerDataTypes';
+
+interface CustomerDataContextType {
+  customer: CustomerData;
+  customerInsights: CustomerInsights;
+  interactionTimeline: InteractionTimeline[];
+  issueCategories: IssueCategory[];
+  productUsage: ProductUsage[];
+  communicationPreferences: CommunicationPreferences;
+  orderHistory: OrderHistory[];
+  notes: Note[];
+  onAddNote: (note: any) => void;
+}
+
+const CustomerDataContext = createContext<CustomerDataContextType | undefined>(undefined);
+
+interface CustomerDataProviderProps {
+  children: ReactNode;
+  customerName: string;
+}
+
+export const CustomerDataProvider = ({ children, customerName }: CustomerDataProviderProps) => {
+  // Mock data - in a real app this would come from an API
+  const customer: CustomerData = {
+    name: customerName,
+    email: 'customer@example.com',
+    phone: '+1 (555) 123-4567',
+    location: 'New York, USA',
+    customerSince: '2023-01-15',
+    tier: 'Premium',
+    previousChats: 12,
+    satisfaction: 4.8,
+    lastContact: '2024-01-10',
+    totalOrders: 8,
+    totalSpent: '$2,450.00'
+  };
+
+  const customerInsights: CustomerInsights = {
+    healthScore: 85,
+    riskLevel: 'Low',
+    sentimentTrend: 'Positive',
+    responseTime: '2.3 mins',
+    resolutionRate: '94%',
+    escalationRate: '3%',
+    preferredChannel: 'Chat',
+    timezone: 'EST (GMT-5)',
+    lastLoginDate: '2024-01-12',
+    accountStatus: 'Active',
+    paymentStatus: 'Current',
+    contractExpiry: '2024-12-31'
+  };
+
+  const interactionTimeline: InteractionTimeline[] = [
+    {
+      date: '2024-01-12',
+      type: 'chat',
+      subject: 'Billing inquiry resolved',
+      agent: 'Sarah Johnson',
+      duration: '8 mins',
+      sentiment: 'positive',
+      resolution: 'Resolved',
+      satisfaction: 5
+    }
+  ];
+
+  const issueCategories: IssueCategory[] = [
+    { category: 'Billing', count: 3, trend: 'down', lastIssue: '5 days ago' }
+  ];
+
+  const productUsage: ProductUsage[] = [
+    { product: 'Premium Support', usage: '98%', status: 'Active', lastUsed: '2024-01-12' }
+  ];
+
+  const communicationPreferences: CommunicationPreferences = {
+    preferredChannel: 'Live Chat',
+    preferredTime: '9 AM - 5 PM EST',
+    language: 'English',
+    notifications: 'Email + SMS',
+    frequency: 'Immediate for urgent, Daily digest for updates'
+  };
+
+  const orderHistory: OrderHistory[] = [
+    {
+      id: "#12345",
+      date: "2024-01-15",
+      amount: "$89.99",
+      status: "Delivered",
+      items: "Premium Support Plan",
+      satisfaction: 5
+    }
+  ];
+
+  const notes: Note[] = [
+    {
+      date: "2024-01-12",
+      agent: "Sarah Johnson",
+      note: "Customer expressed interest in enterprise features.",
+      type: "insight"
+    }
+  ];
+
+  const handleAddNote = (note: any) => {
+    console.log('Adding note:', note);
+  };
+
+  const contextValue: CustomerDataContextType = {
+    customer,
+    customerInsights,
+    interactionTimeline,
+    issueCategories,
+    productUsage,
+    communicationPreferences,
+    orderHistory,
+    notes,
+    onAddNote: handleAddNote
+  };
+
+  return (
+    <CustomerDataContext.Provider value={contextValue}>
+      {children}
+    </CustomerDataContext.Provider>
+  );
+};
+
+export const useCustomerData = () => {
+  const context = useContext(CustomerDataContext);
+  if (context === undefined) {
+    throw new Error('useCustomerData must be used within a CustomerDataProvider');
+  }
+  return context;
+};
 
 export const getCustomerInsights = (): CustomerInsights => ({
   healthScore: 85,
@@ -26,51 +166,15 @@ export const getInteractionTimeline = (): InteractionTimeline[] => [
     sentiment: 'positive' as const,
     resolution: 'Resolved',
     satisfaction: 5
-  },
-  {
-    date: '2024-01-10',
-    type: 'email' as const,
-    subject: 'Feature request submitted',
-    agent: 'Mike Chen',
-    duration: 'N/A',
-    sentiment: 'neutral' as const,
-    resolution: 'In Progress',
-    satisfaction: 4
-  },
-  {
-    date: '2024-01-08',
-    type: 'phone' as const,
-    subject: 'Technical support provided',
-    agent: 'Emily Rodriguez',
-    duration: '15 mins',
-    sentiment: 'positive' as const,
-    resolution: 'Resolved',
-    satisfaction: 5
-  },
-  {
-    date: '2024-01-05',
-    type: 'chat' as const,
-    subject: 'Account settings updated',
-    agent: 'David Wilson',
-    duration: '5 mins',
-    sentiment: 'positive' as const,
-    resolution: 'Resolved',
-    satisfaction: 4
   }
 ];
 
 export const getIssueCategories = (): IssueCategory[] => [
-  { category: 'Billing', count: 3, trend: 'down' as const, lastIssue: '5 days ago' },
-  { category: 'Technical', count: 2, trend: 'stable' as const, lastIssue: '8 days ago' },
-  { category: 'Account', count: 1, trend: 'down' as const, lastIssue: '12 days ago' },
-  { category: 'Feature Request', count: 2, trend: 'up' as const, lastIssue: '2 days ago' }
+  { category: 'Billing', count: 3, trend: 'down' as const, lastIssue: '5 days ago' }
 ];
 
 export const getProductUsage = (): ProductUsage[] => [
-  { product: 'Premium Support', usage: '98%', status: 'Active', lastUsed: '2024-01-12' },
-  { product: 'Advanced Analytics', usage: '67%', status: 'Active', lastUsed: '2024-01-11' },
-  { product: 'API Access', usage: '23%', status: 'Active', lastUsed: '2024-01-08' },
-  { product: 'Mobile App', usage: '89%', status: 'Active', lastUsed: '2024-01-12' }
+  { product: 'Premium Support', usage: '98%', status: 'Active', lastUsed: '2024-01-12' }
 ];
 
 export const getCommunicationPreferences = (): CommunicationPreferences => ({
@@ -89,22 +193,6 @@ export const getOrderHistory = (): OrderHistory[] => [
     status: "Delivered",
     items: "Premium Support Plan",
     satisfaction: 5
-  },
-  {
-    id: "#12344",
-    date: "2024-01-10",
-    amount: "$29.99",
-    status: "Delivered",
-    items: "Monthly Subscription",
-    satisfaction: 4
-  },
-  {
-    id: "#12343",
-    date: "2023-12-28",
-    amount: "$159.99",
-    status: "Delivered",
-    items: "Annual Plan Upgrade",
-    satisfaction: 5
   }
 ];
 
@@ -114,17 +202,5 @@ export const getInitialNotes = (): Note[] => [
     agent: "Sarah Johnson",
     note: "Customer expressed interest in enterprise features. Provided demo access and follow-up scheduled.",
     type: "insight"
-  },
-  {
-    date: "2024-01-10",
-    agent: "Mike Chen",
-    note: "Resolved login issue. Customer mentioned slow response time - escalated to dev team.",
-    type: "technical"
-  },
-  {
-    date: "2024-01-08",
-    agent: "Emily Rodriguez",
-    note: "Customer is very satisfied with recent updates. Potential advocate for case studies.",
-    type: "feedback"
   }
 ];
