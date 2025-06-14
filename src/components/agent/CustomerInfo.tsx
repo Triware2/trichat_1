@@ -16,7 +16,8 @@ import {
   ShoppingCart,
   CreditCard,
   MessageSquare,
-  ExternalLink
+  ExternalLink,
+  FileText
 } from 'lucide-react';
 
 interface CustomerData {
@@ -105,40 +106,22 @@ export const CustomerInfo = ({ customer }: CustomerInfoProps) => {
 
   const getTierBadge = (tier: string) => {
     const variants = {
-      'Premium': 'default',
-      'Pro': 'secondary',
-      'Basic': 'outline'
-    } as const;
-    return <Badge variant={variants[tier as keyof typeof variants]}>{tier}</Badge>;
+      'Premium': 'bg-gradient-to-r from-orange-500 to-red-500 text-white',
+      'Pro': 'bg-gradient-to-r from-blue-500 to-purple-500 text-white',
+      'Basic': 'bg-slate-100 text-slate-700'
+    };
+    const className = variants[tier as keyof typeof variants] || variants.Basic;
+    return <Badge className={`${className} border-0 font-medium`}>{tier}</Badge>;
   };
 
   const getStatusBadge = (status: string) => {
-    return (
-      <Badge variant={status === 'Resolved' ? 'default' : status === 'Pending' ? 'destructive' : 'secondary'}>
-        {status}
-      </Badge>
-    );
-  };
-
-  const handleViewProfile = () => {
-    toast({
-      title: "Opening full profile",
-      description: `Loading detailed profile for ${customer.name}...`,
-    });
-  };
-
-  const handleViewBilling = () => {
-    toast({
-      title: "Opening billing details",
-      description: "Loading billing information...",
-    });
-  };
-
-  const handleViewOrders = () => {
-    toast({
-      title: "Opening order history",
-      description: "Loading complete order history...",
-    });
+    const statusColors = {
+      'Resolved': 'bg-emerald-100 text-emerald-700 border-emerald-200',
+      'Pending': 'bg-amber-100 text-amber-700 border-amber-200',
+      'Delivered': 'bg-emerald-100 text-emerald-700 border-emerald-200'
+    };
+    const className = statusColors[status as keyof typeof statusColors] || statusColors.Pending;
+    return <Badge variant="outline" className={className}>{status}</Badge>;
   };
 
   const handleAddNote = () => {
@@ -158,180 +141,246 @@ export const CustomerInfo = ({ customer }: CustomerInfoProps) => {
   };
 
   return (
-    <Card className="h-full">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <User className="w-5 h-5" />
-          Customer Information
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-0">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full">
-          <TabsList className="grid w-full grid-cols-3 mx-4 mb-4">
-            <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="history">History</TabsTrigger>
-            <TabsTrigger value="notes">Notes</TabsTrigger>
-          </TabsList>
+    <div className="h-full flex flex-col bg-white">
+      {/* Header */}
+      <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
+            <User className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-slate-900">Customer Information</h2>
+            <p className="text-sm text-slate-600">Complete customer profile and history</p>
+          </div>
+        </div>
 
-          <TabsContent value="profile" className="px-4 pb-4 space-y-4">
-            {/* Basic Info */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h4 className="font-medium text-gray-900">{customer.name}</h4>
-                {getTierBadge(customer.tier)}
-              </div>
-              
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center gap-2 text-gray-600">
-                  <Mail className="w-4 h-4" />
-                  <span>{customer.email}</span>
+        {/* Customer Header Card */}
+        <Card className="border border-slate-200 shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-slate-400 to-slate-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md">
+                  {customer.name.split(' ').map(n => n[0]).join('')}
                 </div>
-                <div className="flex items-center gap-2 text-gray-600">
-                  <Phone className="w-4 h-4" />
-                  <span>{customer.phone}</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-600">
-                  <MapPin className="w-4 h-4" />
-                  <span>{customer.location}</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-600">
-                  <Calendar className="w-4 h-4" />
-                  <span>Customer since {customer.customerSince}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Stats */}
-            <div className="border-t pt-4 space-y-3">
-              <h5 className="font-medium text-gray-900">Customer Stats</h5>
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Previous Chats:</span>
-                  <span className="font-medium">{customer.previousChats}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Satisfaction:</span>
-                  <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                    <span className="font-medium">{customer.satisfaction}/5</span>
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900">{customer.name}</h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    {getTierBadge(customer.tier)}
+                    <span className="text-sm text-slate-600">Customer since {customer.customerSince}</span>
                   </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Total Orders:</span>
-                  <span className="font-medium">{customer.totalOrders}</span>
+              </div>
+              <div className="text-right">
+                <div className="flex items-center gap-1 mb-1">
+                  <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                  <span className="font-semibold text-slate-900">{customer.satisfaction}/5</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Total Spent:</span>
-                  <span className="font-medium">{customer.totalSpent}</span>
-                </div>
-                <div className="col-span-2 flex items-center justify-between">
-                  <span className="text-gray-600">Last Contact:</span>
-                  <span className="font-medium">{customer.lastContact}</span>
-                </div>
+                <p className="text-sm text-slate-600">Satisfaction</p>
               </div>
             </div>
+          </CardContent>
+        </Card>
+      </div>
 
-            {/* Quick Actions */}
-            <div className="border-t pt-4 space-y-2">
-              <h5 className="font-medium text-gray-900">Quick Actions</h5>
-              <div className="flex flex-col gap-2">
-                <Button variant="outline" size="sm" className="justify-start" onClick={handleViewProfile}>
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  View Full Profile
-                </Button>
-                <Button variant="outline" size="sm" className="justify-start" onClick={handleViewBilling}>
-                  <CreditCard className="w-4 h-4 mr-2" />
-                  Billing Details
-                </Button>
-                <Button variant="outline" size="sm" className="justify-start" onClick={handleViewOrders}>
-                  <ShoppingCart className="w-4 h-4 mr-2" />
-                  Order History
-                </Button>
-              </div>
-            </div>
-          </TabsContent>
+      {/* Tabs Content */}
+      <div className="flex-1 overflow-hidden">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+          <TabsList className="grid w-full grid-cols-3 mx-6 mt-4">
+            <TabsTrigger value="profile" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">
+              <User className="w-4 h-4 mr-2" />
+              Profile
+            </TabsTrigger>
+            <TabsTrigger value="history" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">
+              <History className="w-4 h-4 mr-2" />
+              History
+            </TabsTrigger>
+            <TabsTrigger value="notes" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">
+              <FileText className="w-4 h-4 mr-2" />
+              Notes
+            </TabsTrigger>
+          </TabsList>
 
-          <TabsContent value="history" className="px-4 pb-4 space-y-4">
-            <div className="space-y-4">
-              <div>
-                <h5 className="font-medium text-gray-900 mb-3">Recent Orders</h5>
-                <div className="space-y-2">
-                  {orderHistory.map((order, index) => (
-                    <div key={index} className="p-3 border rounded-lg text-sm">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium">{order.id}</span>
-                        <span className="text-gray-600">{order.amount}</span>
+          <div className="flex-1 overflow-y-auto p-6">
+            <TabsContent value="profile" className="space-y-6 mt-0">
+              {/* Contact Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Contact Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 gap-4">
+                    <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                      <Mail className="w-5 h-5 text-slate-600" />
+                      <div>
+                        <p className="text-sm font-medium text-slate-900">{customer.email}</p>
+                        <p className="text-xs text-slate-600">Email Address</p>
                       </div>
-                      <p className="text-gray-600 mb-1">{order.items}</p>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                      <Phone className="w-5 h-5 text-slate-600" />
+                      <div>
+                        <p className="text-sm font-medium text-slate-900">{customer.phone}</p>
+                        <p className="text-xs text-slate-600">Phone Number</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                      <MapPin className="w-5 h-5 text-slate-600" />
+                      <div>
+                        <p className="text-sm font-medium text-slate-900">{customer.location}</p>
+                        <p className="text-xs text-slate-600">Location</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Customer Stats */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Customer Statistics</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center p-4 bg-blue-50 rounded-lg">
+                      <p className="text-2xl font-bold text-blue-600">{customer.previousChats}</p>
+                      <p className="text-sm text-blue-700">Previous Chats</p>
+                    </div>
+                    <div className="text-center p-4 bg-emerald-50 rounded-lg">
+                      <p className="text-2xl font-bold text-emerald-600">{customer.totalOrders}</p>
+                      <p className="text-sm text-emerald-700">Total Orders</p>
+                    </div>
+                    <div className="text-center p-4 bg-purple-50 rounded-lg">
+                      <p className="text-2xl font-bold text-purple-600">{customer.totalSpent}</p>
+                      <p className="text-sm text-purple-700">Total Spent</p>
+                    </div>
+                    <div className="text-center p-4 bg-amber-50 rounded-lg">
+                      <p className="text-2xl font-bold text-amber-600">{customer.lastContact}</p>
+                      <p className="text-sm text-amber-700">Last Contact</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Quick Actions */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Quick Actions</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Button variant="outline" className="w-full justify-start" onClick={() => {}}>
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    View Full Profile
+                  </Button>
+                  <Button variant="outline" className="w-full justify-start" onClick={() => {}}>
+                    <CreditCard className="w-4 h-4 mr-2" />
+                    Billing Details
+                  </Button>
+                  <Button variant="outline" className="w-full justify-start" onClick={() => {}}>
+                    <ShoppingCart className="w-4 h-4 mr-2" />
+                    Order History
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="history" className="space-y-6 mt-0">
+              {/* Recent Orders */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Recent Orders</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {orderHistory.map((order, index) => (
+                    <div key={index} className="p-4 border border-slate-200 rounded-lg hover:shadow-sm transition-shadow">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-semibold text-slate-900">{order.id}</span>
+                        <span className="font-bold text-slate-900">{order.amount}</span>
+                      </div>
+                      <p className="text-sm text-slate-600 mb-2">{order.items}</p>
                       <div className="flex items-center justify-between">
-                        <span className="text-gray-500">{order.date}</span>
+                        <span className="text-xs text-slate-500">{order.date}</span>
                         {getStatusBadge(order.status)}
                       </div>
                     </div>
                   ))}
-                </div>
-              </div>
+                </CardContent>
+              </Card>
 
-              <div>
-                <h5 className="font-medium text-gray-900 mb-3">Chat History</h5>
-                <div className="space-y-2">
+              {/* Chat History */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Chat History</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
                   {chatHistory.map((chat, index) => (
-                    <div key={index} className="p-3 border rounded-lg text-sm">
+                    <div key={index} className="p-4 border border-slate-200 rounded-lg hover:shadow-sm transition-shadow">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium">{chat.subject}</span>
+                        <span className="font-semibold text-slate-900">{chat.subject}</span>
                         {getStatusBadge(chat.status)}
                       </div>
-                      <p className="text-gray-600 mb-1">Agent: {chat.agent}</p>
+                      <p className="text-sm text-slate-600 mb-2">Agent: {chat.agent}</p>
                       <div className="flex items-center justify-between">
-                        <span className="text-gray-500">{chat.date}</span>
-                        <span className="text-gray-500">{chat.duration}</span>
+                        <span className="text-xs text-slate-500">{chat.date}</span>
+                        <span className="text-xs text-slate-500">{chat.duration}</span>
                       </div>
                     </div>
                   ))}
-                </div>
-              </div>
-            </div>
-          </TabsContent>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-          <TabsContent value="notes" className="px-4 pb-4 space-y-4">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h5 className="font-medium text-gray-900">Agent Notes</h5>
-                <Button size="sm" variant="outline" onClick={handleAddNote} disabled={!newNote.trim()}>
-                  Add Note
-                </Button>
-              </div>
-              
-              <div className="space-y-3">
-                {notes.map((note, index) => (
-                  <div key={index} className="p-3 border rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-900">{note.agent}</span>
-                      <span className="text-xs text-gray-500">{note.date}</span>
-                    </div>
-                    <p className="text-sm text-gray-600">{note.note}</p>
-                  </div>
-                ))}
-              </div>
-              
-              <div className="border-t pt-3">
-                <textarea 
-                  placeholder="Add a note about this customer..."
-                  className="w-full p-2 border rounded-lg text-sm resize-none"
-                  rows={3}
-                  value={newNote}
-                  onChange={(e) => setNewNote(e.target.value)}
-                />
-                <div className="flex justify-end mt-2">
-                  <Button size="sm" onClick={handleAddNote} disabled={!newNote.trim()}>
+            <TabsContent value="notes" className="space-y-6 mt-0">
+              {/* Add Note */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Add New Note</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <textarea 
+                    placeholder="Add a note about this customer..."
+                    className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-none focus:border-orange-300 focus:ring-orange-200"
+                    rows={4}
+                    value={newNote}
+                    onChange={(e) => setNewNote(e.target.value)}
+                  />
+                  <Button 
+                    onClick={handleAddNote} 
+                    disabled={!newNote.trim()}
+                    className="bg-orange-500 hover:bg-orange-600 text-white"
+                  >
                     Save Note
                   </Button>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
+                </CardContent>
+              </Card>
+
+              {/* Notes History */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Notes History</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {notes.length === 0 ? (
+                    <div className="text-center py-8">
+                      <FileText className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+                      <p className="text-slate-600">No notes yet. Add your first note above.</p>
+                    </div>
+                  ) : (
+                    notes.map((note, index) => (
+                      <div key={index} className="p-4 border border-slate-200 rounded-lg bg-slate-50">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-semibold text-slate-900">{note.agent}</span>
+                          <span className="text-xs text-slate-500">{note.date}</span>
+                        </div>
+                        <p className="text-sm text-slate-700 leading-relaxed">{note.note}</p>
+                      </div>
+                    ))
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </div>
         </Tabs>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };

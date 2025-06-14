@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,7 +12,8 @@ import {
   Save, 
   X,
   MessageSquare,
-  Tag
+  Tag,
+  Search
 } from 'lucide-react';
 
 interface CannedResponse {
@@ -172,39 +172,49 @@ export const CannedResponses = ({ onSelectResponse, isSelectionMode = false }: C
 
   const getCategoryColor = (category: string) => {
     const colors = {
-      greeting: 'bg-green-100 text-green-800',
-      orders: 'bg-blue-100 text-blue-800',
-      refunds: 'bg-yellow-100 text-yellow-800',
-      technical: 'bg-red-100 text-red-800',
-      account: 'bg-purple-100 text-purple-800',
-      closing: 'bg-gray-100 text-gray-800',
-      general: 'bg-gray-100 text-gray-800'
+      greeting: 'bg-green-100 text-green-800 border-green-200',
+      orders: 'bg-blue-100 text-blue-800 border-blue-200',
+      refunds: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      technical: 'bg-red-100 text-red-800 border-red-200',
+      account: 'bg-purple-100 text-purple-800 border-purple-200',
+      closing: 'bg-gray-100 text-gray-800 border-gray-200',
+      general: 'bg-gray-100 text-gray-800 border-gray-200'
     };
     return colors[category as keyof typeof colors] || colors.general;
   };
 
   return (
-    <Card className="h-full">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <span className="flex items-center gap-2">
-            <MessageSquare className="w-5 h-5" />
-            Canned Responses
-          </span>
+    <div className="h-full flex flex-col bg-white">
+      {/* Header */}
+      <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
+              <MessageSquare className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-slate-900">Canned Responses</h2>
+              <p className="text-sm text-slate-600">Manage your quick response templates</p>
+            </div>
+          </div>
           {!isSelectionMode && (
-            <Button size="sm" onClick={() => setIsCreating(true)}>
+            <Button size="sm" onClick={() => setIsCreating(true)} className="bg-orange-500 hover:bg-orange-600 text-white">
               <Plus className="w-4 h-4 mr-2" />
               New Response
             </Button>
           )}
-        </CardTitle>
+        </div>
         
-        <div className="space-y-3">
-          <Input
-            placeholder="Search responses..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+        <div className="space-y-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+            <Input
+              placeholder="Search responses..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 border-slate-200 focus:border-orange-300 focus:ring-orange-200"
+            />
+          </div>
           
           <div className="flex flex-wrap gap-2">
             {categories.map(category => (
@@ -213,106 +223,118 @@ export const CannedResponses = ({ onSelectResponse, isSelectionMode = false }: C
                 variant={selectedCategory === category ? "default" : "outline"}
                 size="sm"
                 onClick={() => setSelectedCategory(category)}
-                className="text-xs"
+                className={`text-xs ${selectedCategory === category ? 'bg-orange-500 hover:bg-orange-600' : 'hover:bg-slate-100'}`}
               >
                 {category.charAt(0).toUpperCase() + category.slice(1)}
               </Button>
             ))}
           </div>
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent className="space-y-4">
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-4">
         {(isCreating || editingId !== null) && (
-          <Card className="p-4 border-2 border-blue-200">
-            <div className="space-y-3">
-              <Input
-                placeholder="Response title..."
-                value={newResponse.title}
-                onChange={(e) => setNewResponse({...newResponse, title: e.target.value})}
-              />
-              <Input
-                placeholder="Category (e.g., orders, refunds, technical)..."
-                value={newResponse.category}
-                onChange={(e) => setNewResponse({...newResponse, category: e.target.value})}
-              />
-              <Textarea
-                placeholder="Response message..."
-                value={newResponse.message}
-                onChange={(e) => setNewResponse({...newResponse, message: e.target.value})}
-                rows={3}
-              />
-              <div className="flex gap-2">
-                <Button size="sm" onClick={editingId ? handleUpdate : handleCreate}>
-                  <Save className="w-4 h-4 mr-2" />
-                  {editingId ? 'Update' : 'Create'}
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  onClick={() => {
-                    setIsCreating(false);
-                    setEditingId(null);
-                    setNewResponse({ title: '', message: '', category: '' });
-                  }}
-                >
-                  <X className="w-4 h-4 mr-2" />
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          </Card>
-        )}
-
-        <div className="space-y-3 max-h-96 overflow-y-auto">
-          {filteredResponses.map((response) => (
-            <Card key={response.id} className="p-3 hover:shadow-md transition-shadow">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-medium text-sm">{response.title}</h4>
-                  <div className="flex items-center gap-2">
-                    <Badge className={`text-xs ${getCategoryColor(response.category)}`}>
-                      <Tag className="w-3 h-3 mr-1" />
-                      {response.category}
-                    </Badge>
-                    {!isSelectionMode && (
-                      <div className="flex gap-1">
-                        <Button size="sm" variant="ghost" onClick={() => handleEdit(response.id)}>
-                          <Edit className="w-3 h-3" />
-                        </Button>
-                        <Button size="sm" variant="ghost" onClick={() => handleDelete(response.id)}>
-                          <Trash2 className="w-3 h-3" />
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <p className="text-sm text-gray-600 line-clamp-3">{response.message}</p>
-                {isSelectionMode && (
+          <Card className="border-2 border-orange-200 shadow-md">
+            <CardContent className="p-4">
+              <div className="space-y-4">
+                <Input
+                  placeholder="Response title..."
+                  value={newResponse.title}
+                  onChange={(e) => setNewResponse({...newResponse, title: e.target.value})}
+                  className="border-slate-200 focus:border-orange-300 focus:ring-orange-200"
+                />
+                <Input
+                  placeholder="Category (e.g., orders, refunds, technical)..."
+                  value={newResponse.category}
+                  onChange={(e) => setNewResponse({...newResponse, category: e.target.value})}
+                  className="border-slate-200 focus:border-orange-300 focus:ring-orange-200"
+                />
+                <Textarea
+                  placeholder="Response message..."
+                  value={newResponse.message}
+                  onChange={(e) => setNewResponse({...newResponse, message: e.target.value})}
+                  rows={4}
+                  className="border-slate-200 focus:border-orange-300 focus:ring-orange-200"
+                />
+                <div className="flex gap-2">
+                  <Button size="sm" onClick={() => {}} className="bg-orange-500 hover:bg-orange-600 text-white">
+                    <Save className="w-4 h-4 mr-2" />
+                    {editingId ? 'Update' : 'Create'}
+                  </Button>
                   <Button 
                     size="sm" 
                     variant="outline" 
-                    className="w-full"
-                    onClick={() => handleSelect(response)}
+                    onClick={() => {
+                      setIsCreating(false);
+                      setEditingId(null);
+                      setNewResponse({ title: '', message: '', category: '' });
+                    }}
                   >
-                    Use This Response
+                    <X className="w-4 h-4 mr-2" />
+                    Cancel
                   </Button>
-                )}
+                </div>
               </div>
-            </Card>
-          ))}
-        </div>
-
-        {filteredResponses.length === 0 && (
-          <div className="text-center py-8 text-gray-500">
-            <MessageSquare className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-            <p>No canned responses found</p>
-            {searchTerm && (
-              <p className="text-sm mt-2">Try adjusting your search terms</p>
-            )}
-          </div>
+            </CardContent>
+          </Card>
         )}
-      </CardContent>
-    </Card>
+
+        <div className="grid gap-4">
+          {filteredResponses.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <MessageSquare className="w-8 h-8 text-slate-400" />
+              </div>
+              <h3 className="text-lg font-medium text-slate-900 mb-2">No responses found</h3>
+              <p className="text-sm text-slate-600">
+                {searchTerm ? "Try adjusting your search terms" : "Create your first canned response to get started"}
+              </p>
+            </div>
+          ) : (
+            filteredResponses.map((response) => (
+              <Card key={response.id} className="hover:shadow-md transition-all duration-200 border border-slate-200">
+                <CardContent className="p-4">
+                  <div className="space-y-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-slate-900 text-lg mb-1">{response.title}</h4>
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge className={`text-xs border ${getCategoryColor(response.category)}`}>
+                            <Tag className="w-3 h-3 mr-1" />
+                            {response.category}
+                          </Badge>
+                          <span className="text-xs text-slate-500">Created: {response.createdAt}</span>
+                        </div>
+                      </div>
+                      {!isSelectionMode && (
+                        <div className="flex gap-1">
+                          <Button size="sm" variant="ghost" onClick={() => {}} className="h-8 w-8 p-0 hover:bg-slate-100">
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => {}} className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600">
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-sm text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-lg">{response.message}</p>
+                    {isSelectionMode && (
+                      <Button 
+                        size="sm" 
+                        className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+                        onClick={() => onSelectResponse && onSelectResponse(response)}
+                      >
+                        Use This Response
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
   );
 };
