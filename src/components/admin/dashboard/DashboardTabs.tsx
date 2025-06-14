@@ -1,72 +1,60 @@
 
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
+  LayoutDashboard, 
   Users, 
-  MessageSquare, 
+  Shield, 
+  Bot, 
   BarChart3, 
-  Settings, 
-  Globe,
-  Activity,
-  Lock
+  Code2, 
+  Settings,
+  Key
 } from 'lucide-react';
 
 interface DashboardTabsProps {
   activeTab: string;
-  onTabChange: (value: string) => void;
+  onTabChange: (tab: string) => void;
 }
 
 export const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) => {
+  const tabs = [
+    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+    { id: 'users', label: 'Users', icon: Users },
+    { id: 'access', label: 'Access', icon: Shield },
+    { id: 'chatbot', label: 'Chatbot', icon: Bot },
+    { id: 'api-keys', label: 'API Keys', icon: Key },
+    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+    { id: 'widget', label: 'Widget', icon: Code2 },
+    { id: 'settings', label: 'Settings', icon: Settings },
+  ];
+
   return (
-    <TabsList className="grid w-full grid-cols-7 bg-white border shadow-sm rounded-xl p-1 h-auto">
-      <TabsTrigger 
-        value="overview" 
-        className="flex items-center justify-center gap-1 sm:gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-md font-lexend font-medium py-2 px-1 sm:px-3"
-      >
-        <Activity className="w-3 h-3 sm:w-4 sm:h-4" />
-        <span className="hidden sm:inline">Overview</span>
-      </TabsTrigger>
-      <TabsTrigger 
-        value="users" 
-        className="flex items-center justify-center gap-1 sm:gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-md font-lexend font-medium py-2 px-1 sm:px-3"
-      >
-        <Users className="w-3 h-3 sm:w-4 sm:h-4" />
-        <span className="hidden sm:inline">Users</span>
-      </TabsTrigger>
-      <TabsTrigger 
-        value="access" 
-        className="flex items-center justify-center gap-1 sm:gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-md font-lexend font-medium py-2 px-1 sm:px-3"
-      >
-        <Lock className="w-3 h-3 sm:w-4 sm:h-4" />
-        <span className="hidden sm:inline">Access</span>
-      </TabsTrigger>
-      <TabsTrigger 
-        value="chatbot" 
-        className="flex items-center justify-center gap-1 sm:gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-md font-lexend font-medium py-2 px-1 sm:px-3"
-      >
-        <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4" />
-        <span className="hidden sm:inline">Chatbot</span>
-      </TabsTrigger>
-      <TabsTrigger 
-        value="analytics" 
-        className="flex items-center justify-center gap-1 sm:gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-md font-lexend font-medium py-2 px-1 sm:px-3"
-      >
-        <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4" />
-        <span className="hidden sm:inline">Analytics</span>
-      </TabsTrigger>
-      <TabsTrigger 
-        value="widget" 
-        className="flex items-center justify-center gap-1 sm:gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-md font-lexend font-medium py-2 px-1 sm:px-3"
-      >
-        <Globe className="w-3 h-3 sm:w-4 sm:h-4" />
-        <span className="hidden sm:inline">Widget</span>
-      </TabsTrigger>
-      <TabsTrigger 
-        value="settings" 
-        className="flex items-center justify-center gap-1 sm:gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-md font-lexend font-medium py-2 px-1 sm:px-3"
-      >
-        <Settings className="w-3 h-3 sm:w-4 sm:h-4" />
-        <span className="hidden sm:inline">Settings</span>
-      </TabsTrigger>
-    </TabsList>
+    <div className="border-b border-gray-200">
+      <TabsList className="h-auto p-0 bg-transparent w-full justify-start space-x-0">
+        <div className="flex overflow-x-auto scrollbar-hide">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <TabsTrigger
+                key={tab.id}
+                value={tab.id}
+                onClick={() => onTabChange(tab.id)}
+                className={`
+                  flex items-center gap-2 px-6 py-3 font-medium text-sm transition-all duration-200
+                  border-b-2 border-transparent whitespace-nowrap min-w-fit
+                  ${activeTab === tab.id 
+                    ? 'text-orange-600 border-orange-500 bg-orange-50' 
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }
+                `}
+              >
+                <Icon className="w-4 h-4" />
+                {tab.label}
+              </TabsTrigger>
+            );
+          })}
+        </div>
+      </TabsList>
+    </div>
   );
 };

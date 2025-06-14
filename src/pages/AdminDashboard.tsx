@@ -8,6 +8,7 @@ import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 import { ChatWidgetGenerator } from '@/components/admin/ChatWidgetGenerator';
 import { AccessManagement } from '@/components/admin/access/AccessManagement';
 import { BotTraining } from '@/components/admin/chatbot/BotTraining';
+import { ApiKeyManagement } from '@/components/admin/api/ApiKeyManagement';
 import { DashboardHeader } from '@/components/admin/dashboard/DashboardHeader';
 import { DashboardTabs } from '@/components/admin/dashboard/DashboardTabs';
 import { DashboardOverview } from '@/components/admin/dashboard/DashboardOverview';
@@ -44,6 +45,10 @@ const AdminDashboard = () => {
 
             <TabsContent value="chatbot">
               <BotTraining />
+            </TabsContent>
+
+            <TabsContent value="api-keys">
+              <ApiKeyManagement />
             </TabsContent>
 
             <TabsContent value="analytics">
