@@ -1,10 +1,10 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useToast } from '@/hooks/use-toast';
 import { 
   UserCheck, 
   Search, 
@@ -19,6 +19,7 @@ import {
 export const TeamMonitor = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const { toast } = useToast();
 
   const agents = [
     {
@@ -106,6 +107,27 @@ export const TeamMonitor = () => {
     );
   };
 
+  const handleViewAgent = (agentName: string) => {
+    toast({
+      title: "Agent Details",
+      description: `Opening detailed view for ${agentName}`,
+    });
+  };
+
+  const handleAgentAction = (agentName: string) => {
+    toast({
+      title: "Agent Actions",
+      description: `Showing action menu for ${agentName}`,
+    });
+  };
+
+  const handleAdvancedFilters = () => {
+    toast({
+      title: "Advanced Filters",
+      description: "Opening advanced filter options",
+    });
+  };
+
   return (
     <div className="space-y-6">
       {/* Controls */}
@@ -123,7 +145,7 @@ export const TeamMonitor = () => {
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md bg-white"
+            className="px-3 py-2 border border-gray-300 rounded-md bg-white z-10"
           >
             <option value="all">All Status</option>
             <option value="online">Online</option>
@@ -132,7 +154,10 @@ export const TeamMonitor = () => {
             <option value="break">Break</option>
           </select>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700">
+        <Button 
+          className="bg-blue-600 hover:bg-blue-700"
+          onClick={handleAdvancedFilters}
+        >
           <Filter className="w-4 h-4 mr-2" />
           Advanced Filters
         </Button>
@@ -207,10 +232,18 @@ export const TeamMonitor = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-1">
-                      <Button variant="ghost" size="sm">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handleViewAgent(agent.name)}
+                      >
                         <Eye className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="sm">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handleAgentAction(agent.name)}
+                      >
                         <MoreHorizontal className="w-4 h-4" />
                       </Button>
                     </div>

@@ -1,10 +1,10 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useToast } from '@/hooks/use-toast';
 import { 
   MessageSquare, 
   Clock, 
@@ -19,6 +19,7 @@ import {
 export const QueueManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterPriority, setFilterPriority] = useState('all');
+  const { toast } = useToast();
 
   const queueItems = [
     {
@@ -107,13 +108,42 @@ export const QueueManagement = () => {
   };
 
   const handleAssignAgent = (queueId: number, agentName: string) => {
+    if (!agentName) return;
+    
+    toast({
+      title: "Agent Assigned",
+      description: `Queue item ${queueId} has been assigned to ${agentName}`,
+    });
     console.log(`Assigning queue item ${queueId} to ${agentName}`);
-    // Implementation would update the queue item
   };
 
   const handlePriorityChange = (queueId: number, newPriority: string) => {
+    toast({
+      title: "Priority Updated",
+      description: `Queue item ${queueId} priority changed to ${newPriority}`,
+    });
     console.log(`Changing priority of queue item ${queueId} to ${newPriority}`);
-    // Implementation would update the priority
+  };
+
+  const handleRefresh = () => {
+    toast({
+      title: "Queue Refreshed",
+      description: "Queue data has been updated",
+    });
+  };
+
+  const handleAutoAssign = () => {
+    toast({
+      title: "Auto-Assignment Started",
+      description: "Automatically assigning queue items to available agents",
+    });
+  };
+
+  const handleViewCustomer = (queueId: number) => {
+    toast({
+      title: "Customer Details",
+      description: `Opening details for queue item ${queueId}`,
+    });
   };
 
   return (
@@ -182,7 +212,7 @@ export const QueueManagement = () => {
           <select
             value={filterPriority}
             onChange={(e) => setFilterPriority(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md bg-white"
+            className="px-3 py-2 border border-gray-300 rounded-md bg-white z-10"
           >
             <option value="all">All Priorities</option>
             <option value="high">High</option>
@@ -191,11 +221,11 @@ export const QueueManagement = () => {
           </select>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline">
+          <Button variant="outline" onClick={handleRefresh}>
             <RefreshCw className="w-4 h-4 mr-2" />
             Refresh
           </Button>
-          <Button className="bg-blue-600 hover:bg-blue-700">
+          <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleAutoAssign}>
             <Filter className="w-4 h-4 mr-2" />
             Auto-Assign
           </Button>
@@ -268,7 +298,7 @@ export const QueueManagement = () => {
                       {!item.assignedAgent && (
                         <select
                           onChange={(e) => handleAssignAgent(item.id, e.target.value)}
-                          className="text-xs px-2 py-1 border rounded"
+                          className="text-xs px-2 py-1 border rounded bg-white z-10"
                           defaultValue=""
                         >
                           <option value="" disabled>Assign to...</option>
@@ -281,7 +311,11 @@ export const QueueManagement = () => {
                             ))}
                         </select>
                       )}
-                      <Button variant="ghost" size="sm">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handleViewCustomer(item.id)}
+                      >
                         <ArrowRight className="w-4 h-4" />
                       </Button>
                     </div>

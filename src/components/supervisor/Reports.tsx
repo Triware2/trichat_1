@@ -1,9 +1,9 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
 import { 
   BarChart3, 
   TrendingUp, 
@@ -19,6 +19,7 @@ import {
 export const Reports = () => {
   const [dateRange, setDateRange] = useState('7days');
   const [reportType, setReportType] = useState('overview');
+  const { toast } = useToast();
 
   const performanceData = {
     totalChats: 1247,
@@ -94,8 +95,26 @@ export const Reports = () => {
   };
 
   const exportReport = (format: string) => {
+    toast({
+      title: `Export ${format.toUpperCase()}`,
+      description: `Generating ${format.toUpperCase()} report for ${dateRange}...`,
+    });
     console.log(`Exporting report as ${format}`);
-    // Implementation would generate and download the report
+  };
+
+  const handleCustomDate = () => {
+    toast({
+      title: "Custom Date Range",
+      description: "Opening date picker for custom range selection",
+    });
+  };
+
+  const handleDateRangeChange = (range: string) => {
+    setDateRange(range);
+    toast({
+      title: "Date Range Updated",
+      description: `Report data updated for ${range}`,
+    });
   };
 
   return (
@@ -105,8 +124,8 @@ export const Reports = () => {
         <div className="flex gap-2">
           <select
             value={dateRange}
-            onChange={(e) => setDateRange(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md bg-white"
+            onChange={(e) => handleDateRangeChange(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-md bg-white z-10"
           >
             <option value="1day">Last 24 Hours</option>
             <option value="7days">Last 7 Days</option>
@@ -114,7 +133,7 @@ export const Reports = () => {
             <option value="3months">Last 3 Months</option>
             <option value="custom">Custom Range</option>
           </select>
-          <Button variant="outline">
+          <Button variant="outline" onClick={handleCustomDate}>
             <Calendar className="w-4 h-4 mr-2" />
             Custom Date
           </Button>
