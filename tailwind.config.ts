@@ -20,10 +20,8 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				'sans': ['Lexend Deca', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-				'serif': ['Crimson Text', 'ui-serif', 'Georgia', 'serif'],
-				'lexend': ['Lexend Deca', 'sans-serif'],
-				'queens': ['Crimson Text', 'serif'],
+				'sans': ['"Segoe UI"', '"Segoe UI Web (West European)"', '"Segoe UI"', '-apple-system', 'BlinkMacSystemFont', 'Roboto', '"Helvetica Neue"', 'sans-serif'],
+				'segoe': ['"Segoe UI"', '"Segoe UI Web (West European)"', '"Segoe UI"', '-apple-system', 'BlinkMacSystemFont', 'Roboto', '"Helvetica Neue"', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
