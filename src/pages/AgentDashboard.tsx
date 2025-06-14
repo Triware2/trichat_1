@@ -1,16 +1,12 @@
+
 import { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChatInterface } from '@/components/agent/ChatInterface';
-import { CannedResponses } from '@/components/agent/CannedResponses';
-import { CustomerInfo } from '@/components/agent/CustomerInfo';
-import { ChatList } from '@/components/agent/ChatList';
-import { DashboardStats } from '@/components/agent/DashboardStats';
-import { QueueStatus } from '@/components/agent/QueueStatus';
-import { RecentActivity } from '@/components/agent/RecentActivity';
+import { Tabs } from '@/components/ui/tabs';
 import { NavigationHeader } from '@/components/NavigationHeader';
-import { MessageSquare, Users, Clock, CheckCircle, Settings, Bell, TrendingUp } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { AgentSidebar } from '@/components/agent/dashboard/AgentSidebar';
+import { DashboardContent } from '@/components/agent/dashboard/DashboardContent';
+import { ChatContent } from '@/components/agent/dashboard/ChatContent';
+import { OtherTabsContent } from '@/components/agent/dashboard/OtherTabsContent';
+import { MessageSquare, Users, Clock, CheckCircle } from 'lucide-react';
 
 const AgentDashboard = () => {
   console.log("AgentDashboard component rendering...");
@@ -37,6 +33,12 @@ const AgentDashboard = () => {
     { customer: 'Bob Williams', action: 'Awaiting response', time: '11:00 AM', type: 'warning' },
     { customer: 'Emily Brown', action: 'Reported a problem', time: '11:15 AM', type: 'error' },
   ]);
+
+  const todayPerformance = {
+    chatsHandled: 12,
+    avgResponse: '2.3min',
+    satisfaction: 4.8
+  };
 
   const getSelectedCustomer = () => {
     const selectedChatData = chats.find(chat => chat.id === selectedChat);
@@ -89,103 +91,28 @@ const AgentDashboard = () => {
         <Tabs defaultValue="dashboard" className="h-full">
           <div className="flex h-full">
             {/* Sidebar Navigation */}
-            <div className="w-80 bg-white border-r border-slate-200 flex flex-col shadow-sm">
-              <div className="p-6 border-b border-slate-200">
-                <TabsList className="grid w-full grid-cols-1 h-auto space-y-2 bg-transparent p-0">
-                  <TabsTrigger 
-                    value="dashboard" 
-                    className="w-full justify-start px-4 py-3 rounded-xl text-left data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:border-emerald-200 hover:bg-slate-50 transition-all duration-200"
-                  >
-                    <TrendingUp className="w-5 h-5 mr-3" />
-                    Dashboard
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="chat" 
-                    className="w-full justify-start px-4 py-3 rounded-xl text-left data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:border-emerald-200 hover:bg-slate-50 transition-all duration-200"
-                  >
-                    <MessageSquare className="w-5 h-5 mr-3" />
-                    Conversations
-                    <Badge className="ml-auto bg-emerald-500 text-white text-xs px-2 py-1">3</Badge>
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="responses" 
-                    className="w-full justify-start px-4 py-3 rounded-xl text-left data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:border-emerald-200 hover:bg-slate-50 transition-all duration-200"
-                  >
-                    <MessageSquare className="w-5 h-5 mr-3" />
-                    Templates
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="customer" 
-                    className="w-full justify-start px-4 py-3 rounded-xl text-left data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:border-emerald-200 hover:bg-slate-50 transition-all duration-200"
-                  >
-                    <Users className="w-5 h-5 mr-3" />
-                    Customer Info
-                  </TabsTrigger>
-                </TabsList>
-              </div>
-
-              {/* Quick Stats Sidebar */}
-              <div className="mt-auto p-6">
-                <div className="p-6 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl border border-emerald-200 shadow-sm">
-                  <h3 className="font-bold text-emerald-900 mb-4 text-lg">Today's Performance</h3>
-                  <div className="space-y-3 text-sm">
-                    <div className="flex justify-between items-center">
-                      <span className="text-emerald-700 font-medium">Chats Handled:</span>
-                      <span className="font-bold text-emerald-900 text-lg">12</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-emerald-700 font-medium">Avg Response:</span>
-                      <span className="font-bold text-emerald-900 text-lg">2.3min</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-emerald-700 font-medium">Satisfaction:</span>
-                      <span className="font-bold text-emerald-900 text-lg">4.8★</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <AgentSidebar todayPerformance={todayPerformance} />
 
             {/* Content Area */}
             <div className="flex-1 overflow-hidden">
-              <TabsContent value="dashboard" className="h-full p-6 overflow-y-auto">
-                <div className="space-y-6">
-                  <DashboardStats stats={stats} onStatClick={handleStatClick} />
-                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                    <QueueStatus chats={chats} onQueueAction={handleQueueAction} />
-                    <RecentActivity activities={activities} />
-                  </div>
-                </div>
-              </TabsContent>
+              <DashboardContent
+                stats={stats}
+                chats={chats}
+                activities={activities}
+                onStatClick={handleStatClick}
+                onQueueAction={handleQueueAction}
+              />
 
-              <TabsContent value="chat" className="h-full">
-                <div className="flex h-full">
-                  <div className="w-96 border-r border-slate-200 bg-white">
-                    <ChatList 
-                      chats={chats}
-                      selectedChat={selectedChat}
-                      onChatSelect={setSelectedChat}
-                      onFilter={handleFilter}
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <ChatInterface
-                      customerName={getSelectedCustomerName()}
-                      customerStatus="Online"
-                      selectedChatId={selectedChat}
-                      onSendMessage={handleSendMessage}
-                    />
-                  </div>
-                </div>
-              </TabsContent>
+              <ChatContent
+                chats={chats}
+                selectedChat={selectedChat}
+                onChatSelect={setSelectedChat}
+                onFilter={handleFilter}
+                onSendMessage={handleSendMessage}
+                getSelectedCustomerName={getSelectedCustomerName}
+              />
 
-              <TabsContent value="responses" className="h-full overflow-y-auto">
-                <CannedResponses onSelectResponse={() => {}} isSelectionMode={false} />
-              </TabsContent>
-
-              <TabsContent value="customer" className="h-full overflow-y-auto">
-                <CustomerInfo customer={getSelectedCustomer()} />
-              </TabsContent>
+              <OtherTabsContent customer={getSelectedCustomer()} />
             </div>
           </div>
         </Tabs>
