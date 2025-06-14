@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ChatInterface } from '@/components/agent/ChatInterface';
@@ -71,17 +72,17 @@ const AgentDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+    <div className="h-screen bg-slate-50 flex flex-col">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/60 px-6 py-4 shadow-sm sticky top-0 z-50">
+      <header className="bg-white border-b border-slate-200 px-6 py-4 shadow-sm z-50">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-orange-500 via-pink-500 to-red-500 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center shadow-md">
                 <MessageSquare className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                <h1 className="text-xl font-semibold text-slate-900">
                   Agent Dashboard
                 </h1>
                 <p className="text-sm text-slate-600">Manage conversations and support requests</p>
@@ -89,83 +90,72 @@ const AgentDashboard = () => {
             </div>
           </div>
           <div className="flex items-center space-x-3">
-            <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 transition-colors">
+            <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100">
               <div className="w-2 h-2 bg-emerald-500 rounded-full mr-2 animate-pulse"></div>
               Online
             </Badge>
-            <Button variant="ghost" size="sm" className="hover:bg-slate-100 transition-colors">
+            <Button variant="ghost" size="sm" className="hover:bg-slate-100">
               <Bell className="w-4 h-4" />
             </Button>
-            <Button variant="ghost" size="sm" className="hover:bg-slate-100 transition-colors">
+            <Button variant="ghost" size="sm" className="hover:bg-slate-100">
               <Settings className="w-4 h-4" />
             </Button>
           </div>
         </div>
       </header>
 
-      <div className="flex h-[calc(100vh-80px)]">
+      <div className="flex flex-1 overflow-hidden">
         {/* Sidebar Navigation */}
-        <nav className="w-72 bg-white/50 backdrop-blur-sm border-r border-slate-200/60 p-6">
-          <div className="space-y-2">
-            <Tabs defaultValue="dashboard" className="h-full">
+        <nav className="w-72 bg-white border-r border-slate-200 flex flex-col">
+          <div className="p-6">
+            <Tabs defaultValue="dashboard" className="w-full">
               <TabsList className="grid w-full grid-cols-1 h-auto space-y-2 bg-transparent p-0">
                 <TabsTrigger 
                   value="dashboard" 
-                  className="w-full justify-start px-4 py-3 rounded-xl text-left data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-pink-500 data-[state=active]:text-white data-[state=active]:shadow-lg hover:bg-slate-100 transition-all duration-200"
+                  className="w-full justify-start px-4 py-3 rounded-lg text-left data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-blue-200 hover:bg-slate-50"
                 >
                   <TrendingUp className="w-5 h-5 mr-3" />
                   Dashboard
                 </TabsTrigger>
                 <TabsTrigger 
                   value="chat" 
-                  className="w-full justify-start px-4 py-3 rounded-xl text-left data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-pink-500 data-[state=active]:text-white data-[state=active]:shadow-lg hover:bg-slate-100 transition-all duration-200"
+                  className="w-full justify-start px-4 py-3 rounded-lg text-left data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-blue-200 hover:bg-slate-50"
                 >
                   <MessageSquare className="w-5 h-5 mr-3" />
                   Conversations
-                  <Badge className="ml-auto bg-red-500 text-white">3</Badge>
+                  <Badge className="ml-auto bg-orange-500 text-white">3</Badge>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="responses" 
-                  className="w-full justify-start px-4 py-3 rounded-xl text-left data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-pink-500 data-[state=active]:text-white data-[state=active]:shadow-lg hover:bg-slate-100 transition-all duration-200"
+                  className="w-full justify-start px-4 py-3 rounded-lg text-left data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-blue-200 hover:bg-slate-50"
                 >
                   <MessageSquare className="w-5 h-5 mr-3" />
                   Templates
                 </TabsTrigger>
                 <TabsTrigger 
                   value="customer" 
-                  className="w-full justify-start px-4 py-3 rounded-xl text-left data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-pink-500 data-[state=active]:text-white data-[state=active]:shadow-lg hover:bg-slate-100 transition-all duration-200"
+                  className="w-full justify-start px-4 py-3 rounded-lg text-left data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-blue-200 hover:bg-slate-50"
                 >
                   <Users className="w-5 h-5 mr-3" />
                   Customer Info
                 </TabsTrigger>
               </TabsList>
 
-              <div className="mt-8 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
-                <h3 className="font-semibold text-blue-900 mb-2">Quick Stats</h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-blue-700">Today's Chats:</span>
-                    <span className="font-medium text-blue-900">12</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-blue-700">Avg Response:</span>
-                    <span className="font-medium text-blue-900">2.3min</span>
-                  </div>
-                </div>
-              </div>
-
-              <main className="flex-1 overflow-hidden">
-                <TabsContent value="dashboard" className="flex-1 p-6 space-y-6 overflow-y-auto h-full">
-                  <DashboardStats stats={stats} onStatClick={handleStatClick} />
-                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                    <QueueStatus chats={chats} onQueueAction={handleQueueAction} />
-                    <RecentActivity activities={activities} />
+              {/* Main Content Area */}
+              <div className="mt-6 flex-1">
+                <TabsContent value="dashboard" className="space-y-6 h-full overflow-y-auto">
+                  <div className="pr-6">
+                    <DashboardStats stats={stats} onStatClick={handleStatClick} />
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
+                      <QueueStatus chats={chats} onQueueAction={handleQueueAction} />
+                      <RecentActivity activities={activities} />
+                    </div>
                   </div>
                 </TabsContent>
 
-                <TabsContent value="chat" className="flex-1 flex h-full">
-                  <div className="flex w-full h-full">
-                    <div className="w-80 border-r border-slate-200 bg-white/50 backdrop-blur-sm">
+                <TabsContent value="chat" className="h-full">
+                  <div className="flex h-full -mx-6">
+                    <div className="w-80 border-r border-slate-200 bg-white">
                       <ChatList 
                         chats={chats}
                         selectedChat={selectedChat}
@@ -183,15 +173,32 @@ const AgentDashboard = () => {
                   </div>
                 </TabsContent>
 
-                <TabsContent value="responses" className="flex-1 p-6 h-full">
+                <TabsContent value="responses" className="h-full overflow-y-auto pr-6">
                   <CannedResponses onSelectResponse={() => {}} isSelectionMode={false} />
                 </TabsContent>
 
-                <TabsContent value="customer" className="flex-1 p-6 h-full">
+                <TabsContent value="customer" className="h-full overflow-y-auto pr-6">
                   <CustomerInfo customer={getSelectedCustomer()} />
                 </TabsContent>
-              </main>
+              </div>
             </Tabs>
+          </div>
+
+          {/* Quick Stats Sidebar */}
+          <div className="mt-auto p-6">
+            <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <h3 className="font-semibold text-blue-900 mb-2">Quick Stats</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-blue-700">Today's Chats:</span>
+                  <span className="font-medium text-blue-900">12</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-blue-700">Avg Response:</span>
+                  <span className="font-medium text-blue-900">2.3min</span>
+                </div>
+              </div>
+            </div>
           </div>
         </nav>
       </div>
