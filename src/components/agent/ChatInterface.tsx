@@ -255,16 +255,16 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
   };
 
   return (
-    <div className="h-full flex flex-col bg-white relative">
+    <div className="h-full flex flex-col bg-white relative overflow-hidden">
       {/* Fixed Header */}
       <div className="flex-shrink-0 bg-white border-b border-slate-200 z-10">
         <ChatHeader customerName={customerName} customerStatus={customerStatus} />
       </div>
       
-      {/* Scrollable Messages Area - with bottom padding for floating input */}
-      <div className="flex-1 relative">
+      {/* Scrollable Messages Area */}
+      <div className="flex-1 relative overflow-hidden">
         {/* Messages container with its own scroll and padding for floating input */}
-        <div className="absolute inset-0 overflow-y-auto" style={{ paddingBottom: '180px' }}>
+        <div className="absolute inset-0 overflow-y-auto pb-48">
           <MessageList 
             messages={messages} 
             privateNotes={privateNotes}
@@ -274,11 +274,11 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
           />
         </div>
 
-        {/* Fixed Floating Input Section - positioned absolutely within the chat interface */}
-        <div className="absolute bottom-4 left-4 right-4 z-30 pointer-events-auto">
+        {/* Fixed Floating Input Section - positioned absolutely and stays in place */}
+        <div className="absolute bottom-0 left-0 right-0 z-30 bg-white border-t border-slate-200 shadow-lg">
           {/* Canned Responses Panel - appears above input when open */}
           {showCannedResponses && (
-            <div className="mb-4 h-96 border border-slate-200 bg-white shadow-lg rounded-lg">
+            <div className="h-96 border-b border-slate-200 bg-white">
               <CannedResponses 
                 onSelectResponse={handleCannedResponseSelect}
                 isSelectionMode={true}
@@ -287,7 +287,7 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
           )}
 
           {/* Message Input Container */}
-          <div className="bg-white border border-slate-200 rounded-lg shadow-lg">
+          <div className="bg-white">
             {/* Canned Responses Toggle */}
             <div className="px-6 py-2 border-b border-slate-100">
               <Button
@@ -317,7 +317,7 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
         </div>
 
         {/* Quick Responses - Fixed position within chat interface */}
-        <div className="absolute bottom-6 right-6 z-50">
+        <div className="absolute bottom-52 right-6 z-50">
           <QuickResponses responses={quickResponses} onResponseSelect={handleQuickResponse} />
         </div>
       </div>

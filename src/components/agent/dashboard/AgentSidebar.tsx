@@ -36,17 +36,17 @@ export const AgentSidebar = ({ todayPerformance }: AgentSidebarProps) => {
 
       <SidebarContent>
         <div className="p-4">
-          <TabsList className="grid w-full grid-cols-1 h-auto space-y-2 bg-transparent p-0">
+          <TabsList className={`grid w-full h-auto space-y-2 bg-transparent p-0 ${isCollapsed ? 'grid-cols-1' : 'grid-cols-1'}`}>
             <TabsTrigger 
               value="dashboard" 
-              className="w-full justify-start px-3 py-2 rounded-lg text-left data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:border-emerald-200 hover:bg-slate-50 transition-all duration-200"
+              className={`w-full justify-start rounded-lg text-left data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:border-emerald-200 hover:bg-slate-50 transition-all duration-200 ${isCollapsed ? 'px-2 py-2' : 'px-3 py-2'}`}
             >
               <TrendingUp className="w-4 h-4 flex-shrink-0" />
               {!isCollapsed && <span className="ml-2">Dashboard</span>}
             </TabsTrigger>
             <TabsTrigger 
               value="chat" 
-              className="w-full justify-start px-3 py-2 rounded-lg text-left data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:border-emerald-200 hover:bg-slate-50 transition-all duration-200"
+              className={`w-full justify-start rounded-lg text-left data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:border-emerald-200 hover:bg-slate-50 transition-all duration-200 relative ${isCollapsed ? 'px-2 py-2' : 'px-3 py-2'}`}
             >
               <MessageSquare className="w-4 h-4 flex-shrink-0" />
               {!isCollapsed && (
@@ -61,14 +61,14 @@ export const AgentSidebar = ({ todayPerformance }: AgentSidebarProps) => {
             </TabsTrigger>
             <TabsTrigger 
               value="responses" 
-              className="w-full justify-start px-3 py-2 rounded-lg text-left data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:border-emerald-200 hover:bg-slate-50 transition-all duration-200"
+              className={`w-full justify-start rounded-lg text-left data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:border-emerald-200 hover:bg-slate-50 transition-all duration-200 ${isCollapsed ? 'px-2 py-2' : 'px-3 py-2'}`}
             >
               <MessageSquare className="w-4 h-4 flex-shrink-0" />
               {!isCollapsed && <span className="ml-2">Templates</span>}
             </TabsTrigger>
             <TabsTrigger 
               value="customer" 
-              className="w-full justify-start px-3 py-2 rounded-lg text-left data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:border-emerald-200 hover:bg-slate-50 transition-all duration-200"
+              className={`w-full justify-start rounded-lg text-left data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:border-emerald-200 hover:bg-slate-50 transition-all duration-200 ${isCollapsed ? 'px-2 py-2' : 'px-3 py-2'}`}
             >
               <Users className="w-4 h-4 flex-shrink-0" />
               {!isCollapsed && <span className="ml-2">Customer Info</span>}
