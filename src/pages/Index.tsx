@@ -185,7 +185,7 @@ const Index = () => {
                   Admin Panel
                 </CardTitle>
               </CardHeader>
-              <CardContentClassName="p-6">
+              <CardContent className="p-6">
                 <p className="text-gray-600 mb-4">
                   Complete control over users, permissions, and system settings
                 </p>
