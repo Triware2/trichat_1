@@ -19,6 +19,7 @@ import { NavigationHeader } from '@/components/NavigationHeader';
 import { TeamMonitor } from '@/components/supervisor/TeamMonitor';
 import { QueueManagement } from '@/components/supervisor/QueueManagement';
 import { Reports } from '@/components/supervisor/Reports';
+import { ChatSupervision } from '@/components/supervisor/ChatSupervision';
 
 const SupervisorDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -120,10 +121,14 @@ const SupervisorDashboard = () => {
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="grid w-full grid-cols-4 bg-white border">
+          <TabsList className="grid w-full grid-cols-5 bg-white border">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <Activity className="w-4 h-4" />
               Overview
+            </TabsTrigger>
+            <TabsTrigger value="chats" className="flex items-center gap-2">
+              <Eye className="w-4 h-4" />
+              Chat Supervision
             </TabsTrigger>
             <TabsTrigger value="team" className="flex items-center gap-2">
               <Users className="w-4 h-4" />
@@ -222,6 +227,10 @@ const SupervisorDashboard = () => {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          <TabsContent value="chats">
+            <ChatSupervision />
           </TabsContent>
 
           <TabsContent value="team">
