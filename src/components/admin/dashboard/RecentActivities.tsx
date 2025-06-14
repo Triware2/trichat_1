@@ -57,32 +57,32 @@ export const RecentActivities = () => {
 
   return (
     <Card className="border-0 shadow-lg bg-white">
-      <CardHeader className="pb-3 lg:pb-4">
+      <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="flex items-center gap-2 text-heading-3 font-lexend font-medium">
-              <Activity className="w-4 h-4 lg:w-5 lg:h-5 text-orange-600" />
+            <CardTitle className="flex items-center gap-2 text-lg font-lexend font-medium">
+              <Activity className="w-4 h-4 text-orange-600" />
               Recent Activity
             </CardTitle>
-            <CardDescription className="mt-1 text-caption font-lexend">
+            <CardDescription className="mt-1 text-sm font-lexend">
               Latest system events and user actions
             </CardDescription>
           </div>
           <Button variant="outline" size="sm" className="font-lexend font-medium">
-            <Bell className="w-3 h-3 lg:w-4 lg:h-4" />
+            <Bell className="w-3 h-3" />
           </Button>
         </div>
       </CardHeader>
       <CardContent>
-        <div className="space-y-3 lg:space-y-4">
+        <div className="space-y-3">
           {recentActivities.map((activity, index) => (
-            <div key={index} className="flex items-start gap-3 lg:gap-4 p-3 lg:p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors">
-              <div className={`w-8 h-8 lg:w-10 lg:h-10 rounded-xl ${activity.bgColor} flex items-center justify-center flex-shrink-0`}>
-                <activity.icon className={`w-4 h-4 lg:w-5 lg:h-5 ${activity.color}`} />
+            <div key={index} className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors">
+              <div className={`w-8 h-8 rounded-xl ${activity.bgColor} flex items-center justify-center flex-shrink-0`}>
+                <activity.icon className={`w-4 h-4 ${activity.color}`} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-caption font-lexend font-medium text-slate-900 mb-1">{activity.message}</p>
-                <p className="text-caption font-lexend text-slate-500">{activity.time}</p>
+                <p className="text-sm font-lexend font-medium text-slate-900 mb-1">{activity.message}</p>
+                <p className="text-xs font-lexend text-slate-500">{activity.time}</p>
               </div>
             </div>
           ))}

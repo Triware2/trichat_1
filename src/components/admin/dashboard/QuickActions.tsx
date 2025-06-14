@@ -45,25 +45,25 @@ export const QuickActions = () => {
 
   return (
     <Card className="border-0 shadow-lg bg-white">
-      <CardHeader className="pb-3 lg:pb-4">
-        <CardTitle className="flex items-center gap-2 text-heading-3 font-lexend font-medium">
-          <Shield className="w-4 h-4 lg:w-5 lg:h-5 text-orange-600" />
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-lg font-lexend font-medium">
+          <Shield className="w-4 h-4 text-orange-600" />
           Quick Actions
         </CardTitle>
-        <CardDescription className="mt-1 text-caption font-lexend">
+        <CardDescription className="mt-1 text-sm font-lexend">
           Common administrative tasks
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-3 lg:space-y-4">
+      <CardContent className="space-y-3">
         {quickActions.map((action, index) => (
-          <div key={index} className="group p-3 lg:p-4 rounded-xl border border-slate-200 hover:border-orange-200 hover:bg-orange-50 transition-all cursor-pointer">
-            <div className="flex items-center gap-3 lg:gap-4">
-              <div className={`w-8 h-8 lg:w-10 lg:h-10 rounded-xl bg-gradient-to-r ${action.color} flex items-center justify-center shadow-md group-hover:scale-110 transition-transform`}>
-                <action.icon className="w-4 h-4 lg:w-5 lg:h-5 text-white" />
+          <div key={index} className="group p-3 rounded-xl border border-slate-200 hover:border-orange-200 hover:bg-orange-50 transition-all cursor-pointer">
+            <div className="flex items-center gap-3">
+              <div className={`w-8 h-8 rounded-xl bg-gradient-to-r ${action.color} flex items-center justify-center shadow-md group-hover:scale-110 transition-transform`}>
+                <action.icon className="w-4 h-4 text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="font-lexend font-medium text-slate-900 group-hover:text-orange-700 transition-colors text-body">{action.title}</h4>
-                <p className="text-caption font-lexend text-slate-600">{action.description}</p>
+                <h4 className="font-lexend font-medium text-slate-900 group-hover:text-orange-700 transition-colors text-sm">{action.title}</h4>
+                <p className="text-xs font-lexend text-slate-600">{action.description}</p>
               </div>
             </div>
           </div>

@@ -68,10 +68,10 @@ export const AdminStats = () => {
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       {stats.map((stat, index) => (
         <Card key={index} className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-white">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${stat.color} flex items-center justify-center shadow-md`}>
-                <stat.icon className="w-6 h-6 text-white" />
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between mb-3">
+              <div className={`w-10 h-10 rounded-xl bg-gradient-to-r ${stat.color} flex items-center justify-center shadow-md`}>
+                <stat.icon className="w-5 h-5 text-white" />
               </div>
               <Badge className={`${stat.bgColor} ${stat.textColor} border-0 font-lexend font-medium text-xs px-2 py-1`}>
                 <TrendingUp className="w-3 h-3 mr-1" />
@@ -79,8 +79,8 @@ export const AdminStats = () => {
               </Badge>
             </div>
             <div>
-              <p className="text-sm font-lexend font-medium text-slate-600 mb-1 tracking-wide">{stat.title}</p>
-              <p className="text-2xl font-lexend font-bold text-slate-900 tracking-tight">{stat.value}</p>
+              <p className="text-xs font-lexend font-medium text-slate-600 mb-1 tracking-wide uppercase">{stat.title}</p>
+              <p className="text-xl font-lexend font-bold text-slate-900 tracking-tight">{stat.value}</p>
               <p className="text-xs font-lexend text-slate-500 mt-1">
                 {stat.changeType === 'increase' ? '↗️' : '↘️'} from last month
               </p>
