@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { NavigationHeader } from '@/components/NavigationHeader';
@@ -13,6 +14,7 @@ import { DashboardTabs } from '@/components/admin/dashboard/DashboardTabs';
 import { DashboardOverview } from '@/components/admin/dashboard/DashboardOverview';
 import { DataSourcesManagement } from '@/components/admin/datasources/DataSourcesManagement';
 import { ChatManagement } from '@/components/admin/chat/ChatManagement';
+import { SLAManagement } from '@/components/admin/sla/SLAManagement';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -50,6 +52,10 @@ const AdminDashboard = () => {
 
             <TabsContent value="api-keys" className="mt-0">
               <ApiKeyManagement />
+            </TabsContent>
+
+            <TabsContent value="sla" className="mt-0">
+              <SLAManagement />
             </TabsContent>
 
             <TabsContent value="analytics" className="mt-0">

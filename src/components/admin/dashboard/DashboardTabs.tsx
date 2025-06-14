@@ -10,7 +10,8 @@ import {
   Settings,
   Key,
   Database,
-  MessageSquare
+  MessageSquare,
+  Clock
 } from 'lucide-react';
 
 interface DashboardTabsProps {
@@ -25,6 +26,7 @@ export const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) =>
     { id: 'access', label: 'Access control', icon: Shield },
     { id: 'chatbot', label: 'AI Assistant', icon: Bot },
     { id: 'api-keys', label: 'API keys', icon: Key },
+    { id: 'sla', label: 'SLA Management', icon: Clock },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
     { id: 'widget', label: 'Integrations', icon: Code2 },
     { id: 'datasources', label: 'Data Sources', icon: Database },
