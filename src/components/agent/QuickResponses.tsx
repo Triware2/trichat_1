@@ -14,20 +14,18 @@ export const QuickResponses = ({ responses, onResponseSelect }: QuickResponsesPr
 
   return (
     <>
-      {/* Floating Quick Response Toggle */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <Button 
-          onClick={() => setIsVisible(!isVisible)}
-          className="w-12 h-12 rounded-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white shadow-lg"
-        >
-          <Zap className="w-5 h-5" />
-        </Button>
-      </div>
+      {/* Quick Response Toggle Button */}
+      <Button 
+        onClick={() => setIsVisible(!isVisible)}
+        className="w-12 h-12 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white shadow-lg"
+      >
+        <Zap className="w-5 h-5" />
+      </Button>
 
-      {/* Floating Quick Responses Box */}
+      {/* Floating Quick Responses Box - Squared and Floating */}
       {isVisible && (
-        <div className="fixed bottom-20 right-6 z-40">
-          <Card className="w-80 max-h-96 border-2 border-orange-200 shadow-xl bg-white">
+        <div className="absolute bottom-16 right-0">
+          <Card className="w-80 max-h-96 border-2 border-orange-200 shadow-xl bg-white rounded-lg">
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">

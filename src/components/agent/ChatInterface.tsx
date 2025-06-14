@@ -256,24 +256,27 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
   };
 
   return (
-    <div className="min-h-full flex flex-col bg-white relative">
-      <div className="sticky top-0 z-10 bg-white border-b border-slate-200">
+    <div className="h-full flex flex-col bg-white relative overflow-hidden">
+      {/* Fixed Header */}
+      <div className="flex-shrink-0 bg-white border-b border-slate-200 z-10">
         <ChatHeader customerName={customerName} customerStatus={customerStatus} />
       </div>
       
-      {/* Messages Area - scrollable content */}
-      <div className="flex-1 p-4 pb-32">
-        <MessageList 
-          messages={messages} 
-          privateNotes={privateNotes}
-          isTyping={isTyping}
-          onDeleteNote={handleDeleteNote}
-          canDeleteNote={canDeleteNote}
-        />
+      {/* Scrollable Messages Area */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="pb-32">
+          <MessageList 
+            messages={messages} 
+            privateNotes={privateNotes}
+            isTyping={isTyping}
+            onDeleteNote={handleDeleteNote}
+            canDeleteNote={canDeleteNote}
+          />
+        </div>
       </div>
 
-      {/* Floating Input Section */}
-      <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-[calc(100%-680px)] max-w-4xl bg-white border border-slate-200 rounded-lg shadow-lg z-30">
+      {/* Floating Input Section - Only within this middle section */}
+      <div className="absolute bottom-4 left-4 right-4 bg-white border border-slate-200 rounded-lg shadow-lg z-30">
         {/* Canned Responses Toggle */}
         <div className="px-6 py-2 border-b border-slate-100">
           <Button
@@ -301,9 +304,9 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
         />
       </div>
 
-      {/* Canned Responses Panel */}
+      {/* Canned Responses Panel - Only within this middle section */}
       {showCannedResponses && (
-        <div className="fixed bottom-32 left-1/2 transform -translate-x-1/2 w-[calc(100%-680px)] max-w-4xl h-96 border border-slate-200 bg-white shadow-lg z-20 rounded-lg">
+        <div className="absolute bottom-32 left-4 right-4 h-96 border border-slate-200 bg-white shadow-lg z-20 rounded-lg">
           <CannedResponses 
             onSelectResponse={handleCannedResponseSelect}
             isSelectionMode={true}
@@ -311,8 +314,10 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
         </div>
       )}
 
-      {/* Floating Quick Responses */}
-      <QuickResponses responses={quickResponses} onResponseSelect={handleQuickResponse} />
+      {/* Quick Responses - Only within this middle section */}
+      <div className="absolute bottom-6 right-6 z-50">
+        <QuickResponses responses={quickResponses} onResponseSelect={handleQuickResponse} />
+      </div>
     </div>
   );
 };
