@@ -19,9 +19,13 @@ import { ChannelManagement } from './ChannelManagement';
 import { ChatRules } from './ChatRules';
 import { BulkChatOperations } from './BulkChatOperations';
 import { ChatAnalytics } from './ChatAnalytics';
+import { QuickSetupModal } from './QuickSetupModal';
+import { GlobalFiltersModal } from './GlobalFiltersModal';
 
 export const ChatManagement = () => {
   const [activeTab, setActiveTab] = useState('channels');
+  const [isQuickSetupOpen, setIsQuickSetupOpen] = useState(false);
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   // Mock data for demonstration
   const [stats] = useState({
@@ -43,11 +47,18 @@ export const ChatManagement = () => {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => setIsFiltersOpen(true)}
+          >
             <Filter className="w-4 h-4 mr-2" />
             Global Filters
           </Button>
-          <Button size="sm">
+          <Button 
+            size="sm"
+            onClick={() => setIsQuickSetupOpen(true)}
+          >
             <Plus className="w-4 h-4 mr-2" />
             Quick Setup
           </Button>
@@ -178,6 +189,17 @@ export const ChatManagement = () => {
           <ChatAnalytics />
         </TabsContent>
       </Tabs>
+
+      {/* Modals */}
+      <QuickSetupModal 
+        open={isQuickSetupOpen} 
+        onOpenChange={setIsQuickSetupOpen} 
+      />
+      
+      <GlobalFiltersModal 
+        open={isFiltersOpen} 
+        onOpenChange={setIsFiltersOpen} 
+      />
     </div>
   );
 };
