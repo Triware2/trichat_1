@@ -125,17 +125,10 @@ export const Reports = () => {
       : 'Last 3 Months';
 
     // Simulate file download
-    const reportData = {
-      dateRange: dateRangeText,
-      performanceData,
-      agentStats,
-      categoryBreakdown,
-      hourlyDistribution,
-      generatedAt: new Date().toISOString()
-    };
-
-    // Create blob and download
-    const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: format === 'pdf' ? 'application/pdf' : 'application/json' });
+    const dataString = JSON.stringify(reportData, null, 2);
+    const blob = new Blob([dataString], { 
+      type: format === 'pdf' ? 'application/pdf' : 'application/json' 
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
