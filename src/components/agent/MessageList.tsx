@@ -1,6 +1,6 @@
 
 import { useRef, useEffect } from 'react';
-import { File, Image, Clock, Check, CheckCheck, StickyNote, X } from 'lucide-react';
+import { File, Image, Video, Clock, Check, CheckCheck, StickyNote, X, Paperclip } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface Message {
@@ -19,6 +19,11 @@ interface PrivateNote {
   timestamp: string;
   chatId: number;
   type: 'private-note';
+  attachments?: {
+    type: 'image' | 'file' | 'media';
+    name: string;
+    url?: string;
+  }[];
 }
 
 interface MessageListProps {
@@ -81,7 +86,25 @@ export const MessageList = ({
                     </Button>
                   )}
                 </div>
-                <p className="text-sm text-amber-900 leading-relaxed">{item.message}</p>
+                
+                {item.message && (
+                  <p className="text-sm text-amber-900 leading-relaxed mb-2">{item.message}</p>
+                )}
+
+                {/* Display attachments */}
+                {item.attachments && item.attachments.length > 0 && (
+                  <div className="space-y-2 mb-2">
+                    {item.attachments.map((attachment, index) => (
+                      <div key={index} className="flex items-center gap-2 bg-amber-50 rounded p-2 border border-amber-200">
+                        {attachment.type === 'image' && <Image className="w-4 h-4 text-amber-600" />}
+                        {attachment.type === 'media' && <Video className="w-4 h-4 text-amber-600" />}
+                        {attachment.type === 'file' && <Paperclip className="w-4 h-4 text-amber-600" />}
+                        <span className="text-xs text-amber-800 font-medium">{attachment.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 <div className="flex items-center gap-2 mt-2 text-xs text-amber-600">
                   <Clock className="w-3 h-3" />
                   <span>{item.time}</span>

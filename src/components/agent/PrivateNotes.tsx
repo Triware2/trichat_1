@@ -9,6 +9,11 @@ interface PrivateNote {
   timestamp: string;
   chatId: number;
   type: 'private-note';
+  attachments?: {
+    type: 'image' | 'file' | 'media';
+    name: string;
+    url?: string;
+  }[];
 }
 
 interface PrivateNotesProps {
@@ -62,14 +67,15 @@ export const PrivateNotes = ({ chatId, currentUserRole = 'agent', currentUserNam
     });
   };
 
-  const addNote = (content: string) => {
+  const addNote = (content: string, attachments?: { type: 'image' | 'file' | 'media'; name: string; url?: string; }[]) => {
     const note: PrivateNote = {
       id: notes.length + 1,
       content: content.trim(),
       author: currentUserName,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       chatId: chatId,
-      type: 'private-note'
+      type: 'private-note',
+      attachments: attachments
     };
     
     setNotes([...notes, note]);
