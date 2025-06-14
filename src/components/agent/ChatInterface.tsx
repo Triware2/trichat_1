@@ -13,13 +13,13 @@ import {
   Image,
   MessageSquare,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  StickyNote
 } from 'lucide-react';
 import { CannedResponses } from './CannedResponses';
 import { MessageList } from './MessageList';
 import { QuickResponses } from './QuickResponses';
 import { usePrivateNotes } from './PrivateNotes';
-import { PrivateNoteInput } from './PrivateNoteInput';
 
 interface Message {
   id: number;
@@ -49,6 +49,7 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
   const [message, setMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showCannedResponses, setShowCannedResponses] = useState(false);
+  const [isPrivateNoteMode, setIsPrivateNoteMode] = useState(false);
   const { toast } = useToast();
   
   // Use private notes hook with current user context
@@ -170,37 +171,45 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
 
   const handleSendMessage = () => {
     if (message.trim()) {
-      const newMessage: Message = {
-        id: messages.length + 1,
-        sender: 'agent',
-        message: message.trim(),
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        type: 'text'
-      };
-      
-      setMessages([...messages, newMessage]);
-      onSendMessage(message.trim());
-      setMessage('');
-      
-      toast({
-        title: "Message sent",
-        description: "Your message has been delivered to the customer.",
-      });
+      if (isPrivateNoteMode) {
+        // Add as private note
+        addNote(message.trim());
+        setMessage('');
+        setIsPrivateNoteMode(false);
+      } else {
+        // Send as regular message
+        const newMessage: Message = {
+          id: messages.length + 1,
+          sender: 'agent',
+          message: message.trim(),
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          type: 'text'
+        };
+        
+        setMessages([...messages, newMessage]);
+        onSendMessage(message.trim());
+        setMessage('');
+        
+        toast({
+          title: "Message sent",
+          description: "Your message has been delivered to the customer.",
+        });
 
-      setTimeout(() => {
-        setIsTyping(true);
         setTimeout(() => {
-          setIsTyping(false);
-          const customerResponse: Message = {
-            id: messages.length + 2,
-            sender: 'customer',
-            message: "Thank you for the quick response!",
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            type: 'text'
-          };
-          setMessages(prev => [...prev, customerResponse]);
-        }, 2000);
-      }, 500);
+          setIsTyping(true);
+          setTimeout(() => {
+            setIsTyping(false);
+            const customerResponse: Message = {
+              id: messages.length + 2,
+              sender: 'customer',
+              message: "Thank you for the quick response!",
+              time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              type: 'text'
+            };
+            setMessages(prev => [...prev, customerResponse]);
+          }, 2000);
+        }, 500);
+      }
     }
   };
 
@@ -347,9 +356,23 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
           </Button>
         </div>
 
-        {/* Message Input with Private Note Option */}
+        {/* Message Input with Private Note Toggle */}
         <div className="p-4 border-t border-slate-200 bg-white space-y-3">
-          <PrivateNoteInput onAddNote={addNote} />
+          {/* Mode indicator */}
+          {isPrivateNoteMode && (
+            <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg">
+              <StickyNote className="w-4 h-4 text-amber-600" />
+              <span className="text-sm font-medium text-amber-800">Private Note Mode</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsPrivateNoteMode(false)}
+                className="ml-auto h-6 px-2 text-amber-600 hover:text-amber-800"
+              >
+                Cancel
+              </Button>
+            </div>
+          )}
           
           <div className="flex items-center space-x-3">
             <Button variant="ghost" size="sm" onClick={handleFileUpload} className="h-9 w-9 p-0 hover:bg-slate-100">
@@ -359,22 +382,52 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
               <Image className="w-4 h-4" />
             </Button>
             <Input 
-              placeholder="Type your message..."
+              placeholder={isPrivateNoteMode ? "Type your private note..." : "Type your message..."}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              className="flex-1 border-slate-200 focus:border-orange-300 focus:ring-orange-200"
+              className={`flex-1 border-slate-200 focus:border-orange-300 focus:ring-orange-200 ${
+                isPrivateNoteMode ? 'border-amber-200 focus:border-amber-300 focus:ring-amber-200' : ''
+              }`}
             />
             <Button variant="ghost" size="sm" onClick={handleEmojiPicker} className="h-9 w-9 p-0 hover:bg-slate-100">
               <Smile className="w-4 h-4" />
             </Button>
+            
+            {/* Private Note Toggle Button */}
+            <Button
+              variant={isPrivateNoteMode ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setIsPrivateNoteMode(!isPrivateNoteMode)}
+              className={`h-9 px-3 ${
+                isPrivateNoteMode 
+                  ? 'bg-amber-600 hover:bg-amber-700 text-white' 
+                  : 'hover:bg-amber-100 text-amber-600'
+              }`}
+              title={isPrivateNoteMode ? "Switch to customer message" : "Switch to private note"}
+            >
+              <StickyNote className="w-4 h-4" />
+            </Button>
+            
+            {/* Send Button */}
             <Button 
               size="sm" 
               onClick={handleSendMessage}
               disabled={!message.trim()}
-              className="bg-orange-500 hover:bg-orange-600 text-white h-9 px-4"
+              className={`h-9 px-4 ${
+                isPrivateNoteMode
+                  ? 'bg-amber-600 hover:bg-amber-700 text-white'
+                  : 'bg-orange-500 hover:bg-orange-600 text-white'
+              }`}
             >
-              <Send className="w-4 h-4" />
+              {isPrivateNoteMode ? (
+                <>
+                  <StickyNote className="w-4 h-4 mr-1" />
+                  Note
+                </>
+              ) : (
+                <Send className="w-4 h-4" />
+              )}
             </Button>
           </div>
         </div>
