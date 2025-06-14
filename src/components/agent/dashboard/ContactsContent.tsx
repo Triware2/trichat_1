@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Search, Filter, Plus, Mail, Phone, User, Building, Calendar } from 'lucide-react';
+import { AddContactModal } from './AddContactModal';
 
 interface Contact {
   id: string;
@@ -25,8 +25,9 @@ interface Contact {
 export const ContactsContent = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [isAddContactOpen, setIsAddContactOpen] = useState(false);
 
-  const [contacts] = useState<Contact[]>([
+  const [contacts, setContacts] = useState<Contact[]>([
     {
       id: '1',
       name: 'John Smith',
@@ -126,7 +127,11 @@ export const ContactsContent = () => {
   };
 
   const handleAddContact = () => {
-    console.log('Opening add contact modal');
+    setIsAddContactOpen(true);
+  };
+
+  const handleContactAdded = (newContact: Contact) => {
+    setContacts(prev => [...prev, newContact]);
   };
 
   return (
@@ -289,6 +294,13 @@ export const ContactsContent = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Add Contact Modal */}
+      <AddContactModal
+        open={isAddContactOpen}
+        onOpenChange={setIsAddContactOpen}
+        onContactAdded={handleContactAdded}
+      />
     </TabsContent>
   );
 };
