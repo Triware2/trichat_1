@@ -15,6 +15,7 @@ import { DashboardOverview } from '@/components/admin/dashboard/DashboardOvervie
 import { DataSourcesManagement } from '@/components/admin/datasources/DataSourcesManagement';
 import { ChatManagement } from '@/components/admin/chat/ChatManagement';
 import { SLAManagement } from '@/components/admin/sla/SLAManagement';
+import { CSATManagement } from '@/components/admin/csat/CSATManagement';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -56,6 +57,10 @@ const AdminDashboard = () => {
 
             <TabsContent value="sla" className="mt-0">
               <SLAManagement />
+            </TabsContent>
+
+            <TabsContent value="csat" className="mt-0">
+              <CSATManagement />
             </TabsContent>
 
             <TabsContent value="analytics" className="mt-0">

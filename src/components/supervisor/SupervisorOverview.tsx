@@ -3,6 +3,7 @@ import { SupervisorStats } from './SupervisorStats';
 import { AgentPerformanceCard } from './AgentPerformanceCard';
 import { SystemAlertsCard } from './SystemAlertsCard';
 import { PerformanceMetrics } from './PerformanceMetrics';
+import { SupervisorCSATOverview } from './SupervisorCSATOverview';
 
 export const SupervisorOverview = () => {
   return (
@@ -20,6 +21,9 @@ export const SupervisorOverview = () => {
 
       {/* Performance Metrics */}
       <PerformanceMetrics />
+
+      {/* CSAT Overview */}
+      <SupervisorCSATOverview />
     </div>
   );
 };

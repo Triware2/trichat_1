@@ -1,126 +1,103 @@
 
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { MessageSquare, Users, TrendingUp, List, Contact } from 'lucide-react';
+import { 
+  BarChart3, 
+  MessageSquare, 
+  Users, 
+  Settings,
+  Star,
+  Target
+} from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
-  SidebarHeader,
-  SidebarFooter,
-  SidebarTrigger,
-  useSidebar,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarTrigger
 } from '@/components/ui/sidebar';
 
+interface TodayPerformance {
+  chatsHandled: number;
+  avgResponse: string;
+  satisfaction: number;
+}
+
 interface AgentSidebarProps {
-  todayPerformance: {
-    chatsHandled: number;
-    avgResponse: string;
-    satisfaction: number;
-  };
+  todayPerformance: TodayPerformance;
 }
 
 export const AgentSidebar = ({ todayPerformance }: AgentSidebarProps) => {
-  const { state } = useSidebar();
-  const isCollapsed = state === 'collapsed';
+  const sidebarItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: BarChart3, tabValue: 'dashboard' },
+    { id: 'chats', label: 'Active Chats', icon: MessageSquare, tabValue: 'chats' },
+    { id: 'all-chats', label: 'All Chats', icon: MessageSquare, tabValue: 'all-chats' },
+    { id: 'contacts', label: 'Contacts', icon: Users, tabValue: 'contacts' },
+    { id: 'analytics', label: 'Analytics', icon: BarChart3, tabValue: 'analytics' },
+    { id: 'csat', label: 'Customer Satisfaction', icon: Star, tabValue: 'csat' },
+    { id: 'settings', label: 'Settings', icon: Settings, tabValue: 'settings' }
+  ];
+
+  const handleTabClick = (tabValue: string) => {
+    const tabsElement = document.querySelector('[role="tablist"]');
+    if (tabsElement) {
+      const targetTab = tabsElement.querySelector(`[value="${tabValue}"]`) as HTMLElement;
+      if (targetTab) {
+        targetTab.click();
+      }
+    }
+  };
 
   return (
-    <Sidebar className="border-r border-slate-200 shadow-sm" collapsible="icon">
-      <SidebarHeader className="p-4">
-        <div className="flex items-center justify-between">
-          {!isCollapsed && (
-            <h2 className="text-lg font-semibold text-slate-900">Navigation</h2>
-          )}
-          <SidebarTrigger className="ml-auto" />
+    <Sidebar className="w-64 border-r border-gray-200">
+      <div className="p-4 border-b border-gray-200">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="font-semibold text-gray-900">Agent Portal</h3>
+          <SidebarTrigger />
         </div>
-      </SidebarHeader>
+        
+        {/* Today's Performance Summary */}
+        <div className="bg-blue-50 rounded-lg p-3 mt-3">
+          <h4 className="text-sm font-medium text-blue-900 mb-2">Today's Performance</h4>
+          <div className="space-y-1">
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-blue-700">Chats</span>
+              <span className="text-xs font-medium text-blue-900">{todayPerformance.chatsHandled}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-blue-700">Avg Response</span>
+              <span className="text-xs font-medium text-blue-900">{todayPerformance.avgResponse}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-blue-700">Satisfaction</span>
+              <span className="text-xs font-medium text-blue-900">{todayPerformance.satisfaction}/5</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <SidebarContent>
-        <div className="p-4">
-          <TabsList className={`grid w-full h-auto space-y-2 bg-transparent p-0 ${isCollapsed ? 'grid-cols-1' : 'grid-cols-1'}`}>
-            <TabsTrigger 
-              value="dashboard" 
-              className={`w-full justify-start rounded-lg text-left data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:border-emerald-200 hover:bg-slate-50 transition-all duration-200 ${isCollapsed ? 'px-2 py-2' : 'px-3 py-2'}`}
-            >
-              <TrendingUp className="w-4 h-4 flex-shrink-0" />
-              {!isCollapsed && <span className="ml-2">Dashboard</span>}
-            </TabsTrigger>
-            <TabsTrigger 
-              value="chat" 
-              className={`w-full justify-start rounded-lg text-left data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:border-emerald-200 hover:bg-slate-50 transition-all duration-200 relative ${isCollapsed ? 'px-2 py-2' : 'px-3 py-2'}`}
-            >
-              <MessageSquare className="w-4 h-4 flex-shrink-0" />
-              {!isCollapsed && (
-                <>
-                  <span className="ml-2">My Conversations</span>
-                  <Badge className="ml-auto bg-emerald-500 text-white text-xs px-2 py-0.5">3</Badge>
-                </>
-              )}
-              {isCollapsed && (
-                <Badge className="absolute -top-1 -right-1 bg-emerald-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full p-0">3</Badge>
-              )}
-            </TabsTrigger>
-            <TabsTrigger 
-              value="allchats" 
-              className={`w-full justify-start rounded-lg text-left data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:border-emerald-200 hover:bg-slate-50 transition-all duration-200 ${isCollapsed ? 'px-2 py-2' : 'px-3 py-2'}`}
-            >
-              <List className="w-4 h-4 flex-shrink-0" />
-              {!isCollapsed && <span className="ml-2">All Chats</span>}
-            </TabsTrigger>
-            <TabsTrigger 
-              value="contacts" 
-              className={`w-full justify-start rounded-lg text-left data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:border-emerald-200 hover:bg-slate-50 transition-all duration-200 ${isCollapsed ? 'px-2 py-2' : 'px-3 py-2'}`}
-            >
-              <Contact className="w-4 h-4 flex-shrink-0" />
-              {!isCollapsed && <span className="ml-2">Contacts</span>}
-            </TabsTrigger>
-            <TabsTrigger 
-              value="responses" 
-              className={`w-full justify-start rounded-lg text-left data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:border-emerald-200 hover:bg-slate-50 transition-all duration-200 ${isCollapsed ? 'px-2 py-2' : 'px-3 py-2'}`}
-            >
-              <MessageSquare className="w-4 h-4 flex-shrink-0" />
-              {!isCollapsed && <span className="ml-2">Templates</span>}
-            </TabsTrigger>
-            <TabsTrigger 
-              value="customer" 
-              className={`w-full justify-start rounded-lg text-left data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:border-emerald-200 hover:bg-slate-50 transition-all duration-200 ${isCollapsed ? 'px-2 py-2' : 'px-3 py-2'}`}
-            >
-              <Users className="w-4 h-4 flex-shrink-0" />
-              {!isCollapsed && <span className="ml-2">Customer Info</span>}
-            </TabsTrigger>
-          </TabsList>
-        </div>
+        <SidebarGroup>
+          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {sidebarItems.map((item) => (
+                <SidebarMenuItem key={item.id}>
+                  <SidebarMenuButton 
+                    onClick={() => handleTabClick(item.tabValue)}
+                    className="w-full justify-start"
+                  >
+                    <item.icon className="w-4 h-4" />
+                    <span>{item.label}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
-
-      {/* Quick Stats Sidebar */}
-      <SidebarFooter className="p-4">
-        <div className={`p-4 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl border border-emerald-200 shadow-sm ${isCollapsed ? 'text-center' : ''}`}>
-          {!isCollapsed ? (
-            <>
-              <h3 className="font-bold text-emerald-900 mb-3 text-base">Today's Performance</h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between items-center">
-                  <span className="text-emerald-700 font-medium">Chats:</span>
-                  <span className="font-bold text-emerald-900">{todayPerformance.chatsHandled}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-emerald-700 font-medium">Avg:</span>
-                  <span className="font-bold text-emerald-900">{todayPerformance.avgResponse}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-emerald-700 font-medium">Rating:</span>
-                  <span className="font-bold text-emerald-900">{todayPerformance.satisfaction}★</span>
-                </div>
-              </div>
-            </>
-          ) : (
-            <div className="space-y-1">
-              <div className="text-xs font-bold text-emerald-900">{todayPerformance.chatsHandled}</div>
-              <div className="text-xs text-emerald-700">{todayPerformance.avgResponse}</div>
-              <div className="text-xs text-emerald-700">{todayPerformance.satisfaction}★</div>
-            </div>
-          )}
-        </div>
-      </SidebarFooter>
     </Sidebar>
   );
 };
