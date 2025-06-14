@@ -142,177 +142,179 @@ const AdminDashboard = () => {
       <NavigationHeader 
         title="Admin Dashboard" 
         role="admin"
-        userEmail="admin@supportpro.com"
+        userEmail="admin@trichat.com"
       />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-2">
-            <div>
-              <h1 className="text-3xl font-bold text-slate-900">Admin Command Center</h1>
-              <p className="text-slate-600">Manage users, monitor system performance, and configure settings</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <Button variant="outline" size="sm">
-                <Download className="w-4 h-4 mr-2" />
-                Export Data
-              </Button>
-              <Button size="sm" className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600">
-                <Plus className="w-4 h-4 mr-2" />
-                Quick Setup
-              </Button>
+      <div className="w-full min-h-[calc(100vh-64px)] px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6 lg:py-8">
+        <div className="w-full max-w-[1920px] mx-auto">
+          <div className="mb-6 lg:mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 truncate">Admin Command Center</h1>
+                <p className="text-slate-600 text-sm sm:text-base mt-1">Manage users, monitor system performance, and configure settings</p>
+              </div>
+              <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                <Button variant="outline" size="sm" className="text-xs sm:text-sm">
+                  <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                  Export Data
+                </Button>
+                <Button size="sm" className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-xs sm:text-sm">
+                  <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                  Quick Setup
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="grid w-full grid-cols-5 bg-white border shadow-sm rounded-xl p-1">
-            <TabsTrigger 
-              value="overview" 
-              className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-md"
-            >
-              <Activity className="w-4 h-4" />
-              Overview
-            </TabsTrigger>
-            <TabsTrigger 
-              value="users" 
-              className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-md"
-            >
-              <Users className="w-4 h-4" />
-              Users
-            </TabsTrigger>
-            <TabsTrigger 
-              value="analytics" 
-              className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-md"
-            >
-              <BarChart3 className="w-4 h-4" />
-              Analytics
-            </TabsTrigger>
-            <TabsTrigger 
-              value="widget" 
-              className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-md"
-            >
-              <Globe className="w-4 h-4" />
-              Widget
-            </TabsTrigger>
-            <TabsTrigger 
-              value="settings" 
-              className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-md"
-            >
-              <Settings className="w-4 h-4" />
-              Settings
-            </TabsTrigger>
-          </TabsList>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6 lg:space-y-8">
+            <TabsList className="grid w-full grid-cols-5 bg-white border shadow-sm rounded-xl p-1 h-auto">
+              <TabsTrigger 
+                value="overview" 
+                className="flex items-center justify-center gap-1 sm:gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-md text-xs sm:text-sm py-2 px-1 sm:px-3"
+              >
+                <Activity className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Overview</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="users" 
+                className="flex items-center justify-center gap-1 sm:gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-md text-xs sm:text-sm py-2 px-1 sm:px-3"
+              >
+                <Users className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Users</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="analytics" 
+                className="flex items-center justify-center gap-1 sm:gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-md text-xs sm:text-sm py-2 px-1 sm:px-3"
+              >
+                <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Analytics</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="widget" 
+                className="flex items-center justify-center gap-1 sm:gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-md text-xs sm:text-sm py-2 px-1 sm:px-3"
+              >
+                <Globe className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Widget</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="settings" 
+                className="flex items-center justify-center gap-1 sm:gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-md text-xs sm:text-sm py-2 px-1 sm:px-3"
+              >
+                <Settings className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Settings</span>
+              </TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="overview" className="space-y-8">
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {stats.map((stat, index) => (
-                <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-white">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${stat.color} flex items-center justify-center shadow-lg`}>
-                        <stat.icon className="w-6 h-6 text-white" />
+            <TabsContent value="overview" className="space-y-6 lg:space-y-8">
+              {/* Stats Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+                {stats.map((stat, index) => (
+                  <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-white">
+                    <CardContent className="p-4 lg:p-6">
+                      <div className="flex items-center justify-between mb-3 lg:mb-4">
+                        <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-gradient-to-r ${stat.color} flex items-center justify-center shadow-lg`}>
+                          <stat.icon className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
+                        </div>
+                        <Badge className={`${stat.bgColor} ${stat.textColor} border-0 text-xs`}>
+                          <TrendingUp className="w-2 h-2 lg:w-3 lg:h-3 mr-1" />
+                          {stat.change}
+                        </Badge>
                       </div>
-                      <Badge className={`${stat.bgColor} ${stat.textColor} border-0`}>
-                        <TrendingUp className="w-3 h-3 mr-1" />
-                        {stat.change}
-                      </Badge>
+                      <div>
+                        <p className="text-xs lg:text-sm font-medium text-slate-600 mb-1">{stat.title}</p>
+                        <p className="text-2xl lg:text-3xl font-bold text-slate-900">{stat.value}</p>
+                        <p className="text-xs text-slate-500 mt-1">
+                          {stat.changeType === 'increase' ? '↗️' : '↘️'} from last month
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
+                {/* Recent Activity */}
+                <Card className="border-0 shadow-lg bg-white">
+                  <CardHeader className="pb-3 lg:pb-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="flex items-center gap-2 text-lg lg:text-xl">
+                          <Activity className="w-4 h-4 lg:w-5 lg:h-5 text-orange-600" />
+                          Recent Activity
+                        </CardTitle>
+                        <CardDescription className="mt-1 text-xs lg:text-sm">
+                          Latest system events and user actions
+                        </CardDescription>
+                      </div>
+                      <Button variant="outline" size="sm">
+                        <Bell className="w-3 h-3 lg:w-4 lg:h-4" />
+                      </Button>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium text-slate-600 mb-1">{stat.title}</p>
-                      <p className="text-3xl font-bold text-slate-900">{stat.value}</p>
-                      <p className="text-xs text-slate-500 mt-1">
-                        {stat.changeType === 'increase' ? '↗️' : '↘️'} from last month
-                      </p>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3 lg:space-y-4">
+                      {recentActivities.map((activity, index) => (
+                        <div key={index} className="flex items-start gap-3 lg:gap-4 p-3 lg:p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors">
+                          <div className={`w-8 h-8 lg:w-10 lg:h-10 rounded-xl ${activity.bgColor} flex items-center justify-center flex-shrink-0`}>
+                            <activity.icon className={`w-4 h-4 lg:w-5 lg:h-5 ${activity.color}`} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs lg:text-sm font-medium text-slate-900 mb-1">{activity.message}</p>
+                            <p className="text-xs text-slate-500">{activity.time}</p>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </CardContent>
                 </Card>
-              ))}
-            </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Recent Activity */}
-              <Card className="border-0 shadow-lg bg-white">
-                <CardHeader className="pb-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="flex items-center gap-2 text-xl">
-                        <Activity className="w-5 h-5 text-orange-600" />
-                        Recent Activity
-                      </CardTitle>
-                      <CardDescription className="mt-1">
-                        Latest system events and user actions
-                      </CardDescription>
-                    </div>
-                    <Button variant="outline" size="sm">
-                      <Bell className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {recentActivities.map((activity, index) => (
-                      <div key={index} className="flex items-start gap-4 p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors">
-                        <div className={`w-10 h-10 rounded-xl ${activity.bgColor} flex items-center justify-center flex-shrink-0`}>
-                          <activity.icon className={`w-5 h-5 ${activity.color}`} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-slate-900 mb-1">{activity.message}</p>
-                          <p className="text-xs text-slate-500">{activity.time}</p>
+                {/* Quick Actions */}
+                <Card className="border-0 shadow-lg bg-white">
+                  <CardHeader className="pb-3 lg:pb-4">
+                    <CardTitle className="flex items-center gap-2 text-lg lg:text-xl">
+                      <Shield className="w-4 h-4 lg:w-5 lg:h-5 text-orange-600" />
+                      Quick Actions
+                    </CardTitle>
+                    <CardDescription className="mt-1 text-xs lg:text-sm">
+                      Common administrative tasks
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-3 lg:space-y-4">
+                    {quickActions.map((action, index) => (
+                      <div key={index} className="group p-3 lg:p-4 rounded-xl border border-slate-200 hover:border-orange-200 hover:bg-orange-50 transition-all cursor-pointer">
+                        <div className="flex items-center gap-3 lg:gap-4">
+                          <div className={`w-8 h-8 lg:w-10 lg:h-10 rounded-xl bg-gradient-to-r ${action.color} flex items-center justify-center shadow-md group-hover:scale-110 transition-transform`}>
+                            <action.icon className="w-4 h-4 lg:w-5 lg:h-5 text-white" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium text-slate-900 group-hover:text-orange-700 transition-colors text-sm lg:text-base">{action.title}</h4>
+                            <p className="text-xs lg:text-sm text-slate-600">{action.description}</p>
+                          </div>
                         </div>
                       </div>
                     ))}
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
 
-              {/* Quick Actions */}
-              <Card className="border-0 shadow-lg bg-white">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center gap-2 text-xl">
-                    <Shield className="w-5 h-5 text-orange-600" />
-                    Quick Actions
-                  </CardTitle>
-                  <CardDescription className="mt-1">
-                    Common administrative tasks
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {quickActions.map((action, index) => (
-                    <div key={index} className="group p-4 rounded-xl border border-slate-200 hover:border-orange-200 hover:bg-orange-50 transition-all cursor-pointer">
-                      <div className="flex items-center gap-4">
-                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-r ${action.color} flex items-center justify-center shadow-md group-hover:scale-110 transition-transform`}>
-                          <action.icon className="w-5 h-5 text-white" />
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="font-medium text-slate-900 group-hover:text-orange-700 transition-colors">{action.title}</h4>
-                          <p className="text-sm text-slate-600">{action.description}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
+            <TabsContent value="users">
+              <UserManagement />
+            </TabsContent>
 
-          <TabsContent value="users">
-            <UserManagement />
-          </TabsContent>
+            <TabsContent value="analytics">
+              <AnalyticsDashboard />
+            </TabsContent>
 
-          <TabsContent value="analytics">
-            <AnalyticsDashboard />
-          </TabsContent>
+            <TabsContent value="widget">
+              <ChatWidgetGenerator />
+            </TabsContent>
 
-          <TabsContent value="widget">
-            <ChatWidgetGenerator />
-          </TabsContent>
-
-          <TabsContent value="settings">
-            <SystemSettings />
-          </TabsContent>
-        </Tabs>
+            <TabsContent value="settings">
+              <SystemSettings />
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
     </div>
   );
