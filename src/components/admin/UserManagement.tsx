@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,11 +21,13 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { UserPlus, Search, Edit, Trash2, Mail, Phone } from 'lucide-react';
+import { UserPlus, Search, Edit, Trash2, Mail, Phone, Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAccessManagement } from '@/components/admin/access/useAccessManagement';
 
 export const UserManagement = () => {
   const { toast } = useToast();
+  const { getRolePermissions } = useAccessManagement();
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
   const [newUser, setNewUser] = useState({
@@ -114,6 +115,10 @@ export const UserManagement = () => {
     setNewUser({ name: '', email: '', role: 'agent', phone: '' });
   };
 
+  const getPermissionCount = (role: string) => {
+    return getRolePermissions(role as any).length;
+  };
+
   const filteredUsers = users.filter(user =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase())
@@ -126,71 +131,77 @@ export const UserManagement = () => {
           <h2 className="text-2xl font-bold text-gray-900">User Management</h2>
           <p className="text-gray-600">Manage your team members and their permissions</p>
         </div>
-        <Dialog open={isAddUserOpen} onOpenChange={setIsAddUserOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-              <UserPlus className="w-4 h-4 mr-2" />
-              Add User
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Add New User</DialogTitle>
-              <DialogDescription>
-                Create a new user account for your team.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="name">Full Name</Label>
-                <Input
-                  id="name"
-                  value={newUser.name}
-                  onChange={(e) => setNewUser({...newUser, name: e.target.value})}
-                  placeholder="Enter full name"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={newUser.email}
-                  onChange={(e) => setNewUser({...newUser, email: e.target.value})}
-                  placeholder="Enter email address"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="phone">Phone</Label>
-                <Input
-                  id="phone"
-                  value={newUser.phone}
-                  onChange={(e) => setNewUser({...newUser, phone: e.target.value})}
-                  placeholder="Enter phone number"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="role">Role</Label>
-                <Select value={newUser.role} onValueChange={(value) => setNewUser({...newUser, role: value})}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="agent">Agent</SelectItem>
-                    <SelectItem value="supervisor">Supervisor</SelectItem>
-                    <SelectItem value="admin">Admin</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsAddUserOpen(false)}>
-                Cancel
+        <div className="flex gap-2">
+          <Button variant="outline" className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0">
+            <Lock className="w-4 h-4 mr-2" />
+            Access Control
+          </Button>
+          <Dialog open={isAddUserOpen} onOpenChange={setIsAddUserOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                <UserPlus className="w-4 h-4 mr-2" />
+                Add User
               </Button>
-              <Button onClick={handleAddUser}>Add User</Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Add New User</DialogTitle>
+                <DialogDescription>
+                  Create a new user account for your team.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="name">Full Name</Label>
+                  <Input
+                    id="name"
+                    value={newUser.name}
+                    onChange={(e) => setNewUser({...newUser, name: e.target.value})}
+                    placeholder="Enter full name"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={newUser.email}
+                    onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+                    placeholder="Enter email address"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="phone">Phone</Label>
+                  <Input
+                    id="phone"
+                    value={newUser.phone}
+                    onChange={(e) => setNewUser({...newUser, phone: e.target.value})}
+                    placeholder="Enter phone number"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="role">Role</Label>
+                  <Select value={newUser.role} onValueChange={(value) => setNewUser({...newUser, role: value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="agent">Agent</SelectItem>
+                      <SelectItem value="supervisor">Supervisor</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setIsAddUserOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleAddUser}>Add User</Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <Card>
@@ -199,7 +210,7 @@ export const UserManagement = () => {
             <div>
               <CardTitle>Team Members</CardTitle>
               <CardDescription>
-                {filteredUsers.length} of {users.length} users
+                {filteredUsers.length} of {users.length} users with role-based permissions
               </CardDescription>
             </div>
             <div className="relative">
@@ -220,6 +231,7 @@ export const UserManagement = () => {
                 <TableHead>User</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Permissions</TableHead>
                 <TableHead>Contact</TableHead>
                 <TableHead>Last Active</TableHead>
                 <TableHead>Actions</TableHead>
@@ -244,6 +256,11 @@ export const UserManagement = () => {
                   </TableCell>
                   <TableCell>
                     {getStatusBadge(user.status)}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="bg-blue-50 text-blue-700">
+                      {getPermissionCount(user.role)} permissions
+                    </Badge>
                   </TableCell>
                   <TableCell>
                     <div className="space-y-1">
