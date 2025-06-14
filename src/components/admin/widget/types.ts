@@ -11,9 +11,72 @@ export interface WidgetConfig {
   department: string;
   buttonText: string;
   buttonSelector: string;
+  // New integration-specific configs
+  apiEndpoint?: string;
+  webhookUrl?: string;
+  customCSS?: string;
+  allowFileUpload?: boolean;
+  showTypingIndicator?: boolean;
+  enableRating?: boolean;
+  maxFileSize?: number;
+  allowedFileTypes?: string[];
+  customFields?: CustomField[];
+  branding?: BrandingConfig;
+  language?: string;
+  timezone?: string;
+  workingHours?: WorkingHours;
+  autoResponders?: AutoResponder[];
 }
 
-export type IntegrationType = 'widget' | 'button';
+export interface CustomField {
+  id: string;
+  label: string;
+  type: 'text' | 'email' | 'phone' | 'select' | 'textarea';
+  required: boolean;
+  options?: string[];
+}
+
+export interface BrandingConfig {
+  logo?: string;
+  companyName?: string;
+  hideTriChatBranding?: boolean;
+  customFavicon?: string;
+}
+
+export interface WorkingHours {
+  enabled: boolean;
+  timezone: string;
+  schedule: {
+    [key: string]: { start: string; end: string; enabled: boolean };
+  };
+}
+
+export interface AutoResponder {
+  id: string;
+  trigger: string;
+  response: string;
+  enabled: boolean;
+}
+
+export type IntegrationType = 
+  | 'widget' 
+  | 'button' 
+  | 'inline' 
+  | 'popup' 
+  | 'fullscreen' 
+  | 'api' 
+  | 'webhook' 
+  | 'iframe' 
+  | 'react-component' 
+  | 'wordpress' 
+  | 'shopify' 
+  | 'slack' 
+  | 'teams' 
+  | 'whatsapp' 
+  | 'facebook' 
+  | 'telegram' 
+  | 'discord' 
+  | 'mobile-sdk';
 
 export interface Position {
   value: string;
@@ -23,4 +86,14 @@ export interface Position {
 export interface Department {
   value: string;
   label: string;
+}
+
+export interface IntegrationTypeOption {
+  value: IntegrationType;
+  label: string;
+  description: string;
+  icon: any;
+  category: 'web' | 'api' | 'platform' | 'messaging' | 'mobile';
+  complexity: 'easy' | 'medium' | 'advanced';
+  features: string[];
 }
