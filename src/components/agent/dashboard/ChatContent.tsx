@@ -38,9 +38,9 @@ export const ChatContent = ({
   };
 
   return (
-    <TabsContent value="chat" className="h-full">
+    <TabsContent value="chat" className="h-full m-0">
       <div className="flex h-full">
-        <div className="w-96 border-r border-slate-200 bg-white">
+        <div className="w-80 border-r border-slate-200 bg-white">
           <ChatList 
             chats={chats}
             selectedChat={selectedChat}
@@ -56,7 +56,7 @@ export const ChatContent = ({
             onSendMessage={onSendMessage}
           />
         </div>
-        <div className="w-80 border-l border-slate-200 bg-slate-50 p-4 overflow-y-auto">
+        <div className="w-72 border-l border-slate-200 bg-slate-50 p-3 overflow-y-auto">
           <CustomerComplaintsPreview 
             chatId={selectedChat}
             customerName={getSelectedCustomerName()}

@@ -1,6 +1,6 @@
-
 import { useState } from 'react';
 import { Tabs } from '@/components/ui/tabs';
+import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { NavigationHeader } from '@/components/NavigationHeader';
 import { AgentSidebar } from '@/components/agent/dashboard/AgentSidebar';
 import { DashboardContent } from '@/components/agent/dashboard/DashboardContent';
@@ -86,36 +86,38 @@ const AgentDashboard = () => {
         userEmail="agent@trichat.com"
       />
 
-      {/* Main Content */}
+      {/* Main Content with Sidebar */}
       <div className="h-[calc(100vh-64px)]">
-        <Tabs defaultValue="dashboard" className="h-full">
-          <div className="flex h-full">
-            {/* Sidebar Navigation */}
-            <AgentSidebar todayPerformance={todayPerformance} />
+        <SidebarProvider defaultOpen={true}>
+          <div className="flex h-full w-full">
+            <Tabs defaultValue="dashboard" className="flex h-full w-full">
+              {/* Collapsible Sidebar */}
+              <AgentSidebar todayPerformance={todayPerformance} />
 
-            {/* Content Area */}
-            <div className="flex-1 overflow-hidden">
-              <DashboardContent
-                stats={stats}
-                chats={chats}
-                activities={activities}
-                onStatClick={handleStatClick}
-                onQueueAction={handleQueueAction}
-              />
+              {/* Main Content Area */}
+              <SidebarInset className="flex-1 overflow-hidden">
+                <DashboardContent
+                  stats={stats}
+                  chats={chats}
+                  activities={activities}
+                  onStatClick={handleStatClick}
+                  onQueueAction={handleQueueAction}
+                />
 
-              <ChatContent
-                chats={chats}
-                selectedChat={selectedChat}
-                onChatSelect={setSelectedChat}
-                onFilter={handleFilter}
-                onSendMessage={handleSendMessage}
-                getSelectedCustomerName={getSelectedCustomerName}
-              />
+                <ChatContent
+                  chats={chats}
+                  selectedChat={selectedChat}
+                  onChatSelect={setSelectedChat}
+                  onFilter={handleFilter}
+                  onSendMessage={handleSendMessage}
+                  getSelectedCustomerName={getSelectedCustomerName}
+                />
 
-              <OtherTabsContent customer={getSelectedCustomer()} />
-            </div>
+                <OtherTabsContent customer={getSelectedCustomer()} />
+              </SidebarInset>
+            </Tabs>
           </div>
-        </Tabs>
+        </SidebarProvider>
       </div>
     </div>
   );
