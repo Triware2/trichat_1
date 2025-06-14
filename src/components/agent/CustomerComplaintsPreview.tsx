@@ -173,10 +173,10 @@ export const CustomerComplaintsPreview = ({ chatId, customerName, onViewFullProf
                 <div className="flex justify-between items-start mb-2">
                   <span className="text-xs font-medium text-slate-600">#{complaint.id}</span>
                   <div className="flex gap-1">
-                    <Badge variant="outline" className={getStatusColor(complaint.status)} size="sm">
+                    <Badge variant="outline" className={getStatusColor(complaint.status)}>
                       {complaint.status}
                     </Badge>
-                    <Badge variant="outline" className={getPriorityColor(complaint.priority)} size="sm">
+                    <Badge variant="outline" className={getPriorityColor(complaint.priority)}>
                       {complaint.priority}
                     </Badge>
                   </div>
