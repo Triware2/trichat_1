@@ -152,107 +152,111 @@ const SupervisorDashboard = () => {
         userEmail="supervisor@trichat.com"
       />
       
-      <div className="w-full min-h-[calc(100vh-64px)] px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6 lg:py-8">
+      <div className="w-full min-h-[calc(100vh-64px)] px-4 lg:px-8 py-6 lg:py-8">
         <div className="w-full max-w-[1920px] mx-auto">
-          <div className="mb-6 lg:mb-8">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
+          <div className="mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-2">
               <div className="min-w-0 flex-1">
-                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 truncate">Supervisor Control Hub</h1>
-                <p className="text-slate-600 text-sm sm:text-base mt-1">Monitor team performance and optimize support operations</p>
+                <h1 className="text-3xl lg:text-4xl font-lexend font-semibold text-slate-900 tracking-tight">
+                  Supervisor Control Hub
+                </h1>
+                <p className="text-lg text-slate-600 mt-2 font-lexend font-normal leading-relaxed">
+                  Monitor team performance and optimize support operations
+                </p>
               </div>
-              <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-                <Button variant="outline" size="sm" className="text-xs sm:text-sm">
-                  <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              <div className="flex items-center gap-3 flex-shrink-0">
+                <Button variant="outline" size="default" className="font-lexend font-medium h-10 px-6 text-sm">
+                  <RefreshCw className="w-4 h-4 mr-2" />
                   Refresh
                 </Button>
-                <Button size="sm" className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-xs sm:text-sm">
-                  <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                <Button size="default" className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 font-lexend font-medium h-10 px-6 text-sm shadow-lg">
+                  <Download className="w-4 h-4 mr-2" />
                   Export Report
                 </Button>
               </div>
             </div>
           </div>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6 lg:space-y-8">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
             <TabsList className="grid w-full grid-cols-5 bg-white border shadow-sm rounded-xl p-1 h-auto">
               <TabsTrigger 
                 value="overview" 
-                className="flex items-center justify-center gap-1 sm:gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-md text-xs sm:text-sm py-2 px-1 sm:px-3"
+                className="flex items-center justify-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-md font-lexend font-medium text-sm py-3 px-4"
               >
-                <Activity className="w-3 h-3 sm:w-4 sm:h-4" />
+                <Activity className="w-4 h-4" />
                 <span className="hidden sm:inline">Overview</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="chats" 
-                className="flex items-center justify-center gap-1 sm:gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-md text-xs sm:text-sm py-2 px-1 sm:px-3"
+                className="flex items-center justify-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-md font-lexend font-medium text-sm py-3 px-4"
               >
-                <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
+                <Eye className="w-4 h-4" />
                 <span className="hidden sm:inline">Chat Supervision</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="team" 
-                className="flex items-center justify-center gap-1 sm:gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-md text-xs sm:text-sm py-2 px-1 sm:px-3"
+                className="flex items-center justify-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-md font-lexend font-medium text-sm py-3 px-4"
               >
-                <Users className="w-3 h-3 sm:w-4 sm:h-4" />
+                <Users className="w-4 h-4" />
                 <span className="hidden sm:inline">Team Monitor</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="queue" 
-                className="flex items-center justify-center gap-1 sm:gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-md text-xs sm:text-sm py-2 px-1 sm:px-3"
+                className="flex items-center justify-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-md font-lexend font-medium text-sm py-3 px-4"
               >
-                <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4" />
+                <MessageSquare className="w-4 h-4" />
                 <span className="hidden sm:inline">Queue Management</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="reports" 
-                className="flex items-center justify-center gap-1 sm:gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-md text-xs sm:text-sm py-2 px-1 sm:px-3"
+                className="flex items-center justify-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-md font-lexend font-medium text-sm py-3 px-4"
               >
-                <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4" />
+                <BarChart3 className="w-4 h-4" />
                 <span className="hidden sm:inline">Reports</span>
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="overview" className="space-y-6 lg:space-y-8">
+            <TabsContent value="overview" className="space-y-8">
               {/* Team Stats */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {teamStats.map((stat, index) => (
-                  <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-white">
-                    <CardContent className="p-4 lg:p-6">
-                      <div className="flex items-center justify-between mb-3 lg:mb-4">
-                        <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-gradient-to-r ${stat.color} flex items-center justify-center shadow-lg`}>
-                          <stat.icon className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
+                  <Card key={index} className="border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-white">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${stat.color} flex items-center justify-center shadow-md`}>
+                          <stat.icon className="w-6 h-6 text-white" />
                         </div>
-                        <Badge className={`${stat.bgColor} ${stat.textColor} border-0 text-xs`}>
-                          <TrendingUp className="w-2 h-2 lg:w-3 lg:h-3 mr-1" />
+                        <Badge className={`${stat.bgColor} ${stat.textColor} border-0 font-lexend font-medium text-xs px-2 py-1`}>
+                          <TrendingUp className="w-3 h-3 mr-1" />
                           {stat.change}
                         </Badge>
                       </div>
                       <div>
-                        <p className="text-xs lg:text-sm font-medium text-slate-600 mb-1">{stat.title}</p>
-                        <p className="text-2xl lg:text-3xl font-bold text-slate-900">{stat.value}</p>
-                        <p className="text-xs text-slate-500 mt-1">from last hour</p>
+                        <p className="text-sm font-lexend font-medium text-slate-600 mb-1 tracking-wide">{stat.title}</p>
+                        <p className="text-2xl font-lexend font-bold text-slate-900 tracking-tight">{stat.value}</p>
+                        <p className="text-xs font-lexend text-slate-500 mt-1">from last hour</p>
                       </div>
                     </CardContent>
                   </Card>
                 ))}
               </div>
 
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                 {/* Team Performance */}
-                <Card className="border-0 shadow-lg bg-white">
-                  <CardHeader className="pb-3 lg:pb-4">
+                <Card className="border-0 shadow-md bg-white">
+                  <CardHeader className="pb-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <CardTitle className="flex items-center gap-2 text-lg lg:text-xl">
-                          <UserCheck className="w-4 h-4 lg:w-5 lg:h-5 text-blue-600" />
+                        <CardTitle className="flex items-center gap-3 text-xl font-lexend font-semibold text-slate-900">
+                          <UserCheck className="w-5 h-5 text-blue-600" />
                           Agent Performance
                         </CardTitle>
-                        <CardDescription className="mt-1 text-xs lg:text-sm">
+                        <CardDescription className="mt-2 text-sm font-lexend text-slate-600">
                           Real-time team member status and metrics
                         </CardDescription>
                       </div>
-                      <Button variant="outline" size="sm">
-                        <Filter className="w-3 h-3 lg:w-4 lg:h-4" />
+                      <Button variant="outline" size="sm" className="font-lexend font-medium">
+                        <Filter className="w-4 h-4" />
                       </Button>
                     </div>
                   </CardHeader>
@@ -288,19 +292,19 @@ const SupervisorDashboard = () => {
                 </Card>
 
                 {/* Alerts */}
-                <Card className="border-0 shadow-lg bg-white">
-                  <CardHeader className="pb-3 lg:pb-4">
+                <Card className="border-0 shadow-md bg-white">
+                  <CardHeader className="pb-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <CardTitle className="flex items-center gap-2 text-lg lg:text-xl">
-                          <AlertTriangle className="w-4 h-4 lg:w-5 lg:h-5 text-blue-600" />
+                        <CardTitle className="flex items-center gap-3 text-xl font-lexend font-semibold text-slate-900">
+                          <AlertTriangle className="w-5 h-5 text-blue-600" />
                           System Alerts
                         </CardTitle>
-                        <CardDescription className="mt-1 text-xs lg:text-sm">
+                        <CardDescription className="mt-2 text-sm font-lexend text-slate-600">
                           Important notifications requiring attention
                         </CardDescription>
                       </div>
-                      <Badge className="bg-red-100 text-red-800 border-red-200 text-xs">
+                      <Badge className="bg-red-100 text-red-800 border-red-200 font-lexend font-medium text-xs px-2 py-1">
                         {alerts.length} Active
                       </Badge>
                     </div>
@@ -328,42 +332,42 @@ const SupervisorDashboard = () => {
               </div>
 
               {/* Performance Metrics */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
-                <Card className="border-0 shadow-lg bg-gradient-to-br from-emerald-500 to-teal-500 text-white">
-                  <CardContent className="p-4 lg:p-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <Card className="border-0 shadow-md bg-gradient-to-br from-emerald-500 to-teal-500 text-white">
+                  <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-emerald-100 text-xs lg:text-sm font-medium">Today's Target</p>
-                        <p className="text-2xl lg:text-3xl font-bold">95%</p>
-                        <p className="text-emerald-100 text-xs lg:text-sm">Resolution Rate</p>
+                        <p className="text-emerald-100 text-sm font-lexend font-medium tracking-wide">Today's Target</p>
+                        <p className="text-3xl font-lexend font-bold tracking-tight">95%</p>
+                        <p className="text-emerald-100 text-sm font-lexend">Resolution Rate</p>
                       </div>
-                      <Target className="w-6 h-6 lg:w-8 lg:h-8 text-emerald-100" />
+                      <Target className="w-8 h-8 text-emerald-100" />
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-500 to-cyan-500 text-white">
-                  <CardContent className="p-4 lg:p-6">
+                <Card className="border-0 shadow-md bg-gradient-to-br from-blue-500 to-cyan-500 text-white">
+                  <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-blue-100 text-xs lg:text-sm font-medium">Peak Performance</p>
-                        <p className="text-2xl lg:text-3xl font-bold">98.2%</p>
-                        <p className="text-blue-100 text-xs lg:text-sm">This Week</p>
+                        <p className="text-blue-100 text-sm font-lexend font-medium tracking-wide">Peak Performance</p>
+                        <p className="text-3xl font-lexend font-bold tracking-tight">98.2%</p>
+                        <p className="text-blue-100 text-sm font-lexend">This Week</p>
                       </div>
-                      <Zap className="w-6 h-6 lg:w-8 lg:h-8 text-blue-100" />
+                      <Zap className="w-8 h-8 text-blue-100" />
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-500 to-pink-500 text-white">
-                  <CardContent className="p-4 lg:p-6">
+                <Card className="border-0 shadow-md bg-gradient-to-br from-purple-500 to-pink-500 text-white">
+                  <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-purple-100 text-xs lg:text-sm font-medium">Team Efficiency</p>
-                        <p className="text-2xl lg:text-3xl font-bold">89%</p>
-                        <p className="text-purple-100 text-xs lg:text-sm">Above Baseline</p>
+                        <p className="text-purple-100 text-sm font-lexend font-medium tracking-wide">Team Efficiency</p>
+                        <p className="text-3xl font-lexend font-bold tracking-tight">89%</p>
+                        <p className="text-purple-100 text-sm font-lexend">Above Baseline</p>
                       </div>
-                      <TrendingUp className="w-6 h-6 lg:w-8 lg:h-8 text-purple-100" />
+                      <TrendingUp className="w-8 h-8 text-purple-100" />
                     </div>
                   </CardContent>
                 </Card>
