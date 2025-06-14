@@ -8,7 +8,8 @@ import {
   BarChart3, 
   Code2, 
   Settings,
-  Key
+  Key,
+  Database
 } from 'lucide-react';
 
 interface DashboardTabsProps {
@@ -25,6 +26,7 @@ export const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) =>
     { id: 'api-keys', label: 'API keys', icon: Key },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
     { id: 'widget', label: 'Integrations', icon: Code2 },
+    { id: 'datasources', label: 'Data Sources', icon: Database },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 

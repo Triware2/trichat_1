@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { NavigationHeader } from '@/components/NavigationHeader';
@@ -12,6 +11,7 @@ import { ApiKeyManagement } from '@/components/admin/api/ApiKeyManagement';
 import { DashboardHeader } from '@/components/admin/dashboard/DashboardHeader';
 import { DashboardTabs } from '@/components/admin/dashboard/DashboardTabs';
 import { DashboardOverview } from '@/components/admin/dashboard/DashboardOverview';
+import { DataSourcesManagement } from '@/components/admin/datasources/DataSourcesManagement';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -57,6 +57,10 @@ const AdminDashboard = () => {
 
             <TabsContent value="widget" className="mt-0">
               <ChatWidgetGenerator />
+            </TabsContent>
+
+            <TabsContent value="datasources" className="mt-0">
+              <DataSourcesManagement />
             </TabsContent>
 
             <TabsContent value="settings" className="mt-0">
