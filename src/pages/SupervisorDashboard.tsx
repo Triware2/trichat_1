@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,6 +16,9 @@ import {
   UserCheck
 } from 'lucide-react';
 import { NavigationHeader } from '@/components/NavigationHeader';
+import { TeamMonitor } from '@/components/supervisor/TeamMonitor';
+import { QueueManagement } from '@/components/supervisor/QueueManagement';
+import { Reports } from '@/components/supervisor/Reports';
 
 const SupervisorDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -223,39 +225,15 @@ const SupervisorDashboard = () => {
           </TabsContent>
 
           <TabsContent value="team">
-            <Card>
-              <CardHeader>
-                <CardTitle>Team Monitoring</CardTitle>
-                <CardDescription>Detailed view of agent activities and performance</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600">Detailed team monitoring interface would be implemented here.</p>
-              </CardContent>
-            </Card>
+            <TeamMonitor />
           </TabsContent>
 
           <TabsContent value="queue">
-            <Card>
-              <CardHeader>
-                <CardTitle>Queue Management</CardTitle>
-                <CardDescription>Manage customer support queue and assignments</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600">Queue management interface would be implemented here.</p>
-              </CardContent>
-            </Card>
+            <QueueManagement />
           </TabsContent>
 
           <TabsContent value="reports">
-            <Card>
-              <CardHeader>
-                <CardTitle>Performance Reports</CardTitle>
-                <CardDescription>Generate and view team performance reports</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600">Reporting interface would be implemented here.</p>
-              </CardContent>
-            </Card>
+            <Reports />
           </TabsContent>
         </Tabs>
       </div>
