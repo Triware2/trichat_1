@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,12 +15,15 @@ import {
   MessageSquare, 
   Palette,
   Globe,
-  Smartphone
+  Smartphone,
+  Mouse,
+  Widget
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export const ChatWidgetGenerator = () => {
   const { toast } = useToast();
+  const [integrationType, setIntegrationType] = useState('widget');
   const [widgetConfig, setWidgetConfig] = useState({
     title: 'Need Help?',
     subtitle: 'We\'re here to help you',
@@ -31,14 +33,16 @@ export const ChatWidgetGenerator = () => {
     placeholder: 'Type your message...',
     showAvatar: true,
     autoOpen: false,
-    department: 'general'
+    department: 'general',
+    buttonText: 'Get Help',
+    buttonSelector: '#help-button'
   });
 
-  const generateCode = () => {
-    return `<!-- SupportPro Chat Widget -->
+  const generateWidgetCode = () => {
+    return `<!-- TriChat Widget Integration -->
 <script>
   (function() {
-    window.SupportProConfig = {
+    window.TriChatConfig = {
       title: "${widgetConfig.title}",
       subtitle: "${widgetConfig.subtitle}",
       primaryColor: "${widgetConfig.primaryColor}",
@@ -52,7 +56,7 @@ export const ChatWidgetGenerator = () => {
     };
     
     var script = document.createElement('script');
-    script.src = 'https://widget.supportpro.com/widget.js';
+    script.src = 'https://widget.trichat.com/widget.js';
     script.async = true;
     document.head.appendChild(script);
   })();
@@ -60,18 +64,76 @@ export const ChatWidgetGenerator = () => {
 
 <!-- Optional: Custom CSS -->
 <style>
-  .supportpro-widget {
+  .trichat-widget {
     --primary-color: ${widgetConfig.primaryColor};
     --widget-position: ${widgetConfig.position};
   }
 </style>`;
   };
 
+  const generateButtonCode = () => {
+    return `<!-- TriChat Button Integration -->
+<script>
+  (function() {
+    window.TriChatConfig = {
+      title: "${widgetConfig.title}",
+      subtitle: "${widgetConfig.subtitle}",
+      primaryColor: "${widgetConfig.primaryColor}",
+      welcomeMessage: "${widgetConfig.welcomeMessage}",
+      placeholder: "${widgetConfig.placeholder}",
+      showAvatar: ${widgetConfig.showAvatar},
+      department: "${widgetConfig.department}",
+      apiKey: "YOUR_API_KEY_HERE",
+      mode: "button"
+    };
+    
+    // Load TriChat script
+    var script = document.createElement('script');
+    script.src = 'https://widget.trichat.com/widget.js';
+    script.async = true;
+    script.onload = function() {
+      // Initialize button integration
+      TriChat.initButtonMode('${widgetConfig.buttonSelector}');
+    };
+    document.head.appendChild(script);
+  })();
+</script>
+
+<!-- Add this to your existing help button or create a new one -->
+<button id="help-button" class="trichat-trigger">
+  ${widgetConfig.buttonText}
+</button>
+
+<!-- Optional: Custom CSS -->
+<style>
+  .trichat-modal {
+    --primary-color: ${widgetConfig.primaryColor};
+  }
+  
+  .trichat-trigger {
+    /* Style your button as needed */
+    background-color: ${widgetConfig.primaryColor};
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .trichat-trigger:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+</style>`;
+  };
+
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(generateCode());
+    const code = integrationType === 'widget' ? generateWidgetCode() : generateButtonCode();
+    navigator.clipboard.writeText(code);
     toast({
       title: "Code Copied!",
-      description: "The widget code has been copied to your clipboard.",
+      description: `The ${integrationType} integration code has been copied to your clipboard.`,
     });
   };
 
@@ -92,9 +154,54 @@ export const ChatWidgetGenerator = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">Chat Widget Generator</h2>
-        <p className="text-gray-600">Create and customize your embeddable chat widget</p>
+        <h2 className="text-2xl font-bold text-gray-900">TriChat Integration Generator</h2>
+        <p className="text-gray-600">Create and customize your embeddable chat widget or button integration</p>
       </div>
+
+      {/* Integration Type Selection */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Integration Type</CardTitle>
+          <CardDescription>Choose how you want to integrate TriChat into your website</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div 
+              className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                integrationType === 'widget' 
+                  ? 'border-blue-500 bg-blue-50' 
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+              onClick={() => setIntegrationType('widget')}
+            >
+              <div className="flex items-center gap-3">
+                <Widget className="w-6 h-6 text-blue-600" />
+                <div>
+                  <h3 className="font-semibold">Floating Widget</h3>
+                  <p className="text-sm text-gray-600">Always visible chat widget on your website</p>
+                </div>
+              </div>
+            </div>
+
+            <div 
+              className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                integrationType === 'button' 
+                  ? 'border-blue-500 bg-blue-50' 
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+              onClick={() => setIntegrationType('button')}
+            >
+              <div className="flex items-center gap-3">
+                <Mouse className="w-6 h-6 text-blue-600" />
+                <div>
+                  <h3 className="font-semibold">Button Trigger</h3>
+                  <p className="text-sm text-gray-600">Opens when users click your help button</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Configuration Panel */}
@@ -102,10 +209,10 @@ export const ChatWidgetGenerator = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Settings className="w-5 h-5" />
-              Widget Configuration
+              Configuration
             </CardTitle>
             <CardDescription>
-              Customize your chat widget appearance and behavior
+              Customize your TriChat {integrationType} appearance and behavior
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -118,7 +225,7 @@ export const ChatWidgetGenerator = () => {
 
               <TabsContent value="general" className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="title">Widget Title</Label>
+                  <Label htmlFor="title">Chat Title</Label>
                   <Input
                     id="title"
                     value={widgetConfig.title}
@@ -148,15 +255,32 @@ export const ChatWidgetGenerator = () => {
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="placeholder">Message Placeholder</Label>
-                  <Input
-                    id="placeholder"
-                    value={widgetConfig.placeholder}
-                    onChange={(e) => setWidgetConfig({...widgetConfig, placeholder: e.target.value})}
-                    placeholder="Type your message..."
-                  />
-                </div>
+                {integrationType === 'button' && (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="buttonText">Button Text</Label>
+                      <Input
+                        id="buttonText"
+                        value={widgetConfig.buttonText}
+                        onChange={(e) => setWidgetConfig({...widgetConfig, buttonText: e.target.value})}
+                        placeholder="Get Help"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="buttonSelector">Button CSS Selector</Label>
+                      <Input
+                        id="buttonSelector"
+                        value={widgetConfig.buttonSelector}
+                        onChange={(e) => setWidgetConfig({...widgetConfig, buttonSelector: e.target.value})}
+                        placeholder="#help-button"
+                      />
+                      <p className="text-xs text-gray-500">
+                        CSS selector for your existing button (e.g., #help-button, .help-btn)
+                      </p>
+                    </div>
+                  </>
+                )}
               </TabsContent>
 
               <TabsContent value="appearance" className="space-y-4">
@@ -179,24 +303,26 @@ export const ChatWidgetGenerator = () => {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="position">Position</Label>
-                  <Select 
-                    value={widgetConfig.position} 
-                    onValueChange={(value) => setWidgetConfig({...widgetConfig, position: value})}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select position" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {positions.map((pos) => (
-                        <SelectItem key={pos.value} value={pos.value}>
-                          {pos.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                {integrationType === 'widget' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="position">Position</Label>
+                    <Select 
+                      value={widgetConfig.position} 
+                      onValueChange={(value) => setWidgetConfig({...widgetConfig, position: value})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select position" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {positions.map((pos) => (
+                          <SelectItem key={pos.value} value={pos.value}>
+                            {pos.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
 
                 <div className="flex items-center justify-between">
                   <Label htmlFor="showAvatar">Show Avatar</Label>
@@ -230,16 +356,18 @@ export const ChatWidgetGenerator = () => {
                   </Select>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="autoOpen">Auto-open on page load</Label>
-                  <input
-                    id="autoOpen"
-                    type="checkbox"
-                    checked={widgetConfig.autoOpen}
-                    onChange={(e) => setWidgetConfig({...widgetConfig, autoOpen: e.target.checked})}
-                    className="w-4 h-4"
-                  />
-                </div>
+                {integrationType === 'widget' && (
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="autoOpen">Auto-open on page load</Label>
+                    <input
+                      id="autoOpen"
+                      type="checkbox"
+                      checked={widgetConfig.autoOpen}
+                      onChange={(e) => setWidgetConfig({...widgetConfig, autoOpen: e.target.checked})}
+                      className="w-4 h-4"
+                    />
+                  </div>
+                )}
               </TabsContent>
             </Tabs>
           </CardContent>
@@ -253,7 +381,7 @@ export const ChatWidgetGenerator = () => {
               Live Preview
             </CardTitle>
             <CardDescription>
-              See how your widget will look on different devices
+              See how your {integrationType} will look on different devices
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -272,81 +400,130 @@ export const ChatWidgetGenerator = () => {
               <TabsContent value="desktop">
                 <div className="relative bg-gray-100 rounded-lg p-4 h-96 overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50 opacity-50"></div>
-                  <div 
-                    className={`absolute ${
-                      widgetConfig.position.includes('bottom') ? 'bottom-4' : 'top-4'
-                    } ${
-                      widgetConfig.position.includes('right') ? 'right-4' : 'left-4'
-                    } w-80 bg-white rounded-lg shadow-xl border`}
-                  >
+                  
+                  {integrationType === 'widget' ? (
                     <div 
-                      className="p-4 rounded-t-lg text-white"
-                      style={{ backgroundColor: widgetConfig.primaryColor }}
+                      className={`absolute ${
+                        widgetConfig.position.includes('bottom') ? 'bottom-4' : 'top-4'
+                      } ${
+                        widgetConfig.position.includes('right') ? 'right-4' : 'left-4'
+                      } w-80 bg-white rounded-lg shadow-xl border`}
                     >
-                      <div className="flex items-center justify-between">
-                        <div>
+                      {/* ... keep existing code (widget preview) */}
+                      <div 
+                        className="p-4 rounded-t-lg text-white"
+                        style={{ backgroundColor: widgetConfig.primaryColor }}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h3 className="font-semibold">{widgetConfig.title}</h3>
+                            <p className="text-sm opacity-90">{widgetConfig.subtitle}</p>
+                          </div>
+                          {widgetConfig.showAvatar && (
+                            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                              <MessageSquare className="w-4 h-4" />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="p-4 space-y-3">
+                        <div className="bg-gray-100 rounded-lg p-3">
+                          <p className="text-sm text-gray-700">{widgetConfig.welcomeMessage}</p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Input 
+                            placeholder={widgetConfig.placeholder}
+                            className="flex-1 text-sm"
+                            disabled
+                          />
+                          <Button 
+                            size="sm" 
+                            style={{ backgroundColor: widgetConfig.primaryColor }}
+                            disabled
+                          >
+                            Send
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {/* Button Preview */}
+                      <div className="flex justify-center">
+                        <button 
+                          className="px-6 py-3 rounded-lg text-white font-medium shadow-lg hover:shadow-xl transition-all"
+                          style={{ backgroundColor: widgetConfig.primaryColor }}
+                        >
+                          {widgetConfig.buttonText}
+                        </button>
+                      </div>
+                      
+                      {/* Modal Preview */}
+                      <div className="bg-white rounded-lg shadow-2xl border max-w-md mx-auto">
+                        <div 
+                          className="p-4 rounded-t-lg text-white"
+                          style={{ backgroundColor: widgetConfig.primaryColor }}
+                        >
                           <h3 className="font-semibold">{widgetConfig.title}</h3>
                           <p className="text-sm opacity-90">{widgetConfig.subtitle}</p>
                         </div>
-                        {widgetConfig.showAvatar && (
-                          <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                            <MessageSquare className="w-4 h-4" />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div className="p-4 space-y-3">
-                      <div className="bg-gray-100 rounded-lg p-3">
-                        <p className="text-sm text-gray-700">{widgetConfig.welcomeMessage}</p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Input 
-                          placeholder={widgetConfig.placeholder}
-                          className="flex-1 text-sm"
-                          disabled
-                        />
-                        <Button 
-                          size="sm" 
-                          style={{ backgroundColor: widgetConfig.primaryColor }}
-                          disabled
-                        >
-                          Send
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="mobile">
-                <div className="relative bg-gray-900 rounded-xl p-2 h-96 w-48 mx-auto">
-                  <div className="bg-white rounded-lg h-full overflow-hidden">
-                    <div className="bg-gradient-to-br from-blue-50 to-purple-50 opacity-50 h-full relative">
-                      <div 
-                        className={`absolute ${
-                          widgetConfig.position.includes('bottom') ? 'bottom-2' : 'top-2'
-                        } ${
-                          widgetConfig.position.includes('right') ? 'right-2' : 'left-2'
-                        } w-40 bg-white rounded-lg shadow-xl border`}
-                      >
-                        <div 
-                          className="p-3 rounded-t-lg text-white"
-                          style={{ backgroundColor: widgetConfig.primaryColor }}
-                        >
-                          <h3 className="font-semibold text-sm">{widgetConfig.title}</h3>
-                          <p className="text-xs opacity-90">{widgetConfig.subtitle}</p>
-                        </div>
-                        <div className="p-3 space-y-2">
-                          <div className="bg-gray-100 rounded-lg p-2">
-                            <p className="text-xs text-gray-700">{widgetConfig.welcomeMessage}</p>
+                        <div className="p-4 space-y-3">
+                          <div className="bg-gray-100 rounded-lg p-3">
+                            <p className="text-sm text-gray-700">{widgetConfig.welcomeMessage}</p>
                           </div>
                           <Input 
                             placeholder={widgetConfig.placeholder}
-                            className="text-xs h-8"
+                            className="text-sm"
                             disabled
                           />
                         </div>
                       </div>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="mobile">
+                {/* ... keep existing code (mobile preview) */}
+                <div className="relative bg-gray-900 rounded-xl p-2 h-96 w-48 mx-auto">
+                  <div className="bg-white rounded-lg h-full overflow-hidden">
+                    <div className="bg-gradient-to-br from-blue-50 to-purple-50 opacity-50 h-full relative">
+                      {integrationType === 'widget' ? (
+                        <div 
+                          className={`absolute ${
+                            widgetConfig.position.includes('bottom') ? 'bottom-2' : 'top-2'
+                          } ${
+                            widgetConfig.position.includes('right') ? 'right-2' : 'left-2'
+                          } w-40 bg-white rounded-lg shadow-xl border`}
+                        >
+                          <div 
+                            className="p-3 rounded-t-lg text-white"
+                            style={{ backgroundColor: widgetConfig.primaryColor }}
+                          >
+                            <h3 className="font-semibold text-sm">{widgetConfig.title}</h3>
+                            <p className="text-xs opacity-90">{widgetConfig.subtitle}</p>
+                          </div>
+                          <div className="p-3 space-y-2">
+                            <div className="bg-gray-100 rounded-lg p-2">
+                              <p className="text-xs text-gray-700">{widgetConfig.welcomeMessage}</p>
+                            </div>
+                            <Input 
+                              placeholder={widgetConfig.placeholder}
+                              className="text-xs h-8"
+                              disabled
+                            />
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="p-4 space-y-4">
+                          <button 
+                            className="w-full py-2 rounded text-white text-sm font-medium"
+                            style={{ backgroundColor: widgetConfig.primaryColor }}
+                          >
+                            {widgetConfig.buttonText}
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -372,7 +549,9 @@ export const ChatWidgetGenerator = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Badge className="bg-green-100 text-green-800">Ready to use</Badge>
-                <Badge className="bg-blue-100 text-blue-800">JavaScript</Badge>
+                <Badge className="bg-blue-100 text-blue-800">
+                  {integrationType === 'widget' ? 'Widget' : 'Button'} Integration
+                </Badge>
               </div>
               <Button onClick={copyToClipboard} className="flex items-center gap-2">
                 <Copy className="w-4 h-4" />
@@ -381,7 +560,7 @@ export const ChatWidgetGenerator = () => {
             </div>
             <div className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto">
               <pre className="text-sm">
-                <code>{generateCode()}</code>
+                <code>{integrationType === 'widget' ? generateWidgetCode() : generateButtonCode()}</code>
               </pre>
             </div>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -390,7 +569,10 @@ export const ChatWidgetGenerator = () => {
                 <li>Copy the code above</li>
                 <li>Paste it before the closing &lt;/body&gt; tag in your HTML</li>
                 <li>Replace "YOUR_API_KEY_HERE" with your actual API key</li>
-                <li>The widget will automatically appear on your website</li>
+                {integrationType === 'button' && (
+                  <li>Make sure your button element matches the CSS selector specified</li>
+                )}
+                <li>The {integrationType} will automatically work on your website</li>
               </ol>
             </div>
           </div>
