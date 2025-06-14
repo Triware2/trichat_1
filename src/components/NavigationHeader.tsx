@@ -1,6 +1,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -17,9 +18,11 @@ import {
   LogOut, 
   User,
   Menu,
-  Building2
+  Building2,
+  Search
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 
 interface NavigationHeaderProps {
   title: string;
@@ -29,6 +32,7 @@ interface NavigationHeaderProps {
 
 export const NavigationHeader = ({ title, role, userEmail }: NavigationHeaderProps) => {
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
 
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
@@ -60,6 +64,14 @@ export const NavigationHeader = ({ title, role, userEmail }: NavigationHeaderPro
     navigate('/');
   };
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      console.log('Searching for:', searchQuery);
+      // Search functionality would be implemented here
+    }
+  };
+
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
@@ -86,8 +98,32 @@ export const NavigationHeader = ({ title, role, userEmail }: NavigationHeaderPro
             </div>
           </div>
 
+          {/* Center - Search (only for agents) */}
+          {role === 'agent' && (
+            <div className="hidden md:flex flex-1 max-w-md mx-8">
+              <form onSubmit={handleSearch} className="w-full">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    placeholder="Search conversations, customers, or content..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 border-gray-200 focus:border-emerald-300 focus:ring-emerald-200 bg-gray-50"
+                  />
+                </div>
+              </form>
+            </div>
+          )}
+
           {/* Right side */}
           <div className="flex items-center space-x-4">
+            {/* Mobile search button for agents */}
+            {role === 'agent' && (
+              <Button variant="ghost" size="sm" className="md:hidden">
+                <Search className="w-5 h-5" />
+              </Button>
+            )}
+
             {/* Notifications */}
             <Button variant="ghost" size="sm" className="relative">
               <Bell className="w-5 h-5" />

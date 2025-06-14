@@ -1,7 +1,8 @@
-
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { User, BarChart3, Activity, AlertTriangle, FileText } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { User, BarChart3, Activity, AlertTriangle, FileText, Search } from 'lucide-react';
 import { CustomerHeader } from './customer/CustomerHeader';
 import { CustomerSearch } from './customer/CustomerSearch';
 import { OverviewTab } from './customer/OverviewTab';
@@ -31,6 +32,7 @@ interface CustomerInfoProps {
 export const CustomerInfo = ({ customer }: CustomerInfoProps) => {
   const [activeTab, setActiveTab] = useState('overview');
   const [currentCustomer, setCurrentCustomer] = useState(customer);
+  const [quickSearchQuery, setQuickSearchQuery] = useState('');
 
   // Enhanced customer data with 360-degree insights
   const customerInsights = {
@@ -169,6 +171,13 @@ export const CustomerInfo = ({ customer }: CustomerInfoProps) => {
     setNotes([note, ...notes]);
   };
 
+  const handleQuickSearch = () => {
+    if (quickSearchQuery.trim()) {
+      console.log('Quick search in customer data:', quickSearchQuery);
+      // Quick search functionality would be implemented here
+    }
+  };
+
   return (
     <div className="h-full bg-white overflow-y-auto">
       {/* Header */}
@@ -180,6 +189,27 @@ export const CustomerInfo = ({ customer }: CustomerInfoProps) => {
           <div>
             <h2 className="text-xl font-bold text-slate-900">Customer 360° View</h2>
             <p className="text-sm text-slate-600">Complete customer insights for better support</p>
+          </div>
+          
+          {/* Quick Search in Customer Data */}
+          <div className="ml-auto flex gap-2">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+              <Input
+                placeholder="Search in customer data..."
+                value={quickSearchQuery}
+                onChange={(e) => setQuickSearchQuery(e.target.value)}
+                className="pl-10 w-64 border-slate-200 focus:border-orange-300 focus:ring-orange-200"
+                onKeyPress={(e) => e.key === 'Enter' && handleQuickSearch()}
+              />
+            </div>
+            <Button 
+              onClick={handleQuickSearch}
+              size="sm"
+              className="bg-orange-500 hover:bg-orange-600 text-white"
+            >
+              <Search className="w-4 h-4" />
+            </Button>
           </div>
         </div>
 
