@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,11 +15,13 @@ import {
   AlertCircle,
   Phone,
   Search,
-  Filter
+  Filter,
+  MessageCircle
 } from 'lucide-react';
 import { NavigationHeader } from '@/components/NavigationHeader';
 import { ChatInterface } from '@/components/agent/ChatInterface';
 import { CustomerInfo } from '@/components/agent/CustomerInfo';
+import { CannedResponses } from '@/components/agent/CannedResponses';
 
 const AgentDashboard = () => {
   const [activeTab, setActiveTab] = useState('chats');
@@ -215,10 +216,14 @@ const AgentDashboard = () => {
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="grid w-full grid-cols-3 bg-white border">
+          <TabsList className="grid w-full grid-cols-4 bg-white border">
             <TabsTrigger value="chats" className="flex items-center gap-2">
               <MessageSquare className="w-4 h-4" />
               Active Chats
+            </TabsTrigger>
+            <TabsTrigger value="responses" className="flex items-center gap-2">
+              <MessageCircle className="w-4 h-4" />
+              Canned Responses
             </TabsTrigger>
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <User className="w-4 h-4" />
@@ -311,6 +316,10 @@ const AgentDashboard = () => {
                 <CustomerInfo customer={customerData} />
               </div>
             </div>
+          </TabsContent>
+
+          <TabsContent value="responses">
+            <CannedResponses />
           </TabsContent>
 
           <TabsContent value="dashboard" className="space-y-6">
