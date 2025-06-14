@@ -1,7 +1,7 @@
 
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { MessageSquare, Users, TrendingUp, List } from 'lucide-react';
+import { MessageSquare, Users, TrendingUp, List, Contact } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -65,6 +65,13 @@ export const AgentSidebar = ({ todayPerformance }: AgentSidebarProps) => {
             >
               <List className="w-4 h-4 flex-shrink-0" />
               {!isCollapsed && <span className="ml-2">All Chats</span>}
+            </TabsTrigger>
+            <TabsTrigger 
+              value="contacts" 
+              className={`w-full justify-start rounded-lg text-left data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:border-emerald-200 hover:bg-slate-50 transition-all duration-200 ${isCollapsed ? 'px-2 py-2' : 'px-3 py-2'}`}
+            >
+              <Contact className="w-4 h-4 flex-shrink-0" />
+              {!isCollapsed && <span className="ml-2">Contacts</span>}
             </TabsTrigger>
             <TabsTrigger 
               value="responses" 

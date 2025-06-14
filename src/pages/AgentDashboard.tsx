@@ -7,6 +7,7 @@ import { AgentSidebar } from '@/components/agent/dashboard/AgentSidebar';
 import { DashboardContent } from '@/components/agent/dashboard/DashboardContent';
 import { ChatContent } from '@/components/agent/dashboard/ChatContent';
 import { AllChatsContent } from '@/components/agent/dashboard/AllChatsContent';
+import { ContactsContent } from '@/components/agent/dashboard/ContactsContent';
 import { OtherTabsContent } from '@/components/agent/dashboard/OtherTabsContent';
 import { MessageSquare, Users, Clock, CheckCircle } from 'lucide-react';
 
@@ -116,6 +117,8 @@ const AgentDashboard = () => {
                 />
 
                 <AllChatsContent />
+
+                <ContactsContent />
 
                 <OtherTabsContent customer={getSelectedCustomer()} />
               </SidebarInset>
