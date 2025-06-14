@@ -3,6 +3,7 @@ import { TabsContent } from '@/components/ui/tabs';
 import { ChatInterface } from '@/components/agent/ChatInterface';
 import { ChatList } from '@/components/agent/ChatList';
 import { ContactPropertiesPanel } from '@/components/agent/ContactPropertiesPanel';
+import { CustomerComplaintsPreview } from '@/components/agent/CustomerComplaintsPreview';
 
 interface ChatContentProps {
   chats: Array<{
@@ -29,6 +30,13 @@ export const ChatContent = ({
   onSendMessage, 
   getSelectedCustomerName 
 }: ChatContentProps) => {
+  const handleViewCustomerProfile = () => {
+    // This would typically navigate to the customer info page
+    // For now, we'll just log the action - you can integrate with your routing system
+    console.log(`Navigating to customer profile for: ${getSelectedCustomerName()}`);
+    // Example: navigate('/customer-info', { state: { customerId: selectedChat } });
+  };
+
   return (
     <TabsContent value="chat" className="h-full">
       <div className="flex h-full">
@@ -48,7 +56,12 @@ export const ChatContent = ({
             onSendMessage={onSendMessage}
           />
         </div>
-        <div className="w-80 border-l border-slate-200 bg-slate-50 p-4">
+        <div className="w-80 border-l border-slate-200 bg-slate-50 p-4 overflow-y-auto">
+          <CustomerComplaintsPreview 
+            chatId={selectedChat}
+            customerName={getSelectedCustomerName()}
+            onViewFullProfile={handleViewCustomerProfile}
+          />
           <ContactPropertiesPanel 
             chatId={selectedChat}
             customerName={getSelectedCustomerName()}
