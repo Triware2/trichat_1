@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -256,27 +255,25 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
   };
 
   return (
-    <div className="h-full flex flex-col bg-white relative overflow-hidden">
+    <div className="h-full flex flex-col bg-white relative">
       {/* Fixed Header */}
       <div className="flex-shrink-0 bg-white border-b border-slate-200 z-10">
         <ChatHeader customerName={customerName} customerStatus={customerStatus} />
       </div>
       
-      {/* Scrollable Messages Area */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="pb-32">
-          <MessageList 
-            messages={messages} 
-            privateNotes={privateNotes}
-            isTyping={isTyping}
-            onDeleteNote={handleDeleteNote}
-            canDeleteNote={canDeleteNote}
-          />
-        </div>
+      {/* Scrollable Messages Area with padding for floating input */}
+      <div className="flex-1 overflow-y-auto pb-48">
+        <MessageList 
+          messages={messages} 
+          privateNotes={privateNotes}
+          isTyping={isTyping}
+          onDeleteNote={handleDeleteNote}
+          canDeleteNote={canDeleteNote}
+        />
       </div>
 
-      {/* Floating Input Section - Only within this middle section */}
-      <div className="absolute bottom-4 left-4 right-4 bg-white border border-slate-200 rounded-lg shadow-lg z-30">
+      {/* Fixed Floating Input Section at bottom */}
+      <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-30">
         {/* Canned Responses Toggle */}
         <div className="px-6 py-2 border-b border-slate-100">
           <Button
@@ -304,7 +301,7 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
         />
       </div>
 
-      {/* Canned Responses Panel - Only within this middle section */}
+      {/* Canned Responses Panel - Fixed position above input */}
       {showCannedResponses && (
         <div className="absolute bottom-32 left-4 right-4 h-96 border border-slate-200 bg-white shadow-lg z-20 rounded-lg">
           <CannedResponses 
@@ -314,7 +311,7 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
         </div>
       )}
 
-      {/* Quick Responses - Only within this middle section */}
+      {/* Quick Responses - Fixed position */}
       <div className="absolute bottom-6 right-6 z-50">
         <QuickResponses responses={quickResponses} onResponseSelect={handleQuickResponse} />
       </div>
