@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -219,89 +220,93 @@ export const ChatInterface = ({ customerName, customerStatus, onSendMessage }: C
   };
 
   return (
-    <div className="h-full flex flex-col gap-4">
-      <Card className="flex-1 flex flex-col">
-        <CardHeader className="border-b pb-4">
+    <div className="h-full flex flex-col">
+      <Card className="flex-1 flex flex-col min-h-0">
+        <CardHeader className="border-b pb-4 flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-medium">
+              <div className="w-8 h-8 lg:w-10 lg:h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-medium text-sm lg:text-base">
                 {customerName.split(' ').map(n => n[0]).join('')}
               </div>
               <div>
-                <h3 className="font-medium text-gray-900">{customerName}</h3>
+                <h3 className="font-medium text-gray-900 text-sm lg:text-base">{customerName}</h3>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <p className="text-sm text-gray-500">{customerStatus}</p>
+                  <p className="text-xs lg:text-sm text-gray-500">{customerStatus}</p>
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" title="Voice Call" onClick={handleVoiceCall}>
-                <Phone className="w-4 h-4" />
+            <div className="flex items-center gap-1 lg:gap-2">
+              <Button variant="ghost" size="sm" title="Voice Call" onClick={handleVoiceCall} className="h-8 w-8 p-0">
+                <Phone className="w-3 h-3 lg:w-4 lg:h-4" />
               </Button>
-              <Button variant="ghost" size="sm" title="Video Call" onClick={handleVideoCall}>
-                <Video className="w-4 h-4" />
+              <Button variant="ghost" size="sm" title="Video Call" onClick={handleVideoCall} className="h-8 w-8 p-0">
+                <Video className="w-3 h-3 lg:w-4 lg:h-4" />
               </Button>
-              <Button variant="ghost" size="sm" title="More Options" onClick={handleMoreOptions}>
-                <MoreHorizontal className="w-4 h-4" />
+              <Button variant="ghost" size="sm" title="More Options" onClick={handleMoreOptions} className="h-8 w-8 p-0">
+                <MoreHorizontal className="w-3 h-3 lg:w-4 lg:h-4" />
               </Button>
             </div>
           </div>
         </CardHeader>
         
-        <CardContent className="flex-1 p-0 flex flex-col">
-          <MessageList messages={messages} isTyping={isTyping} />
-
-          <QuickResponses responses={quickResponses} onResponseSelect={handleQuickResponse} />
-
-          <div className="px-4 py-2 border-t">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowCannedResponses(!showCannedResponses)}
-              className="w-full flex items-center justify-between"
-            >
-              <span className="flex items-center gap-2">
-                <MessageSquare className="w-4 h-4" />
-                Canned Responses
-              </span>
-              {showCannedResponses ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-            </Button>
+        <CardContent className="flex-1 p-0 flex flex-col min-h-0">
+          <div className="flex-1 min-h-0">
+            <MessageList messages={messages} isTyping={isTyping} />
           </div>
 
-          <div className="p-4 border-t">
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" onClick={handleFileUpload} title="Attach File">
-                <Paperclip className="w-4 h-4" />
-              </Button>
-              <Button variant="ghost" size="sm" title="Add Image" onClick={handleImageUpload}>
-                <Image className="w-4 h-4" />
-              </Button>
-              <Input 
-                placeholder="Type your message..."
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                onKeyPress={handleKeyPress}
-                className="flex-1"
-              />
-              <Button variant="ghost" size="sm" title="Add Emoji" onClick={handleEmojiPicker}>
-                <Smile className="w-4 h-4" />
-              </Button>
-              <Button 
-                size="sm" 
-                onClick={handleSendMessage}
-                disabled={!message.trim()}
-                className="bg-blue-600 hover:bg-blue-700"
+          <div className="flex-shrink-0">
+            <QuickResponses responses={quickResponses} onResponseSelect={handleQuickResponse} />
+
+            <div className="px-3 lg:px-4 py-2 border-t">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowCannedResponses(!showCannedResponses)}
+                className="w-full flex items-center justify-between text-xs lg:text-sm"
               >
-                <Send className="w-4 h-4" />
+                <span className="flex items-center gap-2">
+                  <MessageSquare className="w-3 h-3 lg:w-4 lg:h-4" />
+                  Canned Responses
+                </span>
+                {showCannedResponses ? <ChevronUp className="w-3 h-3 lg:w-4 lg:h-4" /> : <ChevronDown className="w-3 h-3 lg:w-4 lg:h-4" />}
               </Button>
+            </div>
+
+            <div className="p-3 lg:p-4 border-t">
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm" onClick={handleFileUpload} title="Attach File" className="h-8 w-8 p-0 flex-shrink-0">
+                  <Paperclip className="w-3 h-3 lg:w-4 lg:h-4" />
+                </Button>
+                <Button variant="ghost" size="sm" title="Add Image" onClick={handleImageUpload} className="h-8 w-8 p-0 flex-shrink-0">
+                  <Image className="w-3 h-3 lg:w-4 lg:h-4" />
+                </Button>
+                <Input 
+                  placeholder="Type your message..."
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  className="flex-1 text-sm"
+                />
+                <Button variant="ghost" size="sm" title="Add Emoji" onClick={handleEmojiPicker} className="h-8 w-8 p-0 flex-shrink-0">
+                  <Smile className="w-3 h-3 lg:w-4 lg:h-4" />
+                </Button>
+                <Button 
+                  size="sm" 
+                  onClick={handleSendMessage}
+                  disabled={!message.trim()}
+                  className="bg-blue-600 hover:bg-blue-700 h-8 px-3 flex-shrink-0"
+                >
+                  <Send className="w-3 h-3 lg:w-4 lg:h-4" />
+                </Button>
+              </div>
             </div>
           </div>
         </CardContent>
       </Card>
 
       {showCannedResponses && (
-        <Card className="h-96">
+        <Card className="mt-4 h-80 lg:h-96">
           <CannedResponses 
             onSelectResponse={handleCannedResponseSelect}
             isSelectionMode={true}
