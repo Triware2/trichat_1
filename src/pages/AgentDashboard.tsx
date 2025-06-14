@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Tabs } from '@/components/ui/tabs';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
@@ -5,6 +6,7 @@ import { NavigationHeader } from '@/components/NavigationHeader';
 import { AgentSidebar } from '@/components/agent/dashboard/AgentSidebar';
 import { DashboardContent } from '@/components/agent/dashboard/DashboardContent';
 import { ChatContent } from '@/components/agent/dashboard/ChatContent';
+import { AllChatsContent } from '@/components/agent/dashboard/AllChatsContent';
 import { OtherTabsContent } from '@/components/agent/dashboard/OtherTabsContent';
 import { MessageSquare, Users, Clock, CheckCircle } from 'lucide-react';
 
@@ -112,6 +114,8 @@ const AgentDashboard = () => {
                   onSendMessage={handleSendMessage}
                   getSelectedCustomerName={getSelectedCustomerName}
                 />
+
+                <AllChatsContent />
 
                 <OtherTabsContent customer={getSelectedCustomer()} />
               </SidebarInset>

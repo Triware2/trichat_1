@@ -1,7 +1,7 @@
 
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { MessageSquare, Users, TrendingUp } from 'lucide-react';
+import { MessageSquare, Users, TrendingUp, List } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -51,13 +51,20 @@ export const AgentSidebar = ({ todayPerformance }: AgentSidebarProps) => {
               <MessageSquare className="w-4 h-4 flex-shrink-0" />
               {!isCollapsed && (
                 <>
-                  <span className="ml-2">Conversations</span>
+                  <span className="ml-2">My Conversations</span>
                   <Badge className="ml-auto bg-emerald-500 text-white text-xs px-2 py-0.5">3</Badge>
                 </>
               )}
               {isCollapsed && (
                 <Badge className="absolute -top-1 -right-1 bg-emerald-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full p-0">3</Badge>
               )}
+            </TabsTrigger>
+            <TabsTrigger 
+              value="allchats" 
+              className={`w-full justify-start rounded-lg text-left data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:border-emerald-200 hover:bg-slate-50 transition-all duration-200 ${isCollapsed ? 'px-2 py-2' : 'px-3 py-2'}`}
+            >
+              <List className="w-4 h-4 flex-shrink-0" />
+              {!isCollapsed && <span className="ml-2">All Chats</span>}
             </TabsTrigger>
             <TabsTrigger 
               value="responses" 
