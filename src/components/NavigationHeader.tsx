@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -99,14 +98,9 @@ export const NavigationHeader = ({ title, role, userEmail }: NavigationHeaderPro
                     </div>
                   </div>
                 </div>
-                <div className="flex flex-col">
-                  <span className={`text-xl font-semibold bg-gradient-to-r ${getTrichatLogoGradient(role)} bg-clip-text text-transparent tracking-tight`}>
-                    Trichat
-                  </span>
-                  <span className="text-xs text-gray-500 -mt-1 tracking-wide font-medium">
-                    PLATFORM
-                  </span>
-                </div>
+                <span className={`text-xl font-semibold bg-gradient-to-r ${getTrichatLogoGradient(role)} bg-clip-text text-transparent tracking-tight`}>
+                  Trichat
+                </span>
               </div>
             </div>
             <div className="hidden md:flex items-center space-x-2">
