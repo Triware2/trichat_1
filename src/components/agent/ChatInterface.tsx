@@ -1,4 +1,5 @@
 
+
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -256,66 +257,70 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
   };
 
   return (
-    <div className="h-full flex flex-col bg-white relative">
+    <div className="h-full flex flex-col bg-white relative overflow-hidden">
       {/* Fixed Header */}
       <div className="flex-shrink-0 bg-white border-b border-slate-200 z-10">
         <ChatHeader customerName={customerName} customerStatus={customerStatus} />
       </div>
       
-      {/* Scrollable Messages Area with padding for floating input */}
-      <div className="flex-1 overflow-y-auto pb-48">
-        <MessageList 
-          messages={messages} 
-          privateNotes={privateNotes}
-          isTyping={isTyping}
-          onDeleteNote={handleDeleteNote}
-          canDeleteNote={canDeleteNote}
-        />
-      </div>
-
-      {/* Floating Input Section - Truly floating within middle section */}
-      <div className="absolute bottom-4 left-4 right-4 bg-white border border-slate-200 rounded-lg shadow-lg z-30">
-        {/* Canned Responses Toggle */}
-        <div className="px-6 py-2 border-b border-slate-100">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowCannedResponses(!showCannedResponses)}
-            className="w-full flex items-center justify-between text-sm hover:bg-slate-50"
-          >
-            <span className="flex items-center gap-2">
-              <MessageSquare className="w-4 h-4" />
-              Canned Responses
-            </span>
-            {showCannedResponses ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          </Button>
-        </div>
-
-        <MessageInputArea
-          message={message}
-          setMessage={setMessage}
-          isPrivateNoteMode={isPrivateNoteMode}
-          setIsPrivateNoteMode={setIsPrivateNoteMode}
-          onSendMessage={handleSendMessage}
-          onFileUpload={handleFileUpload}
-          onImageUpload={handleImageUpload}
-        />
-      </div>
-
-      {/* Canned Responses Panel - Floating above input */}
-      {showCannedResponses && (
-        <div className="absolute bottom-44 left-4 right-4 h-96 border border-slate-200 bg-white shadow-lg z-20 rounded-lg">
-          <CannedResponses 
-            onSelectResponse={handleCannedResponseSelect}
-            isSelectionMode={true}
+      {/* Scrollable Messages Area - Full height with proper overflow */}
+      <div className="flex-1 relative overflow-hidden">
+        {/* Messages container with its own scroll */}
+        <div className="h-full overflow-y-auto pb-4">
+          <MessageList 
+            messages={messages} 
+            privateNotes={privateNotes}
+            isTyping={isTyping}
+            onDeleteNote={handleDeleteNote}
+            canDeleteNote={canDeleteNote}
           />
         </div>
-      )}
 
-      {/* Quick Responses - Floating position */}
-      <div className="absolute bottom-6 right-6 z-50">
-        <QuickResponses responses={quickResponses} onResponseSelect={handleQuickResponse} />
+        {/* Floating Input Section - Fixed within this container, won't scroll */}
+        <div className="absolute bottom-4 left-4 right-4 bg-white border border-slate-200 rounded-lg shadow-lg z-30 pointer-events-auto">
+          {/* Canned Responses Toggle */}
+          <div className="px-6 py-2 border-b border-slate-100">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowCannedResponses(!showCannedResponses)}
+              className="w-full flex items-center justify-between text-sm hover:bg-slate-50"
+            >
+              <span className="flex items-center gap-2">
+                <MessageSquare className="w-4 h-4" />
+                Canned Responses
+              </span>
+              {showCannedResponses ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </Button>
+          </div>
+
+          <MessageInputArea
+            message={message}
+            setMessage={setMessage}
+            isPrivateNoteMode={isPrivateNoteMode}
+            setIsPrivateNoteMode={setIsPrivateNoteMode}
+            onSendMessage={handleSendMessage}
+            onFileUpload={handleFileUpload}
+            onImageUpload={handleImageUpload}
+          />
+        </div>
+
+        {/* Canned Responses Panel - Floating above input, fixed within container */}
+        {showCannedResponses && (
+          <div className="absolute bottom-44 left-4 right-4 h-96 border border-slate-200 bg-white shadow-lg z-20 rounded-lg">
+            <CannedResponses 
+              onSelectResponse={handleCannedResponseSelect}
+              isSelectionMode={true}
+            />
+          </div>
+        )}
+
+        {/* Quick Responses - Floating position, fixed within container */}
+        <div className="absolute bottom-6 right-6 z-50">
+          <QuickResponses responses={quickResponses} onResponseSelect={handleQuickResponse} />
+        </div>
       </div>
     </div>
   );
 };
+
