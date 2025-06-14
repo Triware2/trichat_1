@@ -16,8 +16,7 @@ import {
   Palette,
   Globe,
   Smartphone,
-  Mouse,
-  Widget
+  Mouse
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -175,7 +174,7 @@ export const ChatWidgetGenerator = () => {
               onClick={() => setIntegrationType('widget')}
             >
               <div className="flex items-center gap-3">
-                <Widget className="w-6 h-6 text-blue-600" />
+                <MessageSquare className="w-6 h-6 text-blue-600" />
                 <div>
                   <h3 className="font-semibold">Floating Widget</h3>
                   <p className="text-sm text-gray-600">Always visible chat widget on your website</p>
@@ -203,335 +202,331 @@ export const ChatWidgetGenerator = () => {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Configuration Panel */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Settings className="w-5 h-5" />
-              Configuration
-            </CardTitle>
-            <CardDescription>
-              Customize your TriChat {integrationType} appearance and behavior
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="general" className="space-y-4">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="general">General</TabsTrigger>
-                <TabsTrigger value="appearance">Appearance</TabsTrigger>
-                <TabsTrigger value="behavior">Behavior</TabsTrigger>
-              </TabsList>
+      {/* Configuration Panel */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Settings className="w-5 h-5" />
+            Configuration
+          </CardTitle>
+          <CardDescription>
+            Customize your TriChat {integrationType} appearance and behavior
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="general" className="space-y-4">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="general">General</TabsTrigger>
+              <TabsTrigger value="appearance">Appearance</TabsTrigger>
+              <TabsTrigger value="behavior">Behavior</TabsTrigger>
+            </TabsList>
 
-              <TabsContent value="general" className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="title">Chat Title</Label>
-                  <Input
-                    id="title"
-                    value={widgetConfig.title}
-                    onChange={(e) => setWidgetConfig({...widgetConfig, title: e.target.value})}
-                    placeholder="Need Help?"
-                  />
-                </div>
+            <TabsContent value="general" className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="title">Chat Title</Label>
+                <Input
+                  id="title"
+                  value={widgetConfig.title}
+                  onChange={(e) => setWidgetConfig({...widgetConfig, title: e.target.value})}
+                  placeholder="Need Help?"
+                />
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="subtitle">Subtitle</Label>
-                  <Input
-                    id="subtitle"
-                    value={widgetConfig.subtitle}
-                    onChange={(e) => setWidgetConfig({...widgetConfig, subtitle: e.target.value})}
-                    placeholder="We're here to help you"
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="subtitle">Subtitle</Label>
+                <Input
+                  id="subtitle"
+                  value={widgetConfig.subtitle}
+                  onChange={(e) => setWidgetConfig({...widgetConfig, subtitle: e.target.value})}
+                  placeholder="We're here to help you"
+                />
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="welcomeMessage">Welcome Message</Label>
-                  <Textarea
-                    id="welcomeMessage"
-                    value={widgetConfig.welcomeMessage}
-                    onChange={(e) => setWidgetConfig({...widgetConfig, welcomeMessage: e.target.value})}
-                    placeholder="Hello! How can we help you today?"
-                    rows={3}
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="welcomeMessage">Welcome Message</Label>
+                <Textarea
+                  id="welcomeMessage"
+                  value={widgetConfig.welcomeMessage}
+                  onChange={(e) => setWidgetConfig({...widgetConfig, welcomeMessage: e.target.value})}
+                  placeholder="Hello! How can we help you today?"
+                  rows={3}
+                />
+              </div>
 
-                {integrationType === 'button' && (
-                  <>
-                    <div className="space-y-2">
-                      <Label htmlFor="buttonText">Button Text</Label>
-                      <Input
-                        id="buttonText"
-                        value={widgetConfig.buttonText}
-                        onChange={(e) => setWidgetConfig({...widgetConfig, buttonText: e.target.value})}
-                        placeholder="Get Help"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="buttonSelector">Button CSS Selector</Label>
-                      <Input
-                        id="buttonSelector"
-                        value={widgetConfig.buttonSelector}
-                        onChange={(e) => setWidgetConfig({...widgetConfig, buttonSelector: e.target.value})}
-                        placeholder="#help-button"
-                      />
-                      <p className="text-xs text-gray-500">
-                        CSS selector for your existing button (e.g., #help-button, .help-btn)
-                      </p>
-                    </div>
-                  </>
-                )}
-              </TabsContent>
-
-              <TabsContent value="appearance" className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="primaryColor">Primary Color</Label>
-                  <div className="flex items-center space-x-2">
-                    <Input
-                      id="primaryColor"
-                      type="color"
-                      value={widgetConfig.primaryColor}
-                      onChange={(e) => setWidgetConfig({...widgetConfig, primaryColor: e.target.value})}
-                      className="w-20 h-10"
-                    />
-                    <Input
-                      value={widgetConfig.primaryColor}
-                      onChange={(e) => setWidgetConfig({...widgetConfig, primaryColor: e.target.value})}
-                      placeholder="#3B82F6"
-                      className="flex-1"
-                    />
-                  </div>
-                </div>
-
-                {integrationType === 'widget' && (
+              {integrationType === 'button' && (
+                <>
                   <div className="space-y-2">
-                    <Label htmlFor="position">Position</Label>
-                    <Select 
-                      value={widgetConfig.position} 
-                      onValueChange={(value) => setWidgetConfig({...widgetConfig, position: value})}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select position" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {positions.map((pos) => (
-                          <SelectItem key={pos.value} value={pos.value}>
-                            {pos.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Label htmlFor="buttonText">Button Text</Label>
+                    <Input
+                      id="buttonText"
+                      value={widgetConfig.buttonText}
+                      onChange={(e) => setWidgetConfig({...widgetConfig, buttonText: e.target.value})}
+                      placeholder="Get Help"
+                    />
                   </div>
-                )}
 
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="showAvatar">Show Avatar</Label>
-                  <input
-                    id="showAvatar"
-                    type="checkbox"
-                    checked={widgetConfig.showAvatar}
-                    onChange={(e) => setWidgetConfig({...widgetConfig, showAvatar: e.target.checked})}
-                    className="w-4 h-4"
+                  <div className="space-y-2">
+                    <Label htmlFor="buttonSelector">Button CSS Selector</Label>
+                    <Input
+                      id="buttonSelector"
+                      value={widgetConfig.buttonSelector}
+                      onChange={(e) => setWidgetConfig({...widgetConfig, buttonSelector: e.target.value})}
+                      placeholder="#help-button"
+                    />
+                    <p className="text-xs text-gray-500">
+                      CSS selector for your existing button (e.g., #help-button, .help-btn)
+                    </p>
+                  </div>
+                </>
+              )}
+            </TabsContent>
+
+            <TabsContent value="appearance" className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="primaryColor">Primary Color</Label>
+                <div className="flex items-center space-x-2">
+                  <Input
+                    id="primaryColor"
+                    type="color"
+                    value={widgetConfig.primaryColor}
+                    onChange={(e) => setWidgetConfig({...widgetConfig, primaryColor: e.target.value})}
+                    className="w-20 h-10"
+                  />
+                  <Input
+                    value={widgetConfig.primaryColor}
+                    onChange={(e) => setWidgetConfig({...widgetConfig, primaryColor: e.target.value})}
+                    placeholder="#3B82F6"
+                    className="flex-1"
                   />
                 </div>
-              </TabsContent>
+              </div>
 
-              <TabsContent value="behavior" className="space-y-4">
+              {integrationType === 'widget' && (
                 <div className="space-y-2">
-                  <Label htmlFor="department">Default Department</Label>
+                  <Label htmlFor="position">Position</Label>
                   <Select 
-                    value={widgetConfig.department} 
-                    onValueChange={(value) => setWidgetConfig({...widgetConfig, department: value})}
+                    value={widgetConfig.position} 
+                    onValueChange={(value) => setWidgetConfig({...widgetConfig, position: value})}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select department" />
+                      <SelectValue placeholder="Select position" />
                     </SelectTrigger>
                     <SelectContent>
-                      {departments.map((dept) => (
-                        <SelectItem key={dept.value} value={dept.value}>
-                          {dept.label}
+                      {positions.map((pos) => (
+                        <SelectItem key={pos.value} value={pos.value}>
+                          {pos.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
+              )}
 
-                {integrationType === 'widget' && (
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="autoOpen">Auto-open on page load</Label>
-                    <input
-                      id="autoOpen"
-                      type="checkbox"
-                      checked={widgetConfig.autoOpen}
-                      onChange={(e) => setWidgetConfig({...widgetConfig, autoOpen: e.target.checked})}
-                      className="w-4 h-4"
-                    />
-                  </div>
-                )}
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="showAvatar">Show Avatar</Label>
+                <input
+                  id="showAvatar"
+                  type="checkbox"
+                  checked={widgetConfig.showAvatar}
+                  onChange={(e) => setWidgetConfig({...widgetConfig, showAvatar: e.target.checked})}
+                  className="w-4 h-4"
+                />
+              </div>
+            </TabsContent>
 
-        {/* Preview Panel */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Eye className="w-5 h-5" />
-              Live Preview
-            </CardTitle>
-            <CardDescription>
-              See how your {integrationType} will look on different devices
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="desktop" className="space-y-4">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="desktop" className="flex items-center gap-2">
-                  <Globe className="w-4 h-4" />
-                  Desktop
-                </TabsTrigger>
-                <TabsTrigger value="mobile" className="flex items-center gap-2">
-                  <Smartphone className="w-4 h-4" />
-                  Mobile
-                </TabsTrigger>
-              </TabsList>
+            <TabsContent value="behavior" className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="department">Default Department</Label>
+                <Select 
+                  value={widgetConfig.department} 
+                  onValueChange={(value) => setWidgetConfig({...widgetConfig, department: value})}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select department" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {departments.map((dept) => (
+                      <SelectItem key={dept.value} value={dept.value}>
+                        {dept.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-              <TabsContent value="desktop">
-                <div className="relative bg-gray-100 rounded-lg p-4 h-96 overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50 opacity-50"></div>
-                  
-                  {integrationType === 'widget' ? (
+              {integrationType === 'widget' && (
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="autoOpen">Auto-open on page load</Label>
+                  <input
+                    id="autoOpen"
+                    type="checkbox"
+                    checked={widgetConfig.autoOpen}
+                    onChange={(e) => setWidgetConfig({...widgetConfig, autoOpen: e.target.checked})}
+                    className="w-4 h-4"
+                  />
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+
+      {/* Preview Panel */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Eye className="w-5 h-5" />
+            Live Preview
+          </CardTitle>
+          <CardDescription>
+            See how your {integrationType} will look on different devices
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="desktop" className="space-y-4">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="desktop" className="flex items-center gap-2">
+                <Globe className="w-4 h-4" />
+                Desktop
+              </TabsTrigger>
+              <TabsTrigger value="mobile" className="flex items-center gap-2">
+                <Smartphone className="w-4 h-4" />
+                Mobile
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="desktop">
+              <div className="relative bg-gray-100 rounded-lg p-4 h-96 overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50 opacity-50"></div>
+                
+                {integrationType === 'widget' ? (
+                  <div 
+                    className={`absolute ${
+                      widgetConfig.position.includes('bottom') ? 'bottom-4' : 'top-4'
+                    } ${
+                      widgetConfig.position.includes('right') ? 'right-4' : 'left-4'
+                    } w-80 bg-white rounded-lg shadow-xl border`}
+                  >
                     <div 
-                      className={`absolute ${
-                        widgetConfig.position.includes('bottom') ? 'bottom-4' : 'top-4'
-                      } ${
-                        widgetConfig.position.includes('right') ? 'right-4' : 'left-4'
-                      } w-80 bg-white rounded-lg shadow-xl border`}
+                      className="p-4 rounded-t-lg text-white"
+                      style={{ backgroundColor: widgetConfig.primaryColor }}
                     >
-                      {/* ... keep existing code (widget preview) */}
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="font-semibold">{widgetConfig.title}</h3>
+                          <p className="text-sm opacity-90">{widgetConfig.subtitle}</p>
+                        </div>
+                        {widgetConfig.showAvatar && (
+                          <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                            <MessageSquare className="w-4 h-4" />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="p-4 space-y-3">
+                      <div className="bg-gray-100 rounded-lg p-3">
+                        <p className="text-sm text-gray-700">{widgetConfig.welcomeMessage}</p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Input 
+                          placeholder={widgetConfig.placeholder}
+                          className="flex-1 text-sm"
+                          disabled
+                        />
+                        <Button 
+                          size="sm" 
+                          style={{ backgroundColor: widgetConfig.primaryColor }}
+                          disabled
+                        >
+                          Send
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {/* Button Preview */}
+                    <div className="flex justify-center">
+                      <button 
+                        className="px-6 py-3 rounded-lg text-white font-medium shadow-lg hover:shadow-xl transition-all"
+                        style={{ backgroundColor: widgetConfig.primaryColor }}
+                      >
+                        {widgetConfig.buttonText}
+                      </button>
+                    </div>
+                    
+                    {/* Modal Preview */}
+                    <div className="bg-white rounded-lg shadow-2xl border max-w-md mx-auto">
                       <div 
                         className="p-4 rounded-t-lg text-white"
                         style={{ backgroundColor: widgetConfig.primaryColor }}
                       >
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h3 className="font-semibold">{widgetConfig.title}</h3>
-                            <p className="text-sm opacity-90">{widgetConfig.subtitle}</p>
-                          </div>
-                          {widgetConfig.showAvatar && (
-                            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                              <MessageSquare className="w-4 h-4" />
-                            </div>
-                          )}
-                        </div>
+                        <h3 className="font-semibold">{widgetConfig.title}</h3>
+                        <p className="text-sm opacity-90">{widgetConfig.subtitle}</p>
                       </div>
                       <div className="p-4 space-y-3">
                         <div className="bg-gray-100 rounded-lg p-3">
                           <p className="text-sm text-gray-700">{widgetConfig.welcomeMessage}</p>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <Input 
-                            placeholder={widgetConfig.placeholder}
-                            className="flex-1 text-sm"
-                            disabled
-                          />
-                          <Button 
-                            size="sm" 
-                            style={{ backgroundColor: widgetConfig.primaryColor }}
-                            disabled
-                          >
-                            Send
-                          </Button>
-                        </div>
+                        <Input 
+                          placeholder={widgetConfig.placeholder}
+                          className="text-sm"
+                          disabled
+                        />
                       </div>
                     </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {/* Button Preview */}
-                      <div className="flex justify-center">
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="mobile">
+              <div className="relative bg-gray-900 rounded-xl p-2 h-96 w-48 mx-auto">
+                <div className="bg-white rounded-lg h-full overflow-hidden">
+                  <div className="bg-gradient-to-br from-blue-50 to-purple-50 opacity-50 h-full relative">
+                    {integrationType === 'widget' ? (
+                      <div 
+                        className={`absolute ${
+                          widgetConfig.position.includes('bottom') ? 'bottom-2' : 'top-2'
+                        } ${
+                          widgetConfig.position.includes('right') ? 'right-2' : 'left-2'
+                        } w-40 bg-white rounded-lg shadow-xl border`}
+                      >
+                        <div 
+                          className="p-3 rounded-t-lg text-white"
+                          style={{ backgroundColor: widgetConfig.primaryColor }}
+                        >
+                          <h3 className="font-semibold text-sm">{widgetConfig.title}</h3>
+                          <p className="text-xs opacity-90">{widgetConfig.subtitle}</p>
+                        </div>
+                        <div className="p-3 space-y-2">
+                          <div className="bg-gray-100 rounded-lg p-2">
+                            <p className="text-xs text-gray-700">{widgetConfig.welcomeMessage}</p>
+                          </div>
+                          <Input 
+                            placeholder={widgetConfig.placeholder}
+                            className="text-xs h-8"
+                            disabled
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-4 space-y-4">
                         <button 
-                          className="px-6 py-3 rounded-lg text-white font-medium shadow-lg hover:shadow-xl transition-all"
+                          className="w-full py-2 rounded text-white text-sm font-medium"
                           style={{ backgroundColor: widgetConfig.primaryColor }}
                         >
                           {widgetConfig.buttonText}
                         </button>
                       </div>
-                      
-                      {/* Modal Preview */}
-                      <div className="bg-white rounded-lg shadow-2xl border max-w-md mx-auto">
-                        <div 
-                          className="p-4 rounded-t-lg text-white"
-                          style={{ backgroundColor: widgetConfig.primaryColor }}
-                        >
-                          <h3 className="font-semibold">{widgetConfig.title}</h3>
-                          <p className="text-sm opacity-90">{widgetConfig.subtitle}</p>
-                        </div>
-                        <div className="p-4 space-y-3">
-                          <div className="bg-gray-100 rounded-lg p-3">
-                            <p className="text-sm text-gray-700">{widgetConfig.welcomeMessage}</p>
-                          </div>
-                          <Input 
-                            placeholder={widgetConfig.placeholder}
-                            className="text-sm"
-                            disabled
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </TabsContent>
-
-              <TabsContent value="mobile">
-                {/* ... keep existing code (mobile preview) */}
-                <div className="relative bg-gray-900 rounded-xl p-2 h-96 w-48 mx-auto">
-                  <div className="bg-white rounded-lg h-full overflow-hidden">
-                    <div className="bg-gradient-to-br from-blue-50 to-purple-50 opacity-50 h-full relative">
-                      {integrationType === 'widget' ? (
-                        <div 
-                          className={`absolute ${
-                            widgetConfig.position.includes('bottom') ? 'bottom-2' : 'top-2'
-                          } ${
-                            widgetConfig.position.includes('right') ? 'right-2' : 'left-2'
-                          } w-40 bg-white rounded-lg shadow-xl border`}
-                        >
-                          <div 
-                            className="p-3 rounded-t-lg text-white"
-                            style={{ backgroundColor: widgetConfig.primaryColor }}
-                          >
-                            <h3 className="font-semibold text-sm">{widgetConfig.title}</h3>
-                            <p className="text-xs opacity-90">{widgetConfig.subtitle}</p>
-                          </div>
-                          <div className="p-3 space-y-2">
-                            <div className="bg-gray-100 rounded-lg p-2">
-                              <p className="text-xs text-gray-700">{widgetConfig.welcomeMessage}</p>
-                            </div>
-                            <Input 
-                              placeholder={widgetConfig.placeholder}
-                              className="text-xs h-8"
-                              disabled
-                            />
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="p-4 space-y-4">
-                          <button 
-                            className="w-full py-2 rounded text-white text-sm font-medium"
-                            style={{ backgroundColor: widgetConfig.primaryColor }}
-                          >
-                            {widgetConfig.buttonText}
-                          </button>
-                        </div>
-                      )}
-                    </div>
+                    )}
                   </div>
                 </div>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
-      </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
 
       {/* Code Generation */}
       <Card>
