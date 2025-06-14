@@ -12,6 +12,7 @@ import { DashboardHeader } from '@/components/admin/dashboard/DashboardHeader';
 import { DashboardTabs } from '@/components/admin/dashboard/DashboardTabs';
 import { DashboardOverview } from '@/components/admin/dashboard/DashboardOverview';
 import { DataSourcesManagement } from '@/components/admin/datasources/DataSourcesManagement';
+import { ChatManagement } from '@/components/admin/chat/ChatManagement';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -61,6 +62,10 @@ const AdminDashboard = () => {
 
             <TabsContent value="datasources" className="mt-0">
               <DataSourcesManagement />
+            </TabsContent>
+
+            <TabsContent value="chat-management" className="mt-0">
+              <ChatManagement />
             </TabsContent>
 
             <TabsContent value="settings" className="mt-0">

@@ -9,7 +9,8 @@ import {
   Code2, 
   Settings,
   Key,
-  Database
+  Database,
+  MessageSquare
 } from 'lucide-react';
 
 interface DashboardTabsProps {
@@ -27,6 +28,7 @@ export const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) =>
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
     { id: 'widget', label: 'Integrations', icon: Code2 },
     { id: 'datasources', label: 'Data Sources', icon: Database },
+    { id: 'chat-management', label: 'Chat Management', icon: MessageSquare },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
@@ -34,7 +36,7 @@ export const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) =>
     <div className="bg-white border-b border-gray-200">
       <div className="px-6">
         <TabsList className="h-auto p-0 bg-transparent w-full justify-start">
-          <div className="flex space-x-0">
+          <div className="flex space-x-0 overflow-x-auto">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
