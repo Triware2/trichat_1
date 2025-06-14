@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface Message {
   id: number;
@@ -105,13 +105,14 @@ export const useChatData = (selectedChatId: number) => {
   const [messages, setMessages] = useState<Message[]>(getMessagesForChat(selectedChatId));
 
   // Update messages when chat selection changes
-  useState(() => {
+  useEffect(() => {
     setMessages(getMessagesForChat(selectedChatId));
-  });
+  }, [selectedChatId]);
 
   return {
     messages,
-    setMessages,
-    Message: Message
+    setMessages
   };
 };
+
+export type { Message };
