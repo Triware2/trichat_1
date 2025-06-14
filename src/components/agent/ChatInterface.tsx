@@ -1,24 +1,17 @@
+
 import { useState } from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { 
-  Send,
-  Paperclip,
-  Smile,
-  Phone,
-  Video,
-  MoreHorizontal,
-  Image,
   MessageSquare,
   ChevronDown,
-  ChevronUp,
-  StickyNote
+  ChevronUp
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { CannedResponses } from './CannedResponses';
 import { MessageList } from './MessageList';
 import { QuickResponses } from './QuickResponses';
+import { ChatHeader } from './ChatHeader';
+import { MessageInputArea } from './MessageInputArea';
 import { usePrivateNotes } from './PrivateNotes';
 
 interface Message {
@@ -213,13 +206,6 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
-
   const handleQuickResponse = (response: string) => {
     setMessage(response);
     toast({
@@ -269,64 +255,9 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
     });
   };
 
-  const handleVoiceCall = () => {
-    toast({
-      title: "Voice call initiated",
-      description: `Starting voice call with ${customerName}...`,
-    });
-  };
-
-  const handleVideoCall = () => {
-    toast({
-      title: "Video call initiated",
-      description: `Starting video call with ${customerName}...`,
-    });
-  };
-
-  const handleMoreOptions = () => {
-    toast({
-      title: "More options",
-      description: "Additional options menu opened.",
-    });
-  };
-
-  const handleEmojiPicker = () => {
-    toast({
-      title: "Emoji picker",
-      description: "Emoji picker opened.",
-    });
-  };
-
   return (
     <div className="h-full flex flex-col bg-white">
-      {/* Header */}
-      <div className="border-b border-slate-200 p-4 bg-white">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="relative">
-              <div className="w-10 h-10 bg-gradient-to-br from-slate-400 to-slate-600 rounded-full flex items-center justify-center text-white font-medium">
-                {customerName.split(' ').map(n => n[0]).join('')}
-              </div>
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white"></div>
-            </div>
-            <div>
-              <h3 className="font-semibold text-slate-900">{customerName}</h3>
-              <p className="text-sm text-emerald-600 font-medium">{customerStatus}</p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="sm" onClick={handleVoiceCall} className="h-9 w-9 p-0 hover:bg-slate-100">
-              <Phone className="w-4 h-4" />
-            </Button>
-            <Button variant="ghost" size="sm" onClick={handleVideoCall} className="h-9 w-9 p-0 hover:bg-slate-100">
-              <Video className="w-4 h-4" />
-            </Button>
-            <Button variant="ghost" size="sm" onClick={handleMoreOptions} className="h-9 w-9 p-0 hover:bg-slate-100">
-              <MoreHorizontal className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-      </div>
+      <ChatHeader customerName={customerName} customerStatus={customerStatus} />
       
       {/* Messages with Private Notes */}
       <div className="flex-1 flex flex-col min-h-0">
@@ -356,81 +287,15 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
           </Button>
         </div>
 
-        {/* Message Input with Private Note Toggle */}
-        <div className="p-4 border-t border-slate-200 bg-white space-y-3">
-          {/* Mode indicator */}
-          {isPrivateNoteMode && (
-            <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg">
-              <StickyNote className="w-4 h-4 text-amber-600" />
-              <span className="text-sm font-medium text-amber-800">Private Note Mode</span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsPrivateNoteMode(false)}
-                className="ml-auto h-6 px-2 text-amber-600 hover:text-amber-800"
-              >
-                Cancel
-              </Button>
-            </div>
-          )}
-          
-          <div className="flex items-center space-x-3">
-            <Button variant="ghost" size="sm" onClick={handleFileUpload} className="h-9 w-9 p-0 hover:bg-slate-100">
-              <Paperclip className="w-4 h-4" />
-            </Button>
-            <Button variant="ghost" size="sm" onClick={handleImageUpload} className="h-9 w-9 p-0 hover:bg-slate-100">
-              <Image className="w-4 h-4" />
-            </Button>
-            <Input 
-              placeholder={isPrivateNoteMode ? "Type your private note..." : "Type your message..."}
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              className={`flex-1 border-slate-200 focus:border-orange-300 focus:ring-orange-200 ${
-                isPrivateNoteMode ? 'border-amber-200 focus:border-amber-300 focus:ring-amber-200' : ''
-              }`}
-            />
-            <Button variant="ghost" size="sm" onClick={handleEmojiPicker} className="h-9 w-9 p-0 hover:bg-slate-100">
-              <Smile className="w-4 h-4" />
-            </Button>
-            
-            {/* Private Note Toggle Button */}
-            <Button
-              variant={isPrivateNoteMode ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setIsPrivateNoteMode(!isPrivateNoteMode)}
-              className={`h-9 px-3 ${
-                isPrivateNoteMode 
-                  ? 'bg-amber-600 hover:bg-amber-700 text-white' 
-                  : 'hover:bg-amber-100 text-amber-600'
-              }`}
-              title={isPrivateNoteMode ? "Switch to customer message" : "Switch to private note"}
-            >
-              <StickyNote className="w-4 h-4" />
-            </Button>
-            
-            {/* Send Button */}
-            <Button 
-              size="sm" 
-              onClick={handleSendMessage}
-              disabled={!message.trim()}
-              className={`h-9 px-4 ${
-                isPrivateNoteMode
-                  ? 'bg-amber-600 hover:bg-amber-700 text-white'
-                  : 'bg-orange-500 hover:bg-orange-600 text-white'
-              }`}
-            >
-              {isPrivateNoteMode ? (
-                <>
-                  <StickyNote className="w-4 h-4 mr-1" />
-                  Note
-                </>
-              ) : (
-                <Send className="w-4 h-4" />
-              )}
-            </Button>
-          </div>
-        </div>
+        <MessageInputArea
+          message={message}
+          setMessage={setMessage}
+          isPrivateNoteMode={isPrivateNoteMode}
+          setIsPrivateNoteMode={setIsPrivateNoteMode}
+          onSendMessage={handleSendMessage}
+          onFileUpload={handleFileUpload}
+          onImageUpload={handleImageUpload}
+        />
       </div>
 
       {showCannedResponses && (
