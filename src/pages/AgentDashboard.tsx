@@ -1,4 +1,5 @@
 
+
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ChatInterface } from '@/components/agent/ChatInterface';
@@ -14,10 +15,10 @@ const AgentDashboard = () => {
   const [selectedChat, setSelectedChat] = useState(1);
 
   const [stats, setStats] = useState([
-    { title: 'Open Tickets', value: '24', icon: MessageSquare, color: 'bg-blue-100' },
-    { title: 'Active Users', value: '150', icon: Users, color: 'bg-green-100' },
-    { title: 'Avg. Wait Time', value: '3 mins', icon: Clock, color: 'bg-yellow-100' },
-    { title: 'Resolution Rate', value: '95%', icon: CheckCircle, color: 'bg-purple-100' },
+    { title: 'Open Tickets', value: '24', icon: MessageSquare, color: 'bg-blue-500' },
+    { title: 'Active Users', value: '150', icon: Users, color: 'bg-green-500' },
+    { title: 'Avg. Wait Time', value: '3 mins', icon: Clock, color: 'bg-yellow-500' },
+    { title: 'Resolution Rate', value: '95%', icon: CheckCircle, color: 'bg-purple-500' },
   ]);
 
   const [chats, setChats] = useState([
@@ -69,31 +70,58 @@ const AgentDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <div className="flex-1 flex flex-col p-2 lg:p-6 max-h-screen overflow-hidden">
-        <div className="mb-4 lg:mb-6 flex-shrink-0">
-          <h1 className="text-xl lg:text-3xl font-bold text-gray-900">Agent Dashboard</h1>
-          <p className="text-sm lg:text-base text-gray-600">Manage customer conversations and support requests</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col">
+      <div className="flex-1 flex flex-col p-4 lg:p-8 max-h-screen overflow-hidden">
+        <div className="mb-6 lg:mb-8 flex-shrink-0">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+              <MessageSquare className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl lg:text-4xl font-bold text-slate-900">Agent Dashboard</h1>
+              <p className="text-sm lg:text-base text-slate-600 mt-1">Manage customer conversations and support requests</p>
+            </div>
+          </div>
         </div>
 
         <Tabs defaultValue="dashboard" className="flex-1 flex flex-col min-h-0">
-          <TabsList className="grid w-full grid-cols-4 mb-4 lg:mb-6 flex-shrink-0">
-            <TabsTrigger value="dashboard" className="text-xs lg:text-sm">Dashboard</TabsTrigger>
-            <TabsTrigger value="chat" className="text-xs lg:text-sm">Chat</TabsTrigger>
-            <TabsTrigger value="responses" className="text-xs lg:text-sm">Canned Responses</TabsTrigger>
-            <TabsTrigger value="customer" className="text-xs lg:text-sm">Customer Info</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 mb-6 lg:mb-8 flex-shrink-0 bg-white shadow-sm border border-slate-200 rounded-xl p-1">
+            <TabsTrigger 
+              value="dashboard" 
+              className="text-sm lg:text-base font-medium rounded-lg data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
+            >
+              Dashboard
+            </TabsTrigger>
+            <TabsTrigger 
+              value="chat" 
+              className="text-sm lg:text-base font-medium rounded-lg data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
+            >
+              Chat
+            </TabsTrigger>
+            <TabsTrigger 
+              value="responses" 
+              className="text-sm lg:text-base font-medium rounded-lg data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
+            >
+              Templates
+            </TabsTrigger>
+            <TabsTrigger 
+              value="customer" 
+              className="text-sm lg:text-base font-medium rounded-lg data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
+            >
+              Customer
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="dashboard" className="flex-1 space-y-4 lg:space-y-6 overflow-y-auto">
+          <TabsContent value="dashboard" className="flex-1 space-y-6 lg:space-y-8 overflow-y-auto">
             <DashboardStats stats={stats} onStatClick={handleStatClick} />
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
               <QueueStatus chats={chats} onQueueAction={handleQueueAction} />
               <RecentActivity activities={activities} />
             </div>
           </TabsContent>
 
           <TabsContent value="chat" className="flex-1 min-h-0">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 h-full">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 h-full">
               <div className="lg:col-span-1 min-h-0">
                 <ChatList 
                   chats={chats}
@@ -126,3 +154,4 @@ const AgentDashboard = () => {
 };
 
 export default AgentDashboard;
+

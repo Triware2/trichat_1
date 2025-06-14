@@ -1,6 +1,7 @@
 
+
 import { useRef, useEffect } from 'react';
-import { File, Image } from 'lucide-react';
+import { File, Image, Clock } from 'lucide-react';
 
 interface Message {
   id: number;
@@ -24,43 +25,58 @@ export const MessageList = ({ messages, isTyping }: MessageListProps) => {
   }, [messages]);
 
   return (
-    <div className="flex-1 overflow-y-auto p-3 lg:p-4 space-y-3 lg:space-y-4 h-full min-h-0">
+    <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-4 lg:space-y-6 h-full min-h-0 bg-slate-50">
       {messages.map((msg) => (
         <div key={msg.id} className={`flex ${msg.sender === 'agent' ? 'justify-end' : 'justify-start'}`}>
-          <div className={`max-w-[85%] sm:max-w-xs lg:max-w-md px-3 lg:px-4 py-2 rounded-lg ${
+          <div className={`max-w-[85%] sm:max-w-sm lg:max-w-md ${
             msg.sender === 'agent' 
-              ? 'bg-blue-600 text-white' 
-              : 'bg-gray-200 text-gray-900'
+              ? 'order-2' 
+              : 'order-1'
           }`}>
-            {msg.type === 'file' ? (
-              <div className="flex items-center gap-2">
-                <File className="w-3 h-3 lg:w-4 lg:h-4 flex-shrink-0" />
-                <span className="text-xs lg:text-sm truncate">{msg.fileName}</span>
-              </div>
-            ) : msg.type === 'image' ? (
-              <div className="flex items-center gap-2">
-                <Image className="w-3 h-3 lg:w-4 lg:h-4 flex-shrink-0" />
-                <span className="text-xs lg:text-sm truncate">{msg.fileName}</span>
-              </div>
-            ) : (
-              <p className="text-xs lg:text-sm break-words">{msg.message}</p>
-            )}
-            <p className={`text-xs mt-1 ${
-              msg.sender === 'agent' ? 'text-blue-100' : 'text-gray-500'
+            <div className={`px-4 lg:px-5 py-3 lg:py-4 rounded-2xl shadow-md ${
+              msg.sender === 'agent' 
+                ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white ml-4' 
+                : 'bg-white text-slate-900 border border-slate-200 mr-4'
             }`}>
-              {msg.time}
-            </p>
+              {msg.type === 'file' ? (
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                    msg.sender === 'agent' ? 'bg-blue-500' : 'bg-slate-100'
+                  }`}>
+                    <File className="w-4 h-4" />
+                  </div>
+                  <span className="text-sm font-medium truncate">{msg.fileName}</span>
+                </div>
+              ) : msg.type === 'image' ? (
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                    msg.sender === 'agent' ? 'bg-blue-500' : 'bg-slate-100'
+                  }`}>
+                    <Image className="w-4 h-4" />
+                  </div>
+                  <span className="text-sm font-medium truncate">{msg.fileName}</span>
+                </div>
+              ) : (
+                <p className="text-sm lg:text-base leading-relaxed break-words">{msg.message}</p>
+              )}
+            </div>
+            <div className={`flex items-center gap-1 mt-2 text-xs text-slate-500 ${
+              msg.sender === 'agent' ? 'justify-end mr-2' : 'justify-start ml-2'
+            }`}>
+              <Clock className="w-3 h-3" />
+              <span>{msg.time}</span>
+            </div>
           </div>
         </div>
       ))}
       
       {isTyping && (
         <div className="flex justify-start">
-          <div className="bg-gray-200 text-gray-900 px-3 lg:px-4 py-2 rounded-lg">
+          <div className="bg-white border border-slate-200 text-slate-700 px-4 py-3 rounded-2xl shadow-md mr-4">
             <div className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
-              <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-              <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+              <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></div>
+              <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+              <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
             </div>
           </div>
         </div>
@@ -69,3 +85,4 @@ export const MessageList = ({ messages, isTyping }: MessageListProps) => {
     </div>
   );
 };
+
