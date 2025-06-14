@@ -116,7 +116,7 @@ export const Reports = () => {
     return <Badge variant={variants[status as keyof typeof variants]}>{status}</Badge>;
   };
 
-  const exportReport = (format: string) => {
+  const exportReport = (exportFormat: string) => {
     const dateRangeText = dateRange === 'custom' && customStartDate && customEndDate 
       ? `${format(customStartDate, 'MMM dd')} - ${format(customEndDate, 'MMM dd, yyyy')}`
       : dateRange === '1day' ? 'Last 24 Hours'
@@ -124,26 +124,36 @@ export const Reports = () => {
       : dateRange === '30days' ? 'Last 30 Days'
       : 'Last 3 Months';
 
+    // Create report data object
+    const reportData = {
+      dateRange: dateRangeText,
+      performanceData,
+      agentStats,
+      categoryBreakdown,
+      hourlyDistribution,
+      generatedAt: new Date().toISOString()
+    };
+
     // Simulate file download
     const dataString = JSON.stringify(reportData, null, 2);
     const blob = new Blob([dataString], { 
-      type: format === 'pdf' ? 'application/pdf' : 'application/json' 
+      type: exportFormat === 'pdf' ? 'application/pdf' : 'application/json' 
     });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `support-report-${dateRange}.${format === 'pdf' ? 'pdf' : 'json'}`;
+    a.download = `support-report-${dateRange}.${exportFormat === 'pdf' ? 'pdf' : 'json'}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
     toast({
-      title: `${format.toUpperCase()} Export Complete`,
+      title: `${exportFormat.toUpperCase()} Export Complete`,
       description: `Report downloaded for ${dateRangeText}`,
     });
     
-    console.log('Exported report:', format, reportData);
+    console.log('Exported report:', exportFormat, reportData);
   };
 
   const handleCustomDate = () => {
