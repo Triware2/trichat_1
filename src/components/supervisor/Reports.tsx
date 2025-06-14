@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -33,7 +32,7 @@ export const Reports = () => {
 
   // Generate dynamic data based on date range
   const generateReportData = (range: string) => {
-    const multiplier = range === '1day' ? 0.3 : range === '7days' ? 1 : range === '30days' ? 3.5 : 10;
+    const multiplier = range === '1day' ? 0.3 : range === '7days' ? 1 : range === '30days' ? 3.5 : range === 'custom' ? 2 : 10;
     
     const baseData = {
       totalChats: Math.floor(356 * multiplier),
@@ -89,23 +88,23 @@ export const Reports = () => {
   }, [dateRange]);
 
   const categoryBreakdown = [
-    { category: "Technical Support", count: Math.floor(387 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : 10)), percentage: 31 },
-    { category: "Billing", count: Math.floor(298 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : 10)), percentage: 24 },
-    { category: "Product Inquiry", count: Math.floor(224 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : 10)), percentage: 18 },
-    { category: "Account Issues", count: Math.floor(186 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : 10)), percentage: 15 },
-    { category: "General", count: Math.floor(152 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : 10)), percentage: 12 }
+    { category: "Technical Support", count: Math.floor(387 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : dateRange === 'custom' ? 2 : 10)), percentage: 31 },
+    { category: "Billing", count: Math.floor(298 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : dateRange === 'custom' ? 2 : 10)), percentage: 24 },
+    { category: "Product Inquiry", count: Math.floor(224 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : dateRange === 'custom' ? 2 : 10)), percentage: 18 },
+    { category: "Account Issues", count: Math.floor(186 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : dateRange === 'custom' ? 2 : 10)), percentage: 15 },
+    { category: "General", count: Math.floor(152 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : dateRange === 'custom' ? 2 : 10)), percentage: 12 }
   ];
 
   const hourlyDistribution = [
-    { hour: "9 AM", chats: Math.floor(45 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : 10)) },
-    { hour: "10 AM", chats: Math.floor(67 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : 10)) },
-    { hour: "11 AM", chats: Math.floor(89 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : 10)) },
-    { hour: "12 PM", chats: Math.floor(102 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : 10)) },
-    { hour: "1 PM", chats: Math.floor(95 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : 10)) },
-    { hour: "2 PM", chats: Math.floor(78 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : 10)) },
-    { hour: "3 PM", chats: Math.floor(124 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : 10)) },
-    { hour: "4 PM", chats: Math.floor(156 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : 10)) },
-    { hour: "5 PM", chats: Math.floor(89 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : 10)) }
+    { hour: "9 AM", chats: Math.floor(45 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : dateRange === 'custom' ? 2 : 10)) },
+    { hour: "10 AM", chats: Math.floor(67 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : dateRange === 'custom' ? 2 : 10)) },
+    { hour: "11 AM", chats: Math.floor(89 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : dateRange === 'custom' ? 2 : 10)) },
+    { hour: "12 PM", chats: Math.floor(102 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : dateRange === 'custom' ? 2 : 10)) },
+    { hour: "1 PM", chats: Math.floor(95 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : dateRange === 'custom' ? 2 : 10)) },
+    { hour: "2 PM", chats: Math.floor(78 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : dateRange === 'custom' ? 2 : 10)) },
+    { hour: "3 PM", chats: Math.floor(124 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : dateRange === 'custom' ? 2 : 10)) },
+    { hour: "4 PM", chats: Math.floor(156 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : dateRange === 'custom' ? 2 : 10)) },
+    { hour: "5 PM", chats: Math.floor(89 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : dateRange === 'custom' ? 2 : 10)) }
   ];
 
   const getStatusBadge = (status: string) => {
