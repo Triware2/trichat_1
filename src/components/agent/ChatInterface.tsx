@@ -1,5 +1,3 @@
-
-
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -257,16 +255,16 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
   };
 
   return (
-    <div className="h-full flex flex-col bg-white relative overflow-hidden">
+    <div className="h-full flex flex-col bg-white relative">
       {/* Fixed Header */}
       <div className="flex-shrink-0 bg-white border-b border-slate-200 z-10">
         <ChatHeader customerName={customerName} customerStatus={customerStatus} />
       </div>
       
-      {/* Scrollable Messages Area - Full height with proper overflow */}
-      <div className="flex-1 relative overflow-hidden">
-        {/* Messages container with its own scroll */}
-        <div className="h-full overflow-y-auto pb-4">
+      {/* Scrollable Messages Area - with bottom padding for floating input */}
+      <div className="flex-1 relative">
+        {/* Messages container with its own scroll and padding for floating input */}
+        <div className="absolute inset-0 overflow-y-auto" style={{ paddingBottom: '180px' }}>
           <MessageList 
             messages={messages} 
             privateNotes={privateNotes}
@@ -276,46 +274,49 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
           />
         </div>
 
-        {/* Floating Input Section - Fixed within this container, won't scroll */}
-        <div className="absolute bottom-4 left-4 right-4 bg-white border border-slate-200 rounded-lg shadow-lg z-30 pointer-events-auto">
-          {/* Canned Responses Toggle */}
-          <div className="px-6 py-2 border-b border-slate-100">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowCannedResponses(!showCannedResponses)}
-              className="w-full flex items-center justify-between text-sm hover:bg-slate-50"
-            >
-              <span className="flex items-center gap-2">
-                <MessageSquare className="w-4 h-4" />
-                Canned Responses
-              </span>
-              {showCannedResponses ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-            </Button>
-          </div>
+        {/* Fixed Floating Input Section - positioned absolutely within the chat interface */}
+        <div className="absolute bottom-4 left-4 right-4 z-30 pointer-events-auto">
+          {/* Canned Responses Panel - appears above input when open */}
+          {showCannedResponses && (
+            <div className="mb-4 h-96 border border-slate-200 bg-white shadow-lg rounded-lg">
+              <CannedResponses 
+                onSelectResponse={handleCannedResponseSelect}
+                isSelectionMode={true}
+              />
+            </div>
+          )}
 
-          <MessageInputArea
-            message={message}
-            setMessage={setMessage}
-            isPrivateNoteMode={isPrivateNoteMode}
-            setIsPrivateNoteMode={setIsPrivateNoteMode}
-            onSendMessage={handleSendMessage}
-            onFileUpload={handleFileUpload}
-            onImageUpload={handleImageUpload}
-          />
-        </div>
+          {/* Message Input Container */}
+          <div className="bg-white border border-slate-200 rounded-lg shadow-lg">
+            {/* Canned Responses Toggle */}
+            <div className="px-6 py-2 border-b border-slate-100">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowCannedResponses(!showCannedResponses)}
+                className="w-full flex items-center justify-between text-sm hover:bg-slate-50"
+              >
+                <span className="flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4" />
+                  Canned Responses
+                </span>
+                {showCannedResponses ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </Button>
+            </div>
 
-        {/* Canned Responses Panel - Floating above input, fixed within container */}
-        {showCannedResponses && (
-          <div className="absolute bottom-44 left-4 right-4 h-96 border border-slate-200 bg-white shadow-lg z-20 rounded-lg">
-            <CannedResponses 
-              onSelectResponse={handleCannedResponseSelect}
-              isSelectionMode={true}
+            <MessageInputArea
+              message={message}
+              setMessage={setMessage}
+              isPrivateNoteMode={isPrivateNoteMode}
+              setIsPrivateNoteMode={setIsPrivateNoteMode}
+              onSendMessage={handleSendMessage}
+              onFileUpload={handleFileUpload}
+              onImageUpload={handleImageUpload}
             />
           </div>
-        )}
+        </div>
 
-        {/* Quick Responses - Floating position, fixed within container */}
+        {/* Quick Responses - Fixed position within chat interface */}
         <div className="absolute bottom-6 right-6 z-50">
           <QuickResponses responses={quickResponses} onResponseSelect={handleQuickResponse} />
         </div>
@@ -323,4 +324,3 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
     </div>
   );
 };
-
