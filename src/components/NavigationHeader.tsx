@@ -12,13 +12,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
-  Headphones, 
   Bell, 
   Settings, 
   LogOut, 
   User,
-  Menu,
-  Building2,
   Search
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -79,14 +76,37 @@ export const NavigationHeader = ({ title, role, userEmail }: NavigationHeaderPro
           {/* Left side */}
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
-              {/* Trichat Product Logo with role-based colors */}
-              <div className="flex items-center space-x-2">
-                <div className={`w-8 h-8 bg-gradient-to-br ${getTrichatLogoGradient(role)} rounded-lg flex items-center justify-center`}>
-                  <Headphones className="w-5 h-5 text-white" />
+              {/* New Azure-inspired Trichat Logo */}
+              <div className="flex items-center space-x-3">
+                <div className="relative">
+                  {/* Main cube with Azure-inspired design */}
+                  <div className={`w-9 h-9 bg-gradient-to-br ${getTrichatLogoGradient(role)} rounded-lg flex items-center justify-center shadow-lg relative overflow-hidden`}>
+                    {/* Modern geometric pattern */}
+                    <div className="absolute inset-0 bg-white opacity-10">
+                      <div className="absolute top-0 left-0 w-full h-full">
+                        <div className="absolute top-1 left-1 w-2 h-2 bg-white opacity-30 rounded-sm"></div>
+                        <div className="absolute bottom-1 right-1 w-3 h-3 bg-white opacity-20 rounded-sm"></div>
+                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1 h-1 bg-white opacity-40 rounded-full"></div>
+                      </div>
+                    </div>
+                    {/* Central icon - simplified chat bubble */}
+                    <div className="relative z-10">
+                      <div className="w-5 h-4 bg-white rounded-lg relative">
+                        <div className="absolute -bottom-1 left-2 w-0 h-0 border-l-2 border-r-2 border-t-2 border-transparent border-t-white"></div>
+                        <div className="absolute top-1 left-1 w-1 h-1 bg-gray-300 rounded-full"></div>
+                        <div className="absolute top-1 right-1 w-1 h-1 bg-gray-300 rounded-full"></div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <span className={`text-lg font-lexend font-semibold bg-gradient-to-r ${getTrichatLogoGradient(role)} bg-clip-text text-transparent`}>
-                  Trichat
-                </span>
+                <div className="flex flex-col">
+                  <span className={`text-xl font-semibold bg-gradient-to-r ${getTrichatLogoGradient(role)} bg-clip-text text-transparent tracking-tight`}>
+                    Trichat
+                  </span>
+                  <span className="text-xs text-gray-500 -mt-1 tracking-wide font-medium">
+                    PLATFORM
+                  </span>
+                </div>
               </div>
             </div>
             <div className="hidden md:flex items-center space-x-2">
