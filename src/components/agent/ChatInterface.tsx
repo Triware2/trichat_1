@@ -1,8 +1,7 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Send,
@@ -12,12 +11,13 @@ import {
   Video,
   MoreHorizontal,
   Image,
-  File,
   MessageSquare,
   ChevronDown,
   ChevronUp
 } from 'lucide-react';
 import { CannedResponses } from './CannedResponses';
+import { MessageList } from './MessageList';
+import { QuickResponses } from './QuickResponses';
 
 interface Message {
   id: number;
@@ -46,7 +46,6 @@ export const ChatInterface = ({ customerName, customerStatus, onSendMessage }: C
   const [message, setMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showCannedResponses, setShowCannedResponses] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   const [messages, setMessages] = useState<Message[]>([
@@ -97,14 +96,6 @@ export const ChatInterface = ({ customerName, customerStatus, onSendMessage }: C
     "Let me transfer you to the right department.",
     "Your issue has been resolved."
   ];
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
 
   const handleSendMessage = () => {
     if (message.trim()) {
@@ -229,7 +220,6 @@ export const ChatInterface = ({ customerName, customerStatus, onSendMessage }: C
 
   return (
     <div className="h-full flex flex-col gap-4">
-      {/* Chat Interface */}
       <Card className="flex-1 flex flex-col">
         <CardHeader className="border-b pb-4">
           <div className="flex items-center justify-between">
@@ -260,70 +250,10 @@ export const ChatInterface = ({ customerName, customerStatus, onSendMessage }: C
         </CardHeader>
         
         <CardContent className="flex-1 p-0 flex flex-col">
-          {/* Messages Area */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-96">
-            {messages.map((msg) => (
-              <div key={msg.id} className={`flex ${msg.sender === 'agent' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                  msg.sender === 'agent' 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-200 text-gray-900'
-                }`}>
-                  {msg.type === 'file' ? (
-                    <div className="flex items-center gap-2">
-                      <File className="w-4 h-4" />
-                      <span className="text-sm">{msg.fileName}</span>
-                    </div>
-                  ) : msg.type === 'image' ? (
-                    <div className="flex items-center gap-2">
-                      <Image className="w-4 h-4" />
-                      <span className="text-sm">{msg.fileName}</span>
-                    </div>
-                  ) : (
-                    <p className="text-sm">{msg.message}</p>
-                  )}
-                  <p className={`text-xs mt-1 ${
-                    msg.sender === 'agent' ? 'text-blue-100' : 'text-gray-500'
-                  }`}>
-                    {msg.time}
-                  </p>
-                </div>
-              </div>
-            ))}
-            
-            {isTyping && (
-              <div className="flex justify-start">
-                <div className="bg-gray-200 text-gray-900 px-4 py-2 rounded-lg">
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                  </div>
-                </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
+          <MessageList messages={messages} isTyping={isTyping} />
 
-          {/* Quick Responses */}
-          <div className="px-4 py-2 border-t bg-gray-50">
-            <p className="text-xs text-gray-600 mb-2">Quick Responses:</p>
-            <div className="flex flex-wrap gap-1">
-              {quickResponses.slice(0, 4).map((response, index) => (
-                <Button 
-                  key={index}
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handleQuickResponse(response)}
-                  className="text-xs h-6 px-2"
-                >
-                  {response.length > 20 ? `${response.substring(0, 20)}...` : response}
-                </Button>
-              ))}
-            </div>
-          </div>
+          <QuickResponses responses={quickResponses} onResponseSelect={handleQuickResponse} />
 
-          {/* Canned Responses Toggle */}
           <div className="px-4 py-2 border-t">
             <Button
               variant="outline"
@@ -339,7 +269,6 @@ export const ChatInterface = ({ customerName, customerStatus, onSendMessage }: C
             </Button>
           </div>
 
-          {/* Message Input */}
           <div className="p-4 border-t">
             <div className="flex items-center gap-2">
               <Button variant="ghost" size="sm" onClick={handleFileUpload} title="Attach File">
@@ -371,7 +300,6 @@ export const ChatInterface = ({ customerName, customerStatus, onSendMessage }: C
         </CardContent>
       </Card>
 
-      {/* Canned Responses Panel */}
       {showCannedResponses && (
         <Card className="h-96">
           <CannedResponses 

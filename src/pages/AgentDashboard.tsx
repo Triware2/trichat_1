@@ -1,9 +1,8 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { 
   MessageSquare, 
@@ -12,21 +11,20 @@ import {
   Star,
   History,
   CheckCircle,
-  AlertCircle,
-  Phone,
-  Search,
-  Filter,
   MessageCircle
 } from 'lucide-react';
 import { NavigationHeader } from '@/components/NavigationHeader';
 import { ChatInterface } from '@/components/agent/ChatInterface';
 import { CustomerInfo } from '@/components/agent/CustomerInfo';
 import { CannedResponses } from '@/components/agent/CannedResponses';
+import { ChatList } from '@/components/agent/ChatList';
+import { DashboardStats } from '@/components/agent/DashboardStats';
+import { QueueStatus } from '@/components/agent/QueueStatus';
+import { RecentActivity } from '@/components/agent/RecentActivity';
 
 const AgentDashboard = () => {
   const [activeTab, setActiveTab] = useState('chats');
   const [selectedChat, setSelectedChat] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
 
   const activeChats = [
@@ -146,13 +144,6 @@ const AgentDashboard = () => {
     });
   };
 
-  const handleSearchChats = () => {
-    toast({
-      title: "Searching chats",
-      description: `Searching for: "${searchTerm}"`,
-    });
-  };
-
   const handleFilterChats = () => {
     toast({
       title: "Filter applied",
@@ -182,29 +173,6 @@ const AgentDashboard = () => {
   };
 
   const selectedChatData = activeChats.find(chat => chat.id === selectedChat);
-
-  const getPriorityBadge = (priority: string) => {
-    const variants = {
-      'High': 'destructive',
-      'Medium': 'default',
-      'Low': 'secondary'
-    } as const;
-    return <Badge variant={variants[priority as keyof typeof variants]}>{priority}</Badge>;
-  };
-
-  const getStatusBadge = (status: string) => {
-    const variants = {
-      'urgent': 'destructive',
-      'pending': 'default',
-      'resolved': 'secondary'
-    } as const;
-    return <Badge variant={variants[status as keyof typeof variants]}>{status}</Badge>;
-  };
-
-  const filteredChats = activeChats.filter(chat =>
-    chat.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    chat.lastMessage.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -237,63 +205,15 @@ const AgentDashboard = () => {
 
           <TabsContent value="chats">
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-              {/* Chat List */}
               <div className="lg:col-span-1">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                      <span>Active Chats</span>
-                      <Badge variant="outline">{filteredChats.length}</Badge>
-                    </CardTitle>
-                    <div className="flex gap-2">
-                      <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                        <Input
-                          placeholder="Search chats..."
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                          className="pl-10"
-                        />
-                      </div>
-                      <Button variant="outline" size="sm" onClick={handleFilterChats}>
-                        <Filter className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-0">
-                    <div className="space-y-1">
-                      {filteredChats.map((chat) => (
-                        <div 
-                          key={chat.id} 
-                          className={`p-4 hover:bg-gray-50 cursor-pointer border-b transition-colors ${
-                            selectedChat === chat.id ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
-                          }`}
-                          onClick={() => handleChatSelect(chat.id)}
-                        >
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="font-medium text-gray-900">{chat.customer}</h4>
-                            <div className="flex items-center gap-2">
-                              {chat.unread > 0 && (
-                                <Badge variant="destructive" className="text-xs">
-                                  {chat.unread}
-                                </Badge>
-                              )}
-                              {getPriorityBadge(chat.priority)}
-                            </div>
-                          </div>
-                          <p className="text-sm text-gray-600 truncate mb-2">{chat.lastMessage}</p>
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs text-gray-500">{chat.time}</span>
-                            {getStatusBadge(chat.status)}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
+                <ChatList 
+                  chats={activeChats}
+                  selectedChat={selectedChat}
+                  onChatSelect={handleChatSelect}
+                  onFilter={handleFilterChats}
+                />
               </div>
 
-              {/* Chat Interface */}
               <div className="lg:col-span-2">
                 {selectedChatData ? (
                   <ChatInterface
@@ -311,7 +231,6 @@ const AgentDashboard = () => {
                 )}
               </div>
 
-              {/* Customer Info */}
               <div className="lg:col-span-1">
                 <CustomerInfo customer={customerData} />
               </div>
@@ -323,77 +242,11 @@ const AgentDashboard = () => {
           </TabsContent>
 
           <TabsContent value="dashboard" className="space-y-6">
-            {/* Today's Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {todayStats.map((stat, index) => (
-                <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => handleStatClick(stat.title)}>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                        <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                      </div>
-                      <div className={`w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center ${stat.color}`}>
-                        <stat.icon className="w-6 h-6" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            <DashboardStats stats={todayStats} onStatClick={handleStatClick} />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Queue Status */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>My Queue</CardTitle>
-                  <CardDescription>Current assigned conversations</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {activeChats.slice(0, 3).map((chat, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div>
-                          <p className="font-medium">{chat.customer}</p>
-                          <p className="text-sm text-gray-600 truncate">{chat.lastMessage}</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {getPriorityBadge(chat.priority)}
-                          <Button size="sm" variant="outline" onClick={() => handleQueueAction(chat.customer)}>
-                            <MessageSquare className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Recent Activity */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Activity</CardTitle>
-                  <CardDescription>Your latest actions and updates</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {recentActivity.map((activity, index) => (
-                      <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                        <div className={`w-2 h-2 rounded-full ${
-                          activity.type === 'success' ? 'bg-green-500' :
-                          activity.type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
-                        }`}></div>
-                        <div className="flex-1">
-                          <p className="text-sm">
-                            <span className="font-medium">{activity.customer}</span> - {activity.action}
-                          </p>
-                          <p className="text-xs text-gray-500">{activity.time}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+              <QueueStatus chats={activeChats} onQueueAction={handleQueueAction} />
+              <RecentActivity activities={recentActivity} />
             </div>
           </TabsContent>
 
