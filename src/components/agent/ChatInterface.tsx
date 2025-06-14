@@ -13,13 +13,13 @@ import {
   Image,
   MessageSquare,
   ChevronDown,
-  ChevronUp,
-  StickyNote
+  ChevronUp
 } from 'lucide-react';
 import { CannedResponses } from './CannedResponses';
 import { MessageList } from './MessageList';
 import { QuickResponses } from './QuickResponses';
-import { PrivateNotes } from './PrivateNotes';
+import { PrivateNotes, usePrivateNotes } from './PrivateNotes';
+import { PrivateNoteInput } from './PrivateNoteInput';
 
 interface Message {
   id: number;
@@ -49,8 +49,8 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
   const [message, setMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showCannedResponses, setShowCannedResponses] = useState(false);
-  const [showPrivateNotes, setShowPrivateNotes] = useState(false);
   const { toast } = useToast();
+  const { addNote } = usePrivateNotes(selectedChatId);
 
   // Different message sets for different customers
   const getMessagesForChat = (chatId: number): Message[] => {
@@ -300,14 +300,6 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => setShowPrivateNotes(!showPrivateNotes)}
-              className={`h-9 w-9 p-0 hover:bg-amber-100 ${showPrivateNotes ? 'bg-amber-100 text-amber-700' : 'hover:bg-slate-100'}`}
-            >
-              <StickyNote className="w-4 h-4" />
-            </Button>
             <Button variant="ghost" size="sm" onClick={handleVoiceCall} className="h-9 w-9 p-0 hover:bg-slate-100">
               <Phone className="w-4 h-4" />
             </Button>
@@ -321,12 +313,8 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
         </div>
       </div>
       
-      {/* Private Notes */}
-      <PrivateNotes 
-        chatId={selectedChatId}
-        isVisible={showPrivateNotes}
-        onToggle={() => setShowPrivateNotes(!showPrivateNotes)}
-      />
+      {/* Private Notes - Always Visible */}
+      <PrivateNotes chatId={selectedChatId} />
       
       {/* Messages */}
       <div className="flex-1 flex flex-col min-h-0">
@@ -350,8 +338,10 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
           </Button>
         </div>
 
-        {/* Message Input */}
-        <div className="p-4 border-t border-slate-200 bg-white">
+        {/* Message Input with Private Note Option */}
+        <div className="p-4 border-t border-slate-200 bg-white space-y-3">
+          <PrivateNoteInput onAddNote={addNote} />
+          
           <div className="flex items-center space-x-3">
             <Button variant="ghost" size="sm" onClick={handleFileUpload} className="h-9 w-9 p-0 hover:bg-slate-100">
               <Paperclip className="w-4 h-4" />
