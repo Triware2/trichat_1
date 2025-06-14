@@ -13,11 +13,13 @@ import {
   Image,
   MessageSquare,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  StickyNote
 } from 'lucide-react';
 import { CannedResponses } from './CannedResponses';
 import { MessageList } from './MessageList';
 import { QuickResponses } from './QuickResponses';
+import { PrivateNotes } from './PrivateNotes';
 
 interface Message {
   id: number;
@@ -47,6 +49,7 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
   const [message, setMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showCannedResponses, setShowCannedResponses] = useState(false);
+  const [showPrivateNotes, setShowPrivateNotes] = useState(false);
   const { toast } = useToast();
 
   // Different message sets for different customers
@@ -297,6 +300,14 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
             </div>
           </div>
           <div className="flex items-center space-x-2">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setShowPrivateNotes(!showPrivateNotes)}
+              className={`h-9 w-9 p-0 hover:bg-amber-100 ${showPrivateNotes ? 'bg-amber-100 text-amber-700' : 'hover:bg-slate-100'}`}
+            >
+              <StickyNote className="w-4 h-4" />
+            </Button>
             <Button variant="ghost" size="sm" onClick={handleVoiceCall} className="h-9 w-9 p-0 hover:bg-slate-100">
               <Phone className="w-4 h-4" />
             </Button>
@@ -309,6 +320,13 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
           </div>
         </div>
       </div>
+      
+      {/* Private Notes */}
+      <PrivateNotes 
+        chatId={selectedChatId}
+        isVisible={showPrivateNotes}
+        onToggle={() => setShowPrivateNotes(!showPrivateNotes)}
+      />
       
       {/* Messages */}
       <div className="flex-1 flex flex-col min-h-0">
