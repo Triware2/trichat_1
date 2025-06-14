@@ -67,19 +67,6 @@ export const NavigationHeader = ({ title, role, userEmail }: NavigationHeaderPro
           {/* Left side */}
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
-              {/* Triware Company Logo */}
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-slate-600 to-slate-800 rounded-lg flex items-center justify-center">
-                  <Building2 className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-lg font-lexend font-semibold text-slate-800">
-                  Triware
-                </span>
-              </div>
-              
-              {/* Separator */}
-              <div className="text-slate-300 mx-2">|</div>
-              
               {/* Trichat Product Logo with role-based colors */}
               <div className="flex items-center space-x-2">
                 <div className={`w-8 h-8 bg-gradient-to-br ${getTrichatLogoGradient(role)} rounded-lg flex items-center justify-center`}>
