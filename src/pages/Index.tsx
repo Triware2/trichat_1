@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -112,12 +111,12 @@ const Index = () => {
               {/* Separator */}
               <div className="text-slate-300">|</div>
               
-              {/* Trichat Product Logo */}
+              {/* Trichat Product Logo - Updated colors */}
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                <div className="w-10 h-10 bg-gradient-to-br from-slate-700 to-slate-900 rounded-xl flex items-center justify-center shadow-lg">
                   <Headphones className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-xl font-lexend font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                <span className="text-xl font-lexend font-semibold bg-gradient-to-r from-slate-700 to-slate-900 bg-clip-text text-transparent">
                   Trichat
                 </span>
               </div>
@@ -133,7 +132,7 @@ const Index = () => {
               </Button>
               <Button 
                 onClick={() => navigate('/login')}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg font-lexend"
+                className="bg-gradient-to-r from-slate-700 to-slate-900 hover:from-slate-800 hover:to-black text-white shadow-lg font-lexend"
               >
                 Sign In
                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -161,7 +160,7 @@ const Index = () => {
             
             <h1 className="text-5xl md:text-7xl font-bold text-slate-900 mb-6 leading-tight font-lexend">
               Transform Customer
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent block font-lexend">
+              <span className="bg-gradient-to-r from-slate-700 to-slate-900 bg-clip-text text-transparent block font-lexend">
                 Support Excellence
               </span>
             </h1>
@@ -174,7 +173,7 @@ const Index = () => {
               <Button 
                 size="lg" 
                 onClick={() => navigate('/signup')}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-lg px-8 py-4 h-14 shadow-xl font-lexend font-semibold"
+                className="bg-gradient-to-r from-slate-700 to-slate-900 hover:from-slate-800 hover:to-black text-white text-lg px-8 py-4 h-14 shadow-xl font-lexend font-semibold"
               >
                 Start Free Trial
                 <ArrowRight className="w-5 h-5 ml-2" />
@@ -183,7 +182,7 @@ const Index = () => {
                 size="lg" 
                 variant="outline" 
                 onClick={() => navigate('/demo')}
-                className="text-lg px-8 py-4 h-14 border-2 border-slate-300 hover:border-blue-300 hover:bg-blue-50 font-lexend font-semibold"
+                className="text-lg px-8 py-4 h-14 border-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 font-lexend font-semibold"
               >
                 <Play className="w-5 h-5 mr-2" />
                 Watch Demo
@@ -388,20 +387,20 @@ const Index = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-gradient-to-br from-blue-600 via-purple-600 to-blue-700 relative overflow-hidden">
+      <section className="py-24 bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8 relative">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight font-lexend">
             Ready to Transform Your Customer Support?
           </h2>
-          <p className="text-xl text-blue-100 mb-10 leading-relaxed font-lexend">
+          <p className="text-xl text-slate-200 mb-10 leading-relaxed font-lexend">
             Join thousands of companies delivering world-class customer experiences with Trichat
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
               size="lg" 
               onClick={() => navigate('/signup')}
-              className="bg-white text-blue-600 hover:bg-blue-50 text-lg px-8 py-4 h-14 shadow-xl font-semibold font-lexend"
+              className="bg-white text-slate-800 hover:bg-slate-100 text-lg px-8 py-4 h-14 shadow-xl font-semibold font-lexend"
             >
               Start Free Trial
               <ArrowRight className="w-5 h-5 ml-2" />
@@ -409,7 +408,7 @@ const Index = () => {
             <Button 
               size="lg" 
               variant="outline" 
-              className="border-2 border-white text-white hover:bg-white hover:text-blue-600 text-lg px-8 py-4 h-14 font-semibold font-lexend"
+              className="border-2 border-white text-white hover:bg-white hover:text-slate-800 text-lg px-8 py-4 h-14 font-semibold font-lexend"
             >
               Contact Sales
             </Button>
@@ -432,12 +431,13 @@ const Index = () => {
                 </div>
                 <div className="text-slate-600">•</div>
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-slate-700 to-slate-900 rounded-xl flex items-center justify-center">
                     <Headphones className="w-6 h-6 text-white" />
                   </div>
-                  <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent font-lexend">Trichat</span>
+                  <span className="text-xl font-bold bg-gradient-to-r from-slate-400 to-slate-200 bg-clip-text text-transparent font-lexend">Trichat</span>
                 </div>
               </div>
+              {/* ... keep existing code (footer content) the same */}
               <p className="text-slate-400 mb-6 max-w-md leading-relaxed font-lexend">
                 The world's most advanced customer support platform from Triware Technologies, trusted by industry leaders worldwide.
               </p>
@@ -448,6 +448,7 @@ const Index = () => {
                 </Badge>
               </div>
             </div>
+            {/* ... keep existing code (footer links) the same */}
             <div>
               <h3 className="font-bold mb-6 text-lg font-lexend">Product</h3>
               <ul className="space-y-3 text-slate-400">

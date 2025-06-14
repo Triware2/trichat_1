@@ -16,7 +16,8 @@ import {
   Settings, 
   LogOut, 
   User,
-  Menu
+  Menu,
+  Building2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -42,6 +43,19 @@ export const NavigationHeader = ({ title, role, userEmail }: NavigationHeaderPro
     }
   };
 
+  const getTrichatLogoGradient = (role: string) => {
+    switch (role) {
+      case 'admin':
+        return 'from-red-500 to-orange-500';
+      case 'supervisor':
+        return 'from-blue-500 to-cyan-500';
+      case 'agent':
+        return 'from-emerald-500 to-teal-500';
+      default:
+        return 'from-blue-600 to-purple-600';
+    }
+  };
+
   const handleLogout = () => {
     navigate('/');
   };
@@ -53,12 +67,28 @@ export const NavigationHeader = ({ title, role, userEmail }: NavigationHeaderPro
           {/* Left side */}
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <Headphones className="w-5 h-5 text-white" />
+              {/* Triware Company Logo */}
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-gradient-to-br from-slate-600 to-slate-800 rounded-lg flex items-center justify-center">
+                  <Building2 className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-lg font-lexend font-semibold text-slate-800">
+                  Triware
+                </span>
               </div>
-              <span className="text-xl font-lexend font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Trichat
-              </span>
+              
+              {/* Separator */}
+              <div className="text-slate-300 mx-2">|</div>
+              
+              {/* Trichat Product Logo with role-based colors */}
+              <div className="flex items-center space-x-2">
+                <div className={`w-8 h-8 bg-gradient-to-br ${getTrichatLogoGradient(role)} rounded-lg flex items-center justify-center`}>
+                  <Headphones className="w-5 h-5 text-white" />
+                </div>
+                <span className={`text-lg font-lexend font-semibold bg-gradient-to-r ${getTrichatLogoGradient(role)} bg-clip-text text-transparent`}>
+                  Trichat
+                </span>
+              </div>
             </div>
             <div className="hidden md:flex items-center space-x-2">
               <span className="text-gray-400">|</span>
@@ -85,7 +115,7 @@ export const NavigationHeader = ({ title, role, userEmail }: NavigationHeaderPro
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src="/placeholder.svg" alt="Avatar" />
-                    <AvatarFallback className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-lexend font-medium">
+                    <AvatarFallback className={`bg-gradient-to-r ${getTrichatLogoGradient(role)} text-white font-lexend font-medium`}>
                       {userEmail.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
