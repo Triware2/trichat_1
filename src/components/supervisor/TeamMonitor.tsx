@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { 
   UserCheck, 
@@ -13,12 +14,20 @@ import {
   MessageSquare, 
   Clock,
   Activity,
-  MoreHorizontal
+  MoreHorizontal,
+  User,
+  Phone,
+  Mail,
+  Calendar,
+  AlertCircle
 } from 'lucide-react';
 
 export const TeamMonitor = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [selectedAgent, setSelectedAgent] = useState<any>(null);
+  const [showAgentDetails, setShowAgentDetails] = useState(false);
+  const [showAgentActions, setShowAgentActions] = useState(false);
   const { toast } = useToast();
 
   const agents = [
@@ -33,7 +42,11 @@ export const TeamMonitor = () => {
       satisfaction: 96,
       totalChatsToday: 12,
       lastActivity: "2 min ago",
-      statusColor: "bg-green-500"
+      statusColor: "bg-green-500",
+      phone: "+1 (555) 123-4567",
+      department: "Technical Support",
+      joinDate: "2023-01-15",
+      totalResolved: 1247
     },
     {
       id: 2,
@@ -46,7 +59,11 @@ export const TeamMonitor = () => {
       satisfaction: 94,
       totalChatsToday: 18,
       lastActivity: "1 min ago",
-      statusColor: "bg-yellow-500"
+      statusColor: "bg-yellow-500",
+      phone: "+1 (555) 234-5678",
+      department: "Billing Support",
+      joinDate: "2023-03-20",
+      totalResolved: 892
     },
     {
       id: 3,
@@ -59,7 +76,11 @@ export const TeamMonitor = () => {
       satisfaction: 98,
       totalChatsToday: 8,
       lastActivity: "30 sec ago",
-      statusColor: "bg-green-500"
+      statusColor: "bg-green-500",
+      phone: "+1 (555) 345-6789",
+      department: "General Support",
+      joinDate: "2022-11-10",
+      totalResolved: 1563
     },
     {
       id: 4,
@@ -72,7 +93,11 @@ export const TeamMonitor = () => {
       satisfaction: 91,
       totalChatsToday: 6,
       lastActivity: "15 min ago",
-      statusColor: "bg-gray-500"
+      statusColor: "bg-gray-500",
+      phone: "+1 (555) 456-7890",
+      department: "Technical Support",
+      joinDate: "2023-05-08",
+      totalResolved: 734
     },
     {
       id: 5,
@@ -85,7 +110,11 @@ export const TeamMonitor = () => {
       satisfaction: 95,
       totalChatsToday: 10,
       lastActivity: "5 min ago",
-      statusColor: "bg-orange-500"
+      statusColor: "bg-orange-500",
+      phone: "+1 (555) 567-8901",
+      department: "Billing Support",
+      joinDate: "2023-02-14",
+      totalResolved: 1089
     }
   ];
 
@@ -107,18 +136,34 @@ export const TeamMonitor = () => {
     );
   };
 
-  const handleViewAgent = (agentName: string) => {
-    toast({
-      title: "Agent Details",
-      description: `Opening detailed view for ${agentName}`,
-    });
+  const handleViewAgent = (agent: any) => {
+    setSelectedAgent(agent);
+    setShowAgentDetails(true);
+    console.log('Opening agent details for:', agent.name);
   };
 
-  const handleAgentAction = (agentName: string) => {
+  const handleAgentAction = (agent: any) => {
+    setSelectedAgent(agent);
+    setShowAgentActions(true);
+    console.log('Opening agent actions for:', agent.name);
+  };
+
+  const handleAgentStatusChange = (newStatus: string) => {
     toast({
-      title: "Agent Actions",
-      description: `Showing action menu for ${agentName}`,
+      title: "Status Updated",
+      description: `${selectedAgent?.name}'s status changed to ${newStatus}`,
     });
+    setShowAgentActions(false);
+    console.log(`Changing ${selectedAgent?.name} status to:`, newStatus);
+  };
+
+  const handleSendMessage = () => {
+    toast({
+      title: "Message Sent",
+      description: `Message sent to ${selectedAgent?.name}`,
+    });
+    setShowAgentActions(false);
+    console.log('Sending message to:', selectedAgent?.name);
   };
 
   const handleAdvancedFilters = () => {
@@ -126,6 +171,7 @@ export const TeamMonitor = () => {
       title: "Advanced Filters",
       description: "Opening advanced filter options",
     });
+    console.log('Opening advanced filters');
   };
 
   return (
@@ -235,14 +281,14 @@ export const TeamMonitor = () => {
                       <Button 
                         variant="ghost" 
                         size="sm"
-                        onClick={() => handleViewAgent(agent.name)}
+                        onClick={() => handleViewAgent(agent)}
                       >
                         <Eye className="w-4 h-4" />
                       </Button>
                       <Button 
                         variant="ghost" 
                         size="sm"
-                        onClick={() => handleAgentAction(agent.name)}
+                        onClick={() => handleAgentAction(agent)}
                       >
                         <MoreHorizontal className="w-4 h-4" />
                       </Button>
@@ -254,6 +300,109 @@ export const TeamMonitor = () => {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Agent Details Dialog */}
+      <Dialog open={showAgentDetails} onOpenChange={setShowAgentDetails}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <User className="w-5 h-5" />
+              Agent Details - {selectedAgent?.name}
+            </DialogTitle>
+            <DialogDescription>
+              Detailed information and performance metrics
+            </DialogDescription>
+          </DialogHeader>
+          {selectedAgent && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Mail className="w-4 h-4 text-gray-500" />
+                    <span className="text-sm">{selectedAgent.email}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Phone className="w-4 h-4 text-gray-500" />
+                    <span className="text-sm">{selectedAgent.phone}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-gray-500" />
+                    <span className="text-sm">Joined: {selectedAgent.joinDate}</span>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-sm text-gray-600">Department</p>
+                    <p className="font-medium">{selectedAgent.department}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Total Resolved</p>
+                    <p className="font-medium">{selectedAgent.totalResolved}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-4 pt-4 border-t">
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-blue-600">{selectedAgent.activeChats}</p>
+                  <p className="text-sm text-gray-600">Active Chats</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-green-600">{selectedAgent.satisfaction}%</p>
+                  <p className="text-sm text-gray-600">Satisfaction</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-purple-600">{selectedAgent.avgResponseTime}</p>
+                  <p className="text-sm text-gray-600">Avg Response</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Agent Actions Dialog */}
+      <Dialog open={showAgentActions} onOpenChange={setShowAgentActions}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <MoreHorizontal className="w-5 h-5" />
+              Agent Actions - {selectedAgent?.name}
+            </DialogTitle>
+            <DialogDescription>
+              Manage agent status and send communications
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm font-medium mb-2">Change Status</p>
+              <div className="flex gap-2">
+                <Button size="sm" onClick={() => handleAgentStatusChange('Online')} className="bg-green-600 hover:bg-green-700">
+                  Online
+                </Button>
+                <Button size="sm" onClick={() => handleAgentStatusChange('Away')} variant="outline">
+                  Away
+                </Button>
+                <Button size="sm" onClick={() => handleAgentStatusChange('Break')} className="bg-orange-600 hover:bg-orange-700">
+                  Break
+                </Button>
+              </div>
+            </div>
+            <div>
+              <p className="text-sm font-medium mb-2">Communication</p>
+              <div className="flex gap-2">
+                <Button size="sm" onClick={handleSendMessage} variant="outline">
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  Send Message
+                </Button>
+                <Button size="sm" variant="outline">
+                  <Phone className="w-4 h-4 mr-2" />
+                  Call Agent
+                </Button>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

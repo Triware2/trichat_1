@@ -1,14 +1,18 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useToast } from '@/hooks/use-toast';
+import { format } from 'date-fns';
 import { 
   BarChart3, 
   TrendingUp, 
   Download, 
-  Calendar, 
+  Calendar as CalendarIcon, 
   Clock,
   Users,
   MessageSquare,
@@ -19,70 +23,89 @@ import {
 export const Reports = () => {
   const [dateRange, setDateRange] = useState('7days');
   const [reportType, setReportType] = useState('overview');
+  const [customStartDate, setCustomStartDate] = useState<Date>();
+  const [customEndDate, setCustomEndDate] = useState<Date>();
+  const [showStartCalendar, setShowStartCalendar] = useState(false);
+  const [showEndCalendar, setShowEndCalendar] = useState(false);
+  const [performanceData, setPerformanceData] = useState<any>({});
+  const [agentStats, setAgentStats] = useState<any[]>([]);
   const { toast } = useToast();
 
-  const performanceData = {
-    totalChats: 1247,
-    resolvedChats: 1089,
-    avgResponseTime: '2.3m',
-    avgResolutionTime: '8.5m',
-    customerSatisfaction: 94,
-    agentUtilization: 87
+  // Generate dynamic data based on date range
+  const generateReportData = (range: string) => {
+    const multiplier = range === '1day' ? 0.3 : range === '7days' ? 1 : range === '30days' ? 3.5 : 10;
+    
+    const baseData = {
+      totalChats: Math.floor(356 * multiplier),
+      resolvedChats: Math.floor(310 * multiplier),
+      avgResponseTime: range === '1day' ? '1.8m' : range === '7days' ? '2.3m' : '2.7m',
+      avgResolutionTime: range === '1day' ? '6.2m' : range === '7days' ? '8.5m' : '9.8m',
+      customerSatisfaction: range === '1day' ? 96 : range === '7days' ? 94 : 92,
+      agentUtilization: range === '1day' ? 91 : range === '7days' ? 87 : 84
+    };
+
+    const baseAgentStats = [
+      {
+        name: "Sarah Johnson",
+        totalChats: Math.floor(45 * multiplier),
+        resolved: Math.floor(41 * multiplier),
+        avgResponse: range === '1day' ? "1.0m" : "1.2m",
+        satisfaction: 96,
+        status: "Excellent"
+      },
+      {
+        name: "Mike Chen",
+        totalChats: Math.floor(58 * multiplier),
+        resolved: Math.floor(53 * multiplier),
+        avgResponse: range === '1day' ? "1.9m" : "2.1m",
+        satisfaction: 94,
+        status: "Good"
+      },
+      {
+        name: "Emily Rodriguez",
+        totalChats: Math.floor(38 * multiplier),
+        resolved: Math.floor(36 * multiplier),
+        avgResponse: range === '1day' ? "1.3m" : "1.5m",
+        satisfaction: 98,
+        status: "Excellent"
+      },
+      {
+        name: "David Kim",
+        totalChats: Math.floor(28 * multiplier),
+        resolved: Math.floor(25 * multiplier),
+        avgResponse: range === '1day' ? "2.8m" : "3.2m",
+        satisfaction: 91,
+        status: "Average"
+      }
+    ];
+
+    setPerformanceData(baseData);
+    setAgentStats(baseAgentStats);
+    console.log('Generated report data for range:', range, baseData);
   };
 
-  const agentStats = [
-    {
-      name: "Sarah Johnson",
-      totalChats: 156,
-      resolved: 142,
-      avgResponse: "1.2m",
-      satisfaction: 96,
-      status: "Excellent"
-    },
-    {
-      name: "Mike Chen",
-      totalChats: 203,
-      resolved: 185,
-      avgResponse: "2.1m",
-      satisfaction: 94,
-      status: "Good"
-    },
-    {
-      name: "Emily Rodriguez",
-      totalChats: 134,
-      resolved: 128,
-      avgResponse: "1.5m",
-      satisfaction: 98,
-      status: "Excellent"
-    },
-    {
-      name: "David Kim",
-      totalChats: 98,
-      resolved: 89,
-      avgResponse: "3.2m",
-      satisfaction: 91,
-      status: "Average"
-    }
-  ];
+  useEffect(() => {
+    generateReportData(dateRange);
+  }, [dateRange]);
 
   const categoryBreakdown = [
-    { category: "Technical Support", count: 387, percentage: 31 },
-    { category: "Billing", count: 298, percentage: 24 },
-    { category: "Product Inquiry", count: 224, percentage: 18 },
-    { category: "Account Issues", count: 186, percentage: 15 },
-    { category: "General", count: 152, percentage: 12 }
+    { category: "Technical Support", count: Math.floor(387 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : 10)), percentage: 31 },
+    { category: "Billing", count: Math.floor(298 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : 10)), percentage: 24 },
+    { category: "Product Inquiry", count: Math.floor(224 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : 10)), percentage: 18 },
+    { category: "Account Issues", count: Math.floor(186 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : 10)), percentage: 15 },
+    { category: "General", count: Math.floor(152 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : 10)), percentage: 12 }
   ];
 
   const hourlyDistribution = [
-    { hour: "9 AM", chats: 45 },
-    { hour: "10 AM", chats: 67 },
-    { hour: "11 AM", chats: 89 },
-    { hour: "12 PM", chats: 102 },
-    { hour: "1 PM", chats: 95 },
-    { hour: "2 PM", chats: 78 },
-    { hour: "3 PM", chats: 124 },
-    { hour: "4 PM", chats: 156 },
-    { hour: "5 PM", chats: 89 }
+    { hour: "9 AM", chats: Math.floor(45 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : 10)) },
+    { hour: "10 AM", chats: Math.floor(67 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : 10)) },
+    { hour: "11 AM", chats: Math.floor(89 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : 10)) },
+    { hour: "12 PM", chats: Math.floor(102 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : 10)) },
+    { hour: "1 PM", chats: Math.floor(95 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : 10)) },
+    { hour: "2 PM", chats: Math.floor(78 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : 10)) },
+    { hour: "3 PM", chats: Math.floor(124 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : 10)) },
+    { hour: "4 PM", chats: Math.floor(156 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : 10)) },
+    { hour: "5 PM", chats: Math.floor(89 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : 10)) }
   ];
 
   const getStatusBadge = (status: string) => {
@@ -95,25 +118,63 @@ export const Reports = () => {
   };
 
   const exportReport = (format: string) => {
+    const dateRangeText = dateRange === 'custom' && customStartDate && customEndDate 
+      ? `${format(customStartDate, 'MMM dd')} - ${format(customEndDate, 'MMM dd, yyyy')}`
+      : dateRange === '1day' ? 'Last 24 Hours'
+      : dateRange === '7days' ? 'Last 7 Days'
+      : dateRange === '30days' ? 'Last 30 Days'
+      : 'Last 3 Months';
+
+    // Simulate file download
+    const reportData = {
+      dateRange: dateRangeText,
+      performanceData,
+      agentStats,
+      categoryBreakdown,
+      hourlyDistribution,
+      generatedAt: new Date().toISOString()
+    };
+
+    // Create blob and download
+    const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: format === 'pdf' ? 'application/pdf' : 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `support-report-${dateRange}.${format === 'pdf' ? 'pdf' : 'json'}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
     toast({
-      title: `Export ${format.toUpperCase()}`,
-      description: `Generating ${format.toUpperCase()} report for ${dateRange}...`,
+      title: `${format.toUpperCase()} Export Complete`,
+      description: `Report downloaded for ${dateRangeText}`,
     });
-    console.log(`Exporting report as ${format}`);
+    
+    console.log('Exported report:', format, reportData);
   };
 
   const handleCustomDate = () => {
-    toast({
-      title: "Custom Date Range",
-      description: "Opening date picker for custom range selection",
-    });
+    if (customStartDate && customEndDate) {
+      setDateRange('custom');
+      generateReportData('custom');
+      toast({
+        title: "Custom Date Range Applied",
+        description: `Report updated for ${format(customStartDate, 'MMM dd')} - ${format(customEndDate, 'MMM dd, yyyy')}`,
+      });
+    } else {
+      toast({
+        title: "Select Date Range",
+        description: "Please select both start and end dates",
+      });
+    }
   };
 
   const handleDateRangeChange = (range: string) => {
     setDateRange(range);
     toast({
       title: "Date Range Updated",
-      description: `Report data updated for ${range}`,
+      description: `Report data updated for ${range === '1day' ? 'Last 24 Hours' : range === '7days' ? 'Last 7 Days' : range === '30days' ? 'Last 30 Days' : 'Last 3 Months'}`,
     });
   };
 
@@ -121,7 +182,7 @@ export const Reports = () => {
     <div className="space-y-6">
       {/* Controls */}
       <div className="flex flex-col sm:flex-row gap-4 justify-between">
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
           <select
             value={dateRange}
             onChange={(e) => handleDateRangeChange(e.target.value)}
@@ -133,10 +194,54 @@ export const Reports = () => {
             <option value="3months">Last 3 Months</option>
             <option value="custom">Custom Range</option>
           </select>
-          <Button variant="outline" onClick={handleCustomDate}>
-            <Calendar className="w-4 h-4 mr-2" />
-            Custom Date
-          </Button>
+          
+          {dateRange === 'custom' && (
+            <div className="flex gap-2 items-center">
+              <Popover open={showStartCalendar} onOpenChange={setShowStartCalendar}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <CalendarIcon className="w-4 h-4 mr-2" />
+                    {customStartDate ? format(customStartDate, 'MMM dd') : 'Start Date'}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={customStartDate}
+                    onSelect={(date) => {
+                      setCustomStartDate(date);
+                      setShowStartCalendar(false);
+                    }}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+              
+              <Popover open={showEndCalendar} onOpenChange={setShowEndCalendar}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <CalendarIcon className="w-4 h-4 mr-2" />
+                    {customEndDate ? format(customEndDate, 'MMM dd') : 'End Date'}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={customEndDate}
+                    onSelect={(date) => {
+                      setCustomEndDate(date);
+                      setShowEndCalendar(false);
+                    }}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+              
+              <Button size="sm" onClick={handleCustomDate}>
+                Apply
+              </Button>
+            </div>
+          )}
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => exportReport('pdf')}>
@@ -243,6 +348,7 @@ export const Reports = () => {
                   <div className="text-center">
                     <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-2" />
                     <p className="text-gray-500">Chart visualization would appear here</p>
+                    <p className="text-sm text-gray-400">Data range: {dateRange}</p>
                   </div>
                 </div>
               </CardContent>
@@ -258,6 +364,7 @@ export const Reports = () => {
                   <div className="text-center">
                     <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-2" />
                     <p className="text-gray-500">Chart visualization would appear here</p>
+                    <p className="text-sm text-gray-400">Data range: {dateRange}</p>
                   </div>
                 </div>
               </CardContent>
@@ -269,7 +376,7 @@ export const Reports = () => {
           <Card>
             <CardHeader>
               <CardTitle>Individual Agent Performance</CardTitle>
-              <CardDescription>Detailed metrics for each team member</CardDescription>
+              <CardDescription>Detailed metrics for each team member ({dateRange})</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -312,7 +419,7 @@ export const Reports = () => {
           <Card>
             <CardHeader>
               <CardTitle>Support Categories Breakdown</CardTitle>
-              <CardDescription>Distribution of support requests by category</CardDescription>
+              <CardDescription>Distribution of support requests by category ({dateRange})</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -344,7 +451,7 @@ export const Reports = () => {
           <Card>
             <CardHeader>
               <CardTitle>Hourly Distribution</CardTitle>
-              <CardDescription>Chat volume by hour of day</CardDescription>
+              <CardDescription>Chat volume by hour of day ({dateRange})</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
@@ -354,7 +461,7 @@ export const Reports = () => {
                     <div className="flex-1 bg-gray-200 rounded-full h-4">
                       <div 
                         className="bg-gradient-to-r from-blue-500 to-purple-500 h-4 rounded-full"
-                        style={{ width: `${(hour.chats / 156) * 100}%` }}
+                        style={{ width: `${Math.min((hour.chats / Math.max(...hourlyDistribution.map(h => h.chats))) * 100, 100)}%` }}
                       ></div>
                     </div>
                     <div className="w-12 text-sm font-medium text-right">{hour.chats}</div>
