@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Tabs } from '@/components/ui/tabs';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
@@ -15,6 +14,7 @@ const AgentDashboard = () => {
   console.log("AgentDashboard component rendering...");
   
   const [selectedChat, setSelectedChat] = useState(1);
+  const [activeTab, setActiveTab] = useState('dashboard');
 
   const [stats, setStats] = useState([
     { title: 'Open Tickets', value: '24', icon: MessageSquare, color: 'bg-blue-50 text-blue-600 border-blue-200' },
@@ -81,6 +81,49 @@ const AgentDashboard = () => {
     console.log('Filtering chats...');
   };
 
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'dashboard':
+        return (
+          <DashboardContent
+            stats={stats}
+            chats={chats}
+            activities={activities}
+            onStatClick={handleStatClick}
+            onQueueAction={handleQueueAction}
+          />
+        );
+      case 'chat':
+        return (
+          <ChatContent
+            chats={chats}
+            selectedChat={selectedChat}
+            onChatSelect={setSelectedChat}
+            onFilter={handleFilter}
+            onSendMessage={handleSendMessage}
+            getSelectedCustomerName={getSelectedCustomerName}
+          />
+        );
+      case 'all-chats':
+        return <AllChatsContent />;
+      case 'contacts':
+        return <ContactsContent />;
+      case 'analytics':
+      case 'settings':
+        return <OtherTabsContent customer={getSelectedCustomer()} />;
+      default:
+        return (
+          <DashboardContent
+            stats={stats}
+            chats={chats}
+            activities={activities}
+            onStatClick={handleStatClick}
+            onQueueAction={handleQueueAction}
+          />
+        );
+    }
+  };
+
   return (
     <div className="h-screen bg-gray-50">
       <NavigationHeader 
@@ -93,36 +136,17 @@ const AgentDashboard = () => {
       <div className="h-[calc(100vh-64px)]">
         <SidebarProvider defaultOpen={true}>
           <div className="flex h-full w-full">
-            <Tabs defaultValue="dashboard" className="flex h-full w-full">
-              {/* Collapsible Sidebar */}
-              <AgentSidebar todayPerformance={todayPerformance} />
+            {/* Collapsible Sidebar */}
+            <AgentSidebar 
+              todayPerformance={todayPerformance}
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+            />
 
-              {/* Main Content Area */}
-              <SidebarInset className="flex-1 overflow-hidden">
-                <DashboardContent
-                  stats={stats}
-                  chats={chats}
-                  activities={activities}
-                  onStatClick={handleStatClick}
-                  onQueueAction={handleQueueAction}
-                />
-
-                <ChatContent
-                  chats={chats}
-                  selectedChat={selectedChat}
-                  onChatSelect={setSelectedChat}
-                  onFilter={handleFilter}
-                  onSendMessage={handleSendMessage}
-                  getSelectedCustomerName={getSelectedCustomerName}
-                />
-
-                <AllChatsContent />
-
-                <ContactsContent />
-
-                <OtherTabsContent customer={getSelectedCustomer()} />
-              </SidebarInset>
-            </Tabs>
+            {/* Main Content Area */}
+            <SidebarInset className="flex-1 overflow-hidden">
+              {renderTabContent()}
+            </SidebarInset>
           </div>
         </SidebarProvider>
       </div>

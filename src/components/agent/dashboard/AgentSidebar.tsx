@@ -1,6 +1,6 @@
 
 import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
-import { TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import { 
   BarChart3, 
   MessageSquare, 
@@ -10,6 +10,7 @@ import {
   Target,
   Clock
 } from 'lucide-react';
+import { useState } from 'react';
 
 interface TodayPerformance {
   chatsHandled: number;
@@ -19,9 +20,21 @@ interface TodayPerformance {
 
 interface AgentSidebarProps {
   todayPerformance: TodayPerformance;
+  activeTab?: string;
+  onTabChange?: (tab: string) => void;
 }
 
-export const AgentSidebar = ({ todayPerformance }: AgentSidebarProps) => {
+export const AgentSidebar = ({ todayPerformance, activeTab = 'dashboard', onTabChange }: AgentSidebarProps) => {
+  const handleTabClick = (tabValue: string) => {
+    if (onTabChange) {
+      onTabChange(tabValue);
+    }
+  };
+
+  const getButtonVariant = (tabValue: string) => {
+    return activeTab === tabValue ? 'default' : 'ghost';
+  };
+
   return (
     <Sidebar className="border-r border-gray-200 bg-white">
       <SidebarHeader className="p-4 border-b border-gray-200">
@@ -48,55 +61,79 @@ export const AgentSidebar = ({ todayPerformance }: AgentSidebarProps) => {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <TabsTrigger value="dashboard" className="w-full justify-start">
+              <Button 
+                variant={getButtonVariant('dashboard')}
+                className="w-full justify-start"
+                onClick={() => handleTabClick('dashboard')}
+              >
                 <BarChart3 className="w-4 h-4 mr-2" />
                 Dashboard
-              </TabsTrigger>
+              </Button>
             </SidebarMenuButton>
           </SidebarMenuItem>
           
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <TabsTrigger value="chat" className="w-full justify-start">
+              <Button 
+                variant={getButtonVariant('chat')}
+                className="w-full justify-start"
+                onClick={() => handleTabClick('chat')}
+              >
                 <MessageSquare className="w-4 h-4 mr-2" />
                 Active Chat
-              </TabsTrigger>
+              </Button>
             </SidebarMenuButton>
           </SidebarMenuItem>
           
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <TabsTrigger value="all-chats" className="w-full justify-start">
+              <Button 
+                variant={getButtonVariant('all-chats')}
+                className="w-full justify-start"
+                onClick={() => handleTabClick('all-chats')}
+              >
                 <MessageSquare className="w-4 h-4 mr-2" />
                 All Chats
-              </TabsTrigger>
+              </Button>
             </SidebarMenuButton>
           </SidebarMenuItem>
           
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <TabsTrigger value="contacts" className="w-full justify-start">
+              <Button 
+                variant={getButtonVariant('contacts')}
+                className="w-full justify-start"
+                onClick={() => handleTabClick('contacts')}
+              >
                 <Users className="w-4 h-4 mr-2" />
                 Contacts
-              </TabsTrigger>
+              </Button>
             </SidebarMenuButton>
           </SidebarMenuItem>
           
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <TabsTrigger value="analytics" className="w-full justify-start">
+              <Button 
+                variant={getButtonVariant('analytics')}
+                className="w-full justify-start"
+                onClick={() => handleTabClick('analytics')}
+              >
                 <BarChart3 className="w-4 h-4 mr-2" />
                 Analytics
-              </TabsTrigger>
+              </Button>
             </SidebarMenuButton>
           </SidebarMenuItem>
           
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <TabsTrigger value="settings" className="w-full justify-start">
+              <Button 
+                variant={getButtonVariant('settings')}
+                className="w-full justify-start"
+                onClick={() => handleTabClick('settings')}
+              >
                 <Settings className="w-4 h-4 mr-2" />
                 Settings
-              </TabsTrigger>
+              </Button>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
