@@ -56,13 +56,13 @@ export const NavigationHeader = ({ title, role, userEmail }: NavigationHeaderPro
               <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                 <Headphones className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <span className="text-xl font-lexend font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 Trichat
               </span>
             </div>
             <div className="hidden md:flex items-center space-x-2">
               <span className="text-gray-400">|</span>
-              <h1 className="text-lg font-semibold text-gray-900">{title}</h1>
+              <h1 className="text-lg font-lexend font-medium text-gray-900">{title}</h1>
               <Badge className={getRoleBadgeColor(role)}>
                 {role.charAt(0).toUpperCase() + role.slice(1)}
               </Badge>
@@ -74,7 +74,7 @@ export const NavigationHeader = ({ title, role, userEmail }: NavigationHeaderPro
             {/* Notifications */}
             <Button variant="ghost" size="sm" className="relative">
               <Bell className="w-5 h-5" />
-              <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs flex items-center justify-center text-white">
+              <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs flex items-center justify-center text-white font-lexend font-medium">
                 3
               </span>
             </Button>
@@ -85,7 +85,7 @@ export const NavigationHeader = ({ title, role, userEmail }: NavigationHeaderPro
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src="/placeholder.svg" alt="Avatar" />
-                    <AvatarFallback className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+                    <AvatarFallback className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-lexend font-medium">
                       {userEmail.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
@@ -94,25 +94,25 @@ export const NavigationHeader = ({ title, role, userEmail }: NavigationHeaderPro
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">
+                    <p className="text-sm font-lexend font-medium leading-none">
                       {role.charAt(0).toUpperCase() + role.slice(1)} User
                     </p>
-                    <p className="text-xs leading-none text-muted-foreground">
+                    <p className="text-xs leading-none text-muted-foreground font-lexend">
                       {userEmail}
                     </p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem className="font-lexend">
                   <User className="mr-2 h-4 w-4" />
                   <span>Profile</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem className="font-lexend">
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Settings</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
+                <DropdownMenuItem onClick={handleLogout} className="font-lexend">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
                 </DropdownMenuItem>

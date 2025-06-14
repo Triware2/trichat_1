@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -18,6 +19,12 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				'sans': ['Lexend Deca', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+				'serif': ['Crimson Text', 'ui-serif', 'Georgia', 'serif'],
+				'lexend': ['Lexend Deca', 'sans-serif'],
+				'queens': ['Crimson Text', 'serif'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
