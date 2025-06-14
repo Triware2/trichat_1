@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { MessageList } from './MessageList';
 import { QuickResponses } from './QuickResponses';
@@ -57,7 +56,11 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
     <div className="h-full flex flex-col bg-white relative overflow-hidden">
       {/* Fixed Header */}
       <div className="flex-shrink-0 bg-white border-b border-slate-200 z-10">
-        <ChatHeader customerName={customerName} customerStatus={customerStatus} />
+        <ChatHeader 
+          customerName={customerName} 
+          customerStatus={customerStatus} 
+          chatId={selectedChatId}
+        />
       </div>
       
       {/* Scrollable Messages Area */}
