@@ -1,266 +1,214 @@
+
 import { useState } from 'react';
-import { TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Filter, Plus, Mail, Phone, User, Building, Calendar } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Search, Filter, Plus, Phone, Mail, MessageSquare, User, Calendar } from 'lucide-react';
 import { AddContactModal } from './AddContactModal';
 
 interface Contact {
-  id: string;
+  id: number;
   name: string;
   email: string;
   phone: string;
   company: string;
-  status: 'active' | 'inactive' | 'prospect';
+  status: 'active' | 'inactive' | 'pending';
+  tier: 'Basic' | 'Premium' | 'Enterprise';
   lastContact: string;
   totalChats: number;
   satisfaction: number;
-  tier: string;
-  location: string;
 }
 
-export const ContactsContent = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
-  const [isAddContactOpen, setIsAddContactOpen] = useState(false);
+const mockContacts: Contact[] = [
+  {
+    id: 1,
+    name: 'John Smith',
+    email: 'john@example.com',
+    phone: '+1234567890',
+    company: 'Acme Corp',
+    status: 'active',
+    tier: 'Premium',
+    lastContact: '2024-01-15',
+    totalChats: 12,
+    satisfaction: 4.8
+  },
+  {
+    id: 2,
+    name: 'Alice Johnson',
+    email: 'alice@example.com', 
+    phone: '+1234567891',
+    company: 'Tech Solutions',
+    status: 'active',
+    tier: 'Enterprise',
+    lastContact: '2024-01-14',
+    totalChats: 8,
+    satisfaction: 4.5
+  },
+  {
+    id: 3,
+    name: 'Bob Williams',
+    email: 'bob@example.com',
+    phone: '+1234567892',
+    company: 'StartupXYZ',
+    status: 'pending',
+    tier: 'Basic',
+    lastContact: '2024-01-13',
+    totalChats: 3,
+    satisfaction: 4.2
+  }
+];
 
-  const [contacts, setContacts] = useState<Contact[]>([
-    {
-      id: '1',
-      name: 'John Smith',
-      email: 'john.smith@email.com',
-      phone: '+1 (555) 123-4567',
-      company: 'Tech Corp',
-      status: 'active',
-      lastContact: '2024-01-12',
-      totalChats: 15,
-      satisfaction: 4.8,
-      tier: 'Premium',
-      location: 'New York, USA'
-    },
-    {
-      id: '2',
-      name: 'Alice Johnson',
-      email: 'alice.johnson@example.com',
-      phone: '+1 (555) 234-5678',
-      company: 'Design Studio',
-      status: 'active',
-      lastContact: '2024-01-11',
-      totalChats: 8,
-      satisfaction: 4.5,
-      tier: 'Standard',
-      location: 'California, USA'
-    },
-    {
-      id: '3',
-      name: 'Bob Williams',
-      email: 'bob.williams@company.com',
-      phone: '+1 (555) 345-6789',
-      company: 'Marketing Inc',
-      status: 'inactive',
-      lastContact: '2024-01-05',
-      totalChats: 3,
-      satisfaction: 3.2,
-      tier: 'Basic',
-      location: 'Texas, USA'
-    },
-    {
-      id: '4',
-      name: 'Emily Brown',
-      email: 'emily.brown@business.net',
-      phone: '+1 (555) 456-7890',
-      company: 'Consulting Group',
-      status: 'prospect',
-      lastContact: '2024-01-10',
-      totalChats: 1,
-      satisfaction: 5.0,
-      tier: 'Premium',
-      location: 'Florida, USA'
-    },
-    {
-      id: '5',
-      name: 'Michael Davis',
-      email: 'michael.davis@enterprise.com',
-      phone: '+1 (555) 567-8901',
-      company: 'Enterprise Solutions',
-      status: 'active',
-      lastContact: '2024-01-13',
-      totalChats: 22,
-      satisfaction: 4.9,
-      tier: 'Enterprise',
-      location: 'Illinois, USA'
-    }
-  ]);
+export const ContactsContent = () => {
+  const [contacts, setContacts] = useState<Contact[]>(mockContacts);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [tierFilter, setTierFilter] = useState('all');
+  const [showAddModal, setShowAddModal] = useState(false);
 
   const filteredContacts = contacts.filter(contact => {
-    const matchesSearch = contact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         contact.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         contact.company.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = filterStatus === 'all' || contact.status === filterStatus;
-    return matchesSearch && matchesFilter;
+    const matchesSearch = searchTerm === '' || 
+      contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      contact.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      contact.company.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = statusFilter === 'all' || contact.status === statusFilter;
+    const matchesTier = tierFilter === 'all' || contact.tier === tierFilter;
+
+    return matchesSearch && matchesStatus && matchesTier;
   });
 
   const getStatusBadge = (status: string) => {
-    const variants = {
-      active: 'bg-green-100 text-green-800 border-green-200',
-      inactive: 'bg-gray-100 text-gray-800 border-gray-200',
-      prospect: 'bg-blue-100 text-blue-800 border-blue-200'
+    const colors = {
+      active: 'bg-green-100 text-green-800',
+      inactive: 'bg-gray-100 text-gray-800', 
+      pending: 'bg-yellow-100 text-yellow-800'
     };
-    return variants[status as keyof typeof variants] || variants.active;
+    return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
   };
 
   const getTierBadge = (tier: string) => {
-    const variants = {
-      Basic: 'bg-slate-100 text-slate-800 border-slate-200',
-      Standard: 'bg-amber-100 text-amber-800 border-amber-200',
-      Premium: 'bg-purple-100 text-purple-800 border-purple-200',
-      Enterprise: 'bg-emerald-100 text-emerald-800 border-emerald-200'
+    const colors = {
+      Basic: 'bg-blue-100 text-blue-800',
+      Premium: 'bg-purple-100 text-purple-800',
+      Enterprise: 'bg-orange-100 text-orange-800'
     };
-    return variants[tier as keyof typeof variants] || variants.Basic;
+    return colors[tier as keyof typeof colors] || 'bg-gray-100 text-gray-800';
   };
 
-  const handleContactClick = (contact: Contact) => {
-    console.log('Opening contact details for:', contact.name);
+  const handleAddContact = (contactData: any) => {
+    const newContact: Contact = {
+      id: contacts.length + 1,
+      ...contactData,
+      status: 'pending' as const,
+      lastContact: new Date().toISOString().split('T')[0],
+      totalChats: 0,
+      satisfaction: 0
+    };
+    setContacts([...contacts, newContact]);
+    setShowAddModal(false);
   };
 
-  const handleAddContact = () => {
-    setIsAddContactOpen(true);
-  };
-
-  const handleContactAdded = (newContact: Contact) => {
-    setContacts(prev => [...prev, newContact]);
+  const clearFilters = () => {
+    setSearchTerm('');
+    setStatusFilter('all');
+    setTierFilter('all');
   };
 
   return (
-    <TabsContent value="contacts" className="h-full p-6 overflow-y-auto">
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Contacts</h1>
-            <p className="text-gray-600">Manage your customer contact list</p>
-          </div>
-          <Button onClick={handleAddContact} className="bg-emerald-500 hover:bg-emerald-600">
-            <Plus className="w-4 h-4 mr-2" />
-            Add Contact
-          </Button>
-        </div>
-
-        {/* Search and Filters */}
-        <Card className="border border-slate-200 shadow-sm">
-          <CardContent className="p-4">
-            <div className="flex gap-4 items-center">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
-                <Input
-                  placeholder="Search contacts by name, email, or company..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 border-slate-200 focus:border-emerald-300 focus:ring-emerald-200"
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant={filterStatus === 'all' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setFilterStatus('all')}
-                  className={filterStatus === 'all' ? 'bg-emerald-500 hover:bg-emerald-600' : ''}
-                >
-                  All
-                </Button>
-                <Button
-                  variant={filterStatus === 'active' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setFilterStatus('active')}
-                  className={filterStatus === 'active' ? 'bg-emerald-500 hover:bg-emerald-600' : ''}
-                >
-                  Active
-                </Button>
-                <Button
-                  variant={filterStatus === 'inactive' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setFilterStatus('inactive')}
-                  className={filterStatus === 'inactive' ? 'bg-emerald-500 hover:bg-emerald-600' : ''}
-                >
-                  Inactive
-                </Button>
-                <Button
-                  variant={filterStatus === 'prospect' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setFilterStatus('prospect')}
-                  className={filterStatus === 'prospect' ? 'bg-emerald-500 hover:bg-emerald-600' : ''}
-                >
-                  Prospects
-                </Button>
-              </div>
-            </div>
-            <div className="flex justify-between items-center mt-4 text-sm text-gray-600">
-              <span>Showing {filteredContacts.length} of {contacts.length} contacts</span>
-              <Button variant="outline" size="sm">
-                <Filter className="w-4 h-4 mr-2" />
-                More Filters
+    <div className="h-full overflow-hidden">
+      <div className="h-full flex flex-col">
+        <Card className="flex-1 overflow-hidden">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xl font-semibold text-gray-900">Contacts</CardTitle>
+              <Button onClick={() => setShowAddModal(true)} className="flex items-center gap-2">
+                <Plus className="w-4 h-4" />
+                Add Contact
               </Button>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Contacts Table */}
-        <Card className="border border-slate-200 shadow-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="w-5 h-5 text-emerald-500" />
-              Contact List
-            </CardTitle>
           </CardHeader>
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
+          
+          <CardContent className="flex flex-col h-full overflow-hidden">
+            {/* Filters */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  placeholder="Search contacts..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={tierFilter} onValueChange={setTierFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Tier" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Tiers</SelectItem>
+                  <SelectItem value="Basic">Basic</SelectItem>
+                  <SelectItem value="Premium">Premium</SelectItem>
+                  <SelectItem value="Enterprise">Enterprise</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Button variant="outline" onClick={clearFilters} className="flex items-center gap-2">
+                <Filter className="w-4 h-4" />
+                Clear Filters
+              </Button>
+            </div>
+
+            {/* Contacts Table */}
+            <div className="flex-1 overflow-auto border rounded-lg">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-slate-50">
-                    <TableHead className="font-semibold">Contact</TableHead>
-                    <TableHead className="font-semibold">Company</TableHead>
-                    <TableHead className="font-semibold">Status</TableHead>
-                    <TableHead className="font-semibold">Tier</TableHead>
-                    <TableHead className="font-semibold">Last Contact</TableHead>
-                    <TableHead className="font-semibold">Total Chats</TableHead>
-                    <TableHead className="font-semibold">Satisfaction</TableHead>
-                    <TableHead className="font-semibold">Location</TableHead>
+                  <TableRow>
+                    <TableHead>Contact</TableHead>
+                    <TableHead>Company</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Tier</TableHead>
+                    <TableHead>Last Contact</TableHead>
+                    <TableHead>Total Chats</TableHead>
+                    <TableHead>Satisfaction</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredContacts.map((contact) => (
-                    <TableRow 
-                      key={contact.id} 
-                      className="hover:bg-slate-50 cursor-pointer transition-colors"
-                      onClick={() => handleContactClick(contact)}
-                    >
+                    <TableRow key={contact.id} className="hover:bg-gray-50">
                       <TableCell>
-                        <div className="space-y-1">
-                          <div className="font-medium text-gray-900">{contact.name}</div>
-                          <div className="flex items-center gap-4 text-sm text-gray-600">
-                            <div className="flex items-center gap-1">
-                              <Mail className="w-3 h-3" />
-                              {contact.email}
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Phone className="w-3 h-3" />
-                              {contact.phone}
-                            </div>
+                        <div>
+                          <div className="font-medium">{contact.name}</div>
+                          <div className="text-sm text-gray-500 flex items-center gap-2">
+                            <Mail className="w-3 h-3" />
+                            {contact.email}
+                          </div>
+                          <div className="text-sm text-gray-500 flex items-center gap-2">
+                            <Phone className="w-3 h-3" />
+                            {contact.phone}
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Building className="w-4 h-4 text-gray-400" />
-                          {contact.company}
-                        </div>
-                      </TableCell>
+                      <TableCell>{contact.company}</TableCell>
                       <TableCell>
                         <Badge className={getStatusBadge(contact.status)}>
-                          {contact.status.charAt(0).toUpperCase() + contact.status.slice(1)}
+                          {contact.status}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -269,22 +217,32 @@ export const ContactsContent = () => {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-1 text-sm">
-                          <Calendar className="w-3 h-3 text-gray-400" />
+                        <div className="flex items-center gap-2 text-sm">
+                          <Calendar className="w-4 h-4 text-gray-400" />
                           {contact.lastContact}
                         </div>
                       </TableCell>
                       <TableCell>
-                        <span className="font-medium">{contact.totalChats}</span>
+                        <div className="flex items-center gap-2">
+                          <MessageSquare className="w-4 h-4 text-gray-400" />
+                          {contact.totalChats}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
-                          <span className="font-medium">{contact.satisfaction}</span>
-                          <span className="text-yellow-500">★</span>
+                          <span>{contact.satisfaction > 0 ? contact.satisfaction.toFixed(1) : 'N/A'}</span>
+                          {contact.satisfaction > 0 && <span className="text-yellow-500">★</span>}
                         </div>
                       </TableCell>
-                      <TableCell className="text-sm text-gray-600">
-                        {contact.location}
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Button variant="outline" size="sm">
+                            <User className="w-4 h-4" />
+                          </Button>
+                          <Button variant="outline" size="sm">
+                            <MessageSquare className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -293,14 +251,13 @@ export const ContactsContent = () => {
             </div>
           </CardContent>
         </Card>
-      </div>
 
-      {/* Add Contact Modal */}
-      <AddContactModal
-        open={isAddContactOpen}
-        onOpenChange={setIsAddContactOpen}
-        onContactAdded={handleContactAdded}
-      />
-    </TabsContent>
+        <AddContactModal
+          isOpen={showAddModal}
+          onClose={() => setShowAddModal(false)}
+          onAdd={handleAddContact}
+        />
+      </div>
+    </div>
   );
 };

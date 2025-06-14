@@ -1,6 +1,4 @@
-
 import { useState, useMemo } from 'react';
-import { TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -202,7 +200,7 @@ export const AllChatsContent = () => {
   };
 
   return (
-    <TabsContent value="allchats" className="h-full overflow-hidden">
+    <div className="h-full overflow-hidden">
       <div className="h-full flex flex-col">
         <Card className="flex-1 overflow-hidden">
           <CardHeader className="pb-4">
@@ -397,6 +395,6 @@ export const AllChatsContent = () => {
           </CardContent>
         </Card>
       </div>
-    </TabsContent>
+    </div>
   );
 };

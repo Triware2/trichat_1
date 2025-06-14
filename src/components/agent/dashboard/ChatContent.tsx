@@ -1,5 +1,3 @@
-
-import { TabsContent } from '@/components/ui/tabs';
 import { ChatInterface } from '@/components/agent/ChatInterface';
 import { ChatList } from '@/components/agent/ChatList';
 import { ContactPropertiesPanel } from '@/components/agent/ContactPropertiesPanel';
@@ -79,7 +77,7 @@ export const ChatContent = ({
   ] : [];
 
   return (
-    <TabsContent value="chat" className="h-full m-0">
+    <div className="h-full m-0">
       <div className="flex h-full">
         {/* Left Section - Chat List (Own Scrollbar) */}
         <div className="w-80 border-r border-slate-200 bg-white flex-shrink-0 h-full overflow-y-auto">
@@ -117,6 +115,6 @@ export const ChatContent = ({
           </div>
         </div>
       </div>
-    </TabsContent>
+    </div>
   );
 };

@@ -1,5 +1,3 @@
-
-import { TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -89,7 +87,7 @@ export const DashboardContent = ({
   };
 
   return (
-    <TabsContent value="dashboard" className="h-full p-6 overflow-y-auto">
+    <div className="h-full p-6 overflow-y-auto">
       <div className="space-y-6">
         {/* Global Search Section */}
         <Card className="border border-slate-200 shadow-sm">
@@ -205,6 +203,6 @@ export const DashboardContent = ({
           <RecentActivity activities={activities} />
         </div>
       </div>
-    </TabsContent>
+    </div>
   );
 };
