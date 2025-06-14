@@ -67,7 +67,7 @@ export const useMessageHandling = (
               time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
               type: 'text'
             };
-            setMessages((prev: Message[]) => [...prev, customerResponse]);
+            setMessages([...messages, newMessage, customerResponse]);
           }, 2000);
         }, 500);
       }
