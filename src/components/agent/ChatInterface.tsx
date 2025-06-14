@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -256,11 +255,11 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
   };
 
   return (
-    <div className="h-full flex flex-col bg-white">
+    <div className="h-full flex flex-col bg-white relative">
       <ChatHeader customerName={customerName} customerStatus={customerStatus} />
       
-      {/* Messages with Private Notes */}
-      <div className="flex-1 flex flex-col min-h-0">
+      {/* Messages Area - with padding bottom for floating input */}
+      <div className="flex-1 flex flex-col min-h-0 pb-32">
         <MessageList 
           messages={messages} 
           privateNotes={privateNotes}
@@ -270,9 +269,12 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
         />
 
         <QuickResponses responses={quickResponses} onResponseSelect={handleQuickResponse} />
+      </div>
 
+      {/* Floating Input Section */}
+      <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg">
         {/* Canned Responses Toggle */}
-        <div className="px-6 py-2 border-t border-slate-200 bg-white">
+        <div className="px-6 py-2">
           <Button
             variant="ghost"
             size="sm"
@@ -298,8 +300,9 @@ export const ChatInterface = ({ customerName, customerStatus, selectedChatId, on
         />
       </div>
 
+      {/* Canned Responses Panel */}
       {showCannedResponses && (
-        <div className="h-96 border-t border-slate-200">
+        <div className="absolute bottom-24 left-0 right-0 h-96 border-t border-slate-200 bg-white shadow-lg z-10">
           <CannedResponses 
             onSelectResponse={handleCannedResponseSelect}
             isSelectionMode={true}

@@ -47,7 +47,7 @@ export const MessageInputArea = ({
   };
 
   return (
-    <div className="p-4 border-t border-slate-200 bg-white space-y-3">
+    <div className="p-4 bg-white space-y-3 border-t border-slate-200">
       {/* Mode indicator */}
       {isPrivateNoteMode && (
         <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg">
@@ -64,7 +64,7 @@ export const MessageInputArea = ({
         </div>
       )}
       
-      <div className="flex items-center space-x-3">
+      <div className="flex items-center space-x-3 bg-slate-50 p-3 rounded-lg border border-slate-200">
         <Button variant="ghost" size="sm" onClick={onFileUpload} className="h-9 w-9 p-0 hover:bg-slate-100">
           <Paperclip className="w-4 h-4" />
         </Button>
@@ -76,7 +76,7 @@ export const MessageInputArea = ({
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyPress={handleKeyPress}
-          className={`flex-1 border-slate-200 focus:border-orange-300 focus:ring-orange-200 ${
+          className={`flex-1 border-slate-200 focus:border-orange-300 focus:ring-orange-200 bg-white ${
             isPrivateNoteMode ? 'border-amber-200 focus:border-amber-300 focus:ring-amber-200' : ''
           }`}
         />

@@ -31,10 +31,7 @@ export const ChatContent = ({
   getSelectedCustomerName 
 }: ChatContentProps) => {
   const handleViewCustomerProfile = () => {
-    // This would typically navigate to the customer info page
-    // For now, we'll just log the action - you can integrate with your routing system
     console.log(`Navigating to customer profile for: ${getSelectedCustomerName()}`);
-    // Example: navigate('/customer-info', { state: { customerId: selectedChat } });
   };
 
   return (
@@ -48,7 +45,7 @@ export const ChatContent = ({
             onFilter={onFilter}
           />
         </div>
-        <div className="flex-1">
+        <div className="flex-1 relative">
           <ChatInterface
             customerName={getSelectedCustomerName()}
             customerStatus="Online"
@@ -56,16 +53,18 @@ export const ChatContent = ({
             onSendMessage={onSendMessage}
           />
         </div>
-        <div className="w-72 border-l border-slate-200 bg-slate-50 p-3 overflow-y-auto">
-          <CustomerComplaintsPreview 
-            chatId={selectedChat}
-            customerName={getSelectedCustomerName()}
-            onViewFullProfile={handleViewCustomerProfile}
-          />
-          <ContactPropertiesPanel 
-            chatId={selectedChat}
-            customerName={getSelectedCustomerName()}
-          />
+        <div className="w-80 border-l border-slate-200 bg-slate-50 flex flex-col">
+          <div className="flex-1 overflow-y-auto p-3">
+            <CustomerComplaintsPreview 
+              chatId={selectedChat}
+              customerName={getSelectedCustomerName()}
+              onViewFullProfile={handleViewCustomerProfile}
+            />
+            <ContactPropertiesPanel 
+              chatId={selectedChat}
+              customerName={getSelectedCustomerName()}
+            />
+          </div>
         </div>
       </div>
     </TabsContent>
