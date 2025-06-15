@@ -18,22 +18,26 @@ export const AccessManagement = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 bg-transparent gap-2 h-auto p-0">
-          <TabsTrigger 
-            value="matrix" 
-            className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md font-medium py-3 px-6 data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-gray-600 data-[state=inactive]:shadow-none transition-all"
-          >
-            <Grid3X3 className="w-4 h-4" />
-            Permission Matrix
-          </TabsTrigger>
-          <TabsTrigger 
-            value="roles" 
-            className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md font-medium py-3 px-6 data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-gray-600 data-[state=inactive]:shadow-none transition-all"
-          >
-            <Users className="w-4 h-4" />
-            Role Management
-          </TabsTrigger>
-        </TabsList>
+        <div className="bg-white border-b border-gray-200">
+          <div className="px-4 sm:px-6 lg:px-8">
+            <TabsList className="h-auto p-0 bg-transparent">
+              <TabsTrigger 
+                value="matrix" 
+                className="flex items-center gap-2 px-1 py-4 text-sm font-medium transition-colors border-b-2 border-transparent rounded-none data-[state=active]:text-blue-600 data-[state=active]:border-blue-600 data-[state=inactive]:text-gray-500 data-[state=inactive]:hover:text-gray-700 data-[state=inactive]:hover:border-gray-300 bg-transparent shadow-none"
+              >
+                <Grid3X3 className="w-4 h-4" />
+                Permission Matrix
+              </TabsTrigger>
+              <TabsTrigger 
+                value="roles" 
+                className="flex items-center gap-2 px-1 py-4 text-sm font-medium transition-colors border-b-2 border-transparent rounded-none data-[state=active]:text-blue-600 data-[state=active]:border-blue-600 data-[state=inactive]:text-gray-500 data-[state=inactive]:hover:text-gray-700 data-[state=inactive]:hover:border-gray-300 bg-transparent shadow-none ml-8"
+              >
+                <Users className="w-4 h-4" />
+                Role Management
+              </TabsTrigger>
+            </TabsList>
+          </div>
+        </div>
 
         <TabsContent value="matrix">
           <PermissionMatrix />

@@ -19,36 +19,40 @@ export const ChatManagementTabs = () => {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4 bg-transparent gap-2 h-auto p-0">
-              <TabsTrigger 
-                value="channels" 
-                className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md font-medium py-3 px-6 data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-gray-600 data-[state=inactive]:shadow-none transition-all"
-              >
-                <MessageSquare className="w-4 h-4" />
-                Channel Control
-              </TabsTrigger>
-              <TabsTrigger 
-                value="rules" 
-                className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md font-medium py-3 px-6 data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-gray-600 data-[state=inactive]:shadow-none transition-all"
-              >
-                <Settings className="w-4 h-4" />
-                Chat Rules
-              </TabsTrigger>
-              <TabsTrigger 
-                value="bulk" 
-                className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md font-medium py-3 px-6 data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-gray-600 data-[state=inactive]:shadow-none transition-all"
-              >
-                <Users className="w-4 h-4" />
-                Bulk Operations
-              </TabsTrigger>
-              <TabsTrigger 
-                value="analytics" 
-                className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md font-medium py-3 px-6 data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-gray-600 data-[state=inactive]:shadow-none transition-all"
-              >
-                <BarChart3 className="w-4 h-4" />
-                Analytics
-              </TabsTrigger>
-            </TabsList>
+            <div className="bg-white border-b border-gray-200">
+              <div className="px-4 sm:px-6 lg:px-8">
+                <TabsList className="h-auto p-0 bg-transparent">
+                  <TabsTrigger 
+                    value="channels" 
+                    className="flex items-center gap-2 px-1 py-4 text-sm font-medium transition-colors border-b-2 border-transparent rounded-none data-[state=active]:text-blue-600 data-[state=active]:border-blue-600 data-[state=inactive]:text-gray-500 data-[state=inactive]:hover:text-gray-700 data-[state=inactive]:hover:border-gray-300 bg-transparent shadow-none"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    Channel Control
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="rules" 
+                    className="flex items-center gap-2 px-1 py-4 text-sm font-medium transition-colors border-b-2 border-transparent rounded-none data-[state=active]:text-blue-600 data-[state=active]:border-blue-600 data-[state=inactive]:text-gray-500 data-[state=inactive]:hover:text-gray-700 data-[state=inactive]:hover:border-gray-300 bg-transparent shadow-none ml-8"
+                  >
+                    <Settings className="w-4 h-4" />
+                    Chat Rules
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="bulk" 
+                    className="flex items-center gap-2 px-1 py-4 text-sm font-medium transition-colors border-b-2 border-transparent rounded-none data-[state=active]:text-blue-600 data-[state=active]:border-blue-600 data-[state=inactive]:text-gray-500 data-[state=inactive]:hover:text-gray-700 data-[state=inactive]:hover:border-gray-300 bg-transparent shadow-none ml-8"
+                  >
+                    <Users className="w-4 h-4" />
+                    Bulk Operations
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="analytics" 
+                    className="flex items-center gap-2 px-1 py-4 text-sm font-medium transition-colors border-b-2 border-transparent rounded-none data-[state=active]:text-blue-600 data-[state=active]:border-blue-600 data-[state=inactive]:text-gray-500 data-[state=inactive]:hover:text-gray-700 data-[state=inactive]:hover:border-gray-300 bg-transparent shadow-none ml-8"
+                  >
+                    <BarChart3 className="w-4 h-4" />
+                    Analytics
+                  </TabsTrigger>
+                </TabsList>
+              </div>
+            </div>
 
             <TabsContent value="channels">
               <ChatManagement />
