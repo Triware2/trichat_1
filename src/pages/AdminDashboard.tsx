@@ -30,7 +30,7 @@ const AdminDashboard = () => {
       case 'users':
         return (
           <div className="min-h-screen bg-gray-50/30">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
               <UserManagement />
             </div>
           </div>
@@ -38,7 +38,7 @@ const AdminDashboard = () => {
       case 'access':
         return (
           <div className="min-h-screen bg-gray-50/30">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
               <AccessManagement />
             </div>
           </div>
@@ -46,7 +46,7 @@ const AdminDashboard = () => {
       case 'chatbot':
         return (
           <div className="min-h-screen bg-gray-50/30">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
               <BotTraining />
             </div>
           </div>
@@ -54,7 +54,7 @@ const AdminDashboard = () => {
       case 'api-keys':
         return (
           <div className="min-h-screen bg-gray-50/30">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
               <ApiKeyManagement />
             </div>
           </div>
@@ -62,7 +62,7 @@ const AdminDashboard = () => {
       case 'sla':
         return (
           <div className="min-h-screen bg-gray-50/30">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
               <SLAManagement />
             </div>
           </div>
@@ -70,7 +70,7 @@ const AdminDashboard = () => {
       case 'csat':
         return (
           <div className="min-h-screen bg-gray-50/30">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
               <CSATManagement />
             </div>
           </div>
@@ -82,7 +82,7 @@ const AdminDashboard = () => {
       case 'datasources':
         return (
           <div className="min-h-screen bg-gray-50/30">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
               <DataSourcesManagement />
             </div>
           </div>
@@ -90,7 +90,7 @@ const AdminDashboard = () => {
       case 'chat-management':
         return (
           <div className="min-h-screen bg-gray-50/30">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
               <ChatManagement />
             </div>
           </div>
@@ -109,7 +109,7 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 w-full">
       <NavigationHeader 
         title="Admin Dashboard" 
         role="admin"
@@ -135,7 +135,7 @@ const AdminDashboard = () => {
 
       <DashboardHeader />
       
-      <div className="flex">
+      <div className="flex w-full">
         {/* Mobile overlay */}
         {isMobileMenuOpen && (
           <div 
@@ -150,23 +150,24 @@ const AdminDashboard = () => {
           transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
           lg:translate-x-0 transition-transform duration-300 ease-in-out
           bg-white shadow-lg lg:shadow-none
-          ${isMobileMenuOpen ? 'w-80' : 'w-0'} lg:w-80
+          ${isMobileMenuOpen ? 'w-80' : 'w-0'} lg:w-80 xl:w-72 2xl:w-80
           overflow-hidden lg:overflow-visible
+          flex-shrink-0
         `}>
           <div className="h-full overflow-y-auto">
             <AdminSidebar 
               activeTab={activeTab} 
               onTabChange={(tab) => {
                 setActiveTab(tab);
-                setIsMobileMenuOpen(false); // Close mobile menu when tab changes
+                setIsMobileMenuOpen(false);
               }} 
             />
           </div>
         </div>
         
         {/* Main content */}
-        <div className="flex-1 min-w-0 lg:ml-0">
-          <div className="h-full overflow-auto">
+        <div className="flex-1 w-full min-w-0">
+          <div className="h-full w-full overflow-auto">
             {renderTabContent()}
           </div>
         </div>
