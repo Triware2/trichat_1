@@ -509,6 +509,45 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriptions: {
+        Row: {
+          created_at: string
+          id: string
+          plan_type: string | null
+          status: Database["public"]["Enums"]["subscription_status"]
+          subscription_end_date: string | null
+          subscription_start_date: string | null
+          trial_end_date: string
+          trial_start_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          plan_type?: string | null
+          status?: Database["public"]["Enums"]["subscription_status"]
+          subscription_end_date?: string | null
+          subscription_start_date?: string | null
+          trial_end_date?: string
+          trial_start_date?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          plan_type?: string | null
+          status?: Database["public"]["Enums"]["subscription_status"]
+          subscription_end_date?: string | null
+          subscription_start_date?: string | null
+          trial_end_date?: string
+          trial_start_date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       system_settings: {
         Row: {
           description: string | null
@@ -549,9 +588,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_trial_days_remaining: {
+        Args: { user_id: string }
+        Returns: number
+      }
       get_user_role: {
         Args: { user_id: string }
         Returns: Database["public"]["Enums"]["user_role"]
+      }
+      is_trial_active: {
+        Args: { user_id: string }
+        Returns: boolean
       }
     }
     Enums: {
@@ -564,6 +611,7 @@ export type Database = {
         | "message_received"
         | "escalation"
         | "system_alert"
+      subscription_status: "trial" | "active" | "expired" | "cancelled"
       user_role: "admin" | "supervisor" | "agent"
     }
     CompositeTypes: {
@@ -690,6 +738,7 @@ export const Constants = {
         "escalation",
         "system_alert",
       ],
+      subscription_status: ["trial", "active", "expired", "cancelled"],
       user_role: ["admin", "supervisor", "agent"],
     },
   },
