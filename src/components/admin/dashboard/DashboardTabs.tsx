@@ -40,7 +40,8 @@ export const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) =>
   const coreNavigation = [
     { value: 'overview', label: 'Overview', icon: LayoutDashboard, color: 'text-blue-600' },
     { value: 'users', label: 'Users', icon: Users, color: 'text-green-600' },
-    { value: 'analytics', label: 'Analytics', icon: BarChart3, color: 'text-purple-600' }
+    { value: 'analytics', label: 'Analytics', icon: BarChart3, color: 'text-purple-600' },
+    { value: 'settings', label: 'Settings', icon: Settings, color: 'text-gray-600' }
   ];
 
   // Advanced features organized by category
@@ -114,7 +115,6 @@ export const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) =>
                     hover:bg-white/60 hover:text-gray-800
                     flex items-center space-x-2.5 group
                   `}
-                  onClick={() => onTabChange(tab.value)}
                 >
                   <tab.icon className={`w-4 h-4 transition-colors duration-200 ${
                     activeTab === tab.value ? tab.color : 'text-gray-500 group-hover:text-gray-700'
@@ -128,10 +128,8 @@ export const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) =>
             </TabsList>
           </div>
 
-          {/* Advanced Features & Settings */}
-          <div className="flex items-center space-x-3">
-            
-            {/* Advanced Features Dropdown */}
+          {/* Advanced Features Dropdown */}
+          <div className="flex items-center">
             <DropdownMenu open={isMoreMenuOpen} onOpenChange={setIsMoreMenuOpen}>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -157,7 +155,7 @@ export const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) =>
                   ) : (
                     <>
                       <Grid3x3 className="w-4 h-4" />
-                      <span>Advanced</span>
+                      <span>More Tools</span>
                     </>
                   )}
                   <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${
@@ -237,24 +235,6 @@ export const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) =>
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-
-            {/* Settings */}
-            <TabsTrigger
-              value="settings"
-              className={`
-                h-10 px-4 py-0 text-sm font-medium rounded-md border
-                transition-all duration-300 ease-out
-                ${activeTab === 'settings'
-                  ? 'bg-gray-900 text-white border-gray-800 shadow-lg'
-                  : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
-                }
-                flex items-center space-x-2
-              `}
-              onClick={() => onTabChange('settings')}
-            >
-              <Settings className="w-4 h-4" />
-              <span>Settings</span>
-            </TabsTrigger>
           </div>
         </div>
       </div>
