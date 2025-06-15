@@ -1,19 +1,17 @@
 
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   LayoutDashboard, 
   Users, 
   DollarSign, 
-  Activity, 
   BarChart3, 
+  TrendingUp, 
   Shield, 
   Settings, 
   Server, 
   MessageSquare,
-  Bell,
-  Search
+  Crown
 } from 'lucide-react';
 
 interface PlatformSidebarProps {
@@ -23,43 +21,35 @@ interface PlatformSidebarProps {
 
 export const PlatformSidebar = ({ activeModule, onModuleChange }: PlatformSidebarProps) => {
   const modules = [
-    { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard, color: 'blue', alerts: 0 },
-    { id: 'clients', name: 'Client Management', icon: Users, color: 'green', alerts: 3 },
-    { id: 'pricing', name: 'Pricing & Billing', icon: DollarSign, color: 'yellow', alerts: 1 },
-    { id: 'usage', name: 'Usage Monitoring', icon: Activity, color: 'purple', alerts: 5 },
-    { id: 'analytics', name: 'Analytics & Reports', icon: BarChart3, color: 'indigo', alerts: 0 },
-    { id: 'security', name: 'Security & Access', icon: Shield, color: 'red', alerts: 2 },
-    { id: 'api', name: 'API Management', icon: Settings, color: 'teal', alerts: 0 },
-    { id: 'system', name: 'System Health', icon: Server, color: 'orange', alerts: 1 },
-    { id: 'support', name: 'Support Management', icon: MessageSquare, color: 'cyan', alerts: 8 }
+    { id: 'dashboard', label: 'Overview', icon: LayoutDashboard, color: 'from-amber-400 to-orange-500' },
+    { id: 'clients', label: 'Client Management', icon: Users, color: 'from-blue-400 to-blue-600' },
+    { id: 'pricing', label: 'Pricing Control', icon: DollarSign, color: 'from-green-400 to-emerald-600' },
+    { id: 'usage', label: 'Usage Monitoring', icon: BarChart3, color: 'from-purple-400 to-purple-600' },
+    { id: 'analytics', label: 'Analytics & Reports', icon: TrendingUp, color: 'from-pink-400 to-rose-600' },
+    { id: 'security', label: 'Security', icon: Shield, color: 'from-red-400 to-red-600' },
+    { id: 'api', label: 'API Management', icon: Settings, color: 'from-indigo-400 to-indigo-600' },
+    { id: 'system', label: 'System Health', icon: Server, color: 'from-teal-400 to-cyan-600' },
+    { id: 'support', label: 'Support Hub', icon: MessageSquare, color: 'from-violet-400 to-violet-600' }
   ];
 
   return (
-    <div className="w-80 bg-white border-r border-gray-200 p-6 space-y-6">
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-        <input
-          type="text"
-          placeholder="Search modules..."
-          className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        />
-      </div>
-
-      {/* System Status */}
-      <Card className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-green-800">System Status</p>
-            <p className="text-xs text-green-600">All systems operational</p>
+    <div className="w-80 bg-gradient-to-b from-slate-800 to-slate-900 border-r border-slate-700 shadow-2xl">
+      <div className="p-6 border-b border-slate-700">
+        <div className="flex items-center space-x-3 mb-4">
+          <div className="p-2 bg-gradient-to-r from-amber-400 to-orange-500 rounded-lg">
+            <Crown className="w-6 h-6 text-white" />
           </div>
-          <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+          <div>
+            <h2 className="text-xl font-bold text-white">Owner Portal</h2>
+            <p className="text-sm text-slate-300">Executive Control Center</p>
+          </div>
         </div>
-      </Card>
-
-      {/* Modules Navigation */}
-      <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Management Modules</h3>
+        <Badge className="bg-gradient-to-r from-amber-400 to-orange-500 text-white border-0">
+          Company Owner Access
+        </Badge>
+      </div>
+      
+      <nav className="p-4 space-y-2">
         {modules.map((module) => {
           const IconComponent = module.icon;
           const isActive = activeModule === module.id;
@@ -67,45 +57,37 @@ export const PlatformSidebar = ({ activeModule, onModuleChange }: PlatformSideba
           return (
             <Button
               key={module.id}
-              variant={isActive ? "default" : "ghost"}
-              className={`w-full justify-between h-12 px-4 ${
+              variant="ghost"
+              className={`w-full justify-start h-auto p-4 text-left transition-all duration-200 ${
                 isActive 
-                  ? 'bg-blue-600 text-white shadow-md' 
-                  : 'hover:bg-gray-50 text-gray-700'
+                  ? 'bg-gradient-to-r from-slate-700 to-slate-600 text-white shadow-lg border border-slate-600' 
+                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
               }`}
               onClick={() => onModuleChange(module.id)}
             >
-              <div className="flex items-center space-x-3">
-                <IconComponent className="w-5 h-5" />
-                <span className="font-medium">{module.name}</span>
+              <div className="flex items-center space-x-3 w-full">
+                <div className={`p-2 rounded-lg bg-gradient-to-r ${module.color} ${isActive ? 'shadow-lg' : ''}`}>
+                  <IconComponent className="w-5 h-5 text-white" />
+                </div>
+                <div className="flex-1">
+                  <div className="font-medium">{module.label}</div>
+                  <div className="text-xs text-slate-400">
+                    {module.id === 'dashboard' && 'Real-time insights'}
+                    {module.id === 'clients' && 'Manage all clients'}
+                    {module.id === 'pricing' && 'Revenue optimization'}
+                    {module.id === 'usage' && 'Monitor consumption'}
+                    {module.id === 'analytics' && 'Data intelligence'}
+                    {module.id === 'security' && 'Access control'}
+                    {module.id === 'api' && 'Integration hub'}
+                    {module.id === 'system' && 'Platform status'}
+                    {module.id === 'support' && 'Customer care'}
+                  </div>
+                </div>
               </div>
-              {module.alerts > 0 && (
-                <Badge 
-                  variant="destructive" 
-                  className="bg-red-500 text-white text-xs px-2 py-0.5"
-                >
-                  {module.alerts}
-                </Badge>
-              )}
             </Button>
           );
         })}
-      </div>
-
-      {/* Quick Actions */}
-      <Card className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-        <h4 className="font-semibold text-blue-800 mb-3">Quick Actions</h4>
-        <div className="space-y-2">
-          <Button size="sm" variant="outline" className="w-full justify-start border-blue-200 text-blue-700">
-            <Bell className="w-4 h-4 mr-2" />
-            View All Alerts
-          </Button>
-          <Button size="sm" variant="outline" className="w-full justify-start border-blue-200 text-blue-700">
-            <Users className="w-4 h-4 mr-2" />
-            Add New Client
-          </Button>
-        </div>
-      </Card>
+      </nav>
     </div>
   );
 };

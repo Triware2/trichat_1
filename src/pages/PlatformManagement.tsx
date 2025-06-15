@@ -41,11 +41,11 @@ const PlatformManagement = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <NavigationHeader 
-        title="Platform Management" 
+        title="Platform Command Center" 
         role="admin"
-        userEmail="admin@platform.com"
+        userEmail="owner@platform.com"
       />
       
       <div className="flex h-[calc(100vh-64px)]">
