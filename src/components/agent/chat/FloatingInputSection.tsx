@@ -37,25 +37,28 @@ export const FloatingInputSection = ({
   onCannedResponseSelect
 }: FloatingInputSectionProps) => {
   return (
-    <div className="absolute bottom-0 left-0 right-0 z-30 bg-white border-t border-slate-200 shadow-lg">
-      {/* Canned Responses Panel - appears above input when open */}
+    <div className="w-full bg-white">
+      {/* Canned Responses Panel - slides up from bottom */}
       {showCannedResponses && (
-        <div className="h-96 border-b border-slate-200 bg-white">
-          <CannedResponses 
-            onSelectResponse={onCannedResponseSelect}
-            isSelectionMode={true}
-          />
+        <div className="border-b border-slate-200 bg-white shadow-inner">
+          <div className="h-80 overflow-y-auto">
+            <CannedResponses 
+              onSelectResponse={onCannedResponseSelect}
+              isSelectionMode={true}
+            />
+          </div>
         </div>
       )}
 
-      {/* Message Input Container */}
-      <div className="bg-white">
+      {/* Input Container - Always visible at bottom */}
+      <div className="bg-white border-t border-slate-100">
         {/* Canned Responses Toggle */}
         <CannedResponsesToggle 
           showCannedResponses={showCannedResponses}
           onToggle={() => setShowCannedResponses(!showCannedResponses)}
         />
 
+        {/* Message Input */}
         <MessageInputArea
           message={message}
           setMessage={setMessage}

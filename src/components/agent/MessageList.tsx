@@ -62,12 +62,14 @@ export const MessageList = ({
     // Handle private notes
     if (item.itemType === 'private-note') {
       return (
-        <div key={`note-${item.id}`} className="flex justify-center">
-          <div className="max-w-xs lg:max-w-md bg-amber-100 border-l-4 border-amber-500 rounded-lg p-4 shadow-sm">
-            <div className="flex items-center justify-between mb-2">
+        <div key={`note-${item.id}`} className="flex justify-center mb-6">
+          <div className="max-w-md bg-gradient-to-r from-amber-50 to-amber-100 border border-amber-200 rounded-2xl p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <StickyNote className="w-4 h-4 text-amber-600" />
-                <span className="text-xs font-medium text-amber-800">Private Note</span>
+                <div className="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center">
+                  <StickyNote className="w-3 h-3 text-white" />
+                </div>
+                <span className="text-xs font-semibold text-amber-800">Private Note</span>
                 <span className="text-xs text-amber-600">• {item.author}</span>
               </div>
               {canDeleteNote && onDeleteNote && canDeleteNote(item.author) && (
@@ -75,7 +77,7 @@ export const MessageList = ({
                   variant="ghost"
                   size="sm"
                   onClick={() => onDeleteNote(item.id, item.author)}
-                  className="h-6 w-6 p-0 text-amber-500 hover:text-red-600 hover:bg-red-50"
+                  className="h-6 w-6 p-0 text-amber-500 hover:text-red-600 hover:bg-red-50 rounded-full"
                 >
                   <X className="w-3 h-3" />
                 </Button>
@@ -83,13 +85,13 @@ export const MessageList = ({
             </div>
             
             {item.message && (
-              <p className="text-sm text-amber-900 leading-relaxed mb-2">{item.message}</p>
+              <p className="text-sm text-amber-900 leading-relaxed mb-3">{item.message}</p>
             )}
 
             {item.attachments && item.attachments.length > 0 && (
-              <div className="space-y-2 mb-2">
+              <div className="space-y-2 mb-3">
                 {item.attachments.map((attachment: any, index: number) => (
-                  <div key={index} className="flex items-center gap-2 bg-amber-50 rounded p-2 border border-amber-200">
+                  <div key={index} className="flex items-center gap-2 bg-amber-50 rounded-lg p-2 border border-amber-200">
                     {attachment.type === 'image' && <Image className="w-4 h-4 text-amber-600" />}
                     {attachment.type === 'media' && <Video className="w-4 h-4 text-amber-600" />}
                     {attachment.type === 'file' && <Paperclip className="w-4 h-4 text-amber-600" />}
@@ -99,7 +101,7 @@ export const MessageList = ({
               </div>
             )}
 
-            <div className="flex items-center gap-2 mt-2 text-xs text-amber-600">
+            <div className="flex items-center gap-2 text-xs text-amber-600">
               <Clock className="w-3 h-3" />
               <span>{item.time}</span>
             </div>
@@ -111,37 +113,37 @@ export const MessageList = ({
     // Handle regular messages
     const msg = item as ChatMessage & { itemType: 'message' };
     return (
-      <div key={`msg-${msg.id}`} className={`flex ${msg.sender === 'agent' ? 'justify-end' : 'justify-start'}`}>
-        <div className={`max-w-xs lg:max-w-md ${msg.sender === 'agent' ? 'order-2' : 'order-1'}`}>
+      <div key={`msg-${msg.id}`} className={`flex mb-6 ${msg.sender === 'agent' ? 'justify-end' : 'justify-start'}`}>
+        <div className={`max-w-sm lg:max-w-md ${msg.sender === 'agent' ? 'order-2' : 'order-1'}`}>
           {msg.sender === 'customer' && (
             <div className="flex items-center mb-2">
-              <div className="w-6 h-6 bg-gradient-to-br from-slate-400 to-slate-600 rounded-full flex items-center justify-center text-white text-xs font-medium">
-                <User className="w-3 h-3" />
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white shadow-sm">
+                <User className="w-4 h-4" />
               </div>
-              <span className="ml-2 text-xs text-slate-600">Customer</span>
+              <span className="ml-3 text-sm font-medium text-slate-700">Customer</span>
             </div>
           )}
           
-          <div className={`px-4 py-3 rounded-2xl shadow-sm ${
+          <div className={`px-4 py-3 rounded-2xl shadow-sm transition-all hover:shadow-md ${
             msg.sender === 'agent' 
-              ? 'bg-orange-500 text-white' 
-              : 'bg-white text-slate-900 border border-slate-200'
+              ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-br-md' 
+              : 'bg-white text-slate-900 border border-slate-200 rounded-bl-md'
           }`}>
             {msg.type === 'file' ? (
               <div className="flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
                   msg.sender === 'agent' ? 'bg-orange-600' : 'bg-slate-100'
                 }`}>
-                  <File className="w-4 h-4" />
+                  <File className="w-5 h-5" />
                 </div>
                 <span className="text-sm font-medium truncate">{msg.fileName}</span>
               </div>
             ) : msg.type === 'image' ? (
               <div className="flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
                   msg.sender === 'agent' ? 'bg-orange-600' : 'bg-slate-100'
                 }`}>
-                  <Image className="w-4 h-4" />
+                  <Image className="w-5 h-5" />
                 </div>
                 <span className="text-sm font-medium truncate">{msg.fileName}</span>
               </div>
@@ -150,13 +152,13 @@ export const MessageList = ({
             )}
           </div>
           
-          <div className={`flex items-center gap-2 mt-2 text-xs text-slate-500 ${
-            msg.sender === 'agent' ? 'justify-end' : 'justify-start'
+          <div className={`flex items-center gap-2 mt-2 text-xs ${
+            msg.sender === 'agent' ? 'justify-end text-slate-500' : 'justify-start text-slate-500'
           }`}>
             <Clock className="w-3 h-3" />
             <span>{msg.time}</span>
             {msg.sender === 'agent' && (
-              <CheckCheck className="w-3 h-3 text-slate-400" />
+              <CheckCheck className="w-3 h-3 text-orange-500" />
             )}
           </div>
         </div>
@@ -165,12 +167,22 @@ export const MessageList = ({
   };
 
   return (
-    <div className="p-6 space-y-4 bg-slate-50">
-      {allItems.map(renderMessage)}
+    <div className="p-6 space-y-2 bg-gradient-to-b from-slate-50 to-white min-h-full">
+      {allItems.length === 0 ? (
+        <div className="flex flex-col items-center justify-center h-64 text-center">
+          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+            <User className="w-8 h-8 text-slate-400" />
+          </div>
+          <h3 className="text-lg font-medium text-slate-900 mb-2">Start the conversation</h3>
+          <p className="text-sm text-slate-600">Send a message to begin chatting with the customer.</p>
+        </div>
+      ) : (
+        allItems.map(renderMessage)
+      )}
       
       {isTyping && (
-        <div className="flex justify-start">
-          <div className="bg-white border border-slate-200 text-slate-700 px-4 py-3 rounded-2xl shadow-sm">
+        <div className="flex justify-start mb-6">
+          <div className="bg-white border border-slate-200 text-slate-700 px-4 py-3 rounded-2xl rounded-bl-md shadow-sm">
             <div className="flex items-center gap-1">
               <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></div>
               <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>

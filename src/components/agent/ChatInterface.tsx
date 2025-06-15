@@ -63,9 +63,9 @@ export const ChatInterface = ({
   ];
 
   return (
-    <div className="h-full flex flex-col bg-white">
-      {/* Fixed Header */}
-      <div className="flex-shrink-0 bg-white border-b border-slate-200 z-10">
+    <div className="h-full flex flex-col bg-white relative">
+      {/* Fixed Header - Always visible at top */}
+      <div className="flex-shrink-0 bg-white border-b border-slate-200 z-20 shadow-sm">
         <ChatHeader 
           customerName={customerName} 
           customerStatus={customerStatus} 
@@ -73,49 +73,52 @@ export const ChatInterface = ({
         />
       </div>
       
-      {/* Scrollable Messages Area - Independent scroll */}
-      <div className="flex-1 min-h-0 overflow-hidden relative">
-        <div className="h-full overflow-y-auto">
-          {/* Bot Conversation Section - Only show if there's bot history */}
-          {botConversationHistory.length > 0 && (
-            <div className="p-4 border-b border-blue-200 bg-blue-50/30">
+      {/* Main Chat Content Area - Independent scrollable sections */}
+      <div className="flex-1 flex flex-col min-h-0 relative">
+        
+        {/* Bot Conversation History Section - Independent scroll */}
+        {botConversationHistory.length > 0 && (
+          <div className="flex-shrink-0 border-b border-blue-200 bg-blue-50/30 max-h-80 overflow-y-auto">
+            <div className="p-4">
               <BotConversationSection botConversationHistory={botConversationHistory} />
             </div>
-          )}
-          
-          {/* Messages with padding bottom for floating input */}
-          <div className="pb-48">
+          </div>
+        )}
+        
+        {/* Messages Section - Independent scroll, takes remaining space */}
+        <div className="flex-1 min-h-0 relative bg-slate-50">
+          <div className="h-full overflow-y-auto pb-40">
             <MessageList 
               messages={messages} 
               privateNotes={privateNotes}
               isTyping={isTyping}
               onDeleteNote={handleDeleteNote}
               canDeleteNote={canDeleteNote}
-              botConversationHistory={[]} // Don't pass bot history to MessageList anymore since we have separate section
+              botConversationHistory={[]}
             />
           </div>
         </div>
 
-        {/* Fixed Floating Input Section - positioned absolutely */}
-        <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-200">
-          <FloatingInputSection
-            showCannedResponses={showCannedResponses}
-            setShowCannedResponses={setShowCannedResponses}
-            message={message}
-            setMessage={setMessage}
-            isPrivateNoteMode={isPrivateNoteMode}
-            setIsPrivateNoteMode={setIsPrivateNoteMode}
-            onSendMessage={handleSendMessage}
-            onFileUpload={handleFileUpload}
-            onImageUpload={handleImageUpload}
-            onCannedResponseSelect={handleCannedResponseSelect}
-          />
-        </div>
-
-        {/* Quick Responses - Fixed position within chat interface */}
-        <div className="absolute bottom-52 right-6 z-50">
+        {/* Quick Responses - Floating on the right side */}
+        <div className="absolute right-4 bottom-44 z-30">
           <QuickResponses responses={quickResponses} onResponseSelect={handleQuickResponse} />
         </div>
+      </div>
+
+      {/* Floating Input Section - Always fixed at bottom */}
+      <div className="absolute bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 shadow-lg">
+        <FloatingInputSection
+          showCannedResponses={showCannedResponses}
+          setShowCannedResponses={setShowCannedResponses}
+          message={message}
+          setMessage={setMessage}
+          isPrivateNoteMode={isPrivateNoteMode}
+          setIsPrivateNoteMode={setIsPrivateNoteMode}
+          onSendMessage={handleSendMessage}
+          onFileUpload={handleFileUpload}
+          onImageUpload={handleImageUpload}
+          onCannedResponseSelect={handleCannedResponseSelect}
+        />
       </div>
     </div>
   );
