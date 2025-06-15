@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Bot, 
   Brain, 
@@ -26,6 +27,7 @@ interface ChatbotCreationWizardProps {
 }
 
 export const ChatbotCreationWizard = ({ open, onOpenChange }: ChatbotCreationWizardProps) => {
+  const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
   const [botData, setBotData] = useState({
     name: '',
@@ -60,6 +62,10 @@ export const ChatbotCreationWizard = ({ open, onOpenChange }: ChatbotCreationWiz
 
   const handleCreate = () => {
     console.log('Creating chatbot:', botData);
+    toast({
+      title: "Chatbot Created Successfully!",
+      description: `${botData.name} has been created and is ready for training.`,
+    });
     onOpenChange(false);
     setCurrentStep(1);
     setBotData({
@@ -73,6 +79,19 @@ export const ChatbotCreationWizard = ({ open, onOpenChange }: ChatbotCreationWiz
       welcomeMessage: '',
       fallbackMessage: ''
     });
+  };
+
+  const isStepValid = () => {
+    switch (currentStep) {
+      case 1:
+        return botData.type !== '';
+      case 2:
+        return botData.name !== '' && (botData.type === 'standard' || (botData.llmProvider && botData.model));
+      case 3:
+        return botData.welcomeMessage !== '';
+      default:
+        return true;
+    }
   };
 
   const renderStepContent = () => {
@@ -149,7 +168,7 @@ export const ChatbotCreationWizard = ({ open, onOpenChange }: ChatbotCreationWiz
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="name">Bot Name</Label>
+                <Label htmlFor="name">Bot Name *</Label>
                 <Input
                   id="name"
                   value={botData.name}
@@ -161,7 +180,7 @@ export const ChatbotCreationWizard = ({ open, onOpenChange }: ChatbotCreationWiz
 
               {botData.type === 'llm' && (
                 <div>
-                  <Label htmlFor="llmProvider">LLM Provider</Label>
+                  <Label htmlFor="llmProvider">LLM Provider *</Label>
                   <Select value={botData.llmProvider} onValueChange={(value) => setBotData({...botData, llmProvider: value})}>
                     <SelectTrigger className="mt-1">
                       <SelectValue placeholder="Select provider" />
@@ -179,7 +198,7 @@ export const ChatbotCreationWizard = ({ open, onOpenChange }: ChatbotCreationWiz
 
             {botData.type === 'llm' && botData.llmProvider && (
               <div>
-                <Label htmlFor="model">Model</Label>
+                <Label htmlFor="model">Model *</Label>
                 <Select value={botData.model} onValueChange={(value) => setBotData({...botData, model: value})}>
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Select model" />
@@ -245,7 +264,7 @@ export const ChatbotCreationWizard = ({ open, onOpenChange }: ChatbotCreationWiz
             </div>
 
             <div>
-              <Label htmlFor="welcomeMessage">Welcome Message</Label>
+              <Label htmlFor="welcomeMessage">Welcome Message *</Label>
               <Textarea
                 id="welcomeMessage"
                 value={botData.welcomeMessage}
@@ -402,7 +421,7 @@ export const ChatbotCreationWizard = ({ open, onOpenChange }: ChatbotCreationWiz
             {currentStep < steps.length ? (
               <Button 
                 onClick={handleNext}
-                disabled={currentStep === 1 && !botData.type}
+                disabled={!isStepValid()}
                 className="bg-blue-600 hover:bg-blue-700 text-white"
               >
                 Next
@@ -411,6 +430,7 @@ export const ChatbotCreationWizard = ({ open, onOpenChange }: ChatbotCreationWiz
             ) : (
               <Button 
                 onClick={handleCreate}
+                disabled={!isStepValid()}
                 className="bg-green-600 hover:bg-green-700 text-white"
               >
                 <Check className="w-4 h-4 mr-2" />

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Bot, 
   Brain, 
@@ -12,7 +13,10 @@ import {
   Pause,
   MoreHorizontal,
   Zap,
-  Database
+  Database,
+  Trash2,
+  Copy,
+  Edit
 } from 'lucide-react';
 
 interface Chatbot {
@@ -28,7 +32,8 @@ interface Chatbot {
 }
 
 export const ChatbotList = () => {
-  const [chatbots] = useState<Chatbot[]>([
+  const { toast } = useToast();
+  const [chatbots, setChatbots] = useState<Chatbot[]>([
     {
       id: '1',
       name: 'Customer Support Bot',
@@ -90,6 +95,64 @@ export const ChatbotList = () => {
     ) : (
       <MessageSquare className="w-4 h-4 text-blue-600" />
     );
+  };
+
+  const handleToggleStatus = (botId: string) => {
+    setChatbots(chatbots.map(bot => {
+      if (bot.id === botId) {
+        const newStatus = bot.status === 'active' ? 'inactive' : 'active';
+        toast({
+          title: `Bot ${newStatus === 'active' ? 'Activated' : 'Deactivated'}`,
+          description: `${bot.name} is now ${newStatus}`,
+        });
+        return { ...bot, status: newStatus };
+      }
+      return bot;
+    }));
+  };
+
+  const handleDeleteBot = (botId: string) => {
+    const bot = chatbots.find(b => b.id === botId);
+    setChatbots(chatbots.filter(b => b.id !== botId));
+    toast({
+      title: "Bot Deleted",
+      description: `${bot?.name} has been deleted successfully`,
+      variant: "destructive"
+    });
+  };
+
+  const handleCloneBot = (botId: string) => {
+    const bot = chatbots.find(b => b.id === botId);
+    if (bot) {
+      const clonedBot = {
+        ...bot,
+        id: Date.now().toString(),
+        name: `${bot.name} (Copy)`,
+        status: 'inactive' as const,
+        totalChats: 0
+      };
+      setChatbots([...chatbots, clonedBot]);
+      toast({
+        title: "Bot Cloned",
+        description: `${bot.name} has been cloned successfully`,
+      });
+    }
+  };
+
+  const handleConfigureBot = (botId: string) => {
+    const bot = chatbots.find(b => b.id === botId);
+    toast({
+      title: "Opening Configuration",
+      description: `Configuring ${bot?.name}...`,
+    });
+  };
+
+  const handleTrainingBot = (botId: string) => {
+    const bot = chatbots.find(b => b.id === botId);
+    toast({
+      title: "Opening Training",
+      description: `Training interface for ${bot?.name}...`,
+    });
   };
 
   return (
@@ -170,11 +233,21 @@ export const ChatbotList = () => {
               )}
 
               <div className="flex gap-2 pt-2">
-                <Button size="sm" variant="outline" className="flex-1">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => handleConfigureBot(bot.id)}
+                >
                   <Settings className="w-3 h-3 mr-1" />
                   Configure
                 </Button>
-                <Button size="sm" variant="outline" className="flex-1">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => handleTrainingBot(bot.id)}
+                >
                   <Database className="w-3 h-3 mr-1" />
                   Training
                 </Button>
@@ -182,11 +255,24 @@ export const ChatbotList = () => {
                   size="sm" 
                   variant="outline"
                   className={bot.status === 'active' ? 'text-red-600 hover:text-red-700' : 'text-green-600 hover:text-green-700'}
+                  onClick={() => handleToggleStatus(bot.id)}
                 >
                   {bot.status === 'active' ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
                 </Button>
-                <Button size="sm" variant="outline">
-                  <MoreHorizontal className="w-3 h-3" />
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={() => handleCloneBot(bot.id)}
+                >
+                  <Copy className="w-3 h-3" />
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={() => handleDeleteBot(bot.id)}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <Trash2 className="w-3 h-3" />
                 </Button>
               </div>
             </CardContent>

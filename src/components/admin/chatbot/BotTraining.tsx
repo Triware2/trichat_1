@@ -23,6 +23,8 @@ import { LLMSettingsPanel } from './LLMSettingsPanel';
 import { TestChatInterface } from './TestChatInterface';
 import { ChatbotAnalytics } from './ChatbotAnalytics';
 import { ChatbotList } from './ChatbotList';
+import { StandardBotTraining } from './StandardBotTraining';
+import { SecurityPanel } from './SecurityPanel';
 
 export const BotTraining = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -38,6 +40,14 @@ export const BotTraining = () => {
     totalSOPs: 12
   });
 
+  const handleCreateBot = () => {
+    setIsWizardOpen(true);
+  };
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -48,7 +58,7 @@ export const BotTraining = () => {
           </p>
         </div>
         <Button 
-          onClick={() => setIsWizardOpen(true)}
+          onClick={handleCreateBot}
           className="bg-blue-600 hover:bg-blue-700 text-white"
         >
           <Plus className="w-4 h-4 mr-2" />
@@ -132,14 +142,21 @@ export const BotTraining = () => {
       </div>
 
       {/* Main Content Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6 bg-white border shadow-sm rounded-xl p-1 h-auto">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-7 bg-white border shadow-sm rounded-xl p-1 h-auto">
           <TabsTrigger 
             value="overview" 
             className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-md font-medium py-3 px-2"
           >
             <Bot className="w-4 h-4" />
             <span className="hidden sm:inline">Overview</span>
+          </TabsTrigger>
+          <TabsTrigger 
+            value="training" 
+            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-md font-medium py-3 px-2"
+          >
+            <Settings className="w-4 h-4" />
+            <span className="hidden sm:inline">Training</span>
           </TabsTrigger>
           <TabsTrigger 
             value="sop-upload" 
@@ -182,6 +199,10 @@ export const BotTraining = () => {
           <ChatbotList />
         </TabsContent>
 
+        <TabsContent value="training">
+          <StandardBotTraining />
+        </TabsContent>
+
         <TabsContent value="sop-upload">
           <SOPUploadManager />
         </TabsContent>
@@ -199,14 +220,7 @@ export const BotTraining = () => {
         </TabsContent>
 
         <TabsContent value="security">
-          <div className="text-center py-8">
-            <Shield className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Security & Access Controls</h3>
-            <p className="text-gray-600 mb-4">Manage API keys, SOP access, and role-based permissions</p>
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-              Configure Security
-            </Button>
-          </div>
+          <SecurityPanel />
         </TabsContent>
       </Tabs>
 
