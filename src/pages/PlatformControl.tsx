@@ -50,7 +50,7 @@ const PlatformControl = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gray-50">
       <NavigationHeader 
         title="Platform Control Center" 
         role="admin"
@@ -58,15 +58,15 @@ const PlatformControl = () => {
       />
       
       {/* Mobile menu button */}
-      <div className="lg:hidden bg-white/80 backdrop-blur-sm border-b border-gray-200 px-4 py-2">
+      <div className="lg:hidden bg-white border-b border-gray-200 px-4 py-3">
         <Button
           variant="ghost"
           size="sm"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 text-gray-700 hover:text-gray-900"
         >
-          {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          <span>Control Panel</span>
+          {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+          <span className="text-sm font-medium">Menu</span>
         </Button>
       </div>
 
@@ -74,7 +74,7 @@ const PlatformControl = () => {
         {/* Mobile overlay */}
         {isMobileMenuOpen && (
           <div 
-            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+            className="fixed inset-0 bg-black bg-opacity-25 z-40 lg:hidden"
             onClick={() => setIsMobileMenuOpen(false)}
           />
         )}
@@ -83,9 +83,9 @@ const PlatformControl = () => {
         <div className={`
           fixed lg:static inset-y-0 left-0 z-50 lg:z-auto
           transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
-          lg:translate-x-0 transition-transform duration-300 ease-in-out
-          bg-white/95 backdrop-blur-lg shadow-xl lg:shadow-none border-r border-gray-200
-          ${isMobileMenuOpen ? 'w-80' : 'w-0'} lg:w-72
+          lg:translate-x-0 transition-transform duration-200 ease-in-out
+          bg-white border-r border-gray-200
+          ${isMobileMenuOpen ? 'w-80' : 'w-0'} lg:w-64
           overflow-hidden lg:overflow-visible
           flex-shrink-0
         `}>
@@ -99,7 +99,7 @@ const PlatformControl = () => {
         </div>
         
         {/* Main content */}
-        <div className="flex-1 overflow-auto bg-gradient-to-br from-gray-50/50 to-white">
+        <div className="flex-1 overflow-auto bg-gray-50">
           {renderModule()}
         </div>
       </div>
