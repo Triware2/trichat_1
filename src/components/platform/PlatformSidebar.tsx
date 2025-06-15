@@ -21,7 +21,7 @@ interface PlatformSidebarProps {
 
 export const PlatformSidebar = ({ activeModule, onModuleChange }: PlatformSidebarProps) => {
   const modules = [
-    { id: 'dashboard', label: 'Overview', icon: LayoutDashboard, color: 'from-amber-400 to-orange-500' },
+    { id: 'dashboard', label: 'Overview', icon: LayoutDashboard, color: 'from-purple-400 to-violet-500' },
     { id: 'clients', label: 'Client Management', icon: Users, color: 'from-blue-400 to-blue-600' },
     { id: 'pricing', label: 'Pricing Control', icon: DollarSign, color: 'from-green-400 to-emerald-600' },
     { id: 'usage', label: 'Usage Monitoring', icon: BarChart3, color: 'from-purple-400 to-purple-600' },
@@ -36,7 +36,7 @@ export const PlatformSidebar = ({ activeModule, onModuleChange }: PlatformSideba
     <div className="w-80 bg-gradient-to-b from-slate-800 to-slate-900 border-r border-slate-700 shadow-2xl">
       <div className="p-6 border-b border-slate-700">
         <div className="flex items-center space-x-3 mb-4">
-          <div className="p-2 bg-gradient-to-r from-amber-400 to-orange-500 rounded-lg">
+          <div className="p-2 bg-gradient-to-r from-purple-400 to-violet-500 rounded-lg">
             <Crown className="w-6 h-6 text-white" />
           </div>
           <div>
@@ -44,7 +44,7 @@ export const PlatformSidebar = ({ activeModule, onModuleChange }: PlatformSideba
             <p className="text-sm text-slate-300">Executive Control Center</p>
           </div>
         </div>
-        <Badge className="bg-gradient-to-r from-amber-400 to-orange-500 text-white border-0">
+        <Badge className="bg-gradient-to-r from-purple-400 to-violet-500 text-white border-0">
           Company Owner Access
         </Badge>
       </div>

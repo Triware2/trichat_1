@@ -22,7 +22,7 @@ export const PlatformDashboard = () => {
     { title: 'Total Clients', value: '2,847', change: '+12.5%', icon: Users, color: 'from-blue-400 to-blue-600' },
     { title: 'Monthly Revenue', value: '$127,430', change: '+8.2%', icon: DollarSign, color: 'from-green-400 to-emerald-600' },
     { title: 'Active Users', value: '18,392', change: '+15.3%', icon: Activity, color: 'from-purple-400 to-purple-600' },
-    { title: 'API Calls (24h)', value: '1.2M', change: '+23.1%', icon: TrendingUp, color: 'from-orange-400 to-orange-600' },
+    { title: 'API Calls (24h)', value: '1.2M', change: '+23.1%', icon: TrendingUp, color: 'from-violet-400 to-violet-600' },
     { title: 'System Uptime', value: '99.98%', change: '+0.01%', icon: Server, color: 'from-teal-400 to-cyan-600' },
     { title: 'Support Tickets', value: '43', change: '-18.6%', icon: AlertTriangle, color: 'from-red-400 to-red-600' }
   ];
@@ -47,7 +47,7 @@ export const PlatformDashboard = () => {
       <div className="flex justify-between items-center">
         <div>
           <div className="flex items-center space-x-3 mb-2">
-            <div className="p-2 bg-gradient-to-r from-amber-400 to-orange-500 rounded-lg">
+            <div className="p-2 bg-gradient-to-r from-purple-400 to-violet-500 rounded-lg">
               <Crown className="w-6 h-6 text-white" />
             </div>
             <h1 className="text-3xl font-bold text-white">Executive Command Center</h1>
@@ -59,7 +59,7 @@ export const PlatformDashboard = () => {
             <Download className="w-4 h-4 mr-2" />
             Export Report
           </Button>
-          <Button size="sm" className="bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white">
+          <Button size="sm" className="bg-gradient-to-r from-purple-400 to-violet-500 hover:from-purple-500 hover:to-violet-600 text-white">
             <BarChart3 className="w-4 h-4 mr-2" />
             Advanced Analytics
           </Button>
@@ -95,7 +95,7 @@ export const PlatformDashboard = () => {
           <CardHeader>
             <CardTitle className="flex items-center justify-between text-white">
               <div className="flex items-center space-x-2">
-                <Zap className="w-5 h-5 text-amber-400" />
+                <Zap className="w-5 h-5 text-purple-400" />
                 <span>Critical Alerts</span>
               </div>
               <Badge variant="outline" className="bg-red-500/20 text-red-400 border-red-500/30">
