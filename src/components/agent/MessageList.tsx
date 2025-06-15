@@ -165,7 +165,7 @@ export const MessageList = ({
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50">
+    <div className="p-6 space-y-4 bg-slate-50">
       {allItems.map(renderMessage)}
       
       {isTyping && (

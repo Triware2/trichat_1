@@ -4,6 +4,7 @@ import { ChatList } from '@/components/agent/ChatList';
 import { ContactPropertiesPanel } from '@/components/agent/ContactPropertiesPanel';
 import { CustomerComplaintsPreview } from '@/components/agent/CustomerComplaintsPreview';
 import { ChatMessage } from '@/components/admin/chatbot/types';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface ChatContentProps {
   chats: Array<{
@@ -78,31 +79,33 @@ export const ChatContent = ({
   ] : [];
 
   return (
-    <div className="h-full m-0">
-      <div className="flex h-full">
-        {/* Left Section - Chat List (Own Scrollbar) */}
-        <div className="w-80 border-r border-slate-200 bg-white flex-shrink-0 h-full overflow-y-auto">
+    <div className="h-full flex">
+      {/* Left Section - Conversations List with Independent Scroll */}
+      <div className="w-80 border-r border-slate-200 bg-white flex-shrink-0 flex flex-col">
+        <ScrollArea className="flex-1">
           <ChatList 
             chats={chats}
             selectedChat={selectedChat}
             onChatSelect={onChatSelect}
             onFilter={onFilter}
           />
-        </div>
-        
-        {/* Middle Section - Chat Interface (Full Width) */}
-        <div className="flex-1 h-full relative">
-          <ChatInterface
-            customerName={getSelectedCustomerName()}
-            customerStatus="Online"
-            selectedChatId={selectedChat}
-            onSendMessage={onSendMessage}
-            botConversationHistory={mockBotHistory}
-          />
-        </div>
-        
-        {/* Right Section - Customer Info (Own Scrollbar) */}
-        <div className="w-80 border-l border-slate-200 bg-slate-50 flex-shrink-0 h-full overflow-y-auto">
+        </ScrollArea>
+      </div>
+      
+      {/* Middle Section - Chat Interface with Independent Scroll */}
+      <div className="flex-1 flex flex-col">
+        <ChatInterface
+          customerName={getSelectedCustomerName()}
+          customerStatus="Online"
+          selectedChatId={selectedChat}
+          onSendMessage={onSendMessage}
+          botConversationHistory={mockBotHistory}
+        />
+      </div>
+      
+      {/* Right Section - Customer Info with Independent Scroll */}
+      <div className="w-80 border-l border-slate-200 bg-slate-50 flex-shrink-0 flex flex-col">
+        <ScrollArea className="flex-1">
           <div className="p-3 space-y-4">
             <CustomerComplaintsPreview 
               chatId={selectedChat}
@@ -114,7 +117,7 @@ export const ChatContent = ({
               customerName={getSelectedCustomerName()}
             />
           </div>
-        </div>
+        </ScrollArea>
       </div>
     </div>
   );

@@ -9,6 +9,7 @@ import { usePrivateNotes } from './PrivateNotes';
 import { useChatData } from './hooks/useChatData';
 import { useMessageHandling } from './hooks/useMessageHandling';
 import { ChatMessage } from '@/components/admin/chatbot/types';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface ChatInterfaceProps {
   customerName: string;
@@ -63,22 +64,20 @@ export const ChatInterface = ({
   ];
 
   return (
-    <div className="h-full flex bg-white relative overflow-hidden">
-      {/* Main Chat Section */}
-      <div className="flex-1 flex flex-col">
-        {/* Fixed Header */}
-        <div className="flex-shrink-0 bg-white border-b border-slate-200 z-10">
-          <ChatHeader 
-            customerName={customerName} 
-            customerStatus={customerStatus} 
-            chatId={selectedChatId}
-          />
-        </div>
-        
-        {/* Scrollable Messages Area */}
-        <div className="flex-1 relative overflow-hidden">
-          {/* Messages container with its own scroll and padding for floating input */}
-          <div className="absolute inset-0 overflow-y-auto pb-48">
+    <div className="h-full flex bg-white flex-col">
+      {/* Fixed Header */}
+      <div className="flex-shrink-0 bg-white border-b border-slate-200 z-10">
+        <ChatHeader 
+          customerName={customerName} 
+          customerStatus={customerStatus} 
+          chatId={selectedChatId}
+        />
+      </div>
+      
+      {/* Scrollable Messages Area with Independent Scroll */}
+      <div className="flex-1 flex flex-col relative overflow-hidden">
+        <ScrollArea className="flex-1">
+          <div className="pb-48">
             {/* Bot Conversation Section - Only show if there's bot history */}
             {botConversationHistory.length > 0 && (
               <div className="p-4 border-b border-blue-200 bg-blue-50/30">
@@ -95,25 +94,25 @@ export const ChatInterface = ({
               botConversationHistory={[]} // Don't pass bot history to MessageList anymore since we have separate section
             />
           </div>
+        </ScrollArea>
 
-          {/* Fixed Floating Input Section - positioned absolutely and stays in place */}
-          <FloatingInputSection
-            showCannedResponses={showCannedResponses}
-            setShowCannedResponses={setShowCannedResponses}
-            message={message}
-            setMessage={setMessage}
-            isPrivateNoteMode={isPrivateNoteMode}
-            setIsPrivateNoteMode={setIsPrivateNoteMode}
-            onSendMessage={handleSendMessage}
-            onFileUpload={handleFileUpload}
-            onImageUpload={handleImageUpload}
-            onCannedResponseSelect={handleCannedResponseSelect}
-          />
+        {/* Fixed Floating Input Section - positioned absolutely and stays in place */}
+        <FloatingInputSection
+          showCannedResponses={showCannedResponses}
+          setShowCannedResponses={setShowCannedResponses}
+          message={message}
+          setMessage={setMessage}
+          isPrivateNoteMode={isPrivateNoteMode}
+          setIsPrivateNoteMode={setIsPrivateNoteMode}
+          onSendMessage={handleSendMessage}
+          onFileUpload={handleFileUpload}
+          onImageUpload={handleImageUpload}
+          onCannedResponseSelect={handleCannedResponseSelect}
+        />
 
-          {/* Quick Responses - Fixed position within chat interface */}
-          <div className="absolute bottom-52 right-6 z-50">
-            <QuickResponses responses={quickResponses} onResponseSelect={handleQuickResponse} />
-          </div>
+        {/* Quick Responses - Fixed position within chat interface */}
+        <div className="absolute bottom-52 right-6 z-50">
+          <QuickResponses responses={quickResponses} onResponseSelect={handleQuickResponse} />
         </div>
       </div>
     </div>
