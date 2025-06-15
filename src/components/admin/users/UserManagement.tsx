@@ -1,25 +1,18 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { AddUserDialog } from './AddUserDialog';
 import { 
   Plus, 
   Search, 
-  Filter, 
   Edit, 
   Trash2, 
-  Mail, 
-  Phone, 
-  Calendar,
   Users,
   UserCheck,
   UserX,
@@ -53,6 +46,7 @@ export const UserManagement = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [isAddUserOpen, setIsAddUserOpen] = useState(false);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -142,10 +136,11 @@ export const UserManagement = () => {
   }, [users, searchTerm, roleFilter, statusFilter]);
 
   const handleCreateUser = () => {
-    toast({
-      title: "Create User",
-      description: "User creation form would open here.",
-    });
+    setIsAddUserOpen(true);
+  };
+
+  const handleUserAdded = (newUser: User) => {
+    setUsers(prev => [...prev, newUser]);
   };
 
   const handleEditUser = (user: User) => {
@@ -400,6 +395,12 @@ export const UserManagement = () => {
           </TableBody>
         </Table>
       </Card>
+
+      <AddUserDialog
+        open={isAddUserOpen}
+        onOpenChange={setIsAddUserOpen}
+        onUserAdded={handleUserAdded}
+      />
     </div>
   );
 };

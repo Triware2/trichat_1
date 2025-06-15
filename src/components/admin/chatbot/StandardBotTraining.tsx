@@ -7,6 +7,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ConversationFlowBuilder } from './components/ConversationFlowBuilder';
+import { AdvancedConditionsBuilder } from './components/AdvancedConditionsBuilder';
+import { RuleTestingInterface } from './components/RuleTestingInterface';
 import { 
   Plus, 
   Trash2, 
@@ -18,11 +21,9 @@ import {
   Settings,
   Brain,
   Workflow,
-  TestTube,
-  ArrowRight,
-  ArrowDown
+  TestTube
 } from 'lucide-react';
-import { BotRule, ConversationFlow, FlowStep } from './types';
+import { BotRule } from './types';
 
 interface StandardBotTrainingProps {
   selectedBotId?: string | null;
@@ -31,7 +32,6 @@ interface StandardBotTrainingProps {
 export const StandardBotTraining = ({ selectedBotId }: StandardBotTrainingProps) => {
   const [activeBot, setActiveBot] = useState('');
   const [rules, setRules] = useState<BotRule[]>([]);
-  const [flows, setFlows] = useState<ConversationFlow[]>([]);
   const [newRule, setNewRule] = useState<Partial<BotRule>>({
     trigger: '',
     response: '',
@@ -360,82 +360,17 @@ export const StandardBotTraining = ({ selectedBotId }: StandardBotTrainingProps)
 
           {/* Flows Tab */}
           <TabsContent value="flows" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Conversation Flows</CardTitle>
-                <p className="text-sm text-gray-600">Design multi-step conversations for complex scenarios</p>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  {mockFlows.map(flow => (
-                    <div key={flow.id} className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex justify-between items-center mb-4">
-                        <h3 className="font-medium">{flow.name}</h3>
-                        <Badge className={flow.is_active ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}>
-                          {flow.is_active ? 'Active' : 'Inactive'}
-                        </Badge>
-                      </div>
-                      <div className="space-y-3">
-                        {flow.steps.map((step, index) => (
-                          <div key={step.id} className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-medium">
-                              {index + 1}
-                            </div>
-                            <div className="flex-1 p-3 bg-gray-50 rounded-lg">
-                              <div className="flex items-center gap-2 mb-1">
-                                <Badge variant="outline" className="text-xs">{step.type}</Badge>
-                              </div>
-                              <p className="text-sm">{step.content}</p>
-                            </div>
-                            {index < flow.steps.length - 1 && (
-                              <ArrowDown className="w-4 h-4 text-gray-400" />
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <Button className="mt-4 bg-blue-600 hover:bg-blue-700">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create New Flow
-                </Button>
-              </CardContent>
-            </Card>
+            <ConversationFlowBuilder />
           </TabsContent>
 
           {/* Conditions Tab */}
           <TabsContent value="conditions" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Advanced Condition Builder</CardTitle>
-                <p className="text-sm text-gray-600">Create complex conditional logic for your rules</p>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-8 text-gray-500">
-                  <Brain className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                  <p>Advanced condition builder coming soon...</p>
-                  <p className="text-sm">Build complex IF-THEN-ELSE logic for sophisticated bot responses</p>
-                </div>
-              </CardContent>
-            </Card>
+            <AdvancedConditionsBuilder />
           </TabsContent>
 
           {/* Testing Tab */}
           <TabsContent value="testing" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Rule Testing Interface</CardTitle>
-                <p className="text-sm text-gray-600">Test your rules with sample inputs</p>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-8 text-gray-500">
-                  <TestTube className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                  <p>Rule testing interface coming soon...</p>
-                  <p className="text-sm">Test how your bot responds to different user inputs</p>
-                </div>
-              </CardContent>
-            </Card>
+            <RuleTestingInterface />
           </TabsContent>
         </Tabs>
       )}

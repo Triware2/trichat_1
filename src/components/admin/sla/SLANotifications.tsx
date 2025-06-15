@@ -1,12 +1,11 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { CreateTemplateDialog } from './CreateTemplateDialog';
 import { 
   Select,
   SelectContent,
@@ -26,7 +25,6 @@ import {
   Bell, 
   Mail, 
   Smartphone, 
-  Users,
   Settings,
   Plus,
   Edit,
@@ -35,8 +33,9 @@ import {
 
 export const SLANotifications = () => {
   const [selectedTab, setSelectedTab] = useState('templates');
+  const [isCreateTemplateOpen, setIsCreateTemplateOpen] = useState(false);
 
-  const notificationTemplates = [
+  const [notificationTemplates, setNotificationTemplates] = useState([
     {
       id: '1',
       name: 'SLA Breach Alert - Agent',
@@ -64,7 +63,15 @@ export const SLANotifications = () => {
       isActive: true,
       template: 'Case #{case_id} has been escalated due to SLA breach.'
     }
-  ];
+  ]);
+
+  const handleCreateTemplate = () => {
+    setIsCreateTemplateOpen(true);
+  };
+
+  const handleTemplateCreated = (newTemplate: any) => {
+    setNotificationTemplates([...notificationTemplates, newTemplate]);
+  };
 
   const notificationSettings = [
     {
@@ -124,7 +131,7 @@ export const SLANotifications = () => {
             Configure notification templates and delivery settings for SLA events
           </p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700">
+        <Button onClick={handleCreateTemplate} className="bg-blue-600 hover:bg-blue-700">
           <Plus className="w-4 h-4 mr-2" />
           Create Template
         </Button>
@@ -382,6 +389,12 @@ export const SLANotifications = () => {
           </Card>
         </div>
       )}
+
+      <CreateTemplateDialog
+        open={isCreateTemplateOpen}
+        onOpenChange={setIsCreateTemplateOpen}
+        onTemplateCreated={handleTemplateCreated}
+      />
     </div>
   );
 };
