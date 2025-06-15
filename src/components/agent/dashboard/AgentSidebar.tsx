@@ -45,18 +45,11 @@ export const AgentSidebar = ({ todayPerformance, activeTab = 'dashboard', onTabC
       {/* Header Section with Stats */}
       <SidebarHeader className="p-6 border-b border-slate-200/60 bg-white/80 backdrop-blur-sm group-data-[collapsible=icon]:p-2">
         <div className="space-y-4 group-data-[collapsible=icon]:space-y-2">
-          {/* Hamburger Menu Button - Always Visible at the very top */}
-          <div className="flex items-center justify-start mb-4">
-            <SidebarTrigger className="h-12 w-12 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 border-2 border-slate-400 bg-white shadow-lg rounded-lg">
-              <Menu className="h-6 w-6 text-slate-700" />
-            </SidebarTrigger>
-          </div>
-
           {/* Agent Badge - Hidden when collapsed */}
           <div className="flex items-center space-x-3 group-data-[collapsible=icon]:hidden">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
-              <Activity className="w-5 h-5 text-white" />
-            </div>
+            <SidebarTrigger className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
+              <Menu className="w-5 h-5 text-white" />
+            </SidebarTrigger>
             <div>
               <h3 className="font-semibold text-slate-800 text-lg">Agent Hub</h3>
               <p className="text-xs text-slate-500 font-medium">Performance Dashboard</p>
@@ -102,9 +95,9 @@ export const AgentSidebar = ({ todayPerformance, activeTab = 'dashboard', onTabC
 
           {/* Collapsed state performance indicator */}
           <div className="hidden group-data-[collapsible=icon]:block">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg mx-auto">
-              <Activity className="w-4 h-4 text-white" />
-            </div>
+            <SidebarTrigger className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg mx-auto">
+              <Menu className="w-4 h-4 text-white" />
+            </SidebarTrigger>
           </div>
         </div>
       </SidebarHeader>
