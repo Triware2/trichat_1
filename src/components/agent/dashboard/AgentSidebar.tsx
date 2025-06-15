@@ -1,5 +1,5 @@
 
-import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
+import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { 
   BarChart3, 
@@ -11,7 +11,8 @@ import {
   Clock,
   Eye,
   TrendingUp,
-  Activity
+  Activity,
+  Menu
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -41,12 +42,17 @@ export const AgentSidebar = ({ todayPerformance, activeTab = 'dashboard', onTabC
   const isActive = (tabValue: string) => activeTab === tabValue;
 
   return (
-    <Sidebar className="border-r-0 bg-gradient-to-b from-slate-50 to-white shadow-xl">
+    <Sidebar className="border-r-0 bg-gradient-to-b from-slate-50 to-white shadow-xl" collapsible="icon">
       {/* Header Section with Stats */}
-      <SidebarHeader className="p-6 border-b border-slate-200/60 bg-white/80 backdrop-blur-sm">
-        <div className="space-y-4">
-          {/* Agent Badge */}
-          <div className="flex items-center space-x-3">
+      <SidebarHeader className="p-6 border-b border-slate-200/60 bg-white/80 backdrop-blur-sm group-data-[collapsible=icon]:p-2">
+        <div className="space-y-4 group-data-[collapsible=icon]:space-y-2">
+          {/* Sidebar Toggle */}
+          <div className="flex items-center justify-between">
+            <SidebarTrigger className="h-8 w-8 hover:bg-slate-100" />
+          </div>
+
+          {/* Agent Badge - Hidden when collapsed */}
+          <div className="flex items-center space-x-3 group-data-[collapsible=icon]:hidden">
             <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
               <Activity className="w-5 h-5 text-white" />
             </div>
@@ -56,8 +62,8 @@ export const AgentSidebar = ({ todayPerformance, activeTab = 'dashboard', onTabC
             </div>
           </div>
 
-          {/* Performance Stats */}
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100/50">
+          {/* Performance Stats - Hidden when collapsed */}
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100/50 group-data-[collapsible=icon]:hidden">
             <h4 className="text-sm font-semibold text-slate-700 mb-3 flex items-center">
               <TrendingUp className="w-4 h-4 mr-2 text-blue-600" />
               Today's Performance
@@ -92,134 +98,165 @@ export const AgentSidebar = ({ todayPerformance, activeTab = 'dashboard', onTabC
               </div>
             </div>
           </div>
+
+          {/* Collapsed state performance indicator */}
+          <div className="hidden group-data-[collapsible=icon]:block">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg mx-auto">
+              <Activity className="w-4 h-4 text-white" />
+            </div>
+          </div>
         </div>
       </SidebarHeader>
       
       {/* Navigation Content */}
-      <SidebarContent className="p-4 space-y-2">
+      <SidebarContent className="p-4 space-y-2 group-data-[collapsible=icon]:p-2">
         <SidebarMenu className="space-y-1">
           {/* Dashboard */}
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton 
+              asChild
+              isActive={isActive('dashboard')}
+              tooltip="Dashboard"
+            >
               <Button 
                 variant={getButtonVariant('dashboard')}
-                className={`w-full justify-start h-12 rounded-xl transition-all duration-200 ${
+                className={`w-full justify-start h-12 rounded-xl transition-all duration-200 group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:justify-center ${
                   isActive('dashboard') 
                     ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25 scale-[1.02]' 
                     : 'hover:bg-slate-100 hover:scale-[1.01] text-slate-600 hover:text-slate-800'
                 }`}
                 onClick={() => handleTabClick('dashboard')}
               >
-                <BarChart3 className={`w-5 h-5 mr-3 ${isActive('dashboard') ? 'text-white' : 'text-slate-500'}`} />
-                <span className="font-medium">Dashboard</span>
-                {isActive('dashboard') && <div className="ml-auto w-2 h-2 bg-white rounded-full"></div>}
+                <BarChart3 className={`w-5 h-5 group-data-[collapsible=icon]:mr-0 mr-3 ${isActive('dashboard') ? 'text-white' : 'text-slate-500'}`} />
+                <span className="font-medium group-data-[collapsible=icon]:hidden">Dashboard</span>
+                {isActive('dashboard') && <div className="ml-auto w-2 h-2 bg-white rounded-full group-data-[collapsible=icon]:hidden"></div>}
               </Button>
             </SidebarMenuButton>
           </SidebarMenuItem>
           
           {/* Active Chat */}
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton 
+              asChild
+              isActive={isActive('chat')}
+              tooltip="Active Chat"
+            >
               <Button 
                 variant={getButtonVariant('chat')}
-                className={`w-full justify-start h-12 rounded-xl transition-all duration-200 ${
+                className={`w-full justify-start h-12 rounded-xl transition-all duration-200 group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:justify-center ${
                   isActive('chat') 
                     ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/25 scale-[1.02]' 
                     : 'hover:bg-slate-100 hover:scale-[1.01] text-slate-600 hover:text-slate-800'
                 }`}
                 onClick={() => handleTabClick('chat')}
               >
-                <MessageSquare className={`w-5 h-5 mr-3 ${isActive('chat') ? 'text-white' : 'text-slate-500'}`} />
-                <span className="font-medium">Active Chat</span>
-                {isActive('chat') && <div className="ml-auto w-2 h-2 bg-white rounded-full"></div>}
+                <MessageSquare className={`w-5 h-5 group-data-[collapsible=icon]:mr-0 mr-3 ${isActive('chat') ? 'text-white' : 'text-slate-500'}`} />
+                <span className="font-medium group-data-[collapsible=icon]:hidden">Active Chat</span>
+                {isActive('chat') && <div className="ml-auto w-2 h-2 bg-white rounded-full group-data-[collapsible=icon]:hidden"></div>}
               </Button>
             </SidebarMenuButton>
           </SidebarMenuItem>
           
           {/* All Chats */}
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton 
+              asChild
+              isActive={isActive('all-chats')}
+              tooltip="All Chats"
+            >
               <Button 
                 variant={getButtonVariant('all-chats')}
-                className={`w-full justify-start h-12 rounded-xl transition-all duration-200 ${
+                className={`w-full justify-start h-12 rounded-xl transition-all duration-200 group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:justify-center ${
                   isActive('all-chats') 
                     ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg shadow-purple-500/25 scale-[1.02]' 
                     : 'hover:bg-slate-100 hover:scale-[1.01] text-slate-600 hover:text-slate-800'
                 }`}
                 onClick={() => handleTabClick('all-chats')}
               >
-                <MessageSquare className={`w-5 h-5 mr-3 ${isActive('all-chats') ? 'text-white' : 'text-slate-500'}`} />
-                <span className="font-medium">All Chats</span>
-                {isActive('all-chats') && <div className="ml-auto w-2 h-2 bg-white rounded-full"></div>}
+                <MessageSquare className={`w-5 h-5 group-data-[collapsible=icon]:mr-0 mr-3 ${isActive('all-chats') ? 'text-white' : 'text-slate-500'}`} />
+                <span className="font-medium group-data-[collapsible=icon]:hidden">All Chats</span>
+                {isActive('all-chats') && <div className="ml-auto w-2 h-2 bg-white rounded-full group-data-[collapsible=icon]:hidden"></div>}
               </Button>
             </SidebarMenuButton>
           </SidebarMenuItem>
           
           {/* Contacts */}
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton 
+              asChild
+              isActive={isActive('contacts')}
+              tooltip="Contacts"
+            >
               <Button 
                 variant={getButtonVariant('contacts')}
-                className={`w-full justify-start h-12 rounded-xl transition-all duration-200 ${
+                className={`w-full justify-start h-12 rounded-xl transition-all duration-200 group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:justify-center ${
                   isActive('contacts') 
                     ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg shadow-orange-500/25 scale-[1.02]' 
                     : 'hover:bg-slate-100 hover:scale-[1.01] text-slate-600 hover:text-slate-800'
                 }`}
                 onClick={() => handleTabClick('contacts')}
               >
-                <Users className={`w-5 h-5 mr-3 ${isActive('contacts') ? 'text-white' : 'text-slate-500'}`} />
-                <span className="font-medium">Contacts</span>
-                {isActive('contacts') && <div className="ml-auto w-2 h-2 bg-white rounded-full"></div>}
+                <Users className={`w-5 h-5 group-data-[collapsible=icon]:mr-0 mr-3 ${isActive('contacts') ? 'text-white' : 'text-slate-500'}`} />
+                <span className="font-medium group-data-[collapsible=icon]:hidden">Contacts</span>
+                {isActive('contacts') && <div className="ml-auto w-2 h-2 bg-white rounded-full group-data-[collapsible=icon]:hidden"></div>}
               </Button>
             </SidebarMenuButton>
           </SidebarMenuItem>
           
           {/* Customer Insights */}
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton 
+              asChild
+              isActive={isActive('customer-insights')}
+              tooltip="Customer 360°"
+            >
               <Button 
                 variant={getButtonVariant('customer-insights')}
-                className={`w-full justify-start h-12 rounded-xl transition-all duration-200 ${
+                className={`w-full justify-start h-12 rounded-xl transition-all duration-200 group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:justify-center ${
                   isActive('customer-insights') 
                     ? 'bg-gradient-to-r from-cyan-500 to-cyan-600 text-white shadow-lg shadow-cyan-500/25 scale-[1.02]' 
                     : 'hover:bg-slate-100 hover:scale-[1.01] text-slate-600 hover:text-slate-800'
                 }`}
                 onClick={() => handleTabClick('customer-insights')}
               >
-                <Eye className={`w-5 h-5 mr-3 ${isActive('customer-insights') ? 'text-white' : 'text-slate-500'}`} />
-                <span className="font-medium">Customer 360°</span>
-                {isActive('customer-insights') && <div className="ml-auto w-2 h-2 bg-white rounded-full"></div>}
+                <Eye className={`w-5 h-5 group-data-[collapsible=icon]:mr-0 mr-3 ${isActive('customer-insights') ? 'text-white' : 'text-slate-500'}`} />
+                <span className="font-medium group-data-[collapsible=icon]:hidden">Customer 360°</span>
+                {isActive('customer-insights') && <div className="ml-auto w-2 h-2 bg-white rounded-full group-data-[collapsible=icon]:hidden"></div>}
               </Button>
             </SidebarMenuButton>
           </SidebarMenuItem>
 
           {/* Divider */}
-          <div className="my-4">
+          <div className="my-4 group-data-[collapsible=icon]:my-2">
             <div className="h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent"></div>
           </div>
           
           {/* Settings */}
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton 
+              asChild
+              isActive={isActive('settings')}
+              tooltip="Settings"
+            >
               <Button 
                 variant={getButtonVariant('settings')}
-                className={`w-full justify-start h-12 rounded-xl transition-all duration-200 ${
+                className={`w-full justify-start h-12 rounded-xl transition-all duration-200 group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:justify-center ${
                   isActive('settings') 
                     ? 'bg-gradient-to-r from-slate-500 to-slate-600 text-white shadow-lg shadow-slate-500/25 scale-[1.02]' 
                     : 'hover:bg-slate-100 hover:scale-[1.01] text-slate-600 hover:text-slate-800'
                 }`}
                 onClick={() => handleTabClick('settings')}
               >
-                <Settings className={`w-5 h-5 mr-3 ${isActive('settings') ? 'text-white' : 'text-slate-500'}`} />
-                <span className="font-medium">Settings</span>
-                {isActive('settings') && <div className="ml-auto w-2 h-2 bg-white rounded-full"></div>}
+                <Settings className={`w-5 h-5 group-data-[collapsible=icon]:mr-0 mr-3 ${isActive('settings') ? 'text-white' : 'text-slate-500'}`} />
+                <span className="font-medium group-data-[collapsible=icon]:hidden">Settings</span>
+                {isActive('settings') && <div className="ml-auto w-2 h-2 bg-white rounded-full group-data-[collapsible=icon]:hidden"></div>}
               </Button>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
 
-        {/* Bottom Status */}
-        <div className="mt-8 pt-4 border-t border-slate-200/60">
+        {/* Bottom Status - Hidden when collapsed */}
+        <div className="mt-8 pt-4 border-t border-slate-200/60 group-data-[collapsible=icon]:hidden">
           <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-3 border border-green-100/50">
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
