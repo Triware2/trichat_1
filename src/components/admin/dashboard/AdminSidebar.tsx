@@ -40,14 +40,16 @@ export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
   ];
 
   return (
-    <div className="w-full h-full bg-white border-r border-gray-200 shadow-sm">
-      <div className="p-3 lg:p-4 border-b border-gray-200 bg-gradient-to-r from-red-50 to-orange-50">
-        <h2 className="text-base lg:text-lg font-semibold text-gray-900">Admin Panel</h2>
-        <p className="text-xs text-gray-600 mt-0.5">System Management</p>
+    <div className="w-full h-full bg-white border-r border-neutral-200/60">
+      <div className="px-6 py-6 border-b border-neutral-100">
+        <div className="space-y-1">
+          <h2 className="text-lg font-semibold text-neutral-900 tracking-tight">Admin Panel</h2>
+          <p className="text-sm text-neutral-500 font-normal">System Management</p>
+        </div>
       </div>
       
-      <nav className="flex-1 overflow-y-auto">
-        <div className="p-2 space-y-0.5">
+      <nav className="flex-1 overflow-y-auto py-4">
+        <div className="px-3 space-y-1">
           {menuItems.map((item) => {
             const IconComponent = item.icon;
             const isActive = activeTab === item.id;
@@ -57,33 +59,23 @@ export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
                 key={item.id}
                 variant="ghost"
                 className={`
-                  w-full justify-start h-auto p-2.5 lg:p-3 text-left transition-all duration-200 rounded-lg
+                  w-full justify-start h-10 px-3 text-left transition-all duration-200 rounded-lg font-normal
                   ${isActive 
-                    ? 'bg-gradient-to-r from-red-50 to-red-100 text-red-700 border border-red-200 shadow-sm' 
-                    : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900 hover:shadow-sm'
+                    ? 'bg-blue-50 text-blue-700 hover:bg-blue-50' 
+                    : 'text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900'
                   }
                 `}
                 onClick={() => onTabChange(item.id)}
               >
-                <div className="flex items-center space-x-2.5 w-full">
-                  <div className={`
-                    p-1.5 rounded-lg transition-colors
-                    ${isActive 
-                      ? 'bg-red-100 text-red-600' 
-                      : 'bg-gray-100 text-gray-500 group-hover:bg-gray-200'
-                    }
-                  `}>
-                    <IconComponent className="w-4 h-4" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm truncate">{item.label}</div>
-                  </div>
+                <div className="flex items-center space-x-3 w-full min-w-0">
+                  <IconComponent className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-blue-600' : 'text-neutral-500'}`} />
+                  <span className="text-sm font-medium truncate">{item.label}</span>
                   {item.badge && (
                     <Badge 
                       variant="secondary" 
-                      className={`text-xs px-1.5 py-0.5 ${
+                      className={`ml-auto text-xs px-2 py-0.5 font-medium ${
                         item.badge === 'New' 
-                          ? 'bg-green-100 text-green-700 border-green-200' 
+                          ? 'bg-emerald-100 text-emerald-700 border-emerald-200' 
                           : 'bg-blue-100 text-blue-700 border-blue-200'
                       }`}
                     >
