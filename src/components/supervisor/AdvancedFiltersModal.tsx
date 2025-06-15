@@ -374,7 +374,7 @@ export const AdvancedFiltersModal = ({ open, onOpenChange, onApplyFilters }: Adv
                   <SelectValue placeholder="Select range" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Any time</SelectItem>
+                  <SelectItem value="any-time">Any time</SelectItem>
                   {activityRanges.map((range) => (
                     <SelectItem key={range} value={range}>
                       Within {range}
