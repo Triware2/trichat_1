@@ -64,7 +64,7 @@ export const ChatInterface = ({
   ];
 
   return (
-    <div className="h-full flex bg-white flex-col">
+    <div className="h-full flex bg-white flex-col overflow-hidden">
       {/* Fixed Header */}
       <div className="flex-shrink-0 bg-white border-b border-slate-200 z-10">
         <ChatHeader 

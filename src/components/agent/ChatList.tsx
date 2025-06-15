@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -49,7 +50,7 @@ export const ChatList = ({ chats, selectedChat, onChatSelect, onFilter }: ChatLi
   };
 
   return (
-    <div className="h-full flex flex-col bg-white">
+    <div className="h-full flex flex-col bg-white overflow-hidden">
       {/* Header - Fixed */}
       <div className="p-4 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white flex-shrink-0">
         <div className="flex items-center justify-between mb-3">
@@ -73,8 +74,8 @@ export const ChatList = ({ chats, selectedChat, onChatSelect, onFilter }: ChatLi
         </div>
       </div>
 
-      {/* Chat List - Scrollable content */}
-      <div className="flex-1">
+      {/* Chat List - Scrollable content with its own scroll */}
+      <div className="flex-1 overflow-y-auto">
         {filteredChats.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full p-6 text-center">
             <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-3">

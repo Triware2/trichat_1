@@ -79,10 +79,10 @@ export const ChatContent = ({
   ] : [];
 
   return (
-    <div className="h-full flex">
+    <div className="h-full flex overflow-hidden">
       {/* Left Section - Conversations List with Independent Scroll */}
-      <div className="w-80 border-r border-slate-200 bg-white flex-shrink-0 flex flex-col">
-        <ScrollArea className="flex-1">
+      <div className="w-80 border-r border-slate-200 bg-white flex-shrink-0 h-full overflow-hidden">
+        <ScrollArea className="h-full">
           <ChatList 
             chats={chats}
             selectedChat={selectedChat}
@@ -93,7 +93,7 @@ export const ChatContent = ({
       </div>
       
       {/* Middle Section - Chat Interface with Independent Scroll */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 h-full overflow-hidden">
         <ChatInterface
           customerName={getSelectedCustomerName()}
           customerStatus="Online"
@@ -104,8 +104,8 @@ export const ChatContent = ({
       </div>
       
       {/* Right Section - Customer Info with Independent Scroll */}
-      <div className="w-80 border-l border-slate-200 bg-slate-50 flex-shrink-0 flex flex-col">
-        <ScrollArea className="flex-1">
+      <div className="w-80 border-l border-slate-200 bg-slate-50 flex-shrink-0 h-full overflow-hidden">
+        <ScrollArea className="h-full">
           <div className="p-3 space-y-4">
             <CustomerComplaintsPreview 
               chatId={selectedChat}
