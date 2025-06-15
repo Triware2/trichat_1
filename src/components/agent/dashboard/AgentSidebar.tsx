@@ -1,4 +1,3 @@
-
 import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { 
@@ -46,18 +45,17 @@ export const AgentSidebar = ({ todayPerformance, activeTab = 'dashboard', onTabC
       {/* Header Section with Stats */}
       <SidebarHeader className="p-6 border-b border-slate-200/60 bg-white/80 backdrop-blur-sm group-data-[collapsible=icon]:p-2">
         <div className="space-y-4 group-data-[collapsible=icon]:space-y-2">
-          {/* Hamburger Menu Button - Always Visible */}
-          <div className="flex items-center justify-between">
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-10 w-10 hover:bg-slate-100 transition-colors duration-200 border border-slate-300 bg-white shadow-sm"
-              asChild
-            >
-              <SidebarTrigger>
-                <Menu className="h-5 w-5 text-slate-600" />
-              </SidebarTrigger>
-            </Button>
+          {/* Hamburger Menu Button - Always Visible at the very top */}
+          <div className="flex items-center justify-start mb-4">
+            <SidebarTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-12 w-12 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 border-2 border-slate-400 bg-white shadow-lg rounded-lg"
+              >
+                <Menu className="h-6 w-6 text-slate-700" />
+              </Button>
+            </SidebarTrigger>
           </div>
 
           {/* Agent Badge - Hidden when collapsed */}
