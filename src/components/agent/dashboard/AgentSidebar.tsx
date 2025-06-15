@@ -46,9 +46,11 @@ export const AgentSidebar = ({ todayPerformance, activeTab = 'dashboard', onTabC
       {/* Header Section with Stats */}
       <SidebarHeader className="p-6 border-b border-slate-200/60 bg-white/80 backdrop-blur-sm group-data-[collapsible=icon]:p-2">
         <div className="space-y-4 group-data-[collapsible=icon]:space-y-2">
-          {/* Sidebar Toggle */}
+          {/* Sidebar Toggle - Always Visible */}
           <div className="flex items-center justify-between">
-            <SidebarTrigger className="h-8 w-8 hover:bg-slate-100" />
+            <SidebarTrigger className="h-8 w-8 hover:bg-slate-100 rounded-md p-1 transition-colors duration-200">
+              <Menu className="h-5 w-5" />
+            </SidebarTrigger>
           </div>
 
           {/* Agent Badge - Hidden when collapsed */}
