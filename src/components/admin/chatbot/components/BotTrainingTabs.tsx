@@ -1,14 +1,6 @@
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Bot, 
-  Brain, 
-  Settings, 
-  Upload,
-  TestTube,
-  BarChart3,
-  Shield
-} from 'lucide-react';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
+import { HorizontalTabs } from '../../dashboard/HorizontalTabs';
 import { ChatbotList } from '../ChatbotList';
 import { StandardBotTraining } from '../StandardBotTraining';
 import { SOPUploadManager } from '../SOPUploadManager';
@@ -32,90 +24,52 @@ export const BotTrainingTabs = ({
   onOpenTraining, 
   onOpenConfiguration 
 }: BotTrainingTabsProps) => {
+  const tabs = [
+    { id: 'overview', label: 'Overview' },
+    { id: 'training', label: 'Training' },
+    { id: 'sop-upload', label: 'SOP Upload' },
+    { id: 'llm-settings', label: 'LLM Config' },
+    { id: 'test-chat', label: 'Test Chat' },
+    { id: 'analytics', label: 'Analytics' },
+    { id: 'security', label: 'Security' }
+  ];
+
   return (
-    <Tabs value={activeTab} onValueChange={onTabChange} className="space-y-6">
-      <TabsList className="grid w-full grid-cols-7 bg-white border shadow-sm rounded-xl p-1 h-auto">
-        <TabsTrigger 
-          value="overview" 
-          className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-md font-medium py-3 px-2"
-        >
-          <Bot className="w-4 h-4" />
-          <span className="hidden sm:inline">Overview</span>
-        </TabsTrigger>
-        <TabsTrigger 
-          value="training" 
-          className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-md font-medium py-3 px-2"
-        >
-          <Settings className="w-4 h-4" />
-          <span className="hidden sm:inline">Training</span>
-        </TabsTrigger>
-        <TabsTrigger 
-          value="sop-upload" 
-          className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-md font-medium py-3 px-2"
-        >
-          <Upload className="w-4 h-4" />
-          <span className="hidden sm:inline">SOP Upload</span>
-        </TabsTrigger>
-        <TabsTrigger 
-          value="llm-settings" 
-          className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-md font-medium py-3 px-2"
-        >
-          <Brain className="w-4 h-4" />
-          <span className="hidden sm:inline">LLM Config</span>
-        </TabsTrigger>
-        <TabsTrigger 
-          value="test-chat" 
-          className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-md font-medium py-3 px-2"
-        >
-          <TestTube className="w-4 h-4" />
-          <span className="hidden sm:inline">Test Chat</span>
-        </TabsTrigger>
-        <TabsTrigger 
-          value="analytics" 
-          className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-md font-medium py-3 px-2"
-        >
-          <BarChart3 className="w-4 h-4" />
-          <span className="hidden sm:inline">Analytics</span>
-        </TabsTrigger>
-        <TabsTrigger 
-          value="security" 
-          className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-md font-medium py-3 px-2"
-        >
-          <Shield className="w-4 h-4" />
-          <span className="hidden sm:inline">Security</span>
-        </TabsTrigger>
-      </TabsList>
+    <Tabs value={activeTab} onValueChange={onTabChange} className="space-y-0">
+      <HorizontalTabs tabs={tabs} activeTab={activeTab} onTabChange={onTabChange} />
 
-      <TabsContent value="overview">
-        <ChatbotList 
-          onOpenTraining={onOpenTraining}
-          onOpenConfiguration={onOpenConfiguration}
-        />
-      </TabsContent>
+      <div className="p-6">
+        <TabsContent value="overview" className="mt-0">
+          <ChatbotList 
+            onOpenTraining={onOpenTraining}
+            onOpenConfiguration={onOpenConfiguration}
+          />
+        </TabsContent>
 
-      <TabsContent value="training">
-        <StandardBotTraining selectedBotId={selectedBotId} />
-      </TabsContent>
+        <TabsContent value="training" className="mt-0">
+          <StandardBotTraining selectedBotId={selectedBotId} />
+        </TabsContent>
 
-      <TabsContent value="sop-upload">
-        <SOPUploadManager selectedBotId={selectedBotId} />
-      </TabsContent>
+        <TabsContent value="sop-upload" className="mt-0">
+          <SOPUploadManager selectedBotId={selectedBotId} />
+        </TabsContent>
 
-      <TabsContent value="llm-settings">
-        <LLMSettingsPanel selectedBotId={selectedBotId} />
-      </TabsContent>
+        <TabsContent value="llm-settings" className="mt-0">
+          <LLMSettingsPanel selectedBotId={selectedBotId} />
+        </TabsContent>
 
-      <TabsContent value="test-chat">
-        <TestChatInterface />
-      </TabsContent>
+        <TabsContent value="test-chat" className="mt-0">
+          <TestChatInterface />
+        </TabsContent>
 
-      <TabsContent value="analytics">
-        <ChatbotAnalytics />
-      </TabsContent>
+        <TabsContent value="analytics" className="mt-0">
+          <ChatbotAnalytics />
+        </TabsContent>
 
-      <TabsContent value="security">
-        <SecurityPanel />
-      </TabsContent>
+        <TabsContent value="security" className="mt-0">
+          <SecurityPanel />
+        </TabsContent>
+      </div>
     </Tabs>
   );
 };

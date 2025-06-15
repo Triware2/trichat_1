@@ -1,17 +1,16 @@
-
 import { useState } from 'react';
 import { NavigationHeader } from '@/components/NavigationHeader';
 import { UserManagement } from '@/components/admin/UserManagement';
 import { SystemSettings } from '@/components/admin/SystemSettings';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 import { ChatWidgetGenerator } from '@/components/admin/ChatWidgetGenerator';
-import { AccessManagement } from '@/components/admin/access/AccessManagement';
+import { AccessManagementTabs } from '@/components/admin/access/AccessManagementTabs';
 import { BotTraining } from '@/components/admin/chatbot/BotTraining';
 import { ApiKeyManagement } from '@/components/admin/api/ApiKeyManagement';
 import { DashboardHeader } from '@/components/admin/dashboard/DashboardHeader';
 import { DashboardOverview } from '@/components/admin/dashboard/DashboardOverview';
 import { DataSourcesManagement } from '@/components/admin/datasources/DataSourcesManagement';
-import { ChatManagement } from '@/components/admin/chat/ChatManagement';
+import { ChatManagementTabs } from '@/components/admin/chat/ChatManagementTabs';
 import { SLAManagement } from '@/components/admin/sla/SLAManagement';
 import { CSATManagement } from '@/components/admin/csat/CSATManagement';
 import { CustomizationStudio } from '@/components/admin/customization/CustomizationStudio';
@@ -38,9 +37,7 @@ const AdminDashboard = () => {
       case 'access':
         return (
           <div className="min-h-screen bg-gray-50/30">
-            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-              <AccessManagement />
-            </div>
+            <AccessManagementTabs />
           </div>
         );
       case 'chatbot':
@@ -90,9 +87,7 @@ const AdminDashboard = () => {
       case 'chat-management':
         return (
           <div className="min-h-screen bg-gray-50/30">
-            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-              <ChatManagement />
-            </div>
+            <ChatManagementTabs />
           </div>
         );
       case 'customization':
@@ -150,7 +145,7 @@ const AdminDashboard = () => {
           transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
           lg:translate-x-0 transition-transform duration-300 ease-in-out
           bg-white shadow-lg lg:shadow-none
-          ${isMobileMenuOpen ? 'w-72' : 'w-0'} lg:w-64 xl:w-60 2xl:w-64
+          ${isMobileMenuOpen ? 'w-72' : 'w-0'} lg:w-56 xl:w-52 2xl:w-56
           overflow-hidden lg:overflow-visible
           flex-shrink-0
         `}>

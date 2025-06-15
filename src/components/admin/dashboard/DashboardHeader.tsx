@@ -9,15 +9,9 @@ export const DashboardHeader = () => {
     <div className="bg-white border-b border-gray-200 sticky top-16 z-30 shadow-sm">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-2">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 lg:gap-3">
-          {/* Left side - Title and search */}
+          {/* Left side - Search only */}
           <div className="flex-1 min-w-0">
             <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-3">
-              <div className="min-w-0">
-                <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
-                  Admin
-                </h1>
-              </div>
-              
               {/* Search - responsive sizing */}
               <div className="hidden md:flex flex-1 max-w-md lg:max-w-lg xl:max-w-xl">
                 <div className="relative w-full">
