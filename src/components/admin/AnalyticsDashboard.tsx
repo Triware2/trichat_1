@@ -22,8 +22,10 @@ import {
   MessageSquare, 
   Clock, 
   Star,
-  BarChart3
+  BarChart3,
+  Code
 } from 'lucide-react';
+import { CustomAnalyticsBuilder } from './analytics/CustomAnalyticsBuilder';
 
 export const AnalyticsDashboard = () => {
   const monthlyData = [
@@ -146,6 +148,10 @@ export const AnalyticsDashboard = () => {
                   </TabsTrigger>
                   <TabsTrigger value="agents" className="flex items-center gap-2 px-6 py-4 text-sm font-medium transition-all duration-200 border-b-2 bg-transparent rounded-none whitespace-nowrap border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300 data-[state=active]:bg-blue-50/50 data-[state=active]:text-blue-600 data-[state=active]:border-blue-600 data-[state=active]:shadow-none">
                     Agents
+                  </TabsTrigger>
+                  <TabsTrigger value="custom" className="flex items-center gap-2 px-6 py-4 text-sm font-medium transition-all duration-200 border-b-2 bg-transparent rounded-none whitespace-nowrap border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300 data-[state=active]:bg-blue-50/50 data-[state=active]:text-blue-600 data-[state=active]:border-blue-600 data-[state=active]:shadow-none">
+                    <Code className="w-4 h-4" />
+                    Custom Analytics
                   </TabsTrigger>
                 </div>
               </TabsList>
@@ -333,6 +339,10 @@ export const AnalyticsDashboard = () => {
                     </div>
                   </CardContent>
                 </Card>
+              </TabsContent>
+
+              <TabsContent value="custom" className="mt-0 space-y-6">
+                <CustomAnalyticsBuilder />
               </TabsContent>
             </div>
           </Tabs>
