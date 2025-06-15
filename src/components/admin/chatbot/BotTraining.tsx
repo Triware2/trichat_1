@@ -1,7 +1,6 @@
 
 import { useState, useCallback } from 'react';
 import { ChatbotCreationWizard } from './ChatbotCreationWizard';
-import { BotTrainingHeader } from './components/BotTrainingHeader';
 import { BotStatistics } from './components/BotStatistics';
 import { BotTrainingTabs } from './components/BotTrainingTabs';
 
@@ -45,9 +44,7 @@ export const BotTraining = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       <div className="space-y-8 p-6">
-        <BotTrainingHeader onCreateBot={handleCreateBot} />
-        
-        <BotStatistics stats={stats} />
+        <BotStatistics stats={stats} onCreateBot={handleCreateBot} />
 
         <BotTrainingTabs
           activeTab={activeTab}

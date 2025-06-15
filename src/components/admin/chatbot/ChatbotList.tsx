@@ -10,7 +10,6 @@ import {
   Settings, 
   Play, 
   Pause,
-  MoreHorizontal,
   Zap,
   Database,
   Trash2,
@@ -201,7 +200,7 @@ export const ChatbotList = ({ onOpenTraining, onOpenConfiguration }: ChatbotList
                     </CardTitle>
                     <div className="flex items-center gap-3 mt-2">
                       <Badge variant="outline" className="text-xs bg-white/80 border-blue-200 text-blue-700 font-medium px-3 py-1">
-                        {bot.type === 'llm' ? 'Azure AI Powered' : 'Rule-Based Engine'}
+                        {bot.type === 'llm' ? 'AI-Powered' : 'Rule-Based Engine'}
                       </Badge>
                       {bot.model && (
                         <Badge variant="outline" className="text-xs bg-gradient-to-r from-purple-50 to-indigo-50 text-purple-700 border-purple-200 font-medium px-3 py-1">
@@ -248,7 +247,7 @@ export const ChatbotList = ({ onOpenTraining, onOpenConfiguration }: ChatbotList
                     <div className="p-1.5 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg">
                       <Zap className="w-4 h-4 text-white" />
                     </div>
-                    <span className="text-sm font-semibold text-purple-800">Azure AI Capabilities</span>
+                    <span className="text-sm font-semibold text-purple-800">AI Capabilities</span>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="outline" className="text-xs bg-white/70 border-purple-200 text-purple-700">

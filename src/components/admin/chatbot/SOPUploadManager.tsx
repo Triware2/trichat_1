@@ -153,7 +153,7 @@ export const SOPUploadManager = ({ selectedBotId }: SOPUploadManagerProps) => {
         <div className="flex justify-between items-center">
           <div>
             <h2 className="text-3xl font-semibold text-gray-900 tracking-tight">Knowledge Base Management</h2>
-            <p className="text-blue-600 font-medium mt-2 text-lg">Azure AI Document Intelligence & Training Platform</p>
+            <p className="text-blue-600 font-medium mt-2 text-lg">AI Document Intelligence & Training Platform</p>
           </div>
           <div className="flex gap-3">
             <Button variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50">
@@ -179,7 +179,7 @@ export const SOPUploadManager = ({ selectedBotId }: SOPUploadManagerProps) => {
           <CardContent className="p-6">
             <Select value={activeBot} onValueChange={setActiveBot}>
               <SelectTrigger className="w-full max-w-md border-blue-200 focus:border-blue-400 focus:ring-blue-200">
-                <SelectValue placeholder="Choose an Azure AI-powered assistant" />
+                <SelectValue placeholder="Choose an AI-powered assistant" />
               </SelectTrigger>
               <SelectContent className="bg-white border-blue-200 shadow-xl">
                 {llmBots.map(bot => (
@@ -205,7 +205,7 @@ export const SOPUploadManager = ({ selectedBotId }: SOPUploadManagerProps) => {
                     <p className="font-semibold text-purple-800">
                       Managing: {llmBots.find(b => b.id === activeBot)?.name}
                     </p>
-                    <p className="text-sm text-blue-600">Azure Cognitive Services Integration Active</p>
+                    <p className="text-sm text-blue-600">AI Services Integration Active</p>
                   </div>
                 </div>
                 <div className="flex gap-2 mt-4">
@@ -234,7 +234,7 @@ export const SOPUploadManager = ({ selectedBotId }: SOPUploadManagerProps) => {
                   </div>
                   <div>
                     <CardTitle className="text-xl font-semibold text-gray-900">Document Upload</CardTitle>
-                    <p className="text-blue-600 font-medium mt-1">Azure Document Intelligence Processing</p>
+                    <p className="text-blue-600 font-medium mt-1">AI Document Intelligence Processing</p>
                   </div>
                 </div>
               </CardHeader>
@@ -262,7 +262,7 @@ export const SOPUploadManager = ({ selectedBotId }: SOPUploadManagerProps) => {
                 {isUploading && (
                   <div className="space-y-4 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
                     <div className="flex justify-between text-sm font-medium">
-                      <span className="text-blue-800">Processing with Azure AI...</span>
+                      <span className="text-blue-800">Processing with AI...</span>
                       <span className="text-blue-600">{uploadProgress}%</span>
                     </div>
                     <Progress value={uploadProgress} className="w-full h-3 bg-blue-100" />
@@ -339,7 +339,7 @@ export const SOPUploadManager = ({ selectedBotId }: SOPUploadManagerProps) => {
                     <Brain className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <CardTitle className="text-xl font-semibold text-gray-900">Azure AI Training Status</CardTitle>
+                    <CardTitle className="text-xl font-semibold text-gray-900">AI Training Status</CardTitle>
                     <p className="text-blue-600 font-medium mt-1">Real-time model performance metrics</p>
                   </div>
                 </div>
