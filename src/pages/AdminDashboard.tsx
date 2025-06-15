@@ -17,6 +17,7 @@ import { SLAManagement } from '@/components/admin/sla/SLAManagement';
 import { CSATManagement } from '@/components/admin/csat/CSATManagement';
 import { CustomizationStudio } from '@/components/admin/customization/CustomizationStudio';
 import { AdminSidebar } from '@/components/admin/dashboard/AdminSidebar';
+import { FeatureGuard } from '@/components/FeatureGuard';
 import { Button } from '@/components/ui/button';
 import { Menu, X } from 'lucide-react';
 
@@ -57,72 +58,104 @@ const AdminDashboard = () => {
         return <DashboardOverview />;
       case 'users':
         return (
-          <div className="min-h-screen bg-gray-50/30">
-            <div className="max-w-full mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
-              <UserManagement />
+          <FeatureGuard feature="user_management_basic">
+            <div className="min-h-screen bg-gray-50/30">
+              <div className="max-w-full mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
+                <UserManagement />
+              </div>
             </div>
-          </div>
+          </FeatureGuard>
         );
       case 'access':
         return (
-          <div className="min-h-screen bg-gray-50/30">
-            <AccessManagementTabs />
-          </div>
+          <FeatureGuard feature="user_management_basic">
+            <div className="min-h-screen bg-gray-50/30">
+              <AccessManagementTabs />
+            </div>
+          </FeatureGuard>
         );
       case 'chatbot':
         return (
-          <div className="min-h-screen bg-gray-50/30">
-            <div className="max-w-full mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
-              <BotTraining />
+          <FeatureGuard feature="bot_training">
+            <div className="min-h-screen bg-gray-50/30">
+              <div className="max-w-full mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
+                <BotTraining />
+              </div>
             </div>
-          </div>
+          </FeatureGuard>
         );
       case 'api-keys':
         return (
-          <div className="min-h-screen bg-gray-50/30">
-            <div className="max-w-full mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
-              <ApiKeyManagement />
+          <FeatureGuard feature="api_access">
+            <div className="min-h-screen bg-gray-50/30">
+              <div className="max-w-full mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
+                <ApiKeyManagement />
+              </div>
             </div>
-          </div>
+          </FeatureGuard>
         );
       case 'sla':
         return (
-          <div className="min-h-screen bg-gray-50/30">
-            <div className="max-w-full mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
-              <SLAManagement />
+          <FeatureGuard feature="sla_management">
+            <div className="min-h-screen bg-gray-50/30">
+              <div className="max-w-full mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
+                <SLAManagement />
+              </div>
             </div>
-          </div>
+          </FeatureGuard>
         );
       case 'csat':
         return (
-          <div className="min-h-screen bg-gray-50/30">
-            <div className="max-w-full mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
-              <CSATManagement />
+          <FeatureGuard feature="csat_management">
+            <div className="min-h-screen bg-gray-50/30">
+              <div className="max-w-full mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
+                <CSATManagement />
+              </div>
             </div>
-          </div>
+          </FeatureGuard>
         );
       case 'analytics':
-        return <AnalyticsDashboard />;
+        return (
+          <FeatureGuard feature="advanced_analytics">
+            <AnalyticsDashboard />
+          </FeatureGuard>
+        );
       case 'widget':
-        return <ChatWidgetGenerator />;
+        return (
+          <FeatureGuard feature="widgets">
+            <ChatWidgetGenerator />
+          </FeatureGuard>
+        );
       case 'datasources':
         return (
-          <div className="min-h-screen bg-gray-50/30">
-            <div className="max-w-full mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
-              <DataSourcesManagement />
+          <FeatureGuard feature="data_sources">
+            <div className="min-h-screen bg-gray-50/30">
+              <div className="max-w-full mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
+                <DataSourcesManagement />
+              </div>
             </div>
-          </div>
+          </FeatureGuard>
         );
       case 'chat-management':
         return (
-          <div className="min-h-screen bg-gray-50/30">
-            <ChatManagementTabs />
-          </div>
+          <FeatureGuard feature="chat_management">
+            <div className="min-h-screen bg-gray-50/30">
+              <ChatManagementTabs />
+            </div>
+          </FeatureGuard>
         );
       case 'customization':
-        return <CustomizationStudio />;
+        return (
+          <FeatureGuard feature="customization">
+            <CustomizationStudio />
+          </FeatureGuard>
+        );
       case 'settings':
-        return <SystemSettings />;
+        return (
+          <FeatureGuard feature="system_settings_basic">
+            <SystemSettings />
+          </FeatureGuard>
+        );
       default:
         return <DashboardOverview />;
     }

@@ -30,10 +30,75 @@ const PLAN_FUNCTIONALITY: Record<string, number> = {
   'enterprise': 100
 };
 
+// Define which features are available for each plan
+const PLAN_FEATURES: Record<string, string[]> = {
+  'free': [
+    'basic_chat',
+    'user_management_basic',
+    'basic_reports',
+    'system_settings_basic'
+  ],
+  'growth': [
+    'basic_chat',
+    'user_management_basic',
+    'basic_reports',
+    'system_settings_basic',
+    'canned_responses',
+    'file_sharing',
+    'advanced_routing',
+    'api_access',
+    'chat_management',
+    'widgets'
+  ],
+  'pro': [
+    'basic_chat',
+    'user_management_basic',
+    'basic_reports',
+    'system_settings_basic',
+    'canned_responses',
+    'file_sharing',
+    'advanced_routing',
+    'api_access',
+    'chat_management',
+    'widgets',
+    'custom_fields',
+    'integrations',
+    'advanced_analytics',
+    'priority_support',
+    'sla_management',
+    'csat_management',
+    'data_sources'
+  ],
+  'enterprise': [
+    'basic_chat',
+    'user_management_basic',
+    'basic_reports',
+    'system_settings_basic',
+    'canned_responses',
+    'file_sharing',
+    'advanced_routing',
+    'api_access',
+    'chat_management',
+    'widgets',
+    'custom_fields',
+    'integrations',
+    'advanced_analytics',
+    'priority_support',
+    'sla_management',
+    'csat_management',
+    'data_sources',
+    'customization',
+    'white_labeling',
+    'sso_integration',
+    'advanced_automation',
+    'custom_workflows',
+    'bot_training'
+  ]
+};
+
 export const FeatureAccessProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
   const [planDetails, setPlanDetails] = useState<PlanDetails | null>(null);
-  const [featureCache, setFeatureCache] = useState<Record<string, boolean>>({});
   const [isLoading, setIsLoading] = useState(true);
 
   // Check if this is the platform creator
@@ -74,11 +139,6 @@ export const FeatureAccessProvider = ({ children }: { children: ReactNode }) => 
     // Platform creator has access to everything without limitations
     if (isPlatformCreator) return true;
     
-    // Check cache first
-    if (featureCache[featureKey] !== undefined) {
-      return featureCache[featureKey];
-    }
-
     // For regular users, check plan-based access and trial status
     if (!planDetails) return false;
 
@@ -90,36 +150,13 @@ export const FeatureAccessProvider = ({ children }: { children: ReactNode }) => 
 
     if (!hasActiveAccess) return false;
 
-    // For now, return access based on basic feature mapping
-    // This will be enhanced by the database function
-    return true;
-  };
-
-  const checkFeatureAccess = async (featureKey: string): Promise<boolean> => {
-    if (!user) return false;
-
-    // Platform creator has unlimited access
-    if (isPlatformCreator) return true;
-
-    try {
-      const { data, error } = await supabase
-        .rpc('user_has_feature_access', { 
-          user_id: user.id, 
-          feature_key: featureKey 
-        });
-
-      if (error) {
-        console.error('Error checking feature access:', error);
-        return false;
-      }
-
-      // Update cache
-      setFeatureCache(prev => ({ ...prev, [featureKey]: data }));
-      return data;
-    } catch (error) {
-      console.error('Error checking feature access:', error);
-      return false;
-    }
+    // Get current plan type (default to free if not set)
+    const currentPlan = planDetails.plan_type || 'free';
+    
+    // Check if the feature is available in the current plan
+    const availableFeatures = PLAN_FEATURES[currentPlan] || PLAN_FEATURES['free'];
+    
+    return availableFeatures.includes(featureKey);
   };
 
   useEffect(() => {
