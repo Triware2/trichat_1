@@ -18,50 +18,50 @@ interface CustomizationTabContentProps {
 
 export const CustomizationTabContent = ({ activeTab }: CustomizationTabContentProps) => {
   return (
-    <>
-      <TabsContent value="overview">
+    <div className="p-6">
+      <TabsContent value="overview" className="mt-0">
         <CustomizationOverview />
       </TabsContent>
 
-      <TabsContent value="themes">
+      <TabsContent value="themes" className="mt-0">
         <ThemeCustomizer />
       </TabsContent>
 
-      <TabsContent value="forms">
+      <TabsContent value="forms" className="mt-0">
         <FormBuilder />
       </TabsContent>
 
-      <TabsContent value="objects">
+      <TabsContent value="objects" className="mt-0">
         <CustomObjectManager />
       </TabsContent>
 
-      <TabsContent value="fields">
+      <TabsContent value="fields" className="mt-0">
         <CustomFieldsManager />
       </TabsContent>
 
-      <TabsContent value="rules">
+      <TabsContent value="rules" className="mt-0">
         <RuleEngine />
       </TabsContent>
 
-      <TabsContent value="workflows">
+      <TabsContent value="workflows" className="mt-0">
         <WorkflowBuilder />
       </TabsContent>
 
-      <TabsContent value="integrations">
+      <TabsContent value="integrations" className="mt-0">
         <IntegrationManager />
       </TabsContent>
 
-      <TabsContent value="code-editor">
+      <TabsContent value="code-editor" className="mt-0">
         <CodeEditor />
       </TabsContent>
 
-      <TabsContent value="sandbox">
+      <TabsContent value="sandbox" className="mt-0">
         <SandboxEnvironment />
       </TabsContent>
 
-      <TabsContent value="api-management">
+      <TabsContent value="api-management" className="mt-0">
         <ApiManagement />
       </TabsContent>
-    </>
+    </div>
   );
 };

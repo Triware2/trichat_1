@@ -60,14 +60,14 @@ export const CustomizationOverview = () => {
   return (
     <div className="space-y-8">
       {/* Hero Section */}
-      <Card className="border-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white overflow-hidden">
+      <Card className="border border-gray-200 bg-gradient-to-r from-blue-600 to-blue-700 text-white overflow-hidden">
         <CardContent className="p-8 relative">
           <div className="flex items-center justify-between relative z-10">
             <div className="max-w-2xl">
-              <h2 className="text-heading-2 font-semibold mb-3 text-white">
+              <h2 className="text-heading-2 font-semibold mb-4 text-white">
                 Welcome to Customization Studio
               </h2>
-              <p className="text-blue-100 mb-6 leading-relaxed">
+              <p className="text-blue-100 mb-8 leading-relaxed">
                 Transform your platform with enterprise-grade customization tools. 
                 Create, configure, and control every aspect of your system with real-time preview and deployment capabilities.
               </p>
@@ -77,14 +77,14 @@ export const CustomizationOverview = () => {
               </Button>
             </div>
             <div className="hidden lg:block">
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
-                <div className="grid grid-cols-2 gap-6 text-center">
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-8 border border-white/20">
+                <div className="grid grid-cols-2 gap-8 text-center">
                   <div>
-                    <div className="text-2xl font-semibold text-white">23</div>
+                    <div className="text-2xl font-semibold text-white mb-2">23</div>
                     <div className="text-sm text-blue-200">Active Customizations</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-semibold text-white">98%</div>
+                    <div className="text-2xl font-semibold text-white mb-2">98%</div>
                     <div className="text-sm text-blue-200">System Performance</div>
                   </div>
                 </div>
@@ -96,12 +96,12 @@ export const CustomizationOverview = () => {
       </Card>
 
       {/* Feature Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {features.map((feature, index) => {
           const Icon = feature.icon;
           return (
             <Card key={index} className="border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all duration-200 cursor-pointer group">
-              <CardHeader className="pb-4">
+              <CardHeader className="pb-4 p-8">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-4">
                     <div className={`
@@ -114,7 +114,7 @@ export const CustomizationOverview = () => {
                       <Icon className="w-6 h-6" />
                     </div>
                     <div className="flex-1">
-                      <CardTitle className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</CardTitle>
+                      <CardTitle className="text-lg font-semibold text-gray-900 mb-3">{feature.title}</CardTitle>
                       <Badge 
                         variant="outline"
                         className={feature.status === 'available' 
@@ -128,10 +128,10 @@ export const CustomizationOverview = () => {
                   </div>
                   <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors" />
                 </div>
-                <CardDescription className="text-gray-600 leading-relaxed">{feature.description}</CardDescription>
+                <CardDescription className="text-gray-600 leading-relaxed mt-3">{feature.description}</CardDescription>
               </CardHeader>
-              <CardContent className="pt-0">
-                <div className="space-y-2">
+              <CardContent className="pt-0 px-8 pb-8">
+                <div className="space-y-3">
                   {feature.items.map((item, idx) => (
                     <div key={idx} className="flex items-center gap-3 text-sm text-gray-600">
                       <div className={`
@@ -153,19 +153,19 @@ export const CustomizationOverview = () => {
 
       {/* Recent Activity */}
       <Card className="border border-gray-200 shadow-sm">
-        <CardHeader className="border-b border-gray-100 bg-gray-50/50">
+        <CardHeader className="border-b border-gray-100 bg-gray-50/50 p-8">
           <CardTitle className="flex items-center gap-3 text-lg">
             <Activity className="w-5 h-5 text-blue-600" />
             Recent Customizations
           </CardTitle>
-          <CardDescription className="text-gray-600">
+          <CardDescription className="text-gray-600 mt-2">
             Latest changes and updates to your platform configuration
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <div className="divide-y divide-gray-100">
             {recentCustomizations.map((item, index) => (
-              <div key={index} className="flex items-center justify-between p-6 hover:bg-gray-50/50 transition-colors">
+              <div key={index} className="flex items-center justify-between px-8 py-6 hover:bg-gray-50/50 transition-colors">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
                     <Settings className="w-5 h-5 text-blue-600" />

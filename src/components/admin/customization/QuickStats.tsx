@@ -67,9 +67,9 @@ export const QuickStats = ({ customizations, isLoading }: QuickStatsProps) => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {[...Array(4)].map((_, i) => (
           <Card key={i} className="border border-gray-200 shadow-sm animate-pulse">
-            <CardContent className="p-6">
-              <div className="h-4 bg-gray-200 rounded w-3/4 mb-3"></div>
-              <div className="h-8 bg-gray-200 rounded w-1/2 mb-2"></div>
+            <CardContent className="p-8">
+              <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+              <div className="h-8 bg-gray-200 rounded w-1/2 mb-3"></div>
               <div className="h-3 bg-gray-200 rounded w-full"></div>
             </CardContent>
           </Card>
@@ -84,16 +84,16 @@ export const QuickStats = ({ customizations, isLoading }: QuickStatsProps) => {
         const Icon = stat.icon;
         return (
           <Card key={index} className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
-            <CardContent className="p-6">
+            <CardContent className="p-8">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-600 mb-1">{stat.title}</p>
-                  <p className="text-2xl font-semibold text-gray-900 mb-1">{stat.value}</p>
+                  <p className="text-sm font-medium text-gray-600 mb-2">{stat.title}</p>
+                  <p className="text-2xl font-semibold text-gray-900 mb-2">{stat.value}</p>
                   <p className="text-xs text-gray-500">{stat.description}</p>
                 </div>
                 <div className="ml-4">
                   <div className={`
-                    p-2 rounded-lg
+                    p-3 rounded-lg
                     ${stat.color === 'blue' ? 'bg-blue-50 text-blue-600' : ''}
                     ${stat.color === 'green' ? 'bg-green-50 text-green-600' : ''}
                     ${stat.color === 'yellow' ? 'bg-yellow-50 text-yellow-600' : ''}
