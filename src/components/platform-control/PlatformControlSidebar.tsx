@@ -14,7 +14,10 @@ import {
   Gauge,
   TrendingUp,
   Database,
-  Lock
+  Lock,
+  Palette,
+  UserCog,
+  Wrench
 } from 'lucide-react';
 
 interface PlatformControlSidebarProps {
@@ -35,8 +38,29 @@ export const PlatformControlSidebar = ({ activeModule, onModuleChange }: Platfor
       id: 'clients', 
       label: 'Client Control Center', 
       icon: Users,
-      description: 'Comprehensive client management',
+      description: 'Complete client management',
       alerts: 3
+    },
+    { 
+      id: 'users', 
+      label: 'User Management', 
+      icon: UserCog,
+      description: 'Platform-wide user control',
+      alerts: 0
+    },
+    { 
+      id: 'customization', 
+      label: 'Global Customization', 
+      icon: Palette,
+      description: 'Platform-wide theming',
+      alerts: 0
+    },
+    { 
+      id: 'system-settings', 
+      label: 'System Configuration', 
+      icon: Wrench,
+      description: 'Advanced system settings',
+      alerts: 0
     },
     { 
       id: 'revenue', 

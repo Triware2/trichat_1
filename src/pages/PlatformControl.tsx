@@ -4,6 +4,9 @@ import { NavigationHeader } from '@/components/NavigationHeader';
 import { PlatformControlSidebar } from '@/components/platform-control/PlatformControlSidebar';
 import { SystemOverview } from '@/components/platform-control/SystemOverview';
 import { ClientControlCenter } from '@/components/platform-control/ClientControlCenter';
+import { UserManagementCenter } from '@/components/platform-control/UserManagementCenter';
+import { GlobalCustomizationStudio } from '@/components/platform-control/GlobalCustomizationStudio';
+import { AdvancedSystemSettings } from '@/components/platform-control/AdvancedSystemSettings';
 import { RevenueManagement } from '@/components/platform-control/RevenueManagement';
 import { SystemHealthMonitor } from '@/components/platform-control/SystemHealthMonitor';
 import { SecurityCenter } from '@/components/platform-control/SecurityCenter';
@@ -23,6 +26,12 @@ const PlatformControl = () => {
         return <SystemOverview />;
       case 'clients':
         return <ClientControlCenter />;
+      case 'users':
+        return <UserManagementCenter />;
+      case 'customization':
+        return <GlobalCustomizationStudio />;
+      case 'system-settings':
+        return <AdvancedSystemSettings />;
       case 'revenue':
         return <RevenueManagement />;
       case 'health':
