@@ -1,4 +1,3 @@
-
 import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { 
@@ -47,7 +46,7 @@ export const AgentSidebar = ({ todayPerformance, activeTab = 'dashboard', onTabC
         <div className="space-y-4 group-data-[collapsible=icon]:space-y-2">
           {/* Sidebar Toggle - Always Visible */}
           <div className="flex items-center justify-between">
-            <SidebarTrigger className="h-8 w-8 hover:bg-slate-100 rounded-md p-1 transition-colors duration-200" />
+            <SidebarTrigger className="h-10 w-10 hover:bg-slate-100 rounded-md transition-colors duration-200 border border-slate-200 bg-white shadow-sm" />
           </div>
 
           {/* Agent Badge - Hidden when collapsed */}
