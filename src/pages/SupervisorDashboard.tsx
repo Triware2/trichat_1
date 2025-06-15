@@ -10,6 +10,7 @@ import { SupervisorHeader } from '@/components/supervisor/SupervisorHeader';
 import { SupervisorTabs } from '@/components/supervisor/SupervisorTabs';
 import { SupervisorOverview } from '@/components/supervisor/SupervisorOverview';
 import { ManualAssignmentSettings } from '@/components/supervisor/ManualAssignmentSettings';
+import { TeamSettings } from '@/components/supervisor/TeamSettings';
 
 const SupervisorDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -45,6 +46,10 @@ const SupervisorDashboard = () => {
 
           <TabsContent value="team">
             <TeamMonitor />
+          </TabsContent>
+
+          <TabsContent value="team-settings">
+            <TeamSettings />
           </TabsContent>
 
           <TabsContent value="queue">

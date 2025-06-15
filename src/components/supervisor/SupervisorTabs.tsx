@@ -5,7 +5,8 @@ import {
   Eye, 
   Users, 
   MessageSquare, 
-  BarChart3
+  BarChart3,
+  Settings
 } from 'lucide-react';
 
 interface SupervisorTabsProps {
@@ -18,6 +19,7 @@ export const SupervisorTabs = ({ activeTab, onTabChange }: SupervisorTabsProps) 
     { id: 'overview', label: 'Overview', icon: Activity },
     { id: 'chats', label: 'Chat Supervision', icon: Eye },
     { id: 'team', label: 'Team Monitor', icon: Users },
+    { id: 'team-settings', label: 'Team Settings', icon: Settings },
     { id: 'queue', label: 'Queue Management', icon: MessageSquare },
     { id: 'reports', label: 'Reports', icon: BarChart3 },
   ];
