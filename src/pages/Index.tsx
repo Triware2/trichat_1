@@ -209,7 +209,7 @@ const Index = () => {
                 <div className="text-xs text-gray-600">Uptime</div>
               </div>
               <div className="absolute -bottom-4 -left-4 bg-white rounded-xl shadow-lg p-4 border">
-                <div className="text-2xl font-bold text-blue-600">< 200ms</div>
+                <div className="text-2xl font-bold text-blue-600">&lt; 200ms</div>
                 <div className="text-xs text-gray-600">Response Time</div>
               </div>
             </div>
@@ -226,7 +226,7 @@ const Index = () => {
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center">
-            {['TechCorp', 'GlobalRetail', 'FinanceFirst', 'HealthCare+'].map((company) => (
+            {['TechCorp', 'GlobalRetail', 'FinanceFirst', 'HealthCarePlus'].map((company) => (
               <div key={company} className="text-center">
                 <div className="h-12 bg-gray-300 rounded-lg mb-2 flex items-center justify-center">
                   <span className="text-gray-600 font-semibold">{company}</span>
