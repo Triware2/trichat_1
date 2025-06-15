@@ -43,23 +43,25 @@ export const BotTraining = () => {
   }, []);
 
   return (
-    <div className="space-y-6">
-      <BotTrainingHeader onCreateBot={handleCreateBot} />
-      
-      <BotStatistics stats={stats} />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+      <div className="space-y-8 p-6">
+        <BotTrainingHeader onCreateBot={handleCreateBot} />
+        
+        <BotStatistics stats={stats} />
 
-      <BotTrainingTabs
-        activeTab={activeTab}
-        selectedBotId={selectedBotId}
-        onTabChange={handleTabChange}
-        onOpenTraining={handleOpenTraining}
-        onOpenConfiguration={handleOpenConfiguration}
-      />
+        <BotTrainingTabs
+          activeTab={activeTab}
+          selectedBotId={selectedBotId}
+          onTabChange={handleTabChange}
+          onOpenTraining={handleOpenTraining}
+          onOpenConfiguration={handleOpenConfiguration}
+        />
 
-      <ChatbotCreationWizard 
-        open={isWizardOpen} 
-        onOpenChange={setIsWizardOpen}
-      />
+        <ChatbotCreationWizard 
+          open={isWizardOpen} 
+          onOpenChange={setIsWizardOpen}
+        />
+      </div>
     </div>
   );
 };

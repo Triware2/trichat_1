@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,7 +18,10 @@ import {
   AlertCircle,
   Brain,
   Database,
-  Settings
+  Settings,
+  Cloud,
+  Shield,
+  Zap
 } from 'lucide-react';
 
 interface SOPUploadManagerProps {
@@ -122,20 +124,20 @@ export const SOPUploadManager = ({ selectedBotId }: SOPUploadManagerProps) => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
       case 'processing':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-blue-50 text-blue-700 border-blue-200';
       case 'error':
-        return 'bg-red-100 text-red-800 border-red-200';
+        return 'bg-red-50 text-red-700 border-red-200';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-gray-50 text-gray-700 border-gray-200';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'active':
-        return <CheckCircle className="w-4 h-4 text-green-600" />;
+        return <CheckCircle className="w-4 h-4 text-emerald-600" />;
       case 'processing':
         return <RefreshCw className="w-4 h-4 text-blue-600 animate-spin" />;
       case 'error':
@@ -146,162 +148,231 @@ export const SOPUploadManager = ({ selectedBotId }: SOPUploadManagerProps) => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-xl font-semibold text-gray-900">SOP Document Management</h2>
-          <p className="text-gray-600 mt-1">Upload and manage Standard Operating Procedures for LLM-powered chatbots</p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-6">
+      <div className="space-y-8">
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-3xl font-semibold text-gray-900 tracking-tight">Knowledge Base Management</h2>
+            <p className="text-blue-600 font-medium mt-2 text-lg">Azure AI Document Intelligence & Training Platform</p>
+          </div>
+          <div className="flex gap-3">
+            <Button variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50">
+              <Download className="w-4 h-4 mr-2" />
+              Export Knowledge Base
+            </Button>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline">
-            <Download className="w-4 h-4 mr-2" />
-            Export SOPs
-          </Button>
-        </div>
-      </div>
 
-      {/* Bot Selection */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Select LLM Bot</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Select value={activeBot} onValueChange={setActiveBot}>
-            <SelectTrigger className="w-full max-w-md">
-              <SelectValue placeholder="Choose an LLM bot to manage SOPs" />
-            </SelectTrigger>
-            <SelectContent>
-              {llmBots.map(bot => (
-                <SelectItem key={bot.id} value={bot.id}>
-                  <div className="flex items-center gap-2">
-                    <Brain className="w-4 h-4 text-purple-600" />
-                    {bot.name} ({bot.model})
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {activeBot && (
-            <div className="mt-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
-              <p className="text-sm text-purple-800">
-                Managing SOPs for: <span className="font-semibold">{llmBots.find(b => b.id === activeBot)?.name}</span>
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {activeBot && (
-        <>
-          {/* Upload Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Upload New SOP Documents</CardTitle>
-              <p className="text-sm text-gray-600">
-                Supported formats: PDF, DOCX, TXT, MD. Maximum file size: 10MB
-              </p>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
-                <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <div className="space-y-2">
-                  <p className="text-lg font-medium text-gray-700">Drop files here or click to browse</p>
-                  <p className="text-sm text-gray-500">Upload your SOP documents to train the AI</p>
-                </div>
-                <Input
-                  type="file"
-                  multiple
-                  accept=".pdf,.docx,.txt,.md"
-                  onChange={handleFileUpload}
-                  className="mt-4 max-w-xs mx-auto"
-                />
+        {/* Bot Selection */}
+        <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+          <CardHeader className="bg-gradient-to-r from-blue-50/50 to-indigo-50/50 border-b border-blue-100/50">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl shadow-md">
+                <Brain className="w-6 h-6 text-white" />
               </div>
-
-              {isUploading && (
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Uploading...</span>
-                    <span>{uploadProgress}%</span>
-                  </div>
-                  <Progress value={uploadProgress} className="w-full" />
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* SOP Documents List */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Uploaded SOP Documents</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {(sopDocuments.length > 0 ? sopDocuments : mockSOPs).map(sop => (
-                  <div key={sop.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
-                    <div className="flex items-center gap-4">
-                      {getStatusIcon(sop.status)}
-                      <div className="flex-1">
-                        <h3 className="font-medium text-gray-900">{sop.name}</h3>
-                        <p className="text-sm text-gray-600">{sop.description}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Badge variant="outline" className="text-xs">{sop.type}</Badge>
-                          <span className="text-xs text-gray-500">{sop.size} MB</span>
-                          <span className="text-xs text-gray-500">Uploaded: {sop.uploadDate}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge className={getStatusColor(sop.status)}>
-                        {sop.status}
+              <div>
+                <CardTitle className="text-xl font-semibold text-gray-900">Select AI Assistant</CardTitle>
+                <p className="text-blue-600 font-medium mt-1">Choose the chatbot to manage knowledge base</p>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="p-6">
+            <Select value={activeBot} onValueChange={setActiveBot}>
+              <SelectTrigger className="w-full max-w-md border-blue-200 focus:border-blue-400 focus:ring-blue-200">
+                <SelectValue placeholder="Choose an Azure AI-powered assistant" />
+              </SelectTrigger>
+              <SelectContent className="bg-white border-blue-200 shadow-xl">
+                {llmBots.map(bot => (
+                  <SelectItem key={bot.id} value={bot.id}>
+                    <div className="flex items-center gap-3">
+                      <Brain className="w-4 h-4 text-purple-600" />
+                      <span className="font-medium">{bot.name}</span>
+                      <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200">
+                        {bot.model}
                       </Badge>
-                      <Button size="sm" variant="outline">
-                        <Download className="w-3 h-3" />
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => handleDeleteSOP(sop.id)}>
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
                     </div>
-                  </div>
+                  </SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+            {activeBot && (
+              <div className="mt-6 p-6 bg-gradient-to-r from-purple-50 via-blue-50 to-indigo-50 rounded-xl border border-purple-100/50">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg">
+                    <Zap className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-purple-800">
+                      Managing: {llmBots.find(b => b.id === activeBot)?.name}
+                    </p>
+                    <p className="text-sm text-blue-600">Azure Cognitive Services Integration Active</p>
+                  </div>
+                </div>
+                <div className="flex gap-2 mt-4">
+                  <Badge variant="outline" className="text-xs bg-white/70 border-emerald-200 text-emerald-700">
+                    <Shield className="w-3 h-3 mr-1" />
+                    Secure Processing
+                  </Badge>
+                  <Badge variant="outline" className="text-xs bg-white/70 border-blue-200 text-blue-700">
+                    <Cloud className="w-3 h-3 mr-1" />
+                    Cloud Intelligence
+                  </Badge>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
-                {sopDocuments.length === 0 && mockSOPs.length === 0 && (
-                  <div className="text-center py-8 text-gray-500">
-                    <Database className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                    <p>No SOP documents uploaded yet</p>
-                    <p className="text-sm">Upload your first document above to get started</p>
+        {activeBot && (
+          <>
+            {/* Upload Section */}
+            <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+              <CardHeader className="bg-gradient-to-r from-blue-50/50 to-indigo-50/50 border-b border-blue-100/50">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl shadow-md">
+                    <Upload className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-xl font-semibold text-gray-900">Document Upload</CardTitle>
+                    <p className="text-blue-600 font-medium mt-1">Azure Document Intelligence Processing</p>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6 p-6">
+                <div className="border-2 border-dashed border-blue-300 rounded-2xl p-12 text-center bg-gradient-to-br from-blue-50/50 to-indigo-50/50 hover:border-blue-400 transition-all duration-300 group">
+                  <div className="p-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-lg mx-auto w-fit mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <Upload className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="space-y-3">
+                    <p className="text-xl font-semibold text-gray-800">Upload Knowledge Documents</p>
+                    <p className="text-blue-600 font-medium">Drag & drop or click to browse files</p>
+                    <p className="text-sm text-gray-600">
+                      Supported: PDF, DOCX, TXT, MD • Maximum: 10MB per file
+                    </p>
+                  </div>
+                  <Input
+                    type="file"
+                    multiple
+                    accept=".pdf,.docx,.txt,.md"
+                    onChange={handleFileUpload}
+                    className="mt-6 max-w-xs mx-auto border-blue-200 focus:border-blue-400"
+                  />
+                </div>
+
+                {isUploading && (
+                  <div className="space-y-4 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+                    <div className="flex justify-between text-sm font-medium">
+                      <span className="text-blue-800">Processing with Azure AI...</span>
+                      <span className="text-blue-600">{uploadProgress}%</span>
+                    </div>
+                    <Progress value={uploadProgress} className="w-full h-3 bg-blue-100" />
                   </div>
                 )}
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          {/* Training Status */}
-          <Card>
-            <CardHeader>
-              <CardTitle>AI Training Status</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-blue-50 rounded-lg">
-                  <Database className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                  <p className="font-semibold text-blue-900">{mockSOPs.length}</p>
-                  <p className="text-sm text-blue-700">Documents Processed</p>
+            {/* SOP Documents List */}
+            <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+              <CardHeader className="bg-gradient-to-r from-blue-50/50 to-indigo-50/50 border-b border-blue-100/50">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-md">
+                    <Database className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-xl font-semibold text-gray-900">Knowledge Base Documents</CardTitle>
+                    <p className="text-blue-600 font-medium mt-1">AI-processed documentation library</p>
+                  </div>
                 </div>
-                <div className="text-center p-4 bg-green-50 rounded-lg">
-                  <CheckCircle className="w-8 h-8 text-green-600 mx-auto mb-2" />
-                  <p className="font-semibold text-green-900">98%</p>
-                  <p className="text-sm text-green-700">Training Accuracy</p>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  {(sopDocuments.length > 0 ? sopDocuments : mockSOPs).map(sop => (
+                    <div key={sop.id} className="flex items-center justify-between p-6 border border-blue-100 rounded-xl bg-gradient-to-r from-white to-blue-50/30 hover:shadow-md transition-all duration-300 group">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-md group-hover:scale-110 transition-transform duration-300">
+                          {getStatusIcon(sop.status)}
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-gray-900 text-lg">{sop.name}</h3>
+                          <p className="text-blue-600 font-medium">{sop.description}</p>
+                          <div className="flex items-center gap-3 mt-2">
+                            <Badge variant="outline" className="text-xs bg-white border-blue-200 text-blue-700 font-medium">
+                              {sop.type}
+                            </Badge>
+                            <span className="text-xs text-gray-600 font-medium">{sop.size} MB</span>
+                            <span className="text-xs text-blue-600 font-medium">Processed: {sop.uploadDate}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge className={`${getStatusColor(sop.status)} font-medium px-3 py-1.5 rounded-full`}>
+                          {sop.status}
+                        </Badge>
+                        <Button size="sm" variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50">
+                          <Download className="w-3 h-3" />
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => handleDeleteSOP(sop.id)} className="border-red-200 text-red-700 hover:bg-red-50">
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+
+                  {sopDocuments.length === 0 && mockSOPs.length === 0 && (
+                    <div className="text-center py-16 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+                      <div className="p-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-lg mx-auto w-fit mb-6">
+                        <Database className="w-8 h-8 text-white" />
+                      </div>
+                      <p className="text-xl font-semibold text-gray-800 mb-2">No documents uploaded yet</p>
+                      <p className="text-blue-600 font-medium">Upload your first knowledge document to get started</p>
+                    </div>
+                  )}
                 </div>
-                <div className="text-center p-4 bg-purple-50 rounded-lg">
-                  <Brain className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-                  <p className="font-semibold text-purple-900">Ready</p>
-                  <p className="text-sm text-purple-700">AI Status</p>
+              </CardContent>
+            </Card>
+
+            {/* Training Status */}
+            <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+              <CardHeader className="bg-gradient-to-r from-blue-50/50 to-indigo-50/50 border-b border-blue-100/50">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl shadow-md">
+                    <Brain className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-xl font-semibold text-gray-900">Azure AI Training Status</CardTitle>
+                    <p className="text-blue-600 font-medium mt-1">Real-time model performance metrics</p>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        </>
-      )}
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl border border-blue-100 shadow-sm">
+                    <div className="p-3 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl shadow-md mx-auto w-fit mb-4">
+                      <Database className="w-6 h-6 text-white" />
+                    </div>
+                    <p className="text-3xl font-bold text-blue-700 mb-2">{mockSOPs.length}</p>
+                    <p className="text-blue-600 font-medium">Documents Processed</p>
+                  </div>
+                  <div className="text-center p-6 bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl border border-emerald-100 shadow-sm">
+                    <div className="p-3 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl shadow-md mx-auto w-fit mb-4">
+                      <CheckCircle className="w-6 h-6 text-white" />
+                    </div>
+                    <p className="text-3xl font-bold text-emerald-700 mb-2">98%</p>
+                    <p className="text-emerald-600 font-medium">Training Accuracy</p>
+                  </div>
+                  <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl border border-purple-100 shadow-sm">
+                    <div className="p-3 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl shadow-md mx-auto w-fit mb-4">
+                      <Zap className="w-6 h-6 text-white" />
+                    </div>
+                    <p className="text-3xl font-bold text-purple-700 mb-2">Ready</p>
+                    <p className="text-purple-600 font-medium">AI Status</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </>
+        )}
+      </div>
     </div>
   );
 };
