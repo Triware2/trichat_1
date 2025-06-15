@@ -45,7 +45,11 @@ export const NavigationHeader = ({ title, role = 'admin', userEmail = 'user@tric
   };
 
   const getTrichatLogoGradient = (role: string, title: string) => {
-    // Special case for Platform Management page - always use purple
+    // Special case for Platform Control Center - use purple gradient
+    if (title === 'Platform Control Center') {
+      return 'from-purple-500 to-purple-600';
+    }
+    // Special case for Platform Management page - also use purple
     if (title === 'Platform Management') {
       return 'from-purple-500 to-purple-600';
     }
