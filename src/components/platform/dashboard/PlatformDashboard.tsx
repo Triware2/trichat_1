@@ -13,7 +13,6 @@ import {
   Clock,
   BarChart3,
   Download,
-  Crown,
   Zap
 } from 'lucide-react';
 
@@ -42,20 +41,22 @@ export const PlatformDashboard = () => {
   ];
 
   return (
-    <div className="p-8 space-y-8 bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 min-h-screen">
+    <div className="p-8 space-y-8 bg-gray-50 min-h-screen">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <div className="flex items-center space-x-3 mb-2">
             <div className="p-2 bg-gradient-to-r from-purple-400 to-violet-500 rounded-lg">
-              <Crown className="w-6 h-6 text-white" />
+              <div className="w-6 h-6 bg-white rounded flex items-center justify-center">
+                <span className="text-purple-600 font-bold text-sm">T</span>
+              </div>
             </div>
-            <h1 className="text-3xl font-bold text-white">Executive Command Center</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Platform Dashboard</h1>
           </div>
-          <p className="text-slate-300 ml-12">Real-time platform insights and strategic control</p>
+          <p className="text-gray-600 ml-12">Real-time platform insights and control</p>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" size="sm" className="border-slate-600 text-slate-300 hover:bg-slate-700">
+          <Button variant="outline" size="sm" className="border-gray-300 text-gray-700 hover:bg-gray-50">
             <Download className="w-4 h-4 mr-2" />
             Export Report
           </Button>
@@ -71,16 +72,16 @@ export const PlatformDashboard = () => {
         {stats.map((stat, index) => {
           const IconComponent = stat.icon;
           return (
-            <Card key={index} className="bg-slate-800/50 border-slate-700 hover:bg-slate-800/70 transition-all duration-300 hover:shadow-xl backdrop-blur-sm">
+            <Card key={index} className="bg-white border-gray-200 hover:shadow-md transition-all duration-300">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-slate-300">{stat.title}</CardTitle>
-                <div className={`p-2 rounded-lg bg-gradient-to-r ${stat.color} shadow-lg`}>
+                <CardTitle className="text-sm font-medium text-gray-700">{stat.title}</CardTitle>
+                <div className={`p-2 rounded-lg bg-gradient-to-r ${stat.color} shadow-sm`}>
                   <IconComponent className="h-4 w-4 text-white" />
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-white">{stat.value}</div>
-                <p className={`text-xs font-medium ${stat.change.startsWith('+') ? 'text-green-400' : stat.change.startsWith('-') && stat.title === 'Support Tickets' ? 'text-green-400' : 'text-red-400'}`}>
+                <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
+                <p className={`text-xs font-medium ${stat.change.startsWith('+') ? 'text-green-600' : stat.change.startsWith('-') && stat.title === 'Support Tickets' ? 'text-green-600' : 'text-red-600'}`}>
                   {stat.change} from last month
                 </p>
               </CardContent>
@@ -91,34 +92,34 @@ export const PlatformDashboard = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Recent Alerts */}
-        <Card className="bg-slate-800/50 border-slate-700 backdrop-blur-sm">
+        <Card className="bg-white border-gray-200">
           <CardHeader>
-            <CardTitle className="flex items-center justify-between text-white">
+            <CardTitle className="flex items-center justify-between text-gray-900">
               <div className="flex items-center space-x-2">
-                <Zap className="w-5 h-5 text-purple-400" />
+                <Zap className="w-5 h-5 text-purple-500" />
                 <span>Critical Alerts</span>
               </div>
-              <Badge variant="outline" className="bg-red-500/20 text-red-400 border-red-500/30">
+              <Badge variant="outline" className="bg-red-50 text-red-600 border-red-200">
                 {recentAlerts.length} Active
               </Badge>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {recentAlerts.map((alert) => (
-              <div key={alert.id} className="flex items-start space-x-3 p-3 rounded-lg bg-slate-700/50 border border-slate-600">
+              <div key={alert.id} className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 border border-gray-200">
                 <div className={`p-1 rounded-full ${
-                  alert.type === 'error' ? 'bg-red-500/20' :
-                  alert.type === 'warning' ? 'bg-yellow-500/20' :
-                  alert.type === 'success' ? 'bg-green-500/20' : 'bg-blue-500/20'
+                  alert.type === 'error' ? 'bg-red-100' :
+                  alert.type === 'warning' ? 'bg-yellow-100' :
+                  alert.type === 'success' ? 'bg-green-100' : 'bg-blue-100'
                 }`}>
-                  {alert.type === 'error' ? <AlertTriangle className="w-3 h-3 text-red-400" /> :
-                   alert.type === 'warning' ? <AlertTriangle className="w-3 h-3 text-yellow-400" /> :
-                   alert.type === 'success' ? <CheckCircle className="w-3 h-3 text-green-400" /> :
-                   <Clock className="w-3 h-3 text-blue-400" />}
+                  {alert.type === 'error' ? <AlertTriangle className="w-3 h-3 text-red-600" /> :
+                   alert.type === 'warning' ? <AlertTriangle className="w-3 h-3 text-yellow-600" /> :
+                   alert.type === 'success' ? <CheckCircle className="w-3 h-3 text-green-600" /> :
+                   <Clock className="w-3 h-3 text-blue-600" />}
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-white">{alert.message}</p>
-                  <p className="text-xs text-slate-400">{alert.time}</p>
+                  <p className="text-sm font-medium text-gray-900">{alert.message}</p>
+                  <p className="text-xs text-gray-500">{alert.time}</p>
                 </div>
               </div>
             ))}
@@ -126,23 +127,23 @@ export const PlatformDashboard = () => {
         </Card>
 
         {/* Top Clients */}
-        <Card className="bg-slate-800/50 border-slate-700 backdrop-blur-sm">
+        <Card className="bg-white border-gray-200">
           <CardHeader>
-            <CardTitle className="text-white">Elite Revenue Clients</CardTitle>
+            <CardTitle className="text-gray-900">Top Revenue Clients</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {topClients.map((client, index) => (
-              <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-slate-700/50 border border-slate-600">
+              <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 border border-gray-200">
                 <div className="flex-1">
-                  <p className="font-medium text-white">{client.name}</p>
+                  <p className="font-medium text-gray-900">{client.name}</p>
                   <div className="flex items-center space-x-4 mt-1">
-                    <span className="text-sm text-green-400 font-medium">{client.revenue}</span>
-                    <span className="text-sm text-slate-400">Usage: {client.usage}</span>
+                    <span className="text-sm text-green-600 font-medium">{client.revenue}</span>
+                    <span className="text-sm text-gray-500">Usage: {client.usage}</span>
                   </div>
                 </div>
                 <Badge 
                   variant={client.status === 'active' ? 'default' : 'destructive'}
-                  className={client.status === 'active' ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'}
+                  className={client.status === 'active' ? 'bg-green-100 text-green-700 border-green-200' : 'bg-yellow-100 text-yellow-700 border-yellow-200'}
                 >
                   {client.status}
                 </Badge>

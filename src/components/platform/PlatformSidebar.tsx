@@ -10,8 +10,7 @@ import {
   Shield, 
   Settings, 
   Server, 
-  MessageSquare,
-  Crown
+  MessageSquare
 } from 'lucide-react';
 
 interface PlatformSidebarProps {
@@ -33,19 +32,21 @@ export const PlatformSidebar = ({ activeModule, onModuleChange }: PlatformSideba
   ];
 
   return (
-    <div className="w-80 bg-gradient-to-b from-slate-800 to-slate-900 border-r border-slate-700 shadow-2xl">
-      <div className="p-6 border-b border-slate-700">
+    <div className="w-80 bg-white border-r border-gray-200 shadow-lg">
+      <div className="p-6 border-b border-gray-200">
         <div className="flex items-center space-x-3 mb-4">
           <div className="p-2 bg-gradient-to-r from-purple-400 to-violet-500 rounded-lg">
-            <Crown className="w-6 h-6 text-white" />
+            <div className="w-6 h-6 bg-white rounded flex items-center justify-center">
+              <span className="text-purple-600 font-bold text-sm">T</span>
+            </div>
           </div>
           <div>
-            <h2 className="text-xl font-bold text-white">Owner Portal</h2>
-            <p className="text-sm text-slate-300">Executive Control Center</p>
+            <h2 className="text-xl font-bold text-gray-900">Platform Dashboard</h2>
+            <p className="text-sm text-gray-600">Management Center</p>
           </div>
         </div>
         <Badge className="bg-gradient-to-r from-purple-400 to-violet-500 text-white border-0">
-          Company Owner Access
+          Platform Access
         </Badge>
       </div>
       
@@ -60,18 +61,18 @@ export const PlatformSidebar = ({ activeModule, onModuleChange }: PlatformSideba
               variant="ghost"
               className={`w-full justify-start h-auto p-4 text-left transition-all duration-200 ${
                 isActive 
-                  ? 'bg-gradient-to-r from-slate-700 to-slate-600 text-white shadow-lg border border-slate-600' 
-                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+                  ? 'bg-gray-100 text-gray-900 shadow-sm border border-gray-200' 
+                  : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
               }`}
               onClick={() => onModuleChange(module.id)}
             >
               <div className="flex items-center space-x-3 w-full">
-                <div className={`p-2 rounded-lg bg-gradient-to-r ${module.color} ${isActive ? 'shadow-lg' : ''}`}>
+                <div className={`p-2 rounded-lg bg-gradient-to-r ${module.color} ${isActive ? 'shadow-md' : ''}`}>
                   <IconComponent className="w-5 h-5 text-white" />
                 </div>
                 <div className="flex-1">
                   <div className="font-medium">{module.label}</div>
-                  <div className="text-xs text-slate-400">
+                  <div className="text-xs text-gray-500">
                     {module.id === 'dashboard' && 'Real-time insights'}
                     {module.id === 'clients' && 'Manage all clients'}
                     {module.id === 'pricing' && 'Revenue optimization'}
