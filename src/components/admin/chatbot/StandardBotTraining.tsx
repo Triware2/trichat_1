@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,7 +24,11 @@ import {
 } from 'lucide-react';
 import { BotRule, ConversationFlow, FlowStep } from './types';
 
-export const StandardBotTraining = () => {
+interface StandardBotTrainingProps {
+  selectedBotId?: string | null;
+}
+
+export const StandardBotTraining = ({ selectedBotId }: StandardBotTrainingProps) => {
   const [activeBot, setActiveBot] = useState('');
   const [rules, setRules] = useState<BotRule[]>([]);
   const [flows, setFlows] = useState<ConversationFlow[]>([]);
@@ -36,6 +40,13 @@ export const StandardBotTraining = () => {
     conditions: []
   });
   const [editingRule, setEditingRule] = useState<string | null>(null);
+
+  // Update activeBot when selectedBotId changes
+  useEffect(() => {
+    if (selectedBotId) {
+      setActiveBot(selectedBotId);
+    }
+  }, [selectedBotId]);
 
   const standardBots = [
     { id: '1', name: 'FAQ Assistant' },

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,7 +30,12 @@ interface Chatbot {
   sopCount?: number;
 }
 
-export const ChatbotList = () => {
+interface ChatbotListProps {
+  onOpenTraining?: (botId: string, botType: 'standard' | 'llm') => void;
+  onOpenConfiguration?: (botId: string) => void;
+}
+
+export const ChatbotList = ({ onOpenTraining, onOpenConfiguration }: ChatbotListProps) => {
   const { toast } = useToast();
   const [chatbots, setChatbots] = useState<Chatbot[]>([
     {
@@ -141,18 +145,26 @@ export const ChatbotList = () => {
 
   const handleConfigureBot = (botId: string) => {
     const bot = chatbots.find(b => b.id === botId);
-    toast({
-      title: "Opening Configuration",
-      description: `Configuring ${bot?.name}...`,
-    });
+    if (onOpenConfiguration) {
+      onOpenConfiguration(botId);
+    } else {
+      toast({
+        title: "Opening Configuration",
+        description: `Configuring ${bot?.name}...`,
+      });
+    }
   };
 
   const handleTrainingBot = (botId: string) => {
     const bot = chatbots.find(b => b.id === botId);
-    toast({
-      title: "Opening Training",
-      description: `Training interface for ${bot?.name}...`,
-    });
+    if (bot && onOpenTraining) {
+      onOpenTraining(botId, bot.type);
+    } else {
+      toast({
+        title: "Opening Training",
+        description: `Training interface for ${bot?.name}...`,
+      });
+    }
   };
 
   return (

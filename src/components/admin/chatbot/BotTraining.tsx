@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,6 +28,7 @@ import { SecurityPanel } from './SecurityPanel';
 export const BotTraining = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [isWizardOpen, setIsWizardOpen] = useState(false);
+  const [selectedBotId, setSelectedBotId] = useState<string | null>(null);
 
   // Mock data for demonstration
   const [stats] = useState({
@@ -47,6 +47,20 @@ export const BotTraining = () => {
   const handleTabChange = (value: string) => {
     setActiveTab(value);
   };
+
+  const handleOpenTraining = useCallback((botId: string, botType: 'standard' | 'llm') => {
+    setSelectedBotId(botId);
+    if (botType === 'standard') {
+      setActiveTab('training');
+    } else {
+      setActiveTab('sop-upload');
+    }
+  }, []);
+
+  const handleOpenConfiguration = useCallback((botId: string) => {
+    setSelectedBotId(botId);
+    setActiveTab('llm-settings');
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -196,19 +210,22 @@ export const BotTraining = () => {
         </TabsList>
 
         <TabsContent value="overview">
-          <ChatbotList />
+          <ChatbotList 
+            onOpenTraining={handleOpenTraining}
+            onOpenConfiguration={handleOpenConfiguration}
+          />
         </TabsContent>
 
         <TabsContent value="training">
-          <StandardBotTraining />
+          <StandardBotTraining selectedBotId={selectedBotId} />
         </TabsContent>
 
         <TabsContent value="sop-upload">
-          <SOPUploadManager />
+          <SOPUploadManager selectedBotId={selectedBotId} />
         </TabsContent>
 
         <TabsContent value="llm-settings">
-          <LLMSettingsPanel />
+          <LLMSettingsPanel selectedBotId={selectedBotId} />
         </TabsContent>
 
         <TabsContent value="test-chat">
