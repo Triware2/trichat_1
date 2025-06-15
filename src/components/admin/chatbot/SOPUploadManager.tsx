@@ -1,71 +1,89 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Upload, 
   FileText, 
-  File, 
-  CheckCircle, 
+  Trash2, 
+  Download, 
+  RefreshCw,
+  CheckCircle,
   AlertCircle,
-  Trash2,
-  Download,
-  Eye,
   Brain,
-  Database
+  Database,
+  Settings
 } from 'lucide-react';
+
+interface SOPUploadManagerProps {
+  selectedBotId?: string | null;
+}
 
 interface SOPDocument {
   id: string;
   name: string;
-  type: 'pdf' | 'docx' | 'markdown';
-  size: string;
-  status: 'processing' | 'ready' | 'error';
+  type: string;
+  size: number;
   uploadDate: string;
-  chunks: number;
-  embedding_status?: string;
+  status: 'processing' | 'active' | 'error';
+  description?: string;
 }
 
-export const SOPUploadManager = () => {
-  const [sopDocuments, setSopDocuments] = useState<SOPDocument[]>([
+export const SOPUploadManager = ({ selectedBotId }: SOPUploadManagerProps) => {
+  const { toast } = useToast();
+  const [activeBot, setActiveBot] = useState('');
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+  const [sopDocuments, setSopDocuments] = useState<SOPDocument[]>([]);
+
+  // Update activeBot when selectedBotId changes
+  useEffect(() => {
+    if (selectedBotId) {
+      setActiveBot(selectedBotId);
+    }
+  }, [selectedBotId]);
+
+  const llmBots = [
+    { id: '1', name: 'Customer Support Bot', model: 'GPT-4' },
+    { id: '3', name: 'Technical Support AI', model: 'Claude-3' }
+  ];
+
+  const mockSOPs: SOPDocument[] = [
     {
       id: '1',
-      name: 'Customer Support SOP.pdf',
-      type: 'pdf',
-      size: '2.4 MB',
-      status: 'ready',
+      name: 'Customer Service Guidelines.pdf',
+      type: 'PDF',
+      size: 2.4,
       uploadDate: '2024-06-14',
-      chunks: 45,
-      embedding_status: 'completed'
+      status: 'active',
+      description: 'Complete customer service protocols and escalation procedures'
     },
     {
       id: '2',
-      name: 'Technical Troubleshooting Guide.docx',
-      type: 'docx',
-      size: '1.8 MB',
+      name: 'Technical Support Manual.docx',
+      type: 'DOCX',
+      size: 1.8,
+      uploadDate: '2024-06-13',
       status: 'processing',
-      uploadDate: '2024-06-14',
-      chunks: 32,
-      embedding_status: 'in_progress'
+      description: 'Technical troubleshooting steps and common solutions'
     },
     {
       id: '3',
-      name: 'Billing Procedures.md',
-      type: 'markdown',
-      size: '0.5 MB',
-      status: 'ready',
-      uploadDate: '2024-06-13',
-      chunks: 18,
-      embedding_status: 'completed'
+      name: 'Billing Procedures.txt',
+      type: 'TXT',
+      size: 0.5,
+      uploadDate: '2024-06-12',
+      status: 'active',
+      description: 'Billing inquiries and payment processing guidelines'
     }
-  ]);
-
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [isUploading, setIsUploading] = useState(false);
+  ];
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -79,18 +97,10 @@ export const SOPUploadManager = () => {
           if (prev >= 100) {
             clearInterval(interval);
             setIsUploading(false);
-            // Add new document to list
-            const newDoc: SOPDocument = {
-              id: Date.now().toString(),
-              name: files[0].name,
-              type: files[0].name.split('.').pop() as 'pdf' | 'docx' | 'markdown',
-              size: `${(files[0].size / 1024 / 1024).toFixed(1)} MB`,
-              status: 'processing',
-              uploadDate: new Date().toISOString().split('T')[0],
-              chunks: 0,
-              embedding_status: 'pending'
-            };
-            setSopDocuments(prev => [newDoc, ...prev]);
+            toast({
+              title: "Upload Complete",
+              description: `${files[0].name} has been uploaded successfully`,
+            });
             return 100;
           }
           return prev + 10;
@@ -99,29 +109,39 @@ export const SOPUploadManager = () => {
     }
   };
 
-  const getFileIcon = (type: string) => {
-    switch (type) {
-      case 'pdf':
-        return <FileText className="w-5 h-5 text-red-600" />;
-      case 'docx':
-        return <File className="w-5 h-5 text-blue-600" />;
-      case 'markdown':
-        return <FileText className="w-5 h-5 text-green-600" />;
+  const handleDeleteSOP = (id: string) => {
+    const sop = sopDocuments.find(s => s.id === id) || mockSOPs.find(s => s.id === id);
+    setSopDocuments(sopDocuments.filter(s => s.id !== id));
+    toast({
+      title: "SOP Deleted",
+      description: `${sop?.name} has been deleted successfully`,
+      variant: "destructive"
+    });
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'processing':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'error':
+        return 'bg-red-100 text-red-800 border-red-200';
       default:
-        return <File className="w-5 h-5 text-gray-600" />;
+        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'ready':
-        return <Badge className="bg-green-100 text-green-800 border-green-200">Ready</Badge>;
+      case 'active':
+        return <CheckCircle className="w-4 h-4 text-green-600" />;
       case 'processing':
-        return <Badge className="bg-blue-100 text-blue-800 border-blue-200">Processing</Badge>;
+        return <RefreshCw className="w-4 h-4 text-blue-600 animate-spin" />;
       case 'error':
-        return <Badge className="bg-red-100 text-red-800 border-red-200">Error</Badge>;
+        return <AlertCircle className="w-4 h-4 text-red-600" />;
       default:
-        return <Badge className="bg-gray-100 text-gray-800 border-gray-200">Unknown</Badge>;
+        return <FileText className="w-4 h-4 text-gray-600" />;
     }
   };
 
@@ -130,175 +150,158 @@ export const SOPUploadManager = () => {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-xl font-semibold text-gray-900">SOP Document Management</h2>
-          <p className="text-gray-600 mt-1">Upload and manage your Support Standard Operating Procedures</p>
+          <p className="text-gray-600 mt-1">Upload and manage Standard Operating Procedures for LLM-powered chatbots</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline">
+            <Download className="w-4 h-4 mr-2" />
+            Export SOPs
+          </Button>
         </div>
       </div>
 
-      {/* Upload Section */}
-      <Card className="border-2 border-dashed border-gray-300 hover:border-blue-400 transition-colors">
-        <CardContent className="p-8">
-          <div className="text-center">
-            <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Upload SOP Documents</h3>
-            <p className="text-gray-600 mb-4">
-              Support for PDF, DOCX, and Markdown files up to 10MB each
-            </p>
-            
-            {isUploading ? (
-              <div className="space-y-4">
-                <Progress value={uploadProgress} className="w-full max-w-xs mx-auto" />
-                <p className="text-sm text-gray-600">Processing document... {uploadProgress}%</p>
-              </div>
-            ) : (
-              <div>
-                <Label htmlFor="file-upload" className="cursor-pointer">
-                  <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                    <Upload className="w-4 h-4 mr-2" />
-                    Choose Files
-                  </Button>
-                </Label>
+      {/* Bot Selection */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Select LLM Bot</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Select value={activeBot} onValueChange={setActiveBot}>
+            <SelectTrigger className="w-full max-w-md">
+              <SelectValue placeholder="Choose an LLM bot to manage SOPs" />
+            </SelectTrigger>
+            <SelectContent>
+              {llmBots.map(bot => (
+                <SelectItem key={bot.id} value={bot.id}>
+                  <div className="flex items-center gap-2">
+                    <Brain className="w-4 h-4 text-purple-600" />
+                    {bot.name} ({bot.model})
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {activeBot && (
+            <div className="mt-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
+              <p className="text-sm text-purple-800">
+                Managing SOPs for: <span className="font-semibold">{llmBots.find(b => b.id === activeBot)?.name}</span>
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {activeBot && (
+        <>
+          {/* Upload Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Upload New SOP Documents</CardTitle>
+              <p className="text-sm text-gray-600">
+                Supported formats: PDF, DOCX, TXT, MD. Maximum file size: 10MB
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
+                <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <div className="space-y-2">
+                  <p className="text-lg font-medium text-gray-700">Drop files here or click to browse</p>
+                  <p className="text-sm text-gray-500">Upload your SOP documents to train the AI</p>
+                </div>
                 <Input
-                  id="file-upload"
                   type="file"
-                  accept=".pdf,.docx,.md"
                   multiple
+                  accept=".pdf,.docx,.txt,.md"
                   onChange={handleFileUpload}
-                  className="hidden"
+                  className="mt-4 max-w-xs mx-auto"
                 />
-                <p className="text-xs text-gray-500 mt-2">
-                  or drag and drop files here
-                </p>
               </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
 
-      {/* Document Processing Pipeline */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Brain className="w-5 h-5" />
-            Document Processing Pipeline
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="text-center p-4 bg-blue-50 rounded-lg">
-              <Upload className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-              <h4 className="font-medium text-blue-900">1. Upload</h4>
-              <p className="text-sm text-blue-700">File validation & storage</p>
-            </div>
-            <div className="text-center p-4 bg-purple-50 rounded-lg">
-              <FileText className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-              <h4 className="font-medium text-purple-900">2. Parse</h4>
-              <p className="text-sm text-purple-700">Text extraction & chunking</p>
-            </div>
-            <div className="text-center p-4 bg-green-50 rounded-lg">
-              <Database className="w-8 h-8 text-green-600 mx-auto mb-2" />
-              <h4 className="font-medium text-green-900">3. Embed</h4>
-              <p className="text-sm text-green-700">Vector embeddings generation</p>
-            </div>
-            <div className="text-center p-4 bg-orange-50 rounded-lg">
-              <CheckCircle className="w-8 h-8 text-orange-600 mx-auto mb-2" />
-              <h4 className="font-medium text-orange-900">4. Index</h4>
-              <p className="text-sm text-orange-700">Knowledge base integration</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Documents List */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Uploaded Documents</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {sopDocuments.map((doc) => (
-              <div key={doc.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
-                <div className="flex items-center gap-3">
-                  {getFileIcon(doc.type)}
-                  <div>
-                    <h4 className="font-medium text-gray-900">{doc.name}</h4>
-                    <div className="flex items-center gap-4 text-sm text-gray-600">
-                      <span>{doc.size}</span>
-                      <span>•</span>
-                      <span>{doc.chunks} chunks</span>
-                      <span>•</span>
-                      <span>Uploaded {doc.uploadDate}</span>
-                    </div>
+              {isUploading && (
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Uploading...</span>
+                    <span>{uploadProgress}%</span>
                   </div>
+                  <Progress value={uploadProgress} className="w-full" />
                 </div>
-                
-                <div className="flex items-center gap-3">
-                  {getStatusBadge(doc.status)}
-                  
-                  {doc.status === 'processing' && (
+              )}
+            </CardContent>
+          </Card>
+
+          {/* SOP Documents List */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Uploaded SOP Documents</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {(sopDocuments.length > 0 ? sopDocuments : mockSOPs).map(sop => (
+                  <div key={sop.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                    <div className="flex items-center gap-4">
+                      {getStatusIcon(sop.status)}
+                      <div className="flex-1">
+                        <h3 className="font-medium text-gray-900">{sop.name}</h3>
+                        <p className="text-sm text-gray-600">{sop.description}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="outline" className="text-xs">{sop.type}</Badge>
+                          <span className="text-xs text-gray-500">{sop.size} MB</span>
+                          <span className="text-xs text-gray-500">Uploaded: {sop.uploadDate}</span>
+                        </div>
+                      </div>
+                    </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                      <span className="text-sm text-blue-600">Processing...</span>
+                      <Badge className={getStatusColor(sop.status)}>
+                        {sop.status}
+                      </Badge>
+                      <Button size="sm" variant="outline">
+                        <Download className="w-3 h-3" />
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => handleDeleteSOP(sop.id)}>
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
                     </div>
-                  )}
-                  
-                  <div className="flex gap-1">
-                    <Button size="sm" variant="outline">
-                      <Eye className="w-3 h-3" />
-                    </Button>
-                    <Button size="sm" variant="outline">
-                      <Download className="w-3 h-3" />
-                    </Button>
-                    <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
                   </div>
+                ))}
+
+                {sopDocuments.length === 0 && mockSOPs.length === 0 && (
+                  <div className="text-center py-8 text-gray-500">
+                    <Database className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                    <p>No SOP documents uploaded yet</p>
+                    <p className="text-sm">Upload your first document above to get started</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Training Status */}
+          <Card>
+            <CardHeader>
+              <CardTitle>AI Training Status</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center p-4 bg-blue-50 rounded-lg">
+                  <Database className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+                  <p className="font-semibold text-blue-900">{mockSOPs.length}</p>
+                  <p className="text-sm text-blue-700">Documents Processed</p>
+                </div>
+                <div className="text-center p-4 bg-green-50 rounded-lg">
+                  <CheckCircle className="w-8 h-8 text-green-600 mx-auto mb-2" />
+                  <p className="font-semibold text-green-900">98%</p>
+                  <p className="text-sm text-green-700">Training Accuracy</p>
+                </div>
+                <div className="text-center p-4 bg-purple-50 rounded-lg">
+                  <Brain className="w-8 h-8 text-purple-600 mx-auto mb-2" />
+                  <p className="font-semibold text-purple-900">Ready</p>
+                  <p className="text-sm text-purple-700">AI Status</p>
                 </div>
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Knowledge Base Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total Documents</p>
-                <p className="text-2xl font-bold">{sopDocuments.length}</p>
-              </div>
-              <FileText className="w-8 h-8 text-blue-500" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Text Chunks</p>
-                <p className="text-2xl font-bold">{sopDocuments.reduce((acc, doc) => acc + doc.chunks, 0)}</p>
-              </div>
-              <Database className="w-8 h-8 text-green-500" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Ready Documents</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {sopDocuments.filter(doc => doc.status === 'ready').length}
-                </p>
-              </div>
-              <CheckCircle className="w-8 h-8 text-green-500" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            </CardContent>
+          </Card>
+        </>
+      )}
     </div>
   );
 };
