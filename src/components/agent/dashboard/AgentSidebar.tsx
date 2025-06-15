@@ -47,14 +47,8 @@ export const AgentSidebar = ({ todayPerformance, activeTab = 'dashboard', onTabC
         <div className="space-y-4 group-data-[collapsible=icon]:space-y-2">
           {/* Hamburger Menu Button - Always Visible at the very top */}
           <div className="flex items-center justify-start mb-4">
-            <SidebarTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-12 w-12 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 border-2 border-slate-400 bg-white shadow-lg rounded-lg"
-              >
-                <Menu className="h-6 w-6 text-slate-700" />
-              </Button>
+            <SidebarTrigger className="h-12 w-12 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 border-2 border-slate-400 bg-white shadow-lg rounded-lg">
+              <Menu className="h-6 w-6 text-slate-700" />
             </SidebarTrigger>
           </div>
 
