@@ -2,136 +2,305 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MessageSquare, FileText, Video, Users, BookOpen, Download, Calendar, ArrowRight, ExternalLink } from 'lucide-react';
+import { MessageSquare, FileText, Video, Users, BookOpen, Download, Calendar, ArrowRight, ExternalLink, DollarSign, Zap, Shield, Globe, Bot, BarChart3, Headphones } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Resources = () => {
   const navigate = useNavigate();
 
-  const resourceCategories = [
+  const platformOverview = {
+    totalFeatures: "200+",
+    supportedLanguages: "100+",
+    uptime: "99.9%",
+    globalDataCenters: "15+",
+    integrations: "500+",
+    customers: "10,000+"
+  };
+
+  const detailedCapabilities = [
     {
-      title: "Documentation",
-      description: "Comprehensive guides and API documentation",
-      icon: BookOpen,
+      category: "Core Platform",
+      icon: MessageSquare,
       color: "from-blue-500 to-cyan-500",
-      resources: [
-        { title: "Quick Start Guide", type: "guide", time: "5 min read" },
-        { title: "API Reference", type: "reference", time: "30 min read" },
-        { title: "Integration Examples", type: "tutorial", time: "15 min read" },
-        { title: "Best Practices", type: "guide", time: "20 min read" }
+      capabilities: [
+        { name: "Real-time Messaging", description: "Instant message delivery with typing indicators and read receipts" },
+        { name: "Multi-language Support", description: "Auto-translation for 100+ languages with cultural context" },
+        { name: "Cross-platform SDKs", description: "Native SDKs for web, iOS, Android, and desktop applications" },
+        { name: "Offline Message Queue", description: "Messages stored and delivered when users come back online" },
+        { name: "Message History", description: "Complete conversation history with search and filtering" },
+        { name: "File Sharing", description: "Support for documents, images, videos up to 100MB" }
       ]
     },
     {
-      title: "Video Tutorials",
-      description: "Step-by-step video guides and webinars",
-      icon: Video,
+      category: "AI & Automation",
+      icon: Bot,
       color: "from-purple-500 to-indigo-500",
-      resources: [
-        { title: "Platform Overview", type: "video", time: "10 min watch" },
-        { title: "Setup & Configuration", type: "video", time: "15 min watch" },
-        { title: "Advanced Features", type: "webinar", time: "45 min watch" },
-        { title: "Customer Success Stories", type: "video", time: "20 min watch" }
+      capabilities: [
+        { name: "Natural Language Processing", description: "Advanced NLP for intent recognition and entity extraction" },
+        { name: "Sentiment Analysis", description: "Real-time emotion detection for better customer understanding" },
+        { name: "Auto-routing", description: "Intelligent conversation routing based on content and urgency" },
+        { name: "Chatbot Builder", description: "Drag-and-drop interface for creating sophisticated chatbots" },
+        { name: "Machine Learning", description: "Continuous learning from interactions to improve responses" },
+        { name: "Predictive Analytics", description: "AI-powered insights for customer behavior prediction" }
       ]
     },
     {
-      title: "White Papers",
-      description: "Industry insights and research reports",
-      icon: FileText,
+      category: "Analytics & Reporting",
+      icon: BarChart3,
       color: "from-green-500 to-emerald-500",
-      resources: [
-        { title: "Future of Customer Support", type: "whitepaper", time: "25 min read" },
-        { title: "AI in Customer Service", type: "research", time: "20 min read" },
-        { title: "ROI of Chat Platforms", type: "case-study", time: "15 min read" },
-        { title: "Security Best Practices", type: "whitepaper", time: "30 min read" }
+      capabilities: [
+        { name: "Real-time Dashboards", description: "Live performance metrics with customizable widgets" },
+        { name: "Custom Reports", description: "Build reports with 50+ metrics and dimensions" },
+        { name: "Performance Tracking", description: "Agent performance monitoring with coaching insights" },
+        { name: "Customer Journey Analytics", description: "Track customer interactions across all touchpoints" },
+        { name: "ROI Measurement", description: "Calculate chat impact on sales and customer satisfaction" },
+        { name: "Data Export", description: "Export data in multiple formats (CSV, PDF, Excel)" }
       ]
     },
     {
-      title: "Community",
-      description: "Connect with other users and experts",
-      icon: Users,
+      category: "Security & Compliance",
+      icon: Shield,
+      color: "from-red-500 to-pink-500",
+      capabilities: [
+        { name: "End-to-end Encryption", description: "AES-256 encryption for all data in transit and at rest" },
+        { name: "GDPR Compliance", description: "Built-in data protection and privacy controls" },
+        { name: "HIPAA Compliance", description: "Healthcare-grade security for medical organizations" },
+        { name: "SOC 2 Type II", description: "Annual security audits and compliance certifications" },
+        { name: "Access Controls", description: "Role-based permissions with granular control" },
+        { name: "Audit Logging", description: "Comprehensive activity logs for compliance reporting" }
+      ]
+    },
+    {
+      category: "Integrations",
+      icon: Globe,
       color: "from-orange-500 to-red-500",
-      resources: [
-        { title: "Developer Forum", type: "forum", time: "Active" },
-        { title: "User Groups", type: "community", time: "Monthly" },
-        { title: "Expert Q&A", type: "forum", time: "Daily" },
-        { title: "Feature Requests", type: "feedback", time: "Ongoing" }
+      capabilities: [
+        { name: "CRM Integration", description: "Seamless connection with Salesforce, HubSpot, Pipedrive" },
+        { name: "E-commerce Platforms", description: "Direct integration with Shopify, WooCommerce, Magento" },
+        { name: "Communication Tools", description: "Connect with Slack, Microsoft Teams, Discord" },
+        { name: "Social Media", description: "Unified inbox for Facebook, Instagram, WhatsApp, Twitter" },
+        { name: "Voice Systems", description: "Integration with Twilio, RingCentral, 8x8" },
+        { name: "Custom APIs", description: "RESTful APIs and webhooks for custom integrations" }
+      ]
+    },
+    {
+      category: "Customer Experience",
+      icon: Headphones,
+      color: "from-teal-500 to-cyan-500",
+      capabilities: [
+        { name: "Omnichannel Support", description: "Consistent experience across web, mobile, and social" },
+        { name: "Customer Context", description: "Complete customer history and interaction timeline" },
+        { name: "Proactive Engagement", description: "Trigger chats based on user behavior and rules" },
+        { name: "CSAT Surveys", description: "Automated satisfaction surveys with custom questions" },
+        { name: "Queue Management", description: "Intelligent queue with estimated wait times" },
+        { name: "Co-browsing", description: "Screen sharing for complex issue resolution" }
       ]
     }
   ];
 
-  const featuredResources = [
+  const pricingBreakdown = [
     {
-      title: "The Complete Guide to AI-Powered Customer Support",
-      description: "A comprehensive guide to implementing AI in your customer support strategy",
-      type: "E-book",
-      pages: "45 pages",
-      color: "from-blue-500 to-cyan-500",
-      badge: "Popular"
+      plan: "Free",
+      price: "$0",
+      description: "Perfect for startups and small teams",
+      included: [
+        "Up to 5 agents",
+        "1,000 conversations/month",
+        "Basic chat widget",
+        "Email support",
+        "Basic reporting",
+        "25% of platform features"
+      ],
+      notIncluded: [
+        "API access",
+        "Custom integrations",
+        "Advanced analytics",
+        "Priority support",
+        "White labeling"
+      ],
+      bestFor: "Small businesses, startups, testing"
     },
     {
-      title: "Enterprise Security & Compliance Checklist",
-      description: "Essential security considerations for enterprise chat implementations",
-      type: "Checklist",
-      pages: "12 pages",
-      color: "from-red-500 to-orange-500",
-      badge: "New"
+      plan: "Growth",
+      price: "$5/agent/month",
+      description: "Growing businesses with enhanced needs",
+      included: [
+        "Unlimited agents",
+        "10,000 conversations/month",
+        "Advanced chat widget",
+        "API access",
+        "Canned responses",
+        "File sharing",
+        "Advanced routing",
+        "50% of platform features"
+      ],
+      notIncluded: [
+        "Custom fields",
+        "Advanced integrations",
+        "White labeling",
+        "SSO",
+        "Priority support"
+      ],
+      bestFor: "Growing companies, small customer support teams"
     },
     {
-      title: "Customer Experience Metrics That Matter",
-      description: "Key performance indicators for measuring customer experience success",
-      type: "Report",
-      pages: "28 pages",
-      color: "from-purple-500 to-indigo-500",
-      badge: "Trending"
+      plan: "Pro",
+      price: "$10/agent/month",
+      description: "Professional teams with advanced requirements",
+      included: [
+        "Unlimited conversations",
+        "All Growth features",
+        "Custom fields",
+        "Advanced integrations",
+        "Advanced analytics",
+        "Priority support",
+        "API rate limit: 10,000/hour",
+        "75% of platform features"
+      ],
+      notIncluded: [
+        "White labeling",
+        "SSO integration",
+        "Custom SLA",
+        "Dedicated support"
+      ],
+      bestFor: "Medium businesses, professional support teams"
+    },
+    {
+      plan: "Enterprise",
+      price: "$15/agent/month",
+      description: "Large organizations with complete requirements",
+      included: [
+        "All Pro features",
+        "White labeling",
+        "SSO integration",
+        "Custom SLA",
+        "Dedicated support manager",
+        "Advanced automation",
+        "Custom workflows",
+        "API rate limit: Unlimited",
+        "100% platform access"
+      ],
+      notIncluded: [],
+      bestFor: "Large enterprises, complex organizations"
+    }
+  ];
+
+  const implementationGuide = [
+    {
+      phase: "Planning & Discovery",
+      duration: "1-2 weeks",
+      description: "Understand requirements and plan implementation",
+      activities: [
+        "Business requirements analysis",
+        "Technical architecture review",
+        "Integration planning",
+        "Team structure planning",
+        "Success metrics definition"
+      ]
+    },
+    {
+      phase: "Setup & Configuration",
+      duration: "1-3 weeks",
+      description: "Platform setup and basic configuration",
+      activities: [
+        "Account setup and user creation",
+        "Chat widget installation",
+        "Basic routing configuration",
+        "Team and department setup",
+        "Initial testing"
+      ]
+    },
+    {
+      phase: "Integration & Customization",
+      duration: "2-4 weeks",
+      description: "Connect with existing systems and customize",
+      activities: [
+        "CRM integration setup",
+        "API integrations",
+        "Custom field configuration",
+        "Workflow automation",
+        "Advanced routing rules"
+      ]
+    },
+    {
+      phase: "Training & Launch",
+      duration: "1-2 weeks",
+      description: "Team training and go-live preparation",
+      activities: [
+        "Agent training sessions",
+        "Supervisor training",
+        "Admin training",
+        "Soft launch with limited users",
+        "Full production launch"
+      ]
+    },
+    {
+      phase: "Optimization",
+      duration: "Ongoing",
+      description: "Continuous improvement and optimization",
+      activities: [
+        "Performance monitoring",
+        "Analytics review",
+        "Process optimization",
+        "Feature adoption",
+        "Regular health checks"
+      ]
+    }
+  ];
+
+  const industryUse = [
+    {
+      industry: "E-commerce & Retail",
+      description: "Boost sales and reduce cart abandonment",
+      metrics: ["40% increase in conversion", "60% reduction in cart abandonment", "25% increase in average order value"],
+      features: ["Product recommendations", "Order tracking", "Inventory inquiries", "Return assistance"]
+    },
+    {
+      industry: "Healthcare",
+      description: "HIPAA-compliant patient communication",
+      metrics: ["50% faster appointment scheduling", "80% reduction in phone calls", "95% patient satisfaction"],
+      features: ["Appointment scheduling", "Prescription inquiries", "Insurance verification", "Secure messaging"]
+    },
+    {
+      industry: "Financial Services",
+      description: "Secure customer support and sales",
+      metrics: ["70% faster issue resolution", "45% increase in cross-selling", "99.9% security compliance"],
+      features: ["Account inquiries", "Loan applications", "Fraud reporting", "Investment advice"]
+    },
+    {
+      industry: "SaaS & Technology",
+      description: "Technical support and user onboarding",
+      metrics: ["60% reduction in support tickets", "80% faster onboarding", "90% user adoption"],
+      features: ["Technical troubleshooting", "Feature guidance", "Integration support", "User training"]
     }
   ];
 
   const upcomingWebinars = [
     {
-      title: "Mastering AI-Powered Customer Support",
-      date: "Dec 15, 2024",
+      title: "Maximizing ROI with AI-Powered Customer Support",
+      date: "Dec 20, 2024",
       time: "2:00 PM EST",
       speaker: "Dr. Sarah Johnson, VP of AI Research",
-      attendees: "1,200+ registered"
+      attendees: "1,500+ registered",
+      topics: ["AI implementation strategies", "ROI measurement", "Best practices", "Q&A session"]
     },
     {
       title: "Building Scalable Support Operations",
-      date: "Dec 22, 2024", 
+      date: "Jan 3, 2025", 
       time: "11:00 AM EST",
       speaker: "Michael Chen, Customer Success Director",
-      attendees: "800+ registered"
+      attendees: "1,200+ registered",
+      topics: ["Team scaling strategies", "Process optimization", "Performance metrics", "Case studies"]
     },
     {
-      title: "2025 Customer Experience Trends",
-      date: "Jan 5, 2025",
+      title: "Security & Compliance in Customer Communications",
+      date: "Jan 10, 2025",
       time: "1:00 PM EST",
-      speaker: "Lisa Thompson, Industry Analyst",
-      attendees: "500+ registered"
+      speaker: "Lisa Thompson, Security Expert",
+      attendees: "800+ registered",
+      topics: ["GDPR compliance", "Data security", "Audit requirements", "Best practices"]
     }
   ];
-
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case 'guide': return 'bg-blue-100 text-blue-700';
-      case 'tutorial': return 'bg-green-100 text-green-700';
-      case 'reference': return 'bg-purple-100 text-purple-700';
-      case 'video': return 'bg-red-100 text-red-700';
-      case 'webinar': return 'bg-orange-100 text-orange-700';
-      case 'whitepaper': return 'bg-teal-100 text-teal-700';
-      case 'research': return 'bg-indigo-100 text-indigo-700';
-      case 'case-study': return 'bg-pink-100 text-pink-700';
-      default: return 'bg-gray-100 text-gray-700';
-    }
-  };
-
-  const getBadgeColor = (badge: string) => {
-    switch (badge) {
-      case 'Popular': return 'bg-blue-100 text-blue-700';
-      case 'New': return 'bg-green-100 text-green-700';
-      case 'Trending': return 'bg-purple-100 text-purple-700';
-      default: return 'bg-gray-100 text-gray-700';
-    }
-  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -174,63 +343,35 @@ const Resources = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h1 className="text-5xl font-bold text-gray-900 mb-6">
-              Resource <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Center</span>
+              Complete <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Knowledge Base</span>
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Discover guides, tutorials, case studies, and tools to help you maximize your success with Trichat.
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+              Comprehensive platform overview, detailed pricing breakdown, implementation guides, and industry-specific use cases.
             </p>
+
+            {/* Platform Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-6 gap-4 max-w-4xl mx-auto">
+              {Object.entries(platformOverview).map(([key, value], index) => (
+                <div key={index} className="text-center">
+                  <div className="text-2xl font-bold text-blue-600">{value}</div>
+                  <div className="text-sm text-gray-600 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Featured Resources */}
+      {/* Detailed Platform Capabilities */}
       <div className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Featured Resources</h2>
-            <p className="text-xl text-gray-600">Our most popular and valuable resources</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {featuredResources.map((resource, index) => (
-              <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer">
-                <CardHeader>
-                  <div className="flex items-center justify-between mb-4">
-                    <Badge className={getBadgeColor(resource.badge)}>
-                      {resource.badge}
-                    </Badge>
-                    <Download className="w-5 h-5 text-gray-400" />
-                  </div>
-                  <CardTitle className="text-xl text-gray-900">{resource.title}</CardTitle>
-                  <CardDescription className="text-gray-600">
-                    {resource.description}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                    <span>{resource.type}</span>
-                    <span>{resource.pages}</span>
-                  </div>
-                  <Button className="w-full">
-                    Download Free <Download className="ml-2 w-4 h-4" />
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Resource Categories */}
-      <div className="bg-gray-50 py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Browse by Category</h2>
-            <p className="text-xl text-gray-600">Find exactly what you're looking for</p>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Platform Capabilities Deep Dive</h2>
+            <p className="text-xl text-gray-600">Explore every feature and capability in detail</p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {resourceCategories.map((category, index) => {
+            {detailedCapabilities.map((category, index) => {
               const IconComponent = category.icon;
               return (
                 <Card key={index} className="border-0 shadow-lg">
@@ -238,31 +379,17 @@ const Resources = () => {
                     <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${category.color} flex items-center justify-center mb-4`}>
                       <IconComponent className="w-6 h-6 text-white" />
                     </div>
-                    <CardTitle className="text-xl text-gray-900">{category.title}</CardTitle>
-                    <CardDescription className="text-gray-600">
-                      {category.description}
-                    </CardDescription>
+                    <CardTitle className="text-xl text-gray-900">{category.category}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-3">
-                      {category.resources.map((resource, resourceIndex) => (
-                        <div key={resourceIndex} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                          <div className="flex-1">
-                            <div className="font-medium text-gray-900">{resource.title}</div>
-                            <div className="text-sm text-gray-500">{resource.time}</div>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Badge className={getTypeColor(resource.type)} variant="secondary">
-                              {resource.type}
-                            </Badge>
-                            <ExternalLink className="w-4 h-4 text-gray-400" />
-                          </div>
+                    <div className="space-y-4">
+                      {category.capabilities.map((capability, capIndex) => (
+                        <div key={capIndex} className="border-l-4 border-blue-500 pl-4">
+                          <div className="font-medium text-gray-900">{capability.name}</div>
+                          <div className="text-sm text-gray-600 mt-1">{capability.description}</div>
                         </div>
                       ))}
                     </div>
-                    <Button variant="outline" className="w-full mt-4">
-                      View All <ArrowRight className="ml-2 w-4 h-4" />
-                    </Button>
                   </CardContent>
                 </Card>
               );
@@ -271,15 +398,160 @@ const Resources = () => {
         </div>
       </div>
 
+      {/* Detailed Pricing Breakdown */}
+      <div className="bg-gray-50 py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Detailed Pricing Breakdown</h2>
+            <p className="text-xl text-gray-600">Complete overview of what's included in each plan</p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {pricingBreakdown.map((plan, index) => (
+              <Card key={index} className="border-0 shadow-lg">
+                <CardHeader>
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <CardTitle className="text-2xl text-gray-900">{plan.plan}</CardTitle>
+                      <div className="text-3xl font-bold text-blue-600">{plan.price}</div>
+                    </div>
+                    <DollarSign className="w-8 h-8 text-blue-600" />
+                  </div>
+                  <CardDescription className="text-gray-600">{plan.description}</CardDescription>
+                  <Badge className="bg-blue-100 text-blue-700 w-fit">{plan.bestFor}</Badge>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="font-medium text-green-700 mb-2">✓ What's Included:</div>
+                      <div className="space-y-1">
+                        {plan.included.map((item, itemIndex) => (
+                          <div key={itemIndex} className="text-sm text-gray-600 flex items-center">
+                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
+                            {item}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    {plan.notIncluded.length > 0 && (
+                      <div>
+                        <div className="font-medium text-red-700 mb-2">✗ Not Included:</div>
+                        <div className="space-y-1">
+                          {plan.notIncluded.map((item, itemIndex) => (
+                            <div key={itemIndex} className="text-sm text-gray-500 flex items-center">
+                              <div className="w-1.5 h-1.5 bg-red-500 rounded-full mr-2"></div>
+                              {item}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <Button className="w-full mt-4" onClick={() => navigate('/auth')}>
+                    Start {plan.plan} Plan
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Implementation Guide */}
+      <div className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Implementation Roadmap</h2>
+            <p className="text-xl text-gray-600">Step-by-step guide to successful platform adoption</p>
+          </div>
+
+          <div className="space-y-8">
+            {implementationGuide.map((phase, index) => (
+              <Card key={index} className="border-0 shadow-lg">
+                <CardContent className="p-8">
+                  <div className="flex items-start space-x-6">
+                    <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xl font-bold flex-shrink-0">
+                      {index + 1}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-4 mb-2">
+                        <h3 className="text-xl font-bold text-gray-900">{phase.phase}</h3>
+                        <Badge variant="outline">{phase.duration}</Badge>
+                      </div>
+                      <p className="text-gray-600 mb-4">{phase.description}</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                        {phase.activities.map((activity, activityIndex) => (
+                          <div key={activityIndex} className="text-sm text-gray-600 flex items-center">
+                            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></div>
+                            {activity}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Industry Use Cases */}
+      <div className="bg-gray-50 py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Industry-Specific Solutions</h2>
+            <p className="text-xl text-gray-600">How different industries benefit from Trichat</p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {industryUse.map((industry, index) => (
+              <Card key={index} className="border-0 shadow-lg">
+                <CardHeader>
+                  <CardTitle className="text-xl text-gray-900">{industry.industry}</CardTitle>
+                  <CardDescription className="text-gray-600">{industry.description}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="font-medium text-green-700 mb-2">Key Metrics:</div>
+                      <div className="grid grid-cols-1 gap-1">
+                        {industry.metrics.map((metric, metricIndex) => (
+                          <div key={metricIndex} className="text-sm text-gray-600 flex items-center">
+                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
+                            {metric}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="font-medium text-blue-700 mb-2">Common Features:</div>
+                      <div className="grid grid-cols-2 gap-1">
+                        {industry.features.map((feature, featureIndex) => (
+                          <div key={featureIndex} className="text-sm text-gray-600 flex items-center">
+                            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></div>
+                            {feature}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* Upcoming Webinars */}
       <div className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Upcoming Webinars</h2>
-            <p className="text-xl text-gray-600">Join our live sessions and learn from experts</p>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Educational Webinars</h2>
+            <p className="text-xl text-gray-600">Learn from experts and get the most out of your platform</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {upcomingWebinars.map((webinar, index) => (
               <Card key={index} className="border-0 shadow-lg">
                 <CardHeader>
@@ -293,15 +565,25 @@ const Resources = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="space-y-4">
                     <Badge className="bg-green-100 text-green-700">
                       {webinar.attendees}
                     </Badge>
-                    <span className="text-sm text-gray-500">Free</span>
+                    <div>
+                      <div className="font-medium text-gray-700 mb-2">Topics Covered:</div>
+                      <div className="space-y-1">
+                        {webinar.topics.map((topic, topicIndex) => (
+                          <div key={topicIndex} className="text-sm text-gray-600 flex items-center">
+                            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></div>
+                            {topic}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <Button className="w-full">
+                      Register Now
+                    </Button>
                   </div>
-                  <Button className="w-full">
-                    Register Now
-                  </Button>
                 </CardContent>
               </Card>
             ))}
@@ -313,10 +595,10 @@ const Resources = () => {
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl font-bold text-white mb-4">
-            Ready to get started?
+            Ready to transform your customer experience?
           </h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Have questions? Our team is here to help you succeed with Trichat.
+            Join thousands of companies that trust Trichat to deliver exceptional customer experiences at scale.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -331,8 +613,9 @@ const Resources = () => {
               size="lg" 
               variant="outline"
               className="text-white border-white hover:bg-white hover:text-blue-600"
+              onClick={() => navigate('/pricing')}
             >
-              Contact Support
+              Schedule Demo
             </Button>
           </div>
         </div>
