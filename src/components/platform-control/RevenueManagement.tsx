@@ -1,91 +1,62 @@
 
-import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { 
   DollarSign, 
   TrendingUp, 
-  Plus, 
-  Edit, 
-  Settings,
-  CreditCard,
-  Percent,
-  Users,
-  Calendar,
+  CreditCard, 
   Target,
-  Award,
-  Zap
+  Download,
+  Settings,
+  BarChart3,
+  Users,
+  Zap,
+  AlertTriangle
 } from 'lucide-react';
 
-interface PricingTier {
-  id: string;
-  name: string;
-  price: number;
-  billing: 'monthly' | 'yearly';
-  features: string[];
-  clients: number;
-  revenue: string;
-  status: 'active' | 'inactive';
-  conversion: number;
-  churn: number;
-}
-
 export const RevenueManagement = () => {
-  const [pricingTiers] = useState<PricingTier[]>([
-    {
-      id: '1',
-      name: 'Starter Pro',
-      price: 49,
-      billing: 'monthly',
-      features: ['5,000 API calls', 'Priority support', 'Advanced analytics', '5 team members'],
-      clients: 1247,
-      revenue: '$61,303',
-      status: 'active',
-      conversion: 18.5,
-      churn: 3.2
+  const revenueMetrics = [
+    { title: 'Total Revenue', value: '$2,847,392', change: '+18.7%', icon: DollarSign, color: 'from-emerald-400 to-emerald-600' },
+    { title: 'Monthly Recurring', value: '$847,293', change: '+24.3%', icon: CreditCard, color: 'from-blue-400 to-blue-600' },
+    { title: 'Average Revenue Per User', value: '$127.45', change: '+12.8%', icon: Users, color: 'from-purple-400 to-purple-600' },
+    { title: 'Revenue Growth Rate', value: '24.7%', change: '+3.2%', icon: TrendingUp, color: 'from-green-400 to-green-600' }
+  ];
+
+  const pricingTiers = [
+    { 
+      name: 'Starter', 
+      price: '$29/mo', 
+      clients: 1247, 
+      revenue: '$36,163', 
+      conversion: '12.4%',
+      trend: 'up'
     },
-    {
-      id: '2',
-      name: 'Business Elite',
-      price: 149,
-      billing: 'monthly',
-      features: ['25,000 API calls', '24/7 support', 'Custom integrations', '25 team members'],
-      clients: 834,
-      revenue: '$124,266',
-      status: 'active',
-      conversion: 24.8,
-      churn: 2.1
+    { 
+      name: 'Professional', 
+      price: '$99/mo', 
+      clients: 892, 
+      revenue: '$88,308', 
+      conversion: '8.7%',
+      trend: 'up'
     },
-    {
-      id: '3',
-      name: 'Enterprise Pro',
-      price: 449,
-      billing: 'monthly',
-      features: ['Unlimited API calls', 'Dedicated support', 'White-label', 'Unlimited team'],
-      clients: 267,
-      revenue: '$119,883',
-      status: 'active',
-      conversion: 31.7,
-      churn: 1.4
+    { 
+      name: 'Enterprise', 
+      price: '$299/mo', 
+      clients: 456, 
+      revenue: '$136,344', 
+      conversion: '15.2%',
+      trend: 'up'
+    },
+    { 
+      name: 'Enterprise Pro', 
+      price: '$599/mo', 
+      clients: 178, 
+      revenue: '$106,622', 
+      conversion: '22.1%',
+      trend: 'up'
     }
   ];
-
-  const revenueMetrics = [
-    { title: 'Monthly Recurring Revenue', value: '$847,392', change: '+23.8%', icon: DollarSign, color: 'from-emerald-400 to-emerald-600' },
-    { title: 'Annual Contract Value', value: '$10.1M', change: '+31.2%', icon: Target, color: 'from-blue-400 to-blue-600' },
-    { title: 'Average Revenue Per User', value: '$127', change: '+15.7%', icon: Users, color: 'from-purple-400 to-purple-600' },
-    { title: 'Customer Lifetime Value', value: '$3,420', change: '+18.9%', icon: Award, color: 'from-orange-400 to-orange-600' },
-    { title: 'Conversion Rate', value: '24.8%', change: '+5.2%', icon: TrendingUp, color: 'from-green-400 to-green-600' },
-    { title: 'Churn Rate', value: '2.1%', change: '-1.3%', icon: Percent, color: 'from-red-400 to-red-600' }
-  ];
-
-  const totalRevenue = pricingTiers.reduce((sum, tier) => {
-    return sum + parseFloat(tier.revenue.replace('$', '').replace(',', ''));
-  }, 0);
-
-  const totalClients = pricingTiers.reduce((sum, tier) => sum + tier.clients, 0);
 
   return (
     <div className="p-8 space-y-8 bg-gradient-to-br from-gray-50/30 to-white min-h-screen">
@@ -96,28 +67,28 @@ export const RevenueManagement = () => {
             <div className="p-2 bg-gradient-to-r from-emerald-500 to-green-600 rounded-xl">
               <DollarSign className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-4xl font-bold text-gray-900">Revenue Engine</h1>
+            <h1 className="text-4xl font-bold text-gray-900">Revenue Command Center</h1>
           </div>
           <p className="text-gray-600 ml-12">Dynamic pricing control and revenue optimization</p>
         </div>
         <div className="flex gap-3">
           <Button variant="outline" size="sm" className="border-gray-300">
-            <Settings className="w-4 h-4 mr-2" />
-            Billing Settings
+            <Download className="w-4 h-4 mr-2" />
+            Revenue Report
           </Button>
           <Button size="sm" className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700">
-            <Plus className="w-4 h-4 mr-2" />
-            Create Pricing Tier
+            <Settings className="w-4 h-4 mr-2" />
+            Pricing Settings
           </Button>
         </div>
       </div>
 
       {/* Revenue Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {revenueMetrics.map((metric, index) => {
           const IconComponent = metric.icon;
           return (
-            <Card key={index} className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+            <Card key={index} className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-gray-700">{metric.title}</CardTitle>
                 <div className={`p-3 rounded-xl bg-gradient-to-r ${metric.color} shadow-lg`}>
@@ -126,155 +97,129 @@ export const RevenueManagement = () => {
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-gray-900 mb-1">{metric.value}</div>
-                <p className={`text-sm font-medium ${
-                  metric.change.startsWith('+') ? 'text-green-600' : 
-                  metric.title === 'Churn Rate' ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {metric.change} from last month
-                </p>
+                <div className="flex items-center space-x-1">
+                  <TrendingUp className="w-4 h-4 text-green-600" />
+                  <p className="text-sm font-medium text-green-600">{metric.change} from last month</p>
+                </div>
               </CardContent>
             </Card>
           );
         })}
       </div>
 
-      {/* Revenue Overview */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Pricing Tiers Performance */}
         <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-700">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-emerald-600" />
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2 text-gray-900">
+              <Target className="w-5 h-5 text-emerald-600" />
+              <span>Pricing Tiers Performance</span>
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-900">${totalRevenue.toLocaleString()}</div>
-            <p className="text-xs text-emerald-600">+12.5% from last month</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-700">Total Clients</CardTitle>
-            <Users className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-900">{totalClients.toLocaleString()}</div>
-            <p className="text-xs text-blue-600">+8.3% from last month</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-700">Average Revenue</CardTitle>
-            <TrendingUp className="h-4 w-4 text-purple-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-900">${Math.round(totalRevenue / totalClients)}</div>
-            <p className="text-xs text-purple-600">Per client per month</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-700">Growth Rate</CardTitle>
-            <Zap className="h-4 w-4 text-orange-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-900">+23.8%</div>
-            <p className="text-xs text-orange-600">Monthly growth</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Pricing Tiers Management */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {pricingTiers.map((tier) => (
-          <Card key={tier.id} className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-xl font-bold text-gray-900">{tier.name}</CardTitle>
-                  <div className="flex items-center space-x-2 mt-2">
-                    <span className="text-3xl font-bold text-emerald-600">${tier.price}</span>
-                    <span className="text-gray-500">/{tier.billing}</span>
+          <CardContent className="space-y-4">
+            {pricingTiers.map((tier, index) => (
+              <div key={index} className="flex items-center justify-between p-4 rounded-lg bg-gradient-to-r from-gray-50 to-white border border-gray-200 hover:shadow-md transition-shadow">
+                <div className="flex items-center space-x-4">
+                  <div className="p-2 bg-emerald-100 rounded-lg">
+                    <DollarSign className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">{tier.name}</h3>
+                    <p className="text-sm text-gray-600">{tier.price}</p>
                   </div>
                 </div>
-                <Badge className={tier.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}>
-                  {tier.status}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <h4 className="font-semibold text-gray-900 mb-2">Features</h4>
-                <ul className="space-y-1">
-                  {tier.features.map((feature, index) => (
-                    <li key={index} className="text-sm text-gray-600 flex items-center">
-                      <span className="w-1.5 h-1.5 bg-emerald-600 rounded-full mr-2"></span>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              
-              <div className="border-t pt-4 space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Clients</span>
-                  <span className="font-semibold text-gray-900">{tier.clients}</span>
+                <div className="grid grid-cols-3 gap-6 text-center">
+                  <div>
+                    <div className="text-lg font-bold text-gray-900">{tier.clients}</div>
+                    <div className="text-xs text-gray-500">Clients</div>
+                  </div>
+                  <div>
+                    <div className="text-lg font-bold text-gray-900">{tier.revenue}</div>
+                    <div className="text-xs text-gray-500">Revenue</div>
+                  </div>
+                  <div>
+                    <div className="text-lg font-bold text-gray-900">{tier.conversion}</div>
+                    <div className="text-xs text-gray-500">Conversion</div>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Monthly Revenue</span>
-                  <span className="font-semibold text-emerald-600">{tier.revenue}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Conversion Rate</span>
-                  <span className="font-semibold text-blue-600">{tier.conversion}%</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Churn Rate</span>
-                  <span className="font-semibold text-red-600">{tier.churn}%</span>
-                </div>
-              </div>
-
-              <div className="flex space-x-2 pt-4">
-                <Button size="sm" variant="outline" className="flex-1 bg-white/60">
-                  <Edit className="w-4 h-4 mr-1" />
-                  Edit Tier
-                </Button>
                 <Button size="sm" variant="outline" className="bg-white/60">
                   <Settings className="w-4 h-4" />
                 </Button>
               </div>
-            </CardContent>
-          </Card>
-        ))}
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Revenue Insights */}
+        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2 text-gray-900">
+              <BarChart3 className="w-5 h-5 text-blue-600" />
+              <span>Revenue Intelligence</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="p-4 rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-semibold text-green-900">Upsell Opportunity</h4>
+                <Badge className="bg-green-100 text-green-700">High Impact</Badge>
+              </div>
+              <p className="text-sm text-green-700">127 Professional clients ready for Enterprise upgrade</p>
+              <p className="text-xs text-green-600 mt-1">Potential revenue increase: +$47K/month</p>
+            </div>
+
+            <div className="p-4 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-semibold text-blue-900">Pricing Optimization</h4>
+                <Badge className="bg-blue-100 text-blue-700">Medium Impact</Badge>
+              </div>
+              <p className="text-sm text-blue-700">Starter tier shows high price sensitivity</p>
+              <p className="text-xs text-blue-600 mt-1">Consider $24/month price point for +15% conversion</p>
+            </div>
+
+            <div className="p-4 rounded-lg bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-semibold text-yellow-900">Churn Risk Alert</h4>
+                <Badge className="bg-yellow-100 text-yellow-700">Watch</Badge>
+              </div>
+              <p className="text-sm text-yellow-700">23 Enterprise clients showing usage decline</p>
+              <p className="text-xs text-yellow-600 mt-1">Proactive outreach recommended within 7 days</p>
+            </div>
+
+            <Button className="w-full bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white">
+              <Zap className="w-4 h-4 mr-2" />
+              Generate Revenue Strategy
+            </Button>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Revenue Tools */}
+      {/* Quick Actions */}
       <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
         <CardHeader>
-          <CardTitle className="text-gray-900">Revenue Optimization Tools</CardTitle>
+          <CardTitle className="text-gray-900">Revenue Quick Actions</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Button variant="outline" className="h-24 flex-col bg-white/60 hover:shadow-lg transition-all">
-              <Percent className="w-8 h-8 mb-2 text-green-600" />
-              <span className="font-semibold">Dynamic Discounts</span>
-              <span className="text-xs text-gray-500">Create smart offers</span>
+              <DollarSign className="w-8 h-8 mb-2 text-emerald-600" />
+              <span className="font-semibold">Update Pricing</span>
+              <span className="text-xs text-gray-500">Modify tier prices</span>
             </Button>
             <Button variant="outline" className="h-24 flex-col bg-white/60 hover:shadow-lg transition-all">
-              <CreditCard className="w-8 h-8 mb-2 text-blue-600" />
-              <span className="font-semibold">Payment Gateway</span>
-              <span className="text-xs text-gray-500">Manage transactions</span>
+              <Users className="w-8 h-8 mb-2 text-blue-600" />
+              <span className="font-semibold">Bulk Upgrades</span>
+              <span className="text-xs text-gray-500">Mass tier changes</span>
             </Button>
             <Button variant="outline" className="h-24 flex-col bg-white/60 hover:shadow-lg transition-all">
-              <Calendar className="w-8 h-8 mb-2 text-purple-600" />
-              <span className="font-semibold">Billing Cycles</span>
-              <span className="text-xs text-gray-500">Customize billing</span>
+              <Target className="w-8 h-8 mb-2 text-purple-600" />
+              <span className="font-semibold">Promo Campaigns</span>
+              <span className="text-xs text-gray-500">Create offers</span>
             </Button>
             <Button variant="outline" className="h-24 flex-col bg-white/60 hover:shadow-lg transition-all">
-              <Target className="w-8 h-8 mb-2 text-orange-600" />
-              <span className="font-semibold">Revenue Goals</span>
-              <span className="text-xs text-gray-500">Track targets</span>
+              <BarChart3 className="w-8 h-8 mb-2 text-orange-600" />
+              <span className="font-semibold">Revenue Forecast</span>
+              <span className="text-xs text-gray-500">Predict growth</span>
             </Button>
           </div>
         </CardContent>
