@@ -76,7 +76,7 @@ export const ChatbotCreationWizard = ({ open, onOpenChange }: ChatbotCreationWiz
       case 1:
         return botData.type !== '';
       case 2:
-        return botData.name !== '' && (botData.type === 'standard' || (botData.llmProvider && botData.model));
+        return botData.name !== '' && (botData.type === 'standard' || Boolean(botData.llmProvider && botData.model));
       case 3:
         return botData.welcomeMessage !== '';
       default:
