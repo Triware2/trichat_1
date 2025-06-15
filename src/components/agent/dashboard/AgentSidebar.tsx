@@ -1,3 +1,4 @@
+
 import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { 
@@ -45,11 +46,18 @@ export const AgentSidebar = ({ todayPerformance, activeTab = 'dashboard', onTabC
       {/* Header Section with Stats */}
       <SidebarHeader className="p-6 border-b border-slate-200/60 bg-white/80 backdrop-blur-sm group-data-[collapsible=icon]:p-2">
         <div className="space-y-4 group-data-[collapsible=icon]:space-y-2">
+          {/* Hamburger Menu Button - Positioned prominently */}
+          <div className="flex items-center justify-center mb-6 group-data-[collapsible=icon]:mb-2">
+            <SidebarTrigger className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
+              <Menu className="w-6 h-6 text-white" />
+            </SidebarTrigger>
+          </div>
+
           {/* Agent Badge - Hidden when collapsed */}
           <div className="flex items-center space-x-3 group-data-[collapsible=icon]:hidden">
-            <SidebarTrigger className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
-              <Menu className="w-5 h-5 text-white" />
-            </SidebarTrigger>
+            <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center shadow-lg">
+              <Activity className="w-5 h-5 text-white" />
+            </div>
             <div>
               <h3 className="font-semibold text-slate-800 text-lg">Agent Hub</h3>
               <p className="text-xs text-slate-500 font-medium">Performance Dashboard</p>
@@ -95,9 +103,9 @@ export const AgentSidebar = ({ todayPerformance, activeTab = 'dashboard', onTabC
 
           {/* Collapsed state performance indicator */}
           <div className="hidden group-data-[collapsible=icon]:block">
-            <SidebarTrigger className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg mx-auto">
-              <Menu className="w-4 h-4 text-white" />
-            </SidebarTrigger>
+            <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center shadow-lg mx-auto">
+              <Activity className="w-4 h-4 text-white" />
+            </div>
           </div>
         </div>
       </SidebarHeader>
