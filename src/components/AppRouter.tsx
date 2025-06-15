@@ -42,17 +42,17 @@ export const AppRouter = () => {
         <Route path="/documentation" element={<Documentation />} />
         <Route path="/resources" element={<Resources />} />
 
-        {/* Audit Dashboard Route */}
+        {/* Platform Creator Only - Audit Dashboard Route */}
         <Route 
           path="/audit" 
           element={
-            <ProtectedRoute allowedRoles={['admin']}>
+            <ProtectedRoute requiresPlatformAccess={true}>
               <AuditDashboard />
             </ProtectedRoute>
           } 
         />
 
-        {/* Protected Admin Routes */}
+        {/* Protected Admin Routes - Limited to pricing features */}
         <Route 
           path="/admin/*" 
           element={
@@ -88,11 +88,11 @@ export const AppRouter = () => {
           } 
         />
 
-        {/* Protected Platform Control Routes */}
+        {/* Platform Creator Only - Platform Control Routes */}
         <Route 
           path="/platform-control/*" 
           element={
-            <ProtectedRoute allowedRoles={['platform_admin']}>
+            <ProtectedRoute requiresPlatformAccess={true}>
               <TrialGuard>
                 <PlatformControl />
               </TrialGuard>

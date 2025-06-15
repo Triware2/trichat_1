@@ -16,6 +16,7 @@ interface FeatureAccessContextType {
   hasFeatureAccess: (featureKey: string) => boolean;
   isLoading: boolean;
   refreshPlanDetails: () => Promise<void>;
+  isPlatformCreator: boolean;
 }
 
 const FeatureAccessContext = createContext<FeatureAccessContextType | undefined>(undefined);
@@ -25,6 +26,9 @@ export const FeatureAccessProvider = ({ children }: { children: ReactNode }) => 
   const [planDetails, setPlanDetails] = useState<PlanDetails | null>(null);
   const [featureCache, setFeatureCache] = useState<Record<string, boolean>>({});
   const [isLoading, setIsLoading] = useState(true);
+
+  // Check if this is the platform creator
+  const isPlatformCreator = user?.email === 'Admin@trichat.com' || user?.email === 'admin@trichat.com';
 
   const refreshPlanDetails = async () => {
     if (!user) {
@@ -52,20 +56,26 @@ export const FeatureAccessProvider = ({ children }: { children: ReactNode }) => 
   };
 
   const hasFeatureAccess = (featureKey: string): boolean => {
-    if (!user || !planDetails) return false;
+    if (!user) return false;
+    
+    // Platform creator has access to everything without limitations
+    if (isPlatformCreator) return true;
     
     // Check cache first
     if (featureCache[featureKey] !== undefined) {
       return featureCache[featureKey];
     }
 
-    // For now, return true for basic features to avoid blocking
-    // In production, this would make an API call to check feature access
-    return true;
+    // For regular users, check plan-based access
+    // This would normally make an API call to check feature access based on pricing tiers
+    return true; // For now, return true for basic features to avoid blocking
   };
 
   const checkFeatureAccess = async (featureKey: string): Promise<boolean> => {
     if (!user) return false;
+
+    // Platform creator has unlimited access
+    if (isPlatformCreator) return true;
 
     try {
       const { data, error } = await supabase
@@ -97,6 +107,7 @@ export const FeatureAccessProvider = ({ children }: { children: ReactNode }) => 
     hasFeatureAccess,
     isLoading,
     refreshPlanDetails,
+    isPlatformCreator,
   };
 
   return (

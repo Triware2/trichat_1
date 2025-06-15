@@ -19,7 +19,7 @@ export const FeatureGuard = ({
   fallback, 
   showUpgradePrompt = true 
 }: FeatureGuardProps) => {
-  const { hasFeatureAccess, planDetails, isLoading } = useFeatureAccess();
+  const { hasFeatureAccess, planDetails, isLoading, isPlatformCreator } = useFeatureAccess();
   const navigate = useNavigate();
 
   if (isLoading) {
@@ -52,16 +52,20 @@ export const FeatureGuard = ({
         </div>
         <CardTitle className="text-lg text-gray-900">Feature Not Available</CardTitle>
         <CardDescription>
-          This feature is not included in your current plan ({planDetails?.plan_type || 'Free'}).
-          Upgrade to unlock this functionality.
+          {isPlatformCreator 
+            ? "This feature is temporarily unavailable."
+            : `This feature is not included in your current plan (${planDetails?.plan_type || 'Free'}). Upgrade to unlock this functionality.`
+          }
         </CardDescription>
       </CardHeader>
-      <CardContent className="text-center">
-        <Button onClick={() => navigate('/pricing')}>
-          View Pricing Plans
-          <ArrowRight className="ml-2 w-4 h-4" />
-        </Button>
-      </CardContent>
+      {!isPlatformCreator && (
+        <CardContent className="text-center">
+          <Button onClick={() => navigate('/pricing')}>
+            View Pricing Plans
+            <ArrowRight className="ml-2 w-4 h-4" />
+          </Button>
+        </CardContent>
+      )}
     </Card>
   );
 };

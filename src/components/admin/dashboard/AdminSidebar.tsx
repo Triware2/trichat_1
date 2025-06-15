@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -29,6 +30,10 @@ interface AdminSidebarProps {
 export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
+  
+  // Check if this is the platform creator
+  const isPlatformCreator = user?.email === 'Admin@trichat.com' || user?.email === 'admin@trichat.com';
   
   const menuItems = [
     { 
@@ -121,15 +126,19 @@ export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
       icon: Settings, 
       path: '/admin/system-settings',
       badge: null
-    },
-    { 
+    }
+  ];
+
+  // Only add audit link for platform creator
+  if (isPlatformCreator) {
+    menuItems.push({ 
       id: 'audit', 
       label: 'Platform Audit', 
       icon: ClipboardList, 
       path: '/audit',
-      badge: 'New'
-    }
-  ];
+      badge: 'Creator'
+    });
+  }
 
   const handleItemClick = (item: any) => {
     if (item.path === '/audit') {
@@ -168,9 +177,11 @@ export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
                   className={`ml-2 ${
                     isActive 
                       ? 'bg-white/20 text-white border-white/30' 
-                      : item.badge === 'New' 
-                        ? 'bg-green-100 text-green-800 border-green-200'
-                        : 'bg-blue-100 text-blue-800 border-blue-200'
+                      : item.badge === 'Creator' 
+                        ? 'bg-purple-100 text-purple-800 border-purple-200'
+                        : item.badge === 'New' 
+                          ? 'bg-green-100 text-green-800 border-green-200'
+                          : 'bg-blue-100 text-blue-800 border-blue-200'
                   }`}
                 >
                   {item.badge}
