@@ -35,7 +35,7 @@ export const PlatformSidebar = ({ activeModule, onModuleChange }: PlatformSideba
     <div className="w-80 bg-white border-r border-gray-200 shadow-lg">
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center space-x-3 mb-4">
-          <div className="p-2 bg-gradient-to-r from-purple-400 to-violet-500 rounded-lg">
+          <div className="p-2 bg-gradient-to-r from-purple-400 to-purple-600 rounded-lg">
             <div className="w-6 h-6 bg-white rounded flex items-center justify-center">
               <span className="text-purple-600 font-bold text-sm">T</span>
             </div>
