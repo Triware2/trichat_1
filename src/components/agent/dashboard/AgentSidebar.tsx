@@ -1,3 +1,4 @@
+
 import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { 
@@ -10,7 +11,8 @@ import {
   Clock,
   Eye,
   TrendingUp,
-  Activity
+  Activity,
+  Menu
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -44,9 +46,18 @@ export const AgentSidebar = ({ todayPerformance, activeTab = 'dashboard', onTabC
       {/* Header Section with Stats */}
       <SidebarHeader className="p-6 border-b border-slate-200/60 bg-white/80 backdrop-blur-sm group-data-[collapsible=icon]:p-2">
         <div className="space-y-4 group-data-[collapsible=icon]:space-y-2">
-          {/* Sidebar Toggle - Always Visible */}
+          {/* Hamburger Menu Button - Always Visible */}
           <div className="flex items-center justify-between">
-            <SidebarTrigger className="h-10 w-10 hover:bg-slate-100 rounded-md transition-colors duration-200 border border-slate-200 bg-white shadow-sm" />
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-10 w-10 hover:bg-slate-100 transition-colors duration-200 border border-slate-300 bg-white shadow-sm"
+              asChild
+            >
+              <SidebarTrigger>
+                <Menu className="h-5 w-5 text-slate-600" />
+              </SidebarTrigger>
+            </Button>
           </div>
 
           {/* Agent Badge - Hidden when collapsed */}
