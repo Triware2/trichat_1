@@ -63,7 +63,7 @@ export const ChatInterface = ({
   ];
 
   return (
-    <div className="h-full flex bg-white flex-col overflow-hidden">
+    <div className="h-full flex bg-white flex-col">
       {/* Fixed Header */}
       <div className="flex-shrink-0 bg-white border-b border-slate-200 z-10">
         <ChatHeader 
@@ -74,7 +74,7 @@ export const ChatInterface = ({
       </div>
       
       {/* Scrollable Messages Area with Independent Scroll */}
-      <div className="flex-1 flex flex-col relative overflow-hidden">
+      <div className="flex-1 flex flex-col relative min-h-0">
         <div className="flex-1 overflow-y-auto">
           <div className="pb-48">
             {/* Bot Conversation Section - Only show if there's bot history */}
