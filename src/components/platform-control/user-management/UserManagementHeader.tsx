@@ -1,7 +1,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Users, UserPlus } from 'lucide-react';
+import { Users, UserPlus, Shield, Database } from 'lucide-react';
 import { CreateUserForm } from './CreateUserForm';
 
 interface UserManagementHeaderProps {
@@ -16,31 +16,31 @@ export const UserManagementHeader = ({
   onUserCreate 
 }: UserManagementHeaderProps) => {
   return (
-    <div className="flex justify-between items-center">
+    <div className="flex justify-between items-start">
       <div>
-        <div className="flex items-center space-x-3 mb-2">
-          <div className="p-2 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl">
-            <Users className="w-6 h-6 text-white" />
-          </div>
-          <h1 className="text-4xl font-bold text-gray-900">User Management Center</h1>
-        </div>
-        <p className="text-gray-600 ml-12">Complete user lifecycle and permission management</p>
+        <h1 className="text-2xl font-semibold text-gray-900 mb-2">User Management</h1>
+        <p className="text-gray-600">Complete user lifecycle and permission management</p>
       </div>
-
-      <Dialog open={isCreateUserOpen} onOpenChange={setIsCreateUserOpen}>
-        <DialogTrigger asChild>
-          <Button className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700">
-            <UserPlus className="w-4 h-4 mr-2" />
-            Add User
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Create New User</DialogTitle>
-          </DialogHeader>
-          <CreateUserForm onSubmit={onUserCreate} onCancel={() => setIsCreateUserOpen(false)} />
-        </DialogContent>
-      </Dialog>
+      <div className="flex gap-3">
+        <Button variant="outline" size="sm">
+          <Shield className="w-4 h-4 mr-2" />
+          Bulk Actions
+        </Button>
+        <Dialog open={isCreateUserOpen} onOpenChange={setIsCreateUserOpen}>
+          <DialogTrigger asChild>
+            <Button size="sm">
+              <UserPlus className="w-4 h-4 mr-2" />
+              Add User
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Create New User</DialogTitle>
+            </DialogHeader>
+            <CreateUserForm onSubmit={onUserCreate} onCancel={() => setIsCreateUserOpen(false)} />
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 };

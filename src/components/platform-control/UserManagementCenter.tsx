@@ -112,23 +112,21 @@ export const UserManagementCenter = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        <UserManagementHeader 
-          isCreateUserOpen={isCreateUserOpen}
-          setIsCreateUserOpen={setIsCreateUserOpen}
-          onUserCreate={handleUserCreate}
-        />
-        
-        <UserStatsCards users={users} />
-        
-        <UserList 
-          users={users}
-          onToggleUserStatus={handleToggleUserStatus}
-          onEditUser={handleEditUser}
-          onDeleteUser={handleDeleteUser}
-        />
-      </div>
+    <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
+      <UserManagementHeader 
+        isCreateUserOpen={isCreateUserOpen}
+        setIsCreateUserOpen={setIsCreateUserOpen}
+        onUserCreate={handleUserCreate}
+      />
+      
+      <UserStatsCards users={users} />
+      
+      <UserList 
+        users={users}
+        onToggleUserStatus={handleToggleUserStatus}
+        onEditUser={handleEditUser}
+        onDeleteUser={handleDeleteUser}
+      />
     </div>
   );
 };
