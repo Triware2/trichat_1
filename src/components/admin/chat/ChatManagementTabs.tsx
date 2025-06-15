@@ -2,7 +2,10 @@
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MessageSquare, Settings, Users, BarChart3 } from 'lucide-react';
-import { ChatManagement } from './ChatManagement';
+import { ChannelManagement } from './ChannelManagement';
+import { ChatRules } from './ChatRules';
+import { BulkChatOperations } from './BulkChatOperations';
+import { ChatAnalytics } from './ChatAnalytics';
 
 export const ChatManagementTabs = () => {
   const [activeTab, setActiveTab] = useState('channels');
@@ -55,19 +58,19 @@ export const ChatManagementTabs = () => {
             </div>
 
             <TabsContent value="channels">
-              <ChatManagement />
+              <ChannelManagement />
             </TabsContent>
 
             <TabsContent value="rules">
-              <ChatManagement />
+              <ChatRules />
             </TabsContent>
 
             <TabsContent value="bulk">
-              <ChatManagement />
+              <BulkChatOperations />
             </TabsContent>
 
             <TabsContent value="analytics">
-              <ChatManagement />
+              <ChatAnalytics />
             </TabsContent>
           </Tabs>
         </div>
