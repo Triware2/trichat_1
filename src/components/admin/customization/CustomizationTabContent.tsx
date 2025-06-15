@@ -12,7 +12,11 @@ import { CodeEditor } from './CodeEditor';
 import { SandboxEnvironment } from './SandboxEnvironment';
 import { ApiManagement } from './ApiManagement';
 
-export const CustomizationTabContent = () => {
+interface CustomizationTabContentProps {
+  activeTab: string;
+}
+
+export const CustomizationTabContent = ({ activeTab }: CustomizationTabContentProps) => {
   return (
     <>
       <TabsContent value="overview">
