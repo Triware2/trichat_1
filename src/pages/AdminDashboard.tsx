@@ -16,6 +16,7 @@ import { DataSourcesManagement } from '@/components/admin/datasources/DataSource
 import { ChatManagement } from '@/components/admin/chat/ChatManagement';
 import { SLAManagement } from '@/components/admin/sla/SLAManagement';
 import { CSATManagement } from '@/components/admin/csat/CSATManagement';
+import { CustomizationStudio } from '@/components/admin/customization/CustomizationStudio';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -77,6 +78,10 @@ const AdminDashboard = () => {
 
             <TabsContent value="chat-management" className="mt-0">
               <ChatManagement />
+            </TabsContent>
+
+            <TabsContent value="customization" className="mt-0">
+              <CustomizationStudio />
             </TabsContent>
 
             <TabsContent value="settings" className="mt-0">
