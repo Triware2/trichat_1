@@ -39,19 +39,20 @@ export const DispositionModal = ({
   const [additionalNotes, setAdditionalNotes] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [actionType, setActionType] = useState<'resolve' | 'ticket'>('resolve');
-  
-  // Ticket form data
-  const [ticketData, setTicketData] = useState({
-    subject: '',
-    description: '',
-    priority: '',
-    category: '',
-    crmIntegration: '',
-    customerEmail: ''
-  });
 
   const categorizedDispositions = getDispositionsByCategory();
   const activeIntegrations = getActiveIntegrations();
+
+  // Auto-populate ticket data from chat context
+  const getAutoPopulatedTicketData = () => {
+    return {
+      subject: `Chat Support Request - ${customerName}`,
+      customerEmail: `${customerName.toLowerCase().replace(' ', '.')}@email.com`, // Mock email generation
+      priority: 'medium', // Default to medium priority
+      category: 'technical', // Default to technical category
+      crmIntegration: activeIntegrations[0]?.id || '' // Use first active integration as default
+    };
+  };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -67,11 +68,9 @@ export const DispositionModal = ({
         }
       });
     } else if (actionType === 'ticket') {
-      if (!ticketData.subject) newErrors.ticketSubject = 'Subject is required';
-      if (!ticketData.description) newErrors.ticketDescription = 'Description is required';
-      if (!ticketData.priority) newErrors.ticketPriority = 'Priority is required';
-      if (!ticketData.category) newErrors.ticketCategory = 'Category is required';
-      if (!ticketData.crmIntegration) newErrors.ticketCRM = 'CRM integration is required';
+      if (activeIntegrations.length === 0) {
+        newErrors.ticketCRM = 'No CRM integrations available. Please contact admin.';
+      }
     }
 
     setErrors(newErrors);
@@ -89,22 +88,6 @@ export const DispositionModal = ({
       setErrors(prev => ({
         ...prev,
         [fieldName]: ''
-      }));
-    }
-  };
-
-  const handleTicketDataChange = (field: string, value: string) => {
-    setTicketData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-    
-    // Clear error when user starts typing
-    const errorKey = `ticket${field.charAt(0).toUpperCase() + field.slice(1)}`;
-    if (errors[errorKey]) {
-      setErrors(prev => ({
-        ...prev,
-        [errorKey]: ''
       }));
     }
   };
@@ -137,19 +120,29 @@ export const DispositionModal = ({
       });
     } else if (actionType === 'ticket') {
       try {
-        const selectedPriority = priorities.find(p => p.id === ticketData.priority);
-        const selectedCategory = categories.find(c => c.id === ticketData.category);
-        const selectedCRM = integrations.find(i => i.id === ticketData.crmIntegration);
+        const autoData = getAutoPopulatedTicketData();
+        const selectedPriority = priorities.find(p => p.id === autoData.priority);
+        const selectedCategory = categories.find(c => c.id === autoData.category);
+        const selectedCRM = integrations.find(i => i.id === autoData.crmIntegration);
+
+        if (!selectedCRM) {
+          toast({
+            title: "Error",
+            description: "No CRM integration available. Please contact admin.",
+            variant: "destructive"
+          });
+          return;
+        }
 
         const newTicketData = {
           chatId,
           customerName,
-          customerEmail: ticketData.customerEmail,
-          subject: ticketData.subject,
-          description: ticketData.description,
+          customerEmail: autoData.customerEmail,
+          subject: autoData.subject,
+          description: `Chat escalation for ${customerName}. Additional notes: ${additionalNotes || 'None'}`,
           priority: selectedPriority!,
           category: selectedCategory!,
-          crmIntegration: selectedCRM!,
+          crmIntegration: selectedCRM,
           tags: [],
           attachments: []
         };
@@ -170,7 +163,7 @@ export const DispositionModal = ({
 
         toast({
           title: "Ticket Raised & Chat Resolved",
-          description: `Ticket #${ticket.ticketNumber} has been raised and sent to ${selectedCRM!.name}. Chat resolved.`,
+          description: `Ticket #${ticket.ticketNumber} has been raised and sent to ${selectedCRM.name}. Chat resolved.`,
         });
       } catch (error) {
         toast({
@@ -187,14 +180,6 @@ export const DispositionModal = ({
     setFieldValues({});
     setAdditionalNotes('');
     setActionType('resolve');
-    setTicketData({
-      subject: '',
-      description: '',
-      priority: '',
-      category: '',
-      crmIntegration: '',
-      customerEmail: ''
-    });
     setErrors({});
     onClose();
   };
@@ -365,118 +350,35 @@ export const DispositionModal = ({
             </div>
           )}
 
-          {/* Ticket Form */}
+          {/* Ticket Information Preview */}
           {selectedDisposition && actionType === 'ticket' && (
             <div className="space-y-4 border-t pt-4">
-              <h4 className="text-sm font-medium">Ticket Information</h4>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-sm font-medium">Customer Email</Label>
-                  <Input
-                    value={ticketData.customerEmail}
-                    onChange={(e) => handleTicketDataChange('customerEmail', e.target.value)}
-                    placeholder="customer@email.com"
-                  />
+              <h4 className="text-sm font-medium">Ticket Information (Auto-filled)</h4>
+              <div className="bg-gray-50 p-4 rounded-lg space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="font-medium">Customer:</span>
+                  <span>{customerName}</span>
                 </div>
-                <div>
-                  <Label className="text-sm font-medium">
-                    CRM Integration <span className="text-red-500">*</span>
-                  </Label>
-                  <Select
-                    value={ticketData.crmIntegration}
-                    onValueChange={(value) => handleTicketDataChange('crmIntegration', value)}
-                  >
-                    <SelectTrigger className={errors.ticketCRM ? 'border-red-500' : ''}>
-                      <SelectValue placeholder="Select CRM" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {activeIntegrations.map((integration) => (
-                        <SelectItem key={integration.id} value={integration.id}>
-                          {integration.name} ({integration.type})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {errors.ticketCRM && <p className="text-sm text-red-500">{errors.ticketCRM}</p>}
+                <div className="flex justify-between">
+                  <span className="font-medium">Subject:</span>
+                  <span>Chat Support Request - {customerName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">Priority:</span>
+                  <span>Medium</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">Category:</span>
+                  <span>Technical Support</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">CRM:</span>
+                  <span>{activeIntegrations[0]?.name || 'Default CRM'}</span>
                 </div>
               </div>
-
-              <div>
-                <Label className="text-sm font-medium">
-                  Subject <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  value={ticketData.subject}
-                  onChange={(e) => handleTicketDataChange('subject', e.target.value)}
-                  placeholder="Brief description of the issue"
-                  className={errors.ticketSubject ? 'border-red-500' : ''}
-                />
-                {errors.ticketSubject && <p className="text-sm text-red-500">{errors.ticketSubject}</p>}
-              </div>
-
-              <div>
-                <Label className="text-sm font-medium">
-                  Description <span className="text-red-500">*</span>
-                </Label>
-                <Textarea
-                  value={ticketData.description}
-                  onChange={(e) => handleTicketDataChange('description', e.target.value)}
-                  placeholder="Detailed description of the customer's concern..."
-                  rows={3}
-                  className={errors.ticketDescription ? 'border-red-500' : ''}
-                />
-                {errors.ticketDescription && <p className="text-sm text-red-500">{errors.ticketDescription}</p>}
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-sm font-medium">
-                    Priority <span className="text-red-500">*</span>
-                  </Label>
-                  <Select
-                    value={ticketData.priority}
-                    onValueChange={(value) => handleTicketDataChange('priority', value)}
-                  >
-                    <SelectTrigger className={errors.ticketPriority ? 'border-red-500' : ''}>
-                      <SelectValue placeholder="Select priority" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {priorities.map((priority) => (
-                        <SelectItem key={priority.id} value={priority.id}>
-                          <div className="flex items-center gap-2">
-                            <div className={`w-2 h-2 rounded-full ${priority.color}`}></div>
-                            {priority.name}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {errors.ticketPriority && <p className="text-sm text-red-500">{errors.ticketPriority}</p>}
-                </div>
-
-                <div>
-                  <Label className="text-sm font-medium">
-                    Category <span className="text-red-500">*</span>
-                  </Label>
-                  <Select
-                    value={ticketData.category}
-                    onValueChange={(value) => handleTicketDataChange('category', value)}
-                  >
-                    <SelectTrigger className={errors.ticketCategory ? 'border-red-500' : ''}>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((category) => (
-                        <SelectItem key={category.id} value={category.id}>
-                          {category.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {errors.ticketCategory && <p className="text-sm text-red-500">{errors.ticketCategory}</p>}
-                </div>
-              </div>
+              {errors.ticketCRM && (
+                <p className="text-sm text-red-500">{errors.ticketCRM}</p>
+              )}
             </div>
           )}
 
