@@ -1,5 +1,6 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { NavigationHeader } from '@/components/NavigationHeader';
 import { TeamMonitor } from '@/components/supervisor/TeamMonitor';
@@ -13,7 +14,27 @@ import { ManualAssignmentSettings } from '@/components/supervisor/ManualAssignme
 import { TeamSettings } from '@/components/supervisor/TeamSettings';
 
 const SupervisorDashboard = () => {
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState('overview');
+
+  // Map URL paths to tab names
+  const getTabFromPath = (pathname: string) => {
+    const pathMap: { [key: string]: string } = {
+      '/supervisor': 'overview',
+      '/supervisor/chat-supervision': 'chats',
+      '/supervisor/team-monitor': 'team',
+      '/supervisor/team-settings': 'team-settings',
+      '/supervisor/queue-management': 'queue',
+      '/supervisor/reports': 'reports'
+    };
+    return pathMap[pathname] || 'overview';
+  };
+
+  // Update active tab based on current route
+  useEffect(() => {
+    const tab = getTabFromPath(location.pathname);
+    setActiveTab(tab);
+  }, [location.pathname]);
 
   return (
     <div className="min-h-screen bg-gray-50">

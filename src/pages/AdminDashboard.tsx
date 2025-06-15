@@ -1,4 +1,6 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { NavigationHeader } from '@/components/NavigationHeader';
 import { UserManagement } from '@/components/admin/UserManagement';
 import { SystemSettings } from '@/components/admin/SystemSettings';
@@ -19,8 +21,35 @@ import { Button } from '@/components/ui/button';
 import { Menu, X } from 'lucide-react';
 
 const AdminDashboard = () => {
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState('overview');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Map URL paths to tab names
+  const getTabFromPath = (pathname: string) => {
+    const pathMap: { [key: string]: string } = {
+      '/admin': 'overview',
+      '/admin/user-management': 'users',
+      '/admin/access-control': 'access',
+      '/admin/chatbot-training': 'chatbot',
+      '/admin/api-keys': 'api-keys',
+      '/admin/sla': 'sla',
+      '/admin/csat': 'csat',
+      '/admin/analytics': 'analytics',
+      '/admin/widgets': 'widget',
+      '/admin/data-sources': 'datasources',
+      '/admin/chat-management': 'chat-management',
+      '/admin/customization': 'customization',
+      '/admin/system-settings': 'settings'
+    };
+    return pathMap[pathname] || 'overview';
+  };
+
+  // Update active tab based on current route
+  useEffect(() => {
+    const tab = getTabFromPath(location.pathname);
+    setActiveTab(tab);
+  }, [location.pathname]);
 
   const renderTabContent = () => {
     switch (activeTab) {

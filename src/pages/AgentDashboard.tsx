@@ -1,5 +1,6 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Tabs } from '@/components/ui/tabs';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { NavigationHeader } from '@/components/NavigationHeader';
@@ -15,8 +16,28 @@ import { MessageSquare, Users, Clock, CheckCircle } from 'lucide-react';
 const AgentDashboard = () => {
   console.log("AgentDashboard component rendering...");
   
+  const location = useLocation();
   const [selectedChat, setSelectedChat] = useState(1);
   const [activeTab, setActiveTab] = useState('dashboard');
+
+  // Map URL paths to tab names
+  const getTabFromPath = (pathname: string) => {
+    const pathMap: { [key: string]: string } = {
+      '/agent': 'dashboard',
+      '/agent/active-chat': 'chat',
+      '/agent/all-chats': 'all-chats',
+      '/agent/contacts': 'contacts',
+      '/agent/customer-360': 'customer-insights',
+      '/agent/settings': 'settings'
+    };
+    return pathMap[pathname] || 'dashboard';
+  };
+
+  // Update active tab based on current route
+  useEffect(() => {
+    const tab = getTabFromPath(location.pathname);
+    setActiveTab(tab);
+  }, [location.pathname]);
 
   const [stats, setStats] = useState([
     { title: 'Open Tickets', value: '24', icon: MessageSquare, color: 'bg-blue-50 text-blue-600 border-blue-200' },
