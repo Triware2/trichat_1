@@ -16,9 +16,12 @@ import { SLAManagement } from '@/components/admin/sla/SLAManagement';
 import { CSATManagement } from '@/components/admin/csat/CSATManagement';
 import { CustomizationStudio } from '@/components/admin/customization/CustomizationStudio';
 import { AdminSidebar } from '@/components/admin/dashboard/AdminSidebar';
+import { Button } from '@/components/ui/button';
+import { Menu, X } from 'lucide-react';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -27,7 +30,7 @@ const AdminDashboard = () => {
       case 'users':
         return (
           <div className="min-h-screen bg-gray-50/30">
-            <div className="max-w-7xl mx-auto px-6 py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
               <UserManagement />
             </div>
           </div>
@@ -35,7 +38,7 @@ const AdminDashboard = () => {
       case 'access':
         return (
           <div className="min-h-screen bg-gray-50/30">
-            <div className="max-w-7xl mx-auto px-6 py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
               <AccessManagement />
             </div>
           </div>
@@ -43,7 +46,7 @@ const AdminDashboard = () => {
       case 'chatbot':
         return (
           <div className="min-h-screen bg-gray-50/30">
-            <div className="max-w-7xl mx-auto px-6 py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
               <BotTraining />
             </div>
           </div>
@@ -51,7 +54,7 @@ const AdminDashboard = () => {
       case 'api-keys':
         return (
           <div className="min-h-screen bg-gray-50/30">
-            <div className="max-w-7xl mx-auto px-6 py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
               <ApiKeyManagement />
             </div>
           </div>
@@ -59,7 +62,7 @@ const AdminDashboard = () => {
       case 'sla':
         return (
           <div className="min-h-screen bg-gray-50/30">
-            <div className="max-w-7xl mx-auto px-6 py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
               <SLAManagement />
             </div>
           </div>
@@ -67,7 +70,7 @@ const AdminDashboard = () => {
       case 'csat':
         return (
           <div className="min-h-screen bg-gray-50/30">
-            <div className="max-w-7xl mx-auto px-6 py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
               <CSATManagement />
             </div>
           </div>
@@ -79,7 +82,7 @@ const AdminDashboard = () => {
       case 'datasources':
         return (
           <div className="min-h-screen bg-gray-50/30">
-            <div className="max-w-7xl mx-auto px-6 py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
               <DataSourcesManagement />
             </div>
           </div>
@@ -87,7 +90,7 @@ const AdminDashboard = () => {
       case 'chat-management':
         return (
           <div className="min-h-screen bg-gray-50/30">
-            <div className="max-w-7xl mx-auto px-6 py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
               <ChatManagement />
             </div>
           </div>
@@ -101,6 +104,10 @@ const AdminDashboard = () => {
     }
   };
 
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <NavigationHeader 
@@ -109,13 +116,59 @@ const AdminDashboard = () => {
         userEmail="admin@trichat.com"
       />
       
+      {/* Mobile menu button */}
+      <div className="lg:hidden bg-white border-b border-gray-200 px-4 py-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={toggleMobileMenu}
+          className="flex items-center gap-2"
+        >
+          {isMobileMenuOpen ? (
+            <X className="w-5 h-5" />
+          ) : (
+            <Menu className="w-5 h-5" />
+          )}
+          <span>Menu</span>
+        </Button>
+      </div>
+
       <DashboardHeader />
       
-      <div className="flex h-[calc(100vh-120px)]">
-        <AdminSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      <div className="flex">
+        {/* Mobile overlay */}
+        {isMobileMenuOpen && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+            onClick={toggleMobileMenu}
+          />
+        )}
+
+        {/* Sidebar */}
+        <div className={`
+          fixed lg:static inset-y-0 left-0 z-50 lg:z-auto
+          transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+          lg:translate-x-0 transition-transform duration-300 ease-in-out
+          bg-white shadow-lg lg:shadow-none
+          ${isMobileMenuOpen ? 'w-80' : 'w-0'} lg:w-80
+          overflow-hidden lg:overflow-visible
+        `}>
+          <div className="h-full overflow-y-auto">
+            <AdminSidebar 
+              activeTab={activeTab} 
+              onTabChange={(tab) => {
+                setActiveTab(tab);
+                setIsMobileMenuOpen(false); // Close mobile menu when tab changes
+              }} 
+            />
+          </div>
+        </div>
         
-        <div className="flex-1 overflow-auto">
-          {renderTabContent()}
+        {/* Main content */}
+        <div className="flex-1 min-w-0 lg:ml-0">
+          <div className="h-full overflow-auto">
+            {renderTabContent()}
+          </div>
         </div>
       </div>
     </div>
