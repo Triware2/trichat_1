@@ -11,8 +11,7 @@ import {
   Clock,
   Eye,
   TrendingUp,
-  Activity,
-  Menu
+  Activity
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -48,9 +47,7 @@ export const AgentSidebar = ({ todayPerformance, activeTab = 'dashboard', onTabC
         <div className="space-y-4 group-data-[collapsible=icon]:space-y-2">
           {/* Sidebar Toggle - Always Visible */}
           <div className="flex items-center justify-between">
-            <SidebarTrigger className="h-8 w-8 hover:bg-slate-100 rounded-md p-1 transition-colors duration-200">
-              <Menu className="h-5 w-5" />
-            </SidebarTrigger>
+            <SidebarTrigger className="h-8 w-8 hover:bg-slate-100 rounded-md p-1 transition-colors duration-200" />
           </div>
 
           {/* Agent Badge - Hidden when collapsed */}
