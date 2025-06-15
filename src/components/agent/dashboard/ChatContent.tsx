@@ -90,7 +90,7 @@ export const ChatContent = ({
           />
         </div>
         
-        {/* Middle Section - Chat Interface with Ticket Widget (Own Layout) */}
+        {/* Middle Section - Chat Interface (Full Width) */}
         <div className="flex-1 h-full relative">
           <ChatInterface
             customerName={getSelectedCustomerName()}

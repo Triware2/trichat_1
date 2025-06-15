@@ -5,7 +5,6 @@ import { QuickResponses } from './QuickResponses';
 import { ChatHeader } from './ChatHeader';
 import { FloatingInputSection } from './chat/FloatingInputSection';
 import { BotConversationSection } from './BotConversationSection';
-import { TicketWidget } from './tickets/TicketWidget';
 import { usePrivateNotes } from './PrivateNotes';
 import { useChatData } from './hooks/useChatData';
 import { useMessageHandling } from './hooks/useMessageHandling';
@@ -63,11 +62,6 @@ export const ChatInterface = ({
     "Your issue has been resolved."
   ];
 
-  // Create chat context for ticket raising - fix property name from 'text' to 'message'
-  const chatContext = messages.slice(-5).map(msg => 
-    `${msg.sender}: ${msg.message}`
-  ).join('\n');
-
   return (
     <div className="h-full flex bg-white relative overflow-hidden">
       {/* Main Chat Section */}
@@ -121,16 +115,6 @@ export const ChatInterface = ({
             <QuickResponses responses={quickResponses} onResponseSelect={handleQuickResponse} />
           </div>
         </div>
-      </div>
-
-      {/* Right Sidebar - Ticket Widget */}
-      <div className="w-80 border-l border-slate-200 bg-slate-50 flex-shrink-0 h-full overflow-y-auto p-4">
-        <TicketWidget
-          chatId={selectedChatId}
-          customerName={customerName}
-          customerEmail="customer@email.com" // This would come from customer data
-          chatContext={chatContext}
-        />
       </div>
     </div>
   );
