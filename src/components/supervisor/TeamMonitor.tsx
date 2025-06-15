@@ -21,6 +21,7 @@ import {
   Calendar,
   AlertCircle
 } from 'lucide-react';
+import { AdvancedFiltersModal } from './AdvancedFiltersModal';
 
 export const TeamMonitor = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -28,6 +29,8 @@ export const TeamMonitor = () => {
   const [selectedAgent, setSelectedAgent] = useState<any>(null);
   const [showAgentDetails, setShowAgentDetails] = useState(false);
   const [showAgentActions, setShowAgentActions] = useState(false);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [appliedAdvancedFilters, setAppliedAdvancedFilters] = useState<any>(null);
   const { toast } = useToast();
 
   const agents = [
@@ -118,12 +121,66 @@ export const TeamMonitor = () => {
     }
   ];
 
-  const filteredAgents = agents.filter(agent => {
-    const matchesSearch = agent.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         agent.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterStatus === 'all' || agent.status.toLowerCase() === filterStatus;
-    return matchesSearch && matchesFilter;
-  });
+  const applyAdvancedFiltering = (agents: typeof agents, filters: any) => {
+    if (!filters) return agents;
+
+    return agents.filter(agent => {
+      // Department filter
+      if (filters.departments.length > 0 && !filters.departments.includes(agent.department)) {
+        return false;
+      }
+
+      // Status filter
+      if (filters.statuses.length > 0 && !filters.statuses.includes(agent.status)) {
+        return false;
+      }
+
+      // Performance range filter
+      if (filters.performanceRange.satisfactionMin && agent.satisfaction < parseInt(filters.performanceRange.satisfactionMin)) {
+        return false;
+      }
+      if (filters.performanceRange.satisfactionMax && agent.satisfaction > parseInt(filters.performanceRange.satisfactionMax)) {
+        return false;
+      }
+
+      // Workload filter
+      if (filters.workload.activeChatMin && agent.activeChats < parseInt(filters.workload.activeChatMin)) {
+        return false;
+      }
+      if (filters.workload.activeChatMax && agent.activeChats > parseInt(filters.workload.activeChatMax)) {
+        return false;
+      }
+
+      // Quick filters
+      if (filters.showOnlineOnly && agent.status !== 'Online') {
+        return false;
+      }
+      if (filters.showHighPerformers && agent.satisfaction < 95) {
+        return false;
+      }
+      if (filters.showOverloaded && agent.activeChats < 5) {
+        return false;
+      }
+
+      return true;
+    });
+  };
+
+  const filteredAgents = (() => {
+    let result = agents.filter(agent => {
+      const matchesSearch = agent.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           agent.email.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesFilter = filterStatus === 'all' || agent.status.toLowerCase() === filterStatus;
+      return matchesSearch && matchesFilter;
+    });
+
+    // Apply advanced filters if any
+    if (appliedAdvancedFilters) {
+      result = applyAdvancedFiltering(result, appliedAdvancedFilters);
+    }
+
+    return result;
+  })();
 
   const getStatusBadge = (status: string, statusColor: string) => {
     return (
@@ -167,11 +224,17 @@ export const TeamMonitor = () => {
   };
 
   const handleAdvancedFilters = () => {
-    toast({
-      title: "Advanced Filters",
-      description: "Opening advanced filter options",
-    });
+    setShowAdvancedFilters(true);
     console.log('Opening advanced filters');
+  };
+
+  const handleApplyAdvancedFilters = (filters: any) => {
+    setAppliedAdvancedFilters(filters);
+    toast({
+      title: "Filters Applied",
+      description: "Advanced filters have been applied to the team view",
+    });
+    console.log('Applied advanced filters:', filters);
   };
 
   return (
@@ -200,13 +263,27 @@ export const TeamMonitor = () => {
             <option value="break">Break</option>
           </select>
         </div>
-        <Button 
-          className="bg-blue-600 hover:bg-blue-700"
-          onClick={handleAdvancedFilters}
-        >
-          <Filter className="w-4 h-4 mr-2" />
-          Advanced Filters
-        </Button>
+        <div className="flex gap-2">
+          {appliedAdvancedFilters && (
+            <Button 
+              variant="outline"
+              onClick={() => setAppliedAdvancedFilters(null)}
+              className="text-orange-600 border-orange-300"
+            >
+              Clear Advanced Filters
+            </Button>
+          )}
+          <Button 
+            className="bg-blue-600 hover:bg-blue-700"
+            onClick={handleAdvancedFilters}
+          >
+            <Filter className="w-4 h-4 mr-2" />
+            Advanced Filters
+            {appliedAdvancedFilters && (
+              <Badge className="ml-2 bg-orange-500">Active</Badge>
+            )}
+          </Button>
+        </div>
       </div>
 
       {/* Agent Table */}
@@ -403,6 +480,13 @@ export const TeamMonitor = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Advanced Filters Modal */}
+      <AdvancedFiltersModal 
+        open={showAdvancedFilters}
+        onOpenChange={setShowAdvancedFilters}
+        onApplyFilters={handleApplyAdvancedFilters}
+      />
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
