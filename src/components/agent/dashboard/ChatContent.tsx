@@ -4,7 +4,6 @@ import { ChatList } from '@/components/agent/ChatList';
 import { ContactPropertiesPanel } from '@/components/agent/ContactPropertiesPanel';
 import { CustomerComplaintsPreview } from '@/components/agent/CustomerComplaintsPreview';
 import { ChatMessage } from '@/components/admin/chatbot/types';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface ChatContentProps {
   chats: Array<{
@@ -81,19 +80,17 @@ export const ChatContent = ({
   return (
     <div className="h-full flex overflow-hidden">
       {/* Left Section - Conversations List with Independent Scroll */}
-      <div className="w-80 border-r border-slate-200 bg-white flex-shrink-0 h-full overflow-hidden">
-        <ScrollArea className="h-full">
-          <ChatList 
-            chats={chats}
-            selectedChat={selectedChat}
-            onChatSelect={onChatSelect}
-            onFilter={onFilter}
-          />
-        </ScrollArea>
+      <div className="w-80 border-r border-slate-200 bg-white flex-shrink-0 h-full flex flex-col overflow-hidden">
+        <ChatList 
+          chats={chats}
+          selectedChat={selectedChat}
+          onChatSelect={onChatSelect}
+          onFilter={onFilter}
+        />
       </div>
       
       {/* Middle Section - Chat Interface with Independent Scroll */}
-      <div className="flex-1 h-full overflow-hidden">
+      <div className="flex-1 h-full flex flex-col overflow-hidden">
         <ChatInterface
           customerName={getSelectedCustomerName()}
           customerStatus="Online"
@@ -104,8 +101,8 @@ export const ChatContent = ({
       </div>
       
       {/* Right Section - Customer Info with Independent Scroll */}
-      <div className="w-80 border-l border-slate-200 bg-slate-50 flex-shrink-0 h-full overflow-hidden">
-        <ScrollArea className="h-full">
+      <div className="w-80 border-l border-slate-200 bg-slate-50 flex-shrink-0 h-full flex flex-col overflow-hidden">
+        <div className="flex-1 overflow-y-auto">
           <div className="p-3 space-y-4">
             <CustomerComplaintsPreview 
               chatId={selectedChat}
@@ -117,7 +114,7 @@ export const ChatContent = ({
               customerName={getSelectedCustomerName()}
             />
           </div>
-        </ScrollArea>
+        </div>
       </div>
     </div>
   );

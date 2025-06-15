@@ -9,7 +9,6 @@ import { usePrivateNotes } from './PrivateNotes';
 import { useChatData } from './hooks/useChatData';
 import { useMessageHandling } from './hooks/useMessageHandling';
 import { ChatMessage } from '@/components/admin/chatbot/types';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface ChatInterfaceProps {
   customerName: string;
@@ -76,7 +75,7 @@ export const ChatInterface = ({
       
       {/* Scrollable Messages Area with Independent Scroll */}
       <div className="flex-1 flex flex-col relative overflow-hidden">
-        <ScrollArea className="flex-1">
+        <div className="flex-1 overflow-y-auto">
           <div className="pb-48">
             {/* Bot Conversation Section - Only show if there's bot history */}
             {botConversationHistory.length > 0 && (
@@ -94,7 +93,7 @@ export const ChatInterface = ({
               botConversationHistory={[]} // Don't pass bot history to MessageList anymore since we have separate section
             />
           </div>
-        </ScrollArea>
+        </div>
 
         {/* Fixed Floating Input Section - positioned absolutely and stays in place */}
         <FloatingInputSection

@@ -74,8 +74,8 @@ export const ChatList = ({ chats, selectedChat, onChatSelect, onFilter }: ChatLi
         </div>
       </div>
 
-      {/* Chat List - Scrollable content with its own scroll */}
-      <div className="flex-1 overflow-y-auto">
+      {/* Chat List - Scrollable content that doesn't affect other sections */}
+      <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
         {filteredChats.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full p-6 text-center">
             <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-3">
