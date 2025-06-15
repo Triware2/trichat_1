@@ -17,7 +17,7 @@ const AuthPage = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -47,43 +47,47 @@ const AuthPage = () => {
           navigate('/admin');
         }
       } else {
-        const { data, error } = await signUp(email, password);
+        const { error } = await signUp(email, password);
         if (error) {
           toast({
             title: "Signup Failed",
             description: error.message,
             variant: "destructive",
           });
-        } else if (data.user) {
-          // Update subscription based on selected plan
-          if (selectedPlan) {
-            const planType = selectedPlan.name;
-            const status = selectedPlan.hasTrial ? 'trial' : 'free';
-            const agentLimit = selectedPlan.agentLimit || 999;
+        } else {
+          // After successful signup, wait a moment and check for the user
+          setTimeout(async () => {
+            const { data: { user: currentUser } } = await supabase.auth.getUser();
+            
+            if (currentUser && selectedPlan) {
+              const planType = selectedPlan.name;
+              const status = selectedPlan.hasTrial ? 'trial' : 'free';
+              const agentLimit = selectedPlan.agentLimit || 999;
 
-            await supabase
-              .from('subscriptions')
-              .update({
-                plan_type: planType,
-                status: status,
-                agent_limit: agentLimit,
-                trial_start_date: selectedPlan.hasTrial ? new Date().toISOString() : null,
-                trial_end_date: selectedPlan.hasTrial ? new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString() : null
-              })
-              .eq('user_id', data.user.id);
+              await supabase
+                .from('subscriptions')
+                .update({
+                  plan_type: planType,
+                  status: status,
+                  agent_limit: agentLimit,
+                  trial_start_date: selectedPlan.hasTrial ? new Date().toISOString() : null,
+                  trial_end_date: selectedPlan.hasTrial ? new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString() : null
+                })
+                .eq('user_id', currentUser.id);
 
-            // Clear stored plan
-            localStorage.removeItem('selectedPlan');
-          }
+              // Clear stored plan
+              localStorage.removeItem('selectedPlan');
+            }
 
-          toast({
-            title: "Welcome to Trichat!",
-            description: selectedPlan?.hasTrial 
-              ? `Your account has been created with ${selectedPlan.name} plan. You now have 14 days of free access!`
-              : "Your free account has been created. You now have access to 25% of platform features!",
-          });
-          
-          navigate('/admin');
+            toast({
+              title: "Welcome to Trichat!",
+              description: selectedPlan?.hasTrial 
+                ? `Your account has been created with ${selectedPlan.name} plan. You now have 14 days of free access!`
+                : "Your free account has been created. You now have access to 25% of platform features!",
+            });
+            
+            navigate('/admin');
+          }, 1000);
         }
       }
     } catch (error) {
