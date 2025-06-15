@@ -187,7 +187,7 @@ export const CreateTemplateDialog = ({ open, onOpenChange, onTemplateCreated }: 
               required
             />
             <p className="text-xs text-gray-500">
-              Use variables like #{case_id}, #{customer_name}, #{agent_name}, #{sla_time} in your template.
+              Use variables like {`#{case_id}, #{customer_name}, #{agent_name}, #{sla_time}`} in your template.
             </p>
           </div>
 
