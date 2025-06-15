@@ -121,10 +121,10 @@ export const TeamMonitor = () => {
     }
   ];
 
-  const applyAdvancedFiltering = (agents: typeof agents, filters: any) => {
-    if (!filters) return agents;
+  const applyAdvancedFiltering = (agentsList: any[], filters: any) => {
+    if (!filters) return agentsList;
 
-    return agents.filter(agent => {
+    return agentsList.filter(agent => {
       // Department filter
       if (filters.departments.length > 0 && !filters.departments.includes(agent.department)) {
         return false;
