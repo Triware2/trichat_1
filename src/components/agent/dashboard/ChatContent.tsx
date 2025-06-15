@@ -1,3 +1,4 @@
+
 import { ChatInterface } from '@/components/agent/ChatInterface';
 import { ChatList } from '@/components/agent/ChatList';
 import { ContactPropertiesPanel } from '@/components/agent/ContactPropertiesPanel';
@@ -89,7 +90,7 @@ export const ChatContent = ({
           />
         </div>
         
-        {/* Middle Section - Chat Interface (Own Scrollbar + Floating Input) */}
+        {/* Middle Section - Chat Interface with Ticket Widget (Own Layout) */}
         <div className="flex-1 h-full relative">
           <ChatInterface
             customerName={getSelectedCustomerName()}

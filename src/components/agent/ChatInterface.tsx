@@ -5,6 +5,7 @@ import { QuickResponses } from './QuickResponses';
 import { ChatHeader } from './ChatHeader';
 import { FloatingInputSection } from './chat/FloatingInputSection';
 import { BotConversationSection } from './BotConversationSection';
+import { TicketWidget } from './tickets/TicketWidget';
 import { usePrivateNotes } from './PrivateNotes';
 import { useChatData } from './hooks/useChatData';
 import { useMessageHandling } from './hooks/useMessageHandling';
@@ -62,56 +63,74 @@ export const ChatInterface = ({
     "Your issue has been resolved."
   ];
 
+  // Create chat context for ticket raising
+  const chatContext = messages.slice(-5).map(msg => 
+    `${msg.sender}: ${msg.text}`
+  ).join('\n');
+
   return (
-    <div className="h-full flex flex-col bg-white relative overflow-hidden">
-      {/* Fixed Header */}
-      <div className="flex-shrink-0 bg-white border-b border-slate-200 z-10">
-        <ChatHeader 
-          customerName={customerName} 
-          customerStatus={customerStatus} 
-          chatId={selectedChatId}
-        />
-      </div>
-      
-      {/* Scrollable Messages Area */}
-      <div className="flex-1 relative overflow-hidden">
-        {/* Messages container with its own scroll and padding for floating input */}
-        <div className="absolute inset-0 overflow-y-auto pb-48">
-          {/* Bot Conversation Section - Only show if there's bot history */}
-          {botConversationHistory.length > 0 && (
-            <div className="p-4 border-b border-blue-200 bg-blue-50/30">
-              <BotConversationSection botConversationHistory={botConversationHistory} />
-            </div>
-          )}
-          
-          <MessageList 
-            messages={messages} 
-            privateNotes={privateNotes}
-            isTyping={isTyping}
-            onDeleteNote={handleDeleteNote}
-            canDeleteNote={canDeleteNote}
-            botConversationHistory={[]} // Don't pass bot history to MessageList anymore since we have separate section
+    <div className="h-full flex bg-white relative overflow-hidden">
+      {/* Main Chat Section */}
+      <div className="flex-1 flex flex-col">
+        {/* Fixed Header */}
+        <div className="flex-shrink-0 bg-white border-b border-slate-200 z-10">
+          <ChatHeader 
+            customerName={customerName} 
+            customerStatus={customerStatus} 
+            chatId={selectedChatId}
           />
         </div>
+        
+        {/* Scrollable Messages Area */}
+        <div className="flex-1 relative overflow-hidden">
+          {/* Messages container with its own scroll and padding for floating input */}
+          <div className="absolute inset-0 overflow-y-auto pb-48">
+            {/* Bot Conversation Section - Only show if there's bot history */}
+            {botConversationHistory.length > 0 && (
+              <div className="p-4 border-b border-blue-200 bg-blue-50/30">
+                <BotConversationSection botConversationHistory={botConversationHistory} />
+              </div>
+            )}
+            
+            <MessageList 
+              messages={messages} 
+              privateNotes={privateNotes}
+              isTyping={isTyping}
+              onDeleteNote={handleDeleteNote}
+              canDeleteNote={canDeleteNote}
+              botConversationHistory={[]} // Don't pass bot history to MessageList anymore since we have separate section
+            />
+          </div>
 
-        {/* Fixed Floating Input Section - positioned absolutely and stays in place */}
-        <FloatingInputSection
-          showCannedResponses={showCannedResponses}
-          setShowCannedResponses={setShowCannedResponses}
-          message={message}
-          setMessage={setMessage}
-          isPrivateNoteMode={isPrivateNoteMode}
-          setIsPrivateNoteMode={setIsPrivateNoteMode}
-          onSendMessage={handleSendMessage}
-          onFileUpload={handleFileUpload}
-          onImageUpload={handleImageUpload}
-          onCannedResponseSelect={handleCannedResponseSelect}
-        />
+          {/* Fixed Floating Input Section - positioned absolutely and stays in place */}
+          <FloatingInputSection
+            showCannedResponses={showCannedResponses}
+            setShowCannedResponses={setShowCannedResponses}
+            message={message}
+            setMessage={setMessage}
+            isPrivateNoteMode={isPrivateNoteMode}
+            setIsPrivateNoteMode={setIsPrivateNoteMode}
+            onSendMessage={handleSendMessage}
+            onFileUpload={handleFileUpload}
+            onImageUpload={handleImageUpload}
+            onCannedResponseSelect={handleCannedResponseSelect}
+          />
 
-        {/* Quick Responses - Fixed position within chat interface */}
-        <div className="absolute bottom-52 right-6 z-50">
-          <QuickResponses responses={quickResponses} onResponseSelect={handleQuickResponse} />
+          {/* Quick Responses - Fixed position within chat interface */}
+          <div className="absolute bottom-52 right-6 z-50">
+            <QuickResponses responses={quickResponses} onResponseSelect={handleQuickResponse} />
+          </div>
         </div>
+      </div>
+
+      {/* Right Sidebar - Ticket Widget */}
+      <div className="w-80 border-l border-slate-200 bg-slate-50 flex-shrink-0 h-full overflow-y-auto p-4">
+        <TicketWidget
+          chatId={selectedChatId}
+          customerName={customerName}
+          customerEmail="customer@email.com" // This would come from customer data
+          chatContext={chatContext}
+        />
       </div>
     </div>
   );
