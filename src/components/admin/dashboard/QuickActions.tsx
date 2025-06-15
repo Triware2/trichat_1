@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -95,7 +94,6 @@ export const QuickActions = () => {
         break;
       
       case 'import':
-        // Trigger file upload
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = '.csv,.xlsx';
@@ -164,7 +162,6 @@ export const QuickActions = () => {
 
     setIsAddingUser(true);
     
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     toast({
@@ -177,18 +174,18 @@ export const QuickActions = () => {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+    <Card className="border border-gray-200 shadow-sm">
+      <CardHeader className="border-b border-gray-100 bg-gray-50/50 p-8">
+        <CardTitle className="flex items-center gap-3 text-lg">
           <Zap className="h-5 w-5 text-blue-600" />
           Quick Actions
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-gray-600 mt-2">
           Frequently used administrative tasks
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <CardContent className="p-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {quickActions.map((action, index) => {
             const Icon = action.icon;
             
@@ -198,49 +195,51 @@ export const QuickActions = () => {
                   <DialogTrigger asChild>
                     <Button 
                       variant={action.variant}
-                      className="h-auto p-4 justify-start flex-col items-start gap-2 text-left"
+                      className="h-auto p-6 justify-start flex-col items-start gap-3 text-left bg-blue-600 hover:bg-blue-700 text-white"
                     >
-                      <div className="flex items-center gap-2 w-full">
-                        <Icon className="h-4 w-4" />
+                      <div className="flex items-center gap-3 w-full">
+                        <Icon className="h-5 w-5" />
                         <span className="font-medium">{action.title}</span>
                       </div>
-                      <span className="text-xs opacity-70">{action.description}</span>
+                      <span className="text-sm opacity-90">{action.description}</span>
                     </Button>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className="bg-white border-0 shadow-xl">
                     <DialogHeader>
-                      <DialogTitle>Add New User</DialogTitle>
-                      <DialogDescription>
+                      <DialogTitle className="text-lg font-semibold text-gray-900">Add New User</DialogTitle>
+                      <DialogDescription className="text-gray-600">
                         Create a new user account with specific role and permissions.
                       </DialogDescription>
                     </DialogHeader>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="name">Full Name</Label>
+                    <div className="space-y-6 pt-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="name" className="text-sm font-semibold text-gray-700">Full Name</Label>
                         <Input
                           id="name"
                           value={newUser.name}
                           onChange={(e) => setNewUser({...newUser, name: e.target.value})}
                           placeholder="Enter full name"
+                          className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                         />
                       </div>
-                      <div>
-                        <Label htmlFor="email">Email Address</Label>
+                      <div className="space-y-2">
+                        <Label htmlFor="email" className="text-sm font-semibold text-gray-700">Email Address</Label>
                         <Input
                           id="email"
                           type="email"
                           value={newUser.email}
                           onChange={(e) => setNewUser({...newUser, email: e.target.value})}
                           placeholder="Enter email address"
+                          className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                         />
                       </div>
-                      <div>
-                        <Label htmlFor="role">Role</Label>
+                      <div className="space-y-2">
+                        <Label htmlFor="role" className="text-sm font-semibold text-gray-700">Role</Label>
                         <Select value={newUser.role} onValueChange={(value) => setNewUser({...newUser, role: value})}>
-                          <SelectTrigger>
+                          <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
                             <SelectValue placeholder="Select role" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="bg-white border shadow-lg">
                             <SelectItem value="admin">Administrator</SelectItem>
                             <SelectItem value="supervisor">Supervisor</SelectItem>
                             <SelectItem value="agent">Agent</SelectItem>
@@ -251,7 +250,7 @@ export const QuickActions = () => {
                       <Button 
                         onClick={handleAddUser} 
                         disabled={isAddingUser}
-                        className="w-full"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                       >
                         {isAddingUser ? 'Adding User...' : 'Add User'}
                       </Button>
@@ -266,13 +265,19 @@ export const QuickActions = () => {
                 key={index}
                 variant={action.variant}
                 onClick={() => handleAction(action.action)}
-                className="h-auto p-4 justify-start flex-col items-start gap-2 text-left"
+                className={`h-auto p-6 justify-start flex-col items-start gap-3 text-left ${
+                  action.variant === 'outline' 
+                    ? 'border-gray-300 text-gray-700 hover:bg-gray-50' 
+                    : action.variant === 'destructive'
+                    ? 'bg-red-600 hover:bg-red-700 text-white'
+                    : ''
+                }`}
               >
-                <div className="flex items-center gap-2 w-full">
-                  <Icon className="h-4 w-4" />
+                <div className="flex items-center gap-3 w-full">
+                  <Icon className="h-5 w-5" />
                   <span className="font-medium">{action.title}</span>
                 </div>
-                <span className="text-xs opacity-70">{action.description}</span>
+                <span className="text-sm opacity-70">{action.description}</span>
               </Button>
             );
           })}

@@ -1,6 +1,5 @@
 
 import { useState } from 'react';
-import { TabsContent } from '@/components/ui/tabs';
 import { NavigationHeader } from '@/components/NavigationHeader';
 import { UserManagement } from '@/components/admin/UserManagement';
 import { SystemSettings } from '@/components/admin/SystemSettings';
@@ -26,25 +25,73 @@ const AdminDashboard = () => {
       case 'overview':
         return <DashboardOverview />;
       case 'users':
-        return <UserManagement />;
+        return (
+          <div className="min-h-screen bg-gray-50/30">
+            <div className="max-w-7xl mx-auto px-6 py-8">
+              <UserManagement />
+            </div>
+          </div>
+        );
       case 'access':
-        return <AccessManagement />;
+        return (
+          <div className="min-h-screen bg-gray-50/30">
+            <div className="max-w-7xl mx-auto px-6 py-8">
+              <AccessManagement />
+            </div>
+          </div>
+        );
       case 'chatbot':
-        return <BotTraining />;
+        return (
+          <div className="min-h-screen bg-gray-50/30">
+            <div className="max-w-7xl mx-auto px-6 py-8">
+              <BotTraining />
+            </div>
+          </div>
+        );
       case 'api-keys':
-        return <ApiKeyManagement />;
+        return (
+          <div className="min-h-screen bg-gray-50/30">
+            <div className="max-w-7xl mx-auto px-6 py-8">
+              <ApiKeyManagement />
+            </div>
+          </div>
+        );
       case 'sla':
-        return <SLAManagement />;
+        return (
+          <div className="min-h-screen bg-gray-50/30">
+            <div className="max-w-7xl mx-auto px-6 py-8">
+              <SLAManagement />
+            </div>
+          </div>
+        );
       case 'csat':
-        return <CSATManagement />;
+        return (
+          <div className="min-h-screen bg-gray-50/30">
+            <div className="max-w-7xl mx-auto px-6 py-8">
+              <CSATManagement />
+            </div>
+          </div>
+        );
       case 'analytics':
         return <AnalyticsDashboard />;
       case 'widget':
         return <ChatWidgetGenerator />;
       case 'datasources':
-        return <DataSourcesManagement />;
+        return (
+          <div className="min-h-screen bg-gray-50/30">
+            <div className="max-w-7xl mx-auto px-6 py-8">
+              <DataSourcesManagement />
+            </div>
+          </div>
+        );
       case 'chat-management':
-        return <ChatManagement />;
+        return (
+          <div className="min-h-screen bg-gray-50/30">
+            <div className="max-w-7xl mx-auto px-6 py-8">
+              <ChatManagement />
+            </div>
+          </div>
+        );
       case 'customization':
         return <CustomizationStudio />;
       case 'settings':
@@ -68,9 +115,7 @@ const AdminDashboard = () => {
         <AdminSidebar activeTab={activeTab} onTabChange={setActiveTab} />
         
         <div className="flex-1 overflow-auto">
-          <div className="p-6">
-            {renderTabContent()}
-          </div>
+          {renderTabContent()}
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { TrendingUp, TrendingDown, Users, MessageSquare, Clock, CheckCircle, AlertTriangle, Activity } from 'lucide-react';
@@ -84,19 +84,17 @@ export const AdminStats = () => {
     fetchStats();
     
     // Set up real-time updates
-    const interval = setInterval(fetchStats, 30000); // Update every 30 seconds
+    const interval = setInterval(fetchStats, 30000);
     
     return () => clearInterval(interval);
   }, []);
 
   const handleStatClick = (statTitle: string) => {
     console.log(`Navigating to detailed view for: ${statTitle}`);
-    // Add navigation logic here
   };
 
   const refreshStats = () => {
     setIsLoading(true);
-    // Trigger a manual refresh
     setTimeout(() => {
       setIsLoading(false);
     }, 1000);
@@ -104,16 +102,13 @@ export const AdminStats = () => {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {[...Array(6)].map((_, i) => (
-          <Card key={i} className="animate-pulse">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <div className="h-4 bg-gray-200 rounded w-20"></div>
-              <div className="h-4 w-4 bg-gray-200 rounded"></div>
-            </CardHeader>
-            <CardContent>
-              <div className="h-8 bg-gray-200 rounded w-16 mb-2"></div>
-              <div className="h-3 bg-gray-200 rounded w-24"></div>
+          <Card key={i} className="border border-gray-200 shadow-sm animate-pulse">
+            <CardContent className="p-8">
+              <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+              <div className="h-8 bg-gray-200 rounded w-1/2 mb-3"></div>
+              <div className="h-3 bg-gray-200 rounded w-full"></div>
             </CardContent>
           </Card>
         ))}
@@ -125,10 +120,10 @@ export const AdminStats = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold text-gray-900">System Overview</h2>
-          <p className="text-sm text-gray-600">Real-time performance metrics and statistics</p>
+          <h2 className="text-xl font-semibold text-gray-900">System Metrics</h2>
+          <p className="text-sm text-gray-600 mt-1">Real-time performance indicators</p>
         </div>
-        <Button onClick={refreshStats} variant="outline" size="sm">
+        <Button onClick={refreshStats} variant="outline" size="sm" className="border-gray-300 text-gray-700 hover:bg-gray-50">
           Refresh Data
         </Button>
       </div>
@@ -139,21 +134,26 @@ export const AdminStats = () => {
           return (
             <Card 
               key={index} 
-              className="cursor-pointer hover:shadow-lg transition-all duration-200 border hover:border-blue-200"
+              className="cursor-pointer border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-300 transition-all duration-200"
               onClick={() => handleStatClick(stat.title)}
             >
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">
-                  {stat.title}
-                </CardTitle>
-                <Icon className="h-4 w-4 text-blue-600" />
-              </CardHeader>
-              <CardContent>
+              <CardContent className="p-8">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-start gap-4">
+                    <div className="p-3 rounded-lg bg-blue-50 text-blue-600">
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-600 mb-2">{stat.title}</p>
+                      <p className="text-2xl font-semibold text-gray-900 mb-2">{stat.value}</p>
+                    </div>
+                  </div>
+                </div>
                 <div className="flex items-center justify-between">
-                  <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
+                  <p className="text-xs text-gray-500">{stat.description}</p>
                   <Badge 
                     variant={stat.trend === 'up' ? 'default' : stat.trend === 'down' ? 'destructive' : 'secondary'}
-                    className="flex items-center gap-1"
+                    className="flex items-center gap-1 bg-green-50 text-green-700 border-green-200"
                   >
                     {stat.trend === 'up' ? (
                       <TrendingUp className="h-3 w-3" />
@@ -163,7 +163,6 @@ export const AdminStats = () => {
                     {stat.change}
                   </Badge>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">{stat.description}</p>
               </CardContent>
             </Card>
           );

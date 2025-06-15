@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -39,7 +38,6 @@ export const RecentActivities = () => {
     const fetchActivities = async () => {
       setIsLoading(true);
       
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 800));
       
       const mockActivities: ActivityItem[] = [
@@ -121,8 +119,7 @@ export const RecentActivities = () => {
 
     fetchActivities();
     
-    // Set up real-time updates
-    const interval = setInterval(fetchActivities, 60000); // Update every minute
+    const interval = setInterval(fetchActivities, 60000);
     
     return () => clearInterval(interval);
   }, []);
@@ -171,11 +168,11 @@ export const RecentActivities = () => {
 
   if (isLoading) {
     return (
-      <Card>
-        <CardHeader>
+      <Card className="border border-gray-200 shadow-sm">
+        <CardHeader className="border-b border-gray-100 bg-gray-50/50 p-8">
           <CardTitle>Recent Activities</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-8">
           <div className="space-y-4">
             {[...Array(5)].map((_, i) => (
               <div key={i} className="flex items-center space-x-4 animate-pulse">
@@ -193,20 +190,21 @@ export const RecentActivities = () => {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+    <Card className="border border-gray-200 shadow-sm">
+      <CardHeader className="border-b border-gray-100 bg-gray-50/50 p-8">
+        <CardTitle className="flex items-center gap-3 text-lg">
           <Activity className="h-5 w-5 text-blue-600" />
           Recent Activities
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-gray-600 mt-2">
           Latest system and user activities
         </CardDescription>
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2 flex-wrap mt-4">
           <Button
             variant={filter === 'all' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setFilter('all')}
+            className={filter === 'all' ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'border-gray-300 text-gray-700 hover:bg-gray-50'}
           >
             All
           </Button>
@@ -214,6 +212,7 @@ export const RecentActivities = () => {
             variant={filter === 'user' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setFilter('user')}
+            className={filter === 'user' ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'border-gray-300 text-gray-700 hover:bg-gray-50'}
           >
             Users
           </Button>
@@ -221,6 +220,7 @@ export const RecentActivities = () => {
             variant={filter === 'security' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setFilter('security')}
+            className={filter === 'security' ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'border-gray-300 text-gray-700 hover:bg-gray-50'}
           >
             Security
           </Button>
@@ -228,14 +228,15 @@ export const RecentActivities = () => {
             variant={filter === 'system' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setFilter('system')}
+            className={filter === 'system' ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'border-gray-300 text-gray-700 hover:bg-gray-50'}
           >
             System
           </Button>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-0">
         <ScrollArea className="h-80">
-          <div className="space-y-4">
+          <div className="divide-y divide-gray-100">
             {filteredActivities.map((activity) => {
               const ActivityIcon = getActivityIcon(activity.type);
               const StatusIcon = getStatusIcon(activity.status);
@@ -243,34 +244,31 @@ export const RecentActivities = () => {
               return (
                 <div
                   key={activity.id}
-                  className="flex items-start space-x-4 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                  className="flex items-start space-x-4 px-8 py-6 hover:bg-gray-50/50 cursor-pointer transition-colors"
                   onClick={() => handleViewDetails(activity.id)}
                 >
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={activity.avatar} />
-                    <AvatarFallback>
-                      <ActivityIcon className="h-4 w-4" />
-                    </AvatarFallback>
-                  </Avatar>
+                  <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
+                    <ActivityIcon className="h-5 h-5 text-blue-600" />
+                  </div>
                   
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 mb-1">
                       <p className="text-sm font-medium text-gray-900 truncate">
                         {activity.user}
                       </p>
-                      <Badge variant="outline" className="text-xs">
+                      <Badge variant="outline" className="text-xs bg-gray-50 text-gray-600 border-gray-200">
                         {activity.type}
                       </Badge>
                     </div>
                     
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-sm text-gray-600 mb-2">
                       {activity.action}
                       {activity.target && (
                         <span className="font-medium"> {activity.target}</span>
                       )}
                     </p>
                     
-                    <div className="flex items-center gap-2 mt-2">
+                    <div className="flex items-center gap-2">
                       <StatusIcon className={`h-3 w-3 ${getStatusColor(activity.status)}`} />
                       <span className="text-xs text-gray-500">{activity.timestamp}</span>
                     </div>
@@ -281,8 +279,8 @@ export const RecentActivities = () => {
           </div>
         </ScrollArea>
         
-        <div className="mt-4 pt-4 border-t">
-          <Button variant="outline" className="w-full" size="sm">
+        <div className="p-8 border-t border-gray-100">
+          <Button variant="outline" className="w-full border-gray-300 text-gray-700 hover:bg-gray-50" size="sm">
             View All Activities
           </Button>
         </div>
