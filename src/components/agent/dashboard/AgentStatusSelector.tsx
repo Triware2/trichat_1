@@ -59,19 +59,26 @@ export const AgentStatusSelector = () => {
   const currentConfig = statusConfig[currentStatus];
 
   return (
-    <div className="flex items-center gap-3">
-      <span className="text-sm font-medium text-gray-600">Status:</span>
+    <div className="flex items-center gap-3 group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:justify-center">
+      {/* Label - hidden when collapsed */}
+      <span className="text-sm font-medium text-gray-600 group-data-[collapsible=icon]:hidden">Status:</span>
+      
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button 
             variant="outline" 
-            className="h-9 px-3 gap-2 hover:bg-gray-50"
+            className="h-9 px-3 gap-2 hover:bg-gray-50 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:gap-0"
           >
-            <Badge className={`${currentConfig.bgColor} ${currentConfig.color} hover:${currentConfig.bgColor} gap-1.5 px-2 py-1`}>
+            {/* Full badge for expanded state */}
+            <Badge className={`${currentConfig.bgColor} ${currentConfig.color} hover:${currentConfig.bgColor} gap-1.5 px-2 py-1 group-data-[collapsible=icon]:hidden`}>
               <Circle className={`w-2 h-2 ${currentConfig.dotColor} rounded-full`} fill="currentColor" />
               {currentConfig.label}
             </Badge>
-            <ChevronDown className="w-4 h-4 text-gray-500" />
+            
+            {/* Just dot for collapsed state */}
+            <Circle className={`w-3 h-3 ${currentConfig.dotColor} rounded-full group-data-[collapsible=icon]:block hidden`} fill="currentColor" />
+            
+            <ChevronDown className="w-4 h-4 text-gray-500 group-data-[collapsible=icon]:hidden" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-44 bg-white border shadow-lg">
