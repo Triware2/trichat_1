@@ -1,15 +1,15 @@
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { MessageSquare, Search, BookOpen, Code, Settings, Users, Zap, Shield, FileText, Video, Download, DollarSign, Globe, Headphones, Bot, BarChart3, Lock } from 'lucide-react';
+import { MessageSquare, Search, BookOpen, Code, Settings, Users, Zap, Shield, FileText, Video, Download, DollarSign, Globe, Headphones, Bot, BarChart3, Lock, Menu, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 
 const Documentation = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const platformCapabilities = [
     {
@@ -267,17 +267,17 @@ const Documentation = () => {
       <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-8">
-              <div className="flex items-center space-x-3" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-                <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
-                  <MessageSquare className="w-5 h-5 text-white" />
+            <div className="flex items-center space-x-4 lg:space-x-8">
+              <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate('/')}>
+                <div className="w-8 h-8 sm:w-9 sm:h-9 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
+                  <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </div>
-                <span className="text-xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                <span className="text-lg sm:text-xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   Trichat
                 </span>
               </div>
               
-              <div className="hidden md:flex space-x-8">
+              <div className="hidden lg:flex space-x-8">
                 <Button variant="ghost" onClick={() => navigate('/solutions')}>Solutions</Button>
                 <Button variant="ghost" onClick={() => navigate('/pricing')}>Pricing</Button>
                 <Button variant="ghost" onClick={() => navigate('/documentation')} className="text-blue-600">Documentation</Button>
@@ -286,37 +286,65 @@ const Documentation = () => {
             </div>
 
             <div className="flex items-center space-x-4">
-              <Button variant="outline" onClick={() => navigate('/auth')}>
-                Sign In
-              </Button>
-              <Button onClick={() => navigate('/auth')}>
-                Get Started
-              </Button>
+              <div className="hidden md:flex items-center space-x-4">
+                <Button variant="outline" onClick={() => navigate('/auth')}>
+                  Sign In
+                </Button>
+                <Button onClick={() => navigate('/auth')}>
+                  Get Started
+                </Button>
+              </div>
+              
+              <div className="lg:hidden">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                >
+                  {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                </Button>
+              </div>
             </div>
           </div>
+
+          {/* Mobile Menu */}
+          {isMobileMenuOpen && (
+            <div className="lg:hidden border-t border-gray-200 bg-white">
+              <div className="px-2 pt-2 pb-3 space-y-1">
+                <Button variant="ghost" className="w-full justify-start" onClick={() => { navigate('/solutions'); setIsMobileMenuOpen(false); }}>Solutions</Button>
+                <Button variant="ghost" className="w-full justify-start" onClick={() => { navigate('/pricing'); setIsMobileMenuOpen(false); }}>Pricing</Button>
+                <Button variant="ghost" className="w-full justify-start text-blue-600" onClick={() => { navigate('/documentation'); setIsMobileMenuOpen(false); }}>Documentation</Button>
+                <Button variant="ghost" className="w-full justify-start" onClick={() => { navigate('/resources'); setIsMobileMenuOpen(false); }}>Resources</Button>
+                <div className="pt-4 space-y-2 md:hidden">
+                  <Button variant="outline" className="w-full" onClick={() => { navigate('/auth'); setIsMobileMenuOpen(false); }}>Sign In</Button>
+                  <Button className="w-full" onClick={() => { navigate('/auth'); setIsMobileMenuOpen(false); }}>Get Started</Button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </nav>
 
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-blue-50 via-white to-purple-50 py-20">
+      <div className="bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 sm:py-16 lg:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h1 className="text-5xl font-bold text-gray-900 mb-6">
+          <div className="text-center mb-12 sm:mb-16">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6">
               Complete <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Platform Guide</span>
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+            <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto mb-6 sm:mb-8 px-4">
               Everything you need to know about Trichat's capabilities, pricing, setup, and advanced features. Your complete knowledge base for successful implementation.
             </p>
             
             {/* Search Bar */}
-            <div className="max-w-2xl mx-auto">
+            <div className="max-w-2xl mx-auto px-4">
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <Input
                   placeholder="Search documentation..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 pr-4 py-3 text-lg border-2 border-gray-200 focus:border-blue-500 rounded-xl"
+                  className="pl-12 pr-4 py-3 text-base sm:text-lg border-2 border-gray-200 focus:border-blue-500 rounded-xl"
                 />
               </div>
             </div>
@@ -325,36 +353,36 @@ const Documentation = () => {
       </div>
 
       {/* Platform Capabilities Overview */}
-      <div className="py-20 bg-white">
+      <div className="py-12 sm:py-16 lg:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Platform Capabilities</h2>
-            <p className="text-xl text-gray-600">Comprehensive overview of what Trichat can do for your business</p>
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Platform Capabilities</h2>
+            <p className="text-lg sm:text-xl text-gray-600">Comprehensive overview of what Trichat can do for your business</p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
             {platformCapabilities.map((capability, index) => {
               const IconComponent = capability.icon;
               return (
                 <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-                  <CardHeader>
-                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${capability.color} flex items-center justify-center mb-4`}>
-                      <IconComponent className="w-6 h-6 text-white" />
+                  <CardHeader className="p-4 sm:p-6">
+                    <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-r ${capability.color} flex items-center justify-center mb-4`}>
+                      <IconComponent className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
-                    <CardTitle className="text-xl text-gray-900">{capability.title}</CardTitle>
-                    <CardDescription className="text-gray-600">
+                    <CardTitle className="text-lg sm:text-xl text-gray-900">{capability.title}</CardTitle>
+                    <CardDescription className="text-gray-600 text-sm sm:text-base">
                       {capability.description}
                     </CardDescription>
-                    <div className="flex items-center space-x-4 mt-2">
-                      <Badge className="bg-blue-100 text-blue-700">{capability.pricing}</Badge>
-                      <Badge variant="outline">{capability.setupTime}</Badge>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-2">
+                      <Badge className="bg-blue-100 text-blue-700 text-xs sm:text-sm">{capability.pricing}</Badge>
+                      <Badge variant="outline" className="text-xs sm:text-sm">{capability.setupTime}</Badge>
                     </div>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-4 sm:p-6 pt-0">
                     <div className="space-y-2">
                       {capability.features.map((feature, featureIndex) => (
-                        <div key={featureIndex} className="flex items-center space-x-2">
-                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                        <div key={featureIndex} className="flex items-start space-x-2">
+                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
                           <span className="text-sm text-gray-600">{feature}</span>
                         </div>
                       ))}
@@ -368,11 +396,11 @@ const Documentation = () => {
       </div>
 
       {/* Pricing Overview */}
-      <div className="bg-gray-50 py-20">
+      <div className="bg-gray-50 py-12 sm:py-16 lg:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Pricing Overview</h2>
-            <p className="text-xl text-gray-600">Choose the plan that fits your business needs</p>
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Pricing Overview</h2>
+            <p className="text-lg sm:text-xl text-gray-600">Choose the plan that fits your business needs</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -414,11 +442,11 @@ const Documentation = () => {
       </div>
 
       {/* Setup Guides */}
-      <div className="py-20 bg-white">
+      <div className="py-12 sm:py-16 lg:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Setup Guides</h2>
-            <p className="text-xl text-gray-600">Step-by-step guides to get you started quickly</p>
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Setup Guides</h2>
+            <p className="text-lg sm:text-xl text-gray-600">Step-by-step guides to get you started quickly</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -462,11 +490,11 @@ const Documentation = () => {
       </div>
 
       {/* Advanced Features */}
-      <div className="bg-gray-50 py-20">
+      <div className="bg-gray-50 py-12 sm:py-16 lg:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Advanced Features</h2>
-            <p className="text-xl text-gray-600">Deep dive into Trichat's powerful capabilities</p>
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Advanced Features</h2>
+            <p className="text-lg sm:text-xl text-gray-600">Deep dive into Trichat's powerful capabilities</p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -492,27 +520,28 @@ const Documentation = () => {
       </div>
 
       {/* CTA Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 py-20">
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 py-12 sm:py-16 lg:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl font-bold text-white mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
             Ready to build with Trichat?
           </h2>
-          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-lg sm:text-xl text-blue-100 mb-6 sm:mb-8 max-w-2xl mx-auto px-4">
             Start your journey with our comprehensive platform today.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center px-4">
             <Button 
               size="lg" 
               variant="secondary"
               onClick={() => navigate('/auth')}
+              className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4"
             >
               Start Free Trial
             </Button>
             <Button 
               size="lg" 
               variant="outline"
-              className="text-white border-white hover:bg-white hover:text-blue-600"
+              className="text-white border-white hover:bg-white hover:text-blue-600 text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4"
               onClick={() => navigate('/pricing')}
             >
               View Pricing Details

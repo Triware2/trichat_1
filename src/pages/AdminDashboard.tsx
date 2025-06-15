@@ -58,7 +58,7 @@ const AdminDashboard = () => {
       case 'users':
         return (
           <div className="min-h-screen bg-gray-50/30">
-            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="max-w-full mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
               <UserManagement />
             </div>
           </div>
@@ -72,7 +72,7 @@ const AdminDashboard = () => {
       case 'chatbot':
         return (
           <div className="min-h-screen bg-gray-50/30">
-            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="max-w-full mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
               <BotTraining />
             </div>
           </div>
@@ -80,7 +80,7 @@ const AdminDashboard = () => {
       case 'api-keys':
         return (
           <div className="min-h-screen bg-gray-50/30">
-            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="max-w-full mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
               <ApiKeyManagement />
             </div>
           </div>
@@ -88,7 +88,7 @@ const AdminDashboard = () => {
       case 'sla':
         return (
           <div className="min-h-screen bg-gray-50/30">
-            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="max-w-full mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
               <SLAManagement />
             </div>
           </div>
@@ -96,7 +96,7 @@ const AdminDashboard = () => {
       case 'csat':
         return (
           <div className="min-h-screen bg-gray-50/30">
-            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="max-w-full mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
               <CSATManagement />
             </div>
           </div>
@@ -108,7 +108,7 @@ const AdminDashboard = () => {
       case 'datasources':
         return (
           <div className="min-h-screen bg-gray-50/30">
-            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="max-w-full mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
               <DataSourcesManagement />
             </div>
           </div>
@@ -141,7 +141,7 @@ const AdminDashboard = () => {
       />
       
       {/* Mobile menu button */}
-      <div className="lg:hidden bg-white border-b border-gray-200 px-4 py-2">
+      <div className="xl:hidden bg-white border-b border-gray-200 px-4 py-2">
         <Button
           variant="ghost"
           size="sm"
@@ -163,19 +163,19 @@ const AdminDashboard = () => {
         {/* Mobile overlay */}
         {isMobileMenuOpen && (
           <div 
-            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 xl:hidden"
             onClick={toggleMobileMenu}
           />
         )}
 
         {/* Sidebar */}
         <div className={`
-          fixed lg:static inset-y-0 left-0 z-50 lg:z-auto
+          fixed xl:static inset-y-0 left-0 z-50 xl:z-auto
           transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
-          lg:translate-x-0 transition-transform duration-300 ease-in-out
-          bg-white shadow-lg lg:shadow-none
-          ${isMobileMenuOpen ? 'w-72' : 'w-0'} lg:w-56 xl:w-52 2xl:w-56
-          overflow-hidden lg:overflow-visible
+          xl:translate-x-0 transition-transform duration-300 ease-in-out
+          bg-white shadow-lg xl:shadow-none
+          ${isMobileMenuOpen ? 'w-72' : 'w-0'} xl:w-56 2xl:w-64
+          overflow-hidden xl:overflow-visible
           flex-shrink-0
         `}>
           <div className="h-full overflow-y-auto">
