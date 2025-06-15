@@ -44,7 +44,7 @@ const PlatformManagement = () => {
     <div className="min-h-screen bg-gray-50">
       <NavigationHeader 
         title="Platform Management" 
-        role="platform-admin"
+        role="admin"
         userEmail="admin@platform.com"
       />
       
