@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
@@ -37,6 +36,7 @@ export const SystemSettings = () => {
           </p>
         </div>
 
+        
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
           <Tabs defaultValue="general" className="space-y-0">
             <div className="border-b border-gray-200">

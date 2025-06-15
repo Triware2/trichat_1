@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { IntegrationTypeSelector } from './widget/IntegrationTypeSelector';
 import { ConfigurationPanel } from './widget/ConfigurationPanel';
