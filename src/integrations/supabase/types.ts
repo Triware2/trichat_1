@@ -422,6 +422,33 @@ export type Database = {
           },
         ]
       }
+      plan_features: {
+        Row: {
+          created_at: string
+          feature_key: string
+          feature_limit: number | null
+          id: string
+          is_enabled: boolean
+          plan_type: string
+        }
+        Insert: {
+          created_at?: string
+          feature_key: string
+          feature_limit?: number | null
+          id?: string
+          is_enabled?: boolean
+          plan_type: string
+        }
+        Update: {
+          created_at?: string
+          feature_key?: string
+          feature_limit?: number | null
+          id?: string
+          is_enabled?: boolean
+          plan_type?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -511,7 +538,9 @@ export type Database = {
       }
       subscriptions: {
         Row: {
+          agent_limit: number | null
           created_at: string
+          current_agent_count: number | null
           id: string
           plan_type: string | null
           status: Database["public"]["Enums"]["subscription_status"]
@@ -523,7 +552,9 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          agent_limit?: number | null
           created_at?: string
+          current_agent_count?: number | null
           id?: string
           plan_type?: string | null
           status?: Database["public"]["Enums"]["subscription_status"]
@@ -535,7 +566,9 @@ export type Database = {
           user_id: string
         }
         Update: {
+          agent_limit?: number | null
           created_at?: string
+          current_agent_count?: number | null
           id?: string
           plan_type?: string | null
           status?: Database["public"]["Enums"]["subscription_status"]
@@ -611,7 +644,7 @@ export type Database = {
         | "message_received"
         | "escalation"
         | "system_alert"
-      subscription_status: "trial" | "active" | "expired" | "cancelled"
+      subscription_status: "trial" | "active" | "expired" | "cancelled" | "free"
       user_role: "admin" | "supervisor" | "agent"
     }
     CompositeTypes: {
@@ -738,7 +771,7 @@ export const Constants = {
         "escalation",
         "system_alert",
       ],
-      subscription_status: ["trial", "active", "expired", "cancelled"],
+      subscription_status: ["trial", "active", "expired", "cancelled", "free"],
       user_role: ["admin", "supervisor", "agent"],
     },
   },
