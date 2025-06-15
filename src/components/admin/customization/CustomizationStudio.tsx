@@ -16,7 +16,10 @@ import {
   FormInput,
   Puzzle,
   Link,
-  Wrench
+  Wrench,
+  Terminal,
+  Cloud,
+  Key
 } from 'lucide-react';
 import { ThemeCustomizer } from './ThemeCustomizer';
 import { CustomFieldsManager } from './CustomFieldsManager';
@@ -26,6 +29,9 @@ import { FormBuilder } from './FormBuilder';
 import { CustomObjectManager } from './CustomObjectManager';
 import { RuleEngine } from './RuleEngine';
 import { IntegrationManager } from './IntegrationManager';
+import { CodeEditor } from './CodeEditor';
+import { SandboxEnvironment } from './SandboxEnvironment';
+import { ApiManagement } from './ApiManagement';
 
 export const CustomizationStudio = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -37,10 +43,10 @@ export const CustomizationStudio = () => {
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
             <Sparkles className="w-8 h-8 text-purple-600" />
             Customization Studio
-            <Badge className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">Phase 2</Badge>
+            <Badge className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">Phase 3</Badge>
           </h1>
           <p className="text-gray-600 mt-2">
-            Advanced customization platform with drag-and-drop builders, custom objects, and enterprise integrations
+            Enterprise-grade customization platform with code editor, sandbox environments, and API management
           </p>
         </div>
         <div className="flex gap-2">
@@ -56,7 +62,7 @@ export const CustomizationStudio = () => {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <Card className="border-l-4 border-l-purple-500">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -85,10 +91,10 @@ export const CustomizationStudio = () => {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Active Rules</p>
-                <p className="text-2xl font-bold">12</p>
+                <p className="text-sm text-gray-600">Active Scripts</p>
+                <p className="text-2xl font-bold">15</p>
               </div>
-              <Zap className="w-8 h-8 text-green-500" />
+              <Code className="w-8 h-8 text-green-500" />
             </div>
           </CardContent>
         </Card>
@@ -97,10 +103,22 @@ export const CustomizationStudio = () => {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Integrations</p>
-                <p className="text-2xl font-bold">8</p>
+                <p className="text-sm text-gray-600">API Endpoints</p>
+                <p className="text-2xl font-bold">23</p>
               </div>
-              <Link className="w-8 h-8 text-orange-500" />
+              <Key className="w-8 h-8 text-orange-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-l-4 border-l-indigo-500">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Sandbox Envs</p>
+                <p className="text-2xl font-bold">4</p>
+              </div>
+              <Cloud className="w-8 h-8 text-indigo-500" />
             </div>
           </CardContent>
         </Card>
@@ -108,62 +126,83 @@ export const CustomizationStudio = () => {
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-8 bg-white border shadow-sm rounded-xl p-1 h-auto">
+        <TabsList className="grid w-full grid-cols-11 bg-white border shadow-sm rounded-xl p-1 h-auto">
           <TabsTrigger 
             value="overview" 
-            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md font-medium py-3 px-3"
+            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md font-medium py-3 px-2"
           >
             <Sparkles className="w-4 h-4" />
             Overview
           </TabsTrigger>
           <TabsTrigger 
             value="themes" 
-            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md font-medium py-3 px-3"
+            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md font-medium py-3 px-2"
           >
             <Palette className="w-4 h-4" />
             Themes
           </TabsTrigger>
           <TabsTrigger 
             value="forms" 
-            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md font-medium py-3 px-3"
+            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md font-medium py-3 px-2"
           >
             <FormInput className="w-4 h-4" />
             Forms
           </TabsTrigger>
           <TabsTrigger 
             value="objects" 
-            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md font-medium py-3 px-3"
+            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md font-medium py-3 px-2"
           >
             <Database className="w-4 h-4" />
             Objects
           </TabsTrigger>
           <TabsTrigger 
             value="fields" 
-            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md font-medium py-3 px-3"
+            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md font-medium py-3 px-2"
           >
             <Wrench className="w-4 h-4" />
             Fields
           </TabsTrigger>
           <TabsTrigger 
             value="rules" 
-            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md font-medium py-3 px-3"
+            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md font-medium py-3 px-2"
           >
             <Zap className="w-4 h-4" />
             Rules
           </TabsTrigger>
           <TabsTrigger 
             value="workflows" 
-            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md font-medium py-3 px-3"
+            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md font-medium py-3 px-2"
           >
             <Workflow className="w-4 h-4" />
             Workflows
           </TabsTrigger>
           <TabsTrigger 
             value="integrations" 
-            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md font-medium py-3 px-3"
+            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md font-medium py-3 px-2"
           >
             <Link className="w-4 h-4" />
             Integrations
+          </TabsTrigger>
+          <TabsTrigger 
+            value="code-editor" 
+            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md font-medium py-3 px-2"
+          >
+            <Terminal className="w-4 h-4" />
+            Code
+          </TabsTrigger>
+          <TabsTrigger 
+            value="sandbox" 
+            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md font-medium py-3 px-2"
+          >
+            <Cloud className="w-4 h-4" />
+            Sandbox
+          </TabsTrigger>
+          <TabsTrigger 
+            value="api-management" 
+            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md font-medium py-3 px-2"
+          >
+            <Key className="w-4 h-4" />
+            APIs
           </TabsTrigger>
         </TabsList>
 
@@ -197,6 +236,18 @@ export const CustomizationStudio = () => {
 
         <TabsContent value="integrations">
           <IntegrationManager />
+        </TabsContent>
+
+        <TabsContent value="code-editor">
+          <CodeEditor />
+        </TabsContent>
+
+        <TabsContent value="sandbox">
+          <SandboxEnvironment />
+        </TabsContent>
+
+        <TabsContent value="api-management">
+          <ApiManagement />
         </TabsContent>
       </Tabs>
     </div>
