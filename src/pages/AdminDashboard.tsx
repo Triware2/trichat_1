@@ -150,7 +150,7 @@ const AdminDashboard = () => {
           transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
           lg:translate-x-0 transition-transform duration-300 ease-in-out
           bg-white shadow-lg lg:shadow-none
-          ${isMobileMenuOpen ? 'w-80' : 'w-0'} lg:w-80 xl:w-72 2xl:w-80
+          ${isMobileMenuOpen ? 'w-72' : 'w-0'} lg:w-64 xl:w-60 2xl:w-64
           overflow-hidden lg:overflow-visible
           flex-shrink-0
         `}>
