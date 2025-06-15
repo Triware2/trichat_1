@@ -1,3 +1,4 @@
+
 import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { 
@@ -46,7 +47,7 @@ export const AgentSidebar = ({ todayPerformance, activeTab = 'dashboard', onTabC
       <SidebarHeader className="p-6 border-b border-slate-200/60 bg-white/80 backdrop-blur-sm group-data-[collapsible=icon]:p-2">
         <div className="space-y-4 group-data-[collapsible=icon]:space-y-2">
           {/* Agent Badge with Hamburger Menu beside it - Moved down for better visibility */}
-          <div className="flex items-center justify-between space-x-3 mt-4 group-data-[collapsible=icon]:hidden">
+          <div className="flex items-center justify-between space-x-3 mt-8 group-data-[collapsible=icon]:hidden">
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center shadow-lg">
                 <Activity className="w-6 h-6 text-white" />
@@ -101,7 +102,7 @@ export const AgentSidebar = ({ todayPerformance, activeTab = 'dashboard', onTabC
 
           {/* Collapsed state performance indicator with hamburger - Moved down */}
           <div className="hidden group-data-[collapsible=icon]:block">
-            <div className="flex flex-col items-center space-y-4 mt-4">
+            <div className="flex flex-col items-center space-y-4 mt-8">
               <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center shadow-lg mx-auto">
                 <Activity className="w-5 h-5 text-white" />
               </div>
