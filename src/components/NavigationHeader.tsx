@@ -23,11 +23,11 @@ import { useState } from 'react';
 
 interface NavigationHeaderProps {
   title: string;
-  role: 'admin' | 'supervisor' | 'agent';
-  userEmail: string;
+  role?: 'admin' | 'supervisor' | 'agent';
+  userEmail?: string;
 }
 
-export const NavigationHeader = ({ title, role, userEmail }: NavigationHeaderProps) => {
+export const NavigationHeader = ({ title, role = 'admin', userEmail = 'user@trichat.com' }: NavigationHeaderProps) => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -159,7 +159,7 @@ export const NavigationHeader = ({ title, role, userEmail }: NavigationHeaderPro
                   <Avatar className="h-8 w-8">
                     <AvatarImage src="/placeholder.svg" alt="Avatar" />
                     <AvatarFallback className={`bg-gradient-to-r ${getTrichatLogoGradient(role, title)} text-white font-lexend font-medium`}>
-                      {userEmail.charAt(0).toUpperCase()}
+                      {(userEmail || 'U').charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                 </Button>

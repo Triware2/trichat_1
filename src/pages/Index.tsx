@@ -1,184 +1,163 @@
+
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/use-auth';
-import { NavigationHeader } from '@/components/NavigationHeader';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Settings, Users, Activity, Gauge } from 'lucide-react';
-
-interface Feature {
-  title: string;
-  description: string;
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-}
-
-const features: Feature[] = [
-  {
-    title: 'Real-Time Chat',
-    description: 'Engage with customers instantly using our advanced chat interface.',
-    icon: Activity,
-  },
-  {
-    title: 'AI-Powered Assistance',
-    description: 'Let our AI handle routine tasks and provide smart suggestions.',
-    icon: Bot,
-  },
-  {
-    title: 'Comprehensive Analytics',
-    description: 'Track key metrics and gain insights into customer behavior.',
-    icon: BarChart3,
-  },
-];
-
-const getDashboardRoute = (user: any) => {
-  switch (user?.role) {
-    case 'admin':
-      return '/admin';
-    case 'supervisor':
-      return '/supervisor';
-    case 'agent':
-      return '/agent';
-    default:
-      return '/';
-  }
-};
-
-import { Bot, BarChart3 } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { MessageSquare, Users, BarChart3, Shield, Zap, Globe } from 'lucide-react';
+import { NavigationHeader } from '@/components/NavigationHeader';
+import { useAuth } from '@/hooks/use-auth';
 
 const Index = () => {
-  const { user, isLoading } = useAuth();
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
-    if (!isLoading && user) {
-      navigate(getDashboardRoute(user));
+    if (!loading && user) {
+      // Auto-redirect authenticated users to admin dashboard
+      navigate('/admin');
     }
-  }, [user, isLoading, navigate]);
+  }, [user, loading, navigate]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-lg text-gray-600">Loading...</div>
+      </div>
+    );
+  }
+
+  const features = [
+    {
+      icon: MessageSquare,
+      title: "Intelligent Chat Management",
+      description: "AI-powered routing and real-time conversation handling",
+      color: "from-blue-500 to-cyan-500"
+    },
+    {
+      icon: Users,
+      title: "Multi-Role Dashboard",
+      description: "Specialized interfaces for agents, supervisors, and admins",
+      color: "from-emerald-500 to-teal-500"
+    },
+    {
+      icon: BarChart3,
+      title: "Advanced Analytics",
+      description: "Deep insights into performance and customer satisfaction",
+      color: "from-purple-500 to-indigo-500"
+    },
+    {
+      icon: Shield,
+      title: "Enterprise Security",
+      description: "Role-based access control and data protection",
+      color: "from-red-500 to-orange-500"
+    },
+    {
+      icon: Zap,
+      title: "Real-time Operations",
+      description: "Instant updates and live monitoring capabilities",
+      color: "from-yellow-500 to-orange-500"
+    },
+    {
+      icon: Globe,
+      title: "Scalable Platform",
+      description: "Built to handle enterprise-level chat operations",
+      color: "from-green-500 to-emerald-500"
+    }
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <NavigationHeader title="Trichat" />
+      <NavigationHeader title="Welcome to Trichat" />
       
       <div className="container mx-auto px-4 py-16">
         {/* Hero Section */}
         <div className="text-center mb-16">
+          <div className="flex justify-center mb-6">
+            <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-2xl">
+              <MessageSquare className="w-10 h-10 text-white" />
+            </div>
+          </div>
           <h1 className="text-5xl font-bold text-gray-900 mb-6">
-            Welcome to <span className="text-blue-600">Trichat</span>
+            Enterprise-Grade <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Chat Platform</span>
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            The most advanced customer support platform with real-time chat, AI-powered assistance, and comprehensive analytics.
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
+            Transform your customer support with AI-powered chat management, real-time analytics, and seamless team collaboration
           </p>
           
-          {!user ? (
-            <div className="space-x-4">
-              <Button 
-                onClick={() => navigate('/auth')}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg"
-              >
-                Sign In
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => navigate('/auth')}
-                className="border-blue-600 text-blue-600 hover:bg-blue-50 px-8 py-3 text-lg"
-              >
-                Get Started
-              </Button>
-            </div>
-          ) : (
-            <div className="space-x-4">
-              <Button 
-                onClick={() => navigate(getDashboardRoute(user))}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg"
-              >
-                Go to Dashboard
-              </Button>
-            </div>
-          )}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Button 
+              size="lg" 
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg"
+              onClick={() => navigate('/auth')}
+            >
+              Get Started
+            </Button>
+            <Button 
+              variant="outline" 
+              size="lg"
+              className="border-2 border-blue-200 text-blue-700 hover:bg-blue-50 px-8 py-3 text-lg"
+              onClick={() => navigate('/auth')}
+            >
+              Sign In
+            </Button>
+          </div>
         </div>
 
         {/* Features Grid */}
-        <div className="grid md:grid-cols-3 gap-8 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           {features.map((feature, index) => {
             const IconComponent = feature.icon;
             return (
-              <Card key={index} className="text-center p-6 hover:shadow-lg transition-shadow">
-                <CardContent className="pt-6">
-                  <div className="mx-auto w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                    <IconComponent className="h-6 w-6 text-blue-600" />
+              <Card key={index} className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+                <CardHeader>
+                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${feature.color} flex items-center justify-center mb-4`}>
+                    <IconComponent className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                  <p className="text-gray-600">{feature.description}</p>
-                </CardContent>
+                  <CardTitle className="text-xl text-gray-900">{feature.title}</CardTitle>
+                  <CardDescription className="text-gray-600">
+                    {feature.description}
+                  </CardDescription>
+                </CardHeader>
               </Card>
             );
           })}
         </div>
 
-        {/* Admin Platform Access */}
-        {user?.role === 'admin' && (
-          <div className="bg-white rounded-lg shadow-lg p-8 mb-16">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Platform Management</h2>
-            <div className="grid md:grid-cols-2 gap-6">
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
-                      <Settings className="h-6 w-6 text-indigo-600" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold">Standard Platform</h3>
-                      <p className="text-gray-600 text-sm">Client management, pricing, and analytics</p>
-                    </div>
-                    <Button 
-                      onClick={() => navigate('/platform')}
-                      variant="outline"
-                      className="border-indigo-600 text-indigo-600 hover:bg-indigo-50"
-                    >
-                      Access
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="hover:shadow-lg transition-shadow border-purple-200">
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                      <Gauge className="h-6 w-6 text-purple-600" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold">Control Center</h3>
-                      <p className="text-gray-600 text-sm">Advanced system control and automation</p>
-                    </div>
-                    <Button 
-                      onClick={() => navigate('/control')}
-                      className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white"
-                    >
-                      Launch
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+        {/* Role-based Access Section */}
+        <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 shadow-lg">
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">Role-Based Dashboards</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
+              <CardHeader>
+                <Badge className="bg-emerald-100 text-emerald-700 w-fit">Agent</Badge>
+                <CardTitle className="text-emerald-900">Agent Dashboard</CardTitle>
+                <CardDescription>
+                  Streamlined interface for handling customer conversations, accessing knowledge base, and managing tickets
+                </CardDescription>
+              </CardHeader>
+            </Card>
+            
+            <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
+              <CardHeader>
+                <Badge className="bg-blue-100 text-blue-700 w-fit">Supervisor</Badge>
+                <CardTitle className="text-blue-900">Supervisor Dashboard</CardTitle>
+                <CardDescription>
+                  Monitor team performance, manage chat queues, and oversee agent activities in real-time
+                </CardDescription>
+              </CardHeader>
+            </Card>
+            
+            <Card className="bg-gradient-to-br from-red-50 to-orange-50 border-red-200">
+              <CardHeader>
+                <Badge className="bg-red-100 text-red-700 w-fit">Admin</Badge>
+                <CardTitle className="text-red-900">Admin Dashboard</CardTitle>
+                <CardDescription>
+                  Complete system control, user management, analytics, and platform configuration
+                </CardDescription>
+              </CardHeader>
+            </Card>
           </div>
-        )}
-
-        {/* Demo Section */}
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Experience the Difference</h2>
-          <p className="text-lg text-gray-600 mb-8">
-            Join thousands of businesses that trust Trichat for their customer support needs.
-          </p>
-          {!user && (
-            <Button 
-              onClick={() => navigate('/auth')}
-              size="lg"
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-12 py-4 text-lg"
-            >
-              Start Free Trial
-            </Button>
-          )}
         </div>
       </div>
     </div>
