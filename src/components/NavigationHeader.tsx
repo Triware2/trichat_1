@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -43,7 +44,12 @@ export const NavigationHeader = ({ title, role, userEmail }: NavigationHeaderPro
     }
   };
 
-  const getTrichatLogoGradient = (role: string) => {
+  const getTrichatLogoGradient = (role: string, title: string) => {
+    // Special case for Platform Management page - always use purple
+    if (title === 'Platform Management') {
+      return 'from-purple-500 to-purple-600';
+    }
+    
     switch (role) {
       case 'admin':
         return 'from-red-500 to-orange-500';
@@ -79,7 +85,7 @@ export const NavigationHeader = ({ title, role, userEmail }: NavigationHeaderPro
               <div className="flex items-center space-x-3">
                 <div className="relative">
                   {/* Main cube with Azure-inspired design */}
-                  <div className={`w-9 h-9 bg-gradient-to-br ${getTrichatLogoGradient(role)} rounded-lg flex items-center justify-center shadow-lg relative overflow-hidden`}>
+                  <div className={`w-9 h-9 bg-gradient-to-br ${getTrichatLogoGradient(role, title)} rounded-lg flex items-center justify-center shadow-lg relative overflow-hidden`}>
                     {/* Modern geometric pattern */}
                     <div className="absolute inset-0 bg-white opacity-10">
                       <div className="absolute top-0 left-0 w-full h-full">
@@ -98,7 +104,7 @@ export const NavigationHeader = ({ title, role, userEmail }: NavigationHeaderPro
                     </div>
                   </div>
                 </div>
-                <span className={`text-xl font-semibold bg-gradient-to-r ${getTrichatLogoGradient(role)} bg-clip-text text-transparent tracking-tight`}>
+                <span className={`text-xl font-semibold bg-gradient-to-r ${getTrichatLogoGradient(role, title)} bg-clip-text text-transparent tracking-tight`}>
                   Trichat
                 </span>
               </div>
@@ -152,7 +158,7 @@ export const NavigationHeader = ({ title, role, userEmail }: NavigationHeaderPro
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src="/placeholder.svg" alt="Avatar" />
-                    <AvatarFallback className={`bg-gradient-to-r ${getTrichatLogoGradient(role)} text-white font-lexend font-medium`}>
+                    <AvatarFallback className={`bg-gradient-to-r ${getTrichatLogoGradient(role, title)} text-white font-lexend font-medium`}>
                       {userEmail.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
