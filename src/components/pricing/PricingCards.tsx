@@ -15,7 +15,7 @@ const pricingTiers: PricingTier[] = [
     features: [
       "Up to 5 agents",
       "Basic chat functionality",
-      "Basic reports",
+      "Basic reports", 
       "Email support",
       "25% of platform features"
     ],
@@ -88,7 +88,7 @@ const pricingTiers: PricingTier[] = [
   {
     name: "Enterprise",
     price: "$15",
-    period: "per agent/month",
+    period: "per agent/month", 
     description: "Large organizations with complete platform access",
     features: [
       "Unlimited agents",
@@ -112,6 +112,18 @@ const pricingTiers: PricingTier[] = [
 
 export const PricingCards = () => {
   const navigate = useNavigate();
+
+  const handlePlanSelection = (tier: PricingTier) => {
+    // Store selected plan in localStorage to pass to signup
+    localStorage.setItem('selectedPlan', JSON.stringify({
+      name: tier.name.toLowerCase(),
+      functionalityPercent: tier.functionalityPercent,
+      agentLimit: tier.agentLimit,
+      hasTrial: tier.name !== 'Free'
+    }));
+    
+    navigate('/auth');
+  };
 
   return (
     <div className="py-20 bg-white">
@@ -163,7 +175,7 @@ export const PricingCards = () => {
                 <Button 
                   className={`w-full ${tier.popular ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
                   variant={tier.popular ? 'default' : 'outline'}
-                  onClick={() => navigate('/auth')}
+                  onClick={() => handlePlanSelection(tier)}
                 >
                   {tier.cta}
                   <ArrowRight className="ml-2 w-4 h-4" />

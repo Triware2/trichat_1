@@ -17,9 +17,18 @@ interface FeatureAccessContextType {
   isLoading: boolean;
   refreshPlanDetails: () => Promise<void>;
   isPlatformCreator: boolean;
+  functionalityPercent: number;
 }
 
 const FeatureAccessContext = createContext<FeatureAccessContextType | undefined>(undefined);
+
+// Define functionality percentages by plan
+const PLAN_FUNCTIONALITY: Record<string, number> = {
+  'free': 25,
+  'growth': 50,
+  'pro': 75,
+  'enterprise': 100
+};
 
 export const FeatureAccessProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
@@ -55,6 +64,10 @@ export const FeatureAccessProvider = ({ children }: { children: ReactNode }) => 
     }
   };
 
+  const functionalityPercent = planDetails?.plan_type 
+    ? PLAN_FUNCTIONALITY[planDetails.plan_type] || 25
+    : 25;
+
   const hasFeatureAccess = (featureKey: string): boolean => {
     if (!user) return false;
     
@@ -66,9 +79,20 @@ export const FeatureAccessProvider = ({ children }: { children: ReactNode }) => 
       return featureCache[featureKey];
     }
 
-    // For regular users, check plan-based access
-    // This would normally make an API call to check feature access based on pricing tiers
-    return true; // For now, return true for basic features to avoid blocking
+    // For regular users, check plan-based access and trial status
+    if (!planDetails) return false;
+
+    // Check if trial is active or subscription is active
+    const hasActiveAccess = 
+      (planDetails.status === 'trial' && planDetails.trial_days_remaining > 0) ||
+      planDetails.status === 'active' ||
+      planDetails.status === 'free';
+
+    if (!hasActiveAccess) return false;
+
+    // For now, return access based on basic feature mapping
+    // This will be enhanced by the database function
+    return true;
   };
 
   const checkFeatureAccess = async (featureKey: string): Promise<boolean> => {
@@ -108,6 +132,7 @@ export const FeatureAccessProvider = ({ children }: { children: ReactNode }) => 
     isLoading,
     refreshPlanDetails,
     isPlatformCreator,
+    functionalityPercent,
   };
 
   return (
