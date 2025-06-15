@@ -12,15 +12,19 @@ export const CustomizationStudio = () => {
   const { customizations, isLoading } = useCustomizationStudio();
 
   return (
-    <div className="space-y-6">
-      <CustomizationHeader />
-      
-      <QuickStats customizations={customizations} isLoading={isLoading} />
+    <div className="min-h-screen bg-gray-50/30">
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <CustomizationHeader />
+        
+        <QuickStats customizations={customizations} isLoading={isLoading} />
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <CustomizationTabs activeTab={activeTab} onTabChange={setActiveTab} />
-        <CustomizationTabContent activeTab={activeTab} />
-      </Tabs>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-0">
+          <CustomizationTabs activeTab={activeTab} onTabChange={setActiveTab} />
+          <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+            <CustomizationTabContent activeTab={activeTab} />
+          </div>
+        </Tabs>
+      </div>
     </div>
   );
 };

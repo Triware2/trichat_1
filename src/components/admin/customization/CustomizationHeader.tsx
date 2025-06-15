@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Sparkles, Code, Plus } from 'lucide-react';
+import { Settings, Code, Plus } from 'lucide-react';
 
 export const CustomizationHeader = () => {
   const { toast } = useToast();
@@ -57,35 +57,34 @@ export const CustomizationHeader = () => {
 
   return (
     <>
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <Sparkles className="w-8 h-8 text-purple-600" />
-            Customization Studio
-            <Badge className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">Phase 3</Badge>
+      <div className="flex justify-between items-start mb-8">
+        <div className="space-y-1">
+          <div className="flex items-center gap-3">
+            <Settings className="w-8 h-8 text-blue-600" />
+            <h1 className="text-heading-1 text-gray-900 font-segoe">Customization Studio</h1>
             {isDeveloperMode && (
-              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+              <Badge className="bg-blue-50 text-blue-700 border-blue-200 font-normal">
                 Developer Mode
               </Badge>
             )}
-          </h1>
-          <p className="text-gray-600 mt-2">
-            Enterprise-grade customization platform with code editor, sandbox environments, and API management
+          </div>
+          <p className="text-body text-gray-600 mt-3 max-w-2xl leading-relaxed">
+            Design, configure, and deploy customizations across your platform with enterprise-grade tools and real-time preview capabilities.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-3">
           <Button 
             variant={isDeveloperMode ? "default" : "outline"} 
             size="sm"
             onClick={handleDeveloperMode}
-            className={isDeveloperMode ? "bg-green-600 hover:bg-green-700" : ""}
+            className={isDeveloperMode ? "bg-blue-600 hover:bg-blue-700 text-white" : "border-gray-300 text-gray-700 hover:bg-gray-50"}
           >
             <Code className="w-4 h-4 mr-2" />
             Developer Mode
           </Button>
           <Button 
             size="sm" 
-            className="bg-purple-600 hover:bg-purple-700"
+            className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
             onClick={() => setIsNewCustomizationOpen(true)}
           >
             <Plus className="w-4 h-4 mr-2" />
@@ -95,43 +94,44 @@ export const CustomizationHeader = () => {
       </div>
 
       <Dialog open={isNewCustomizationOpen} onOpenChange={setIsNewCustomizationOpen}>
-        <DialogContent className="bg-white max-w-md">
+        <DialogContent className="bg-white max-w-lg border-0 shadow-xl">
           <DialogHeader>
-            <DialogTitle>Create New Customization</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-heading-3 text-gray-900">Create New Customization</DialogTitle>
+            <DialogDescription className="text-body text-gray-600">
               Set up a new customization project for your platform
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="customization-name">Name</Label>
+          <div className="space-y-6 pt-2">
+            <div className="space-y-2">
+              <Label htmlFor="customization-name" className="text-sm font-semibold text-gray-700">Name</Label>
               <Input
                 id="customization-name"
                 value={newCustomization.name}
                 onChange={(e) => setNewCustomization({...newCustomization, name: e.target.value})}
                 placeholder="e.g., Dark Theme Update"
+                className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
             
-            <div>
-              <Label htmlFor="customization-description">Description</Label>
+            <div className="space-y-2">
+              <Label htmlFor="customization-description" className="text-sm font-semibold text-gray-700">Description</Label>
               <Textarea
                 id="customization-description"
                 value={newCustomization.description}
                 onChange={(e) => setNewCustomization({...newCustomization, description: e.target.value})}
                 placeholder="Brief description of the customization"
-                className="h-20"
+                className="h-20 border-gray-300 focus:border-blue-500 focus:ring-blue-500 resize-none"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="customization-type">Type</Label>
+              <div className="space-y-2">
+                <Label htmlFor="customization-type" className="text-sm font-semibold text-gray-700">Type</Label>
                 <Select value={newCustomization.type} onValueChange={(value) => setNewCustomization({...newCustomization, type: value})}>
-                  <SelectTrigger>
+                  <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white border shadow-lg">
                     <SelectItem value="theme">Theme</SelectItem>
                     <SelectItem value="component">Component</SelectItem>
                     <SelectItem value="workflow">Workflow</SelectItem>
@@ -140,13 +140,13 @@ export const CustomizationHeader = () => {
                 </Select>
               </div>
 
-              <div>
-                <Label htmlFor="customization-category">Category</Label>
+              <div className="space-y-2">
+                <Label htmlFor="customization-category" className="text-sm font-semibold text-gray-700">Category</Label>
                 <Select value={newCustomization.category} onValueChange={(value) => setNewCustomization({...newCustomization, category: value})}>
-                  <SelectTrigger>
+                  <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white border shadow-lg">
                     <SelectItem value="ui">UI/UX</SelectItem>
                     <SelectItem value="functionality">Functionality</SelectItem>
                     <SelectItem value="automation">Automation</SelectItem>
@@ -156,11 +156,11 @@ export const CustomizationHeader = () => {
               </div>
             </div>
 
-            <div className="flex gap-2 pt-4">
-              <Button onClick={handleCreateCustomization} className="flex-1">
+            <div className="flex gap-3 pt-4 border-t border-gray-200">
+              <Button onClick={handleCreateCustomization} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white">
                 Create Customization
               </Button>
-              <Button variant="outline" onClick={() => setIsNewCustomizationOpen(false)}>
+              <Button variant="outline" onClick={() => setIsNewCustomizationOpen(false)} className="border-gray-300 text-gray-700 hover:bg-gray-50">
                 Cancel
               </Button>
             </div>

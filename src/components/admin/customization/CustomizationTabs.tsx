@@ -1,7 +1,7 @@
 
 import { TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  Sparkles, 
+  LayoutDashboard, 
   Palette, 
   FormInput, 
   Database, 
@@ -21,7 +21,7 @@ interface CustomizationTabsProps {
 
 export const CustomizationTabs = ({ activeTab, onTabChange }: CustomizationTabsProps) => {
   const tabs = [
-    { id: 'overview', label: 'Overview', icon: Sparkles },
+    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'themes', label: 'Themes', icon: Palette },
     { id: 'forms', label: 'Forms', icon: FormInput },
     { id: 'objects', label: 'Objects', icon: Database },
@@ -35,20 +35,34 @@ export const CustomizationTabs = ({ activeTab, onTabChange }: CustomizationTabsP
   ];
 
   return (
-    <TabsList className="grid w-full grid-cols-11 bg-white border shadow-sm rounded-xl p-1 h-auto">
-      {tabs.map((tab) => {
-        const Icon = tab.icon;
-        return (
-          <TabsTrigger 
-            key={tab.id}
-            value={tab.id}
-            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md font-medium py-3 px-2"
-          >
-            <Icon className="w-4 h-4" />
-            {tab.label}
-          </TabsTrigger>
-        );
-      })}
-    </TabsList>
+    <div className="border-b border-gray-200 mb-8">
+      <TabsList className="h-auto bg-transparent p-0 space-x-0">
+        <div className="flex overflow-x-auto scrollbar-hide">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <TabsTrigger 
+                key={tab.id}
+                value={tab.id}
+                className={`
+                  flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all duration-200 
+                  border-b-2 bg-transparent rounded-none whitespace-nowrap
+                  ${isActive 
+                    ? 'border-blue-600 text-blue-600 bg-blue-50/50' 
+                    : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                  }
+                  data-[state=active]:bg-blue-50/50 data-[state=active]:text-blue-600 data-[state=active]:border-blue-600
+                  data-[state=active]:shadow-none
+                `}
+              >
+                <Icon className="w-4 h-4" />
+                {tab.label}
+              </TabsTrigger>
+            );
+          })}
+        </div>
+      </TabsList>
+    </div>
   );
 };
