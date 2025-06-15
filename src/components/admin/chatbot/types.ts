@@ -28,3 +28,31 @@ export interface ConversationFlow {
   is_active: boolean;
   steps: FlowStep[];
 }
+
+export interface ChatMessage {
+  id: number;
+  sender: 'customer' | 'agent' | 'bot' | 'system';
+  message: string;
+  time: string;
+  type: 'text' | 'file' | 'image' | 'escalation';
+  fileName?: string;
+  confidence?: number;
+  intent?: string;
+  bot_response_id?: string;
+  escalation_reason?: string;
+}
+
+export interface BotResponse {
+  id: string;
+  message: string;
+  confidence: number;
+  intent: string;
+}
+
+export interface BotSession {
+  session_id: string;
+  customer_id: string;
+  bot_attempts: number;
+  escalated: boolean;
+  started_at: string;
+}
