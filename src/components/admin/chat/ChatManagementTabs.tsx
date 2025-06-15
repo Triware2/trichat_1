@@ -1,11 +1,72 @@
 
+import { useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { MessageSquare, Settings, Users, BarChart3 } from 'lucide-react';
 import { ChatManagement } from './ChatManagement';
 
 export const ChatManagementTabs = () => {
+  const [activeTab, setActiveTab] = useState('channels');
+
   return (
     <div className="min-h-screen bg-gray-50/30">
       <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <ChatManagement />
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Chat Management</h1>
+              <p className="text-gray-600 mt-1">Manage chat channels, routing, and operations</p>
+            </div>
+          </div>
+
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <TabsList className="grid w-full grid-cols-4 bg-transparent gap-2 h-auto p-0">
+              <TabsTrigger 
+                value="channels" 
+                className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md font-medium py-3 px-6 data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-gray-600 data-[state=inactive]:shadow-none transition-all"
+              >
+                <MessageSquare className="w-4 h-4" />
+                Channel Control
+              </TabsTrigger>
+              <TabsTrigger 
+                value="rules" 
+                className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md font-medium py-3 px-6 data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-gray-600 data-[state=inactive]:shadow-none transition-all"
+              >
+                <Settings className="w-4 h-4" />
+                Chat Rules
+              </TabsTrigger>
+              <TabsTrigger 
+                value="bulk" 
+                className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md font-medium py-3 px-6 data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-gray-600 data-[state=inactive]:shadow-none transition-all"
+              >
+                <Users className="w-4 h-4" />
+                Bulk Operations
+              </TabsTrigger>
+              <TabsTrigger 
+                value="analytics" 
+                className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md font-medium py-3 px-6 data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-gray-600 data-[state=inactive]:shadow-none transition-all"
+              >
+                <BarChart3 className="w-4 h-4" />
+                Analytics
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="channels">
+              <ChatManagement />
+            </TabsContent>
+
+            <TabsContent value="rules">
+              <ChatManagement />
+            </TabsContent>
+
+            <TabsContent value="bulk">
+              <ChatManagement />
+            </TabsContent>
+
+            <TabsContent value="analytics">
+              <ChatManagement />
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
     </div>
   );

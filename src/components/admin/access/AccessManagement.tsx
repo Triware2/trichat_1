@@ -18,17 +18,17 @@ export const AccessManagement = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 bg-white border shadow-sm rounded-xl p-1 h-auto">
+        <TabsList className="grid w-full grid-cols-2 bg-transparent gap-2 h-auto p-0">
           <TabsTrigger 
             value="matrix" 
-            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-md font-medium py-3 px-4"
+            className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md font-medium py-3 px-6 data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-gray-600 data-[state=inactive]:shadow-none transition-all"
           >
             <Grid3X3 className="w-4 h-4" />
             Permission Matrix
           </TabsTrigger>
           <TabsTrigger 
             value="roles" 
-            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-md font-medium py-3 px-4"
+            className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md font-medium py-3 px-6 data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-gray-600 data-[state=inactive]:shadow-none transition-all"
           >
             <Users className="w-4 h-4" />
             Role Management
