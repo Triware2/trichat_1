@@ -8,7 +8,6 @@ import AuthPage from '@/pages/AuthPage';
 import AgentDashboard from '@/pages/AgentDashboard';
 import SupervisorDashboard from '@/pages/SupervisorDashboard';
 import AdminDashboard from '@/pages/AdminDashboard';
-import PlatformManagement from '@/pages/PlatformManagement';
 import PlatformControl from '@/pages/PlatformControl';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import NotFound from '@/pages/NotFound';
@@ -44,14 +43,6 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={['admin']}>
                   <AdminDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/platform" 
-              element={
-                <ProtectedRoute allowedRoles={['admin']}>
-                  <PlatformManagement />
                 </ProtectedRoute>
               } 
             />
