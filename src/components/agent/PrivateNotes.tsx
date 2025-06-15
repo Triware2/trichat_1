@@ -10,7 +10,7 @@ interface PrivateNote {
   chatId: number;
   type: 'private-note';
   attachments?: {
-    type: 'image' | 'file' | 'media';
+    type: 'image' | 'file' | 'media' | 'audio' | 'video';
     name: string;
     url?: string;
   }[];
@@ -30,7 +30,14 @@ export const PrivateNotes = ({ chatId, currentUserRole = 'agent', currentUserNam
       author: "Sarah Johnson",
       timestamp: "10:25 AM",
       chatId: 1,
-      type: 'private-note'
+      type: 'private-note',
+      attachments: [
+        {
+          type: 'image',
+          name: 'customer_complaint_screenshot.png',
+          url: '#'
+        }
+      ]
     },
     {
       id: 2,
@@ -38,7 +45,14 @@ export const PrivateNotes = ({ chatId, currentUserRole = 'agent', currentUserNam
       author: "Mike Chen", 
       timestamp: "11:10 AM",
       chatId: 1,
-      type: 'private-note'
+      type: 'private-note',
+      attachments: [
+        {
+          type: 'audio',
+          name: 'customer_voice_message.mp3',
+          url: '#'
+        }
+      ]
     }
   ]);
   
@@ -67,7 +81,7 @@ export const PrivateNotes = ({ chatId, currentUserRole = 'agent', currentUserNam
     });
   };
 
-  const addNote = (content: string, attachments?: { type: 'image' | 'file' | 'media'; name: string; url?: string; }[]) => {
+  const addNote = (content: string, attachments?: { type: 'image' | 'file' | 'media' | 'audio' | 'video'; name: string; url?: string; }[]) => {
     const note: PrivateNote = {
       id: notes.length + 1,
       content: content.trim(),
@@ -75,14 +89,22 @@ export const PrivateNotes = ({ chatId, currentUserRole = 'agent', currentUserNam
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       chatId: chatId,
       type: 'private-note',
-      attachments: attachments
+      attachments: attachments?.map(att => ({
+        type: att.type === 'audio' ? 'audio' : att.type === 'video' ? 'video' : att.type === 'image' ? 'image' : 'file',
+        name: att.name,
+        url: att.url
+      }))
     };
     
     setNotes([...notes, note]);
     
+    const attachmentText = attachments && attachments.length > 0 
+      ? ` with ${attachments.length} attachment(s)`
+      : '';
+    
     toast({
       title: "Private note added",
-      description: "Your internal note has been saved for team collaboration.",
+      description: `Your internal note${attachmentText} has been saved for team collaboration.`,
     });
 
     return note;

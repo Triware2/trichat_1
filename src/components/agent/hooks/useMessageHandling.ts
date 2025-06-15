@@ -11,11 +11,17 @@ interface CannedResponse {
   createdAt: string;
 }
 
+interface MediaAttachment {
+  type: 'image' | 'audio' | 'video' | 'file';
+  name: string;
+  url?: string;
+}
+
 export const useMessageHandling = (
   messages: ChatMessage[],
   setMessages: (messages: ChatMessage[]) => void,
   onSendMessage: (message: string) => void,
-  addNote: (note: string) => void,
+  addNote: (note: string, attachments?: MediaAttachment[]) => void,
   botConversationHistory?: ChatMessage[]
 ) => {
   const [message, setMessage] = useState('');
@@ -24,12 +30,18 @@ export const useMessageHandling = (
   const { toast } = useToast();
 
   const handleSendMessage = () => {
-    if (message.trim()) {
+    if (message.trim() || isPrivateNoteMode) {
       if (isPrivateNoteMode) {
-        // Add as private note
-        addNote(message.trim());
+        // Get attachments from the global reference (set by MessageInputArea)
+        const attachments = (window as any).currentMediaAttachments || [];
+        
+        // Add as private note with optional attachments
+        addNote(message.trim(), attachments);
         setMessage('');
         setIsPrivateNoteMode(false);
+        
+        // Clear the global attachments reference
+        (window as any).currentMediaAttachments = [];
       } else {
         // Send as regular message
         const newMessage: ChatMessage = {

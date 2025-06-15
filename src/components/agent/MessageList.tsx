@@ -1,6 +1,6 @@
 
 import { useRef, useEffect } from 'react';
-import { File, Image, Video, Clock, Check, CheckCheck, StickyNote, X, Paperclip, User } from 'lucide-react';
+import { File, Image, Video, Clock, Check, CheckCheck, StickyNote, X, Paperclip, User, FileAudio } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ChatMessage } from '@/components/admin/chatbot/types';
 
@@ -12,7 +12,7 @@ interface PrivateNote {
   chatId: number;
   type: 'private-note';
   attachments?: {
-    type: 'image' | 'file' | 'media';
+    type: 'image' | 'file' | 'media' | 'audio' | 'video';
     name: string;
     url?: string;
   }[];
@@ -58,6 +58,21 @@ export const MessageList = ({
     return a.id - b.id;
   });
 
+  const getAttachmentIcon = (type: string) => {
+    switch (type) {
+      case 'image':
+        return <Image className="w-4 h-4 text-amber-600" />;
+      case 'audio':
+        return <FileAudio className="w-4 h-4 text-amber-600" />;
+      case 'video':
+        return <Video className="w-4 h-4 text-amber-600" />;
+      case 'media':
+        return <Video className="w-4 h-4 text-amber-600" />;
+      default:
+        return <Paperclip className="w-4 h-4 text-amber-600" />;
+    }
+  };
+
   const renderMessage = (item: any) => {
     // Handle private notes
     if (item.itemType === 'private-note') {
@@ -90,12 +105,12 @@ export const MessageList = ({
 
             {item.attachments && item.attachments.length > 0 && (
               <div className="space-y-2 mb-3">
+                <h5 className="text-xs font-semibold text-amber-700">Attachments:</h5>
                 {item.attachments.map((attachment: any, index: number) => (
-                  <div key={index} className="flex items-center gap-2 bg-amber-50 rounded-lg p-2 border border-amber-200">
-                    {attachment.type === 'image' && <Image className="w-4 h-4 text-amber-600" />}
-                    {attachment.type === 'media' && <Video className="w-4 h-4 text-amber-600" />}
-                    {attachment.type === 'file' && <Paperclip className="w-4 h-4 text-amber-600" />}
-                    <span className="text-xs text-amber-800 font-medium">{attachment.name}</span>
+                  <div key={index} className="flex items-center gap-2 bg-amber-50 rounded-lg p-2 border border-amber-200 hover:bg-amber-100 transition-colors cursor-pointer">
+                    {getAttachmentIcon(attachment.type)}
+                    <span className="text-xs text-amber-800 font-medium flex-1">{attachment.name}</span>
+                    <span className="text-xs text-amber-600 capitalize">{attachment.type}</span>
                   </div>
                 ))}
               </div>
