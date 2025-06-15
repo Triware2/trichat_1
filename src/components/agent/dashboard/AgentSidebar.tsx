@@ -8,7 +8,8 @@ import {
   Settings,
   Star,
   Target,
-  Clock
+  Clock,
+  Eye
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -114,12 +115,12 @@ export const AgentSidebar = ({ todayPerformance, activeTab = 'dashboard', onTabC
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <Button 
-                variant={getButtonVariant('analytics')}
+                variant={getButtonVariant('customer-insights')}
                 className="w-full justify-start"
-                onClick={() => handleTabClick('analytics')}
+                onClick={() => handleTabClick('customer-insights')}
               >
-                <BarChart3 className="w-4 h-4 mr-2" />
-                Analytics
+                <Eye className="w-4 h-4 mr-2" />
+                Customer Insights
               </Button>
             </SidebarMenuButton>
           </SidebarMenuItem>

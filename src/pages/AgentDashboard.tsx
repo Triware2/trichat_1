@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Tabs } from '@/components/ui/tabs';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
@@ -7,6 +8,7 @@ import { DashboardContent } from '@/components/agent/dashboard/DashboardContent'
 import { ChatContent } from '@/components/agent/dashboard/ChatContent';
 import { AllChatsContent } from '@/components/agent/dashboard/AllChatsContent';
 import { ContactsContent } from '@/components/agent/dashboard/ContactsContent';
+import { CustomerInfo } from '@/components/agent/CustomerInfo';
 import { OtherTabsContent } from '@/components/agent/dashboard/OtherTabsContent';
 import { MessageSquare, Users, Clock, CheckCircle } from 'lucide-react';
 
@@ -108,7 +110,8 @@ const AgentDashboard = () => {
         return <AllChatsContent />;
       case 'contacts':
         return <ContactsContent />;
-      case 'analytics':
+      case 'customer-insights':
+        return <CustomerInfo customer={getSelectedCustomer()} />;
       case 'settings':
         return <OtherTabsContent customer={getSelectedCustomer()} />;
       default:
