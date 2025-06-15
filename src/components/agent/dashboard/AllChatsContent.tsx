@@ -16,9 +16,11 @@ import {
   User,
   MessageSquare,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  UserPlus
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { ManualAssignmentModal } from './ManualAssignmentModal';
 
 interface ChatData {
   id: number;
@@ -104,6 +106,11 @@ const mockChats: ChatData[] = [
   }
 ];
 
+// Mock supervisor settings - in real app, this would come from API/context
+const mockSupervisorSettings = {
+  manualAssignmentEnabled: true
+};
+
 export const AllChatsContent = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -114,9 +121,12 @@ export const AllChatsContent = () => {
   const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({});
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
+  const [chats, setChats] = useState(mockChats);
+  const [isAssignmentModalOpen, setIsAssignmentModalOpen] = useState(false);
+  const [selectedChatForAssignment, setSelectedChatForAssignment] = useState<ChatData | null>(null);
 
   const filteredChats = useMemo(() => {
-    let filtered = mockChats.filter(chat => {
+    let filtered = chats.filter(chat => {
       const matchesSearch = searchTerm === '' || 
         chat.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
         chat.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -140,7 +150,7 @@ export const AllChatsContent = () => {
     });
 
     return filtered;
-  }, [searchTerm, statusFilter, priorityFilter, agentFilter, sourceFilter, categoryFilter, dateRange]);
+  }, [searchTerm, statusFilter, priorityFilter, agentFilter, sourceFilter, categoryFilter, dateRange, chats]);
 
   const paginatedChats = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -148,6 +158,23 @@ export const AllChatsContent = () => {
   }, [filteredChats, currentPage, itemsPerPage]);
 
   const totalPages = Math.ceil(filteredChats.length / itemsPerPage);
+
+  const handleAssignChat = (chat: ChatData) => {
+    setSelectedChatForAssignment(chat);
+    setIsAssignmentModalOpen(true);
+  };
+
+  const handleAssignmentComplete = (chatId: number, agentName: string) => {
+    setChats(prevChats => 
+      prevChats.map(chat => 
+        chat.id === chatId 
+          ? { ...chat, assignedAgent: agentName }
+          : chat
+      )
+    );
+    setIsAssignmentModalOpen(false);
+    setSelectedChatForAssignment(null);
+  };
 
   const getStatusBadge = (status: string) => {
     const colors = {
@@ -206,15 +233,23 @@ export const AllChatsContent = () => {
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
               <CardTitle className="text-xl font-semibold text-gray-900">All Chats</CardTitle>
-              <Badge variant="outline" className="text-sm">
-                {filteredChats.length} chats
-              </Badge>
+              <div className="flex items-center gap-3">
+                <Badge variant="outline" className="text-sm">
+                  {filteredChats.length} chats
+                </Badge>
+                {mockSupervisorSettings.manualAssignmentEnabled && (
+                  <Badge className="bg-blue-100 text-blue-800 text-sm">
+                    Manual Assignment Enabled
+                  </Badge>
+                )}
+              </div>
             </div>
           </CardHeader>
           
           <CardContent className="flex flex-col h-full overflow-hidden">
             {/* Advanced Filters */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4 mb-6">
+              {/* ... keep existing code (search and filter inputs) */}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
@@ -297,6 +332,9 @@ export const AllChatsContent = () => {
                     <TableHead>FRT Status</TableHead>
                     <TableHead>Created</TableHead>
                     <TableHead>Last Activity</TableHead>
+                    {mockSupervisorSettings.manualAssignmentEnabled && (
+                      <TableHead>Actions</TableHead>
+                    )}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -356,6 +394,19 @@ export const AllChatsContent = () => {
                             {format(new Date(chat.lastActivity), 'MMM dd, HH:mm')}
                           </div>
                         </TableCell>
+                        {mockSupervisorSettings.manualAssignmentEnabled && (
+                          <TableCell>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleAssignChat(chat)}
+                              className="flex items-center gap-2"
+                            >
+                              <UserPlus className="w-4 h-4" />
+                              {chat.assignedAgent ? 'Reassign' : 'Assign'}
+                            </Button>
+                          </TableCell>
+                        )}
                       </TableRow>
                     );
                   })}
@@ -395,6 +446,17 @@ export const AllChatsContent = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Manual Assignment Modal */}
+      <ManualAssignmentModal
+        isOpen={isAssignmentModalOpen}
+        onClose={() => {
+          setIsAssignmentModalOpen(false);
+          setSelectedChatForAssignment(null);
+        }}
+        chat={selectedChatForAssignment}
+        onAssign={handleAssignmentComplete}
+      />
     </div>
   );
 };

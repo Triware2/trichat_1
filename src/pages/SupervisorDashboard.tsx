@@ -9,6 +9,7 @@ import { ChatSupervision } from '@/components/supervisor/ChatSupervision';
 import { SupervisorHeader } from '@/components/supervisor/SupervisorHeader';
 import { SupervisorTabs } from '@/components/supervisor/SupervisorTabs';
 import { SupervisorOverview } from '@/components/supervisor/SupervisorOverview';
+import { ManualAssignmentSettings } from '@/components/supervisor/ManualAssignmentSettings';
 
 const SupervisorDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -31,8 +32,15 @@ const SupervisorDashboard = () => {
             <SupervisorOverview />
           </TabsContent>
 
-          <TabsContent value="chats">
-            <ChatSupervision />
+          <TabsContent value="chats" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                <ChatSupervision />
+              </div>
+              <div>
+                <ManualAssignmentSettings />
+              </div>
+            </div>
           </TabsContent>
 
           <TabsContent value="team">
