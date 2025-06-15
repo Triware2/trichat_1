@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Index from '@/pages/Index';
 import AuthPage from '@/pages/AuthPage';
@@ -5,6 +6,7 @@ import Solutions from '@/pages/Solutions';
 import Pricing from '@/pages/Pricing';
 import Documentation from '@/pages/Documentation';
 import Resources from '@/pages/Resources';
+import AuditDashboard from '@/pages/AuditDashboard';
 import ByUseCase from '@/pages/solutions/ByUseCase';
 import ByIndustry from '@/pages/solutions/ByIndustry';
 import BySize from '@/pages/solutions/BySize';
@@ -39,6 +41,16 @@ export const AppRouter = () => {
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/documentation" element={<Documentation />} />
         <Route path="/resources" element={<Resources />} />
+
+        {/* Audit Dashboard Route */}
+        <Route 
+          path="/audit" 
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AuditDashboard />
+            </ProtectedRoute>
+          } 
+        />
 
         {/* Protected Admin Routes */}
         <Route 
