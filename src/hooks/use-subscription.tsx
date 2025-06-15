@@ -5,12 +5,14 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface SubscriptionData {
   id: string;
-  status: 'trial' | 'active' | 'expired' | 'cancelled';
+  status: 'trial' | 'active' | 'expired' | 'cancelled' | 'free';
   trial_start_date: string;
   trial_end_date: string;
   subscription_start_date?: string;
   subscription_end_date?: string;
   plan_type?: string;
+  agent_limit?: number;
+  current_agent_count?: number;
 }
 
 interface SubscriptionContextType {
@@ -53,20 +55,26 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
       if (subscriptionData) {
         setSubscription(subscriptionData);
 
-        // Check if trial is active using the database function
-        const { data: trialActiveData, error: trialError } = await supabase
-          .rpc('is_trial_active', { user_id: user.id });
+        // For free plans, trial is not active
+        if (subscriptionData.status === 'free') {
+          setIsTrialActive(false);
+          setTrialDaysRemaining(0);
+        } else {
+          // Check if trial is active using the database function
+          const { data: trialActiveData, error: trialError } = await supabase
+            .rpc('is_trial_active', { user_id: user.id });
 
-        if (!trialError) {
-          setIsTrialActive(trialActiveData);
-        }
+          if (!trialError) {
+            setIsTrialActive(trialActiveData);
+          }
 
-        // Get trial days remaining using the database function
-        const { data: daysRemainingData, error: daysError } = await supabase
-          .rpc('get_trial_days_remaining', { user_id: user.id });
+          // Get trial days remaining using the database function
+          const { data: daysRemainingData, error: daysError } = await supabase
+            .rpc('get_trial_days_remaining', { user_id: user.id });
 
-        if (!daysError) {
-          setTrialDaysRemaining(daysRemainingData || 0);
+          if (!daysError) {
+            setTrialDaysRemaining(daysRemainingData || 0);
+          }
         }
       }
     } catch (error) {

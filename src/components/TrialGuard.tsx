@@ -34,44 +34,43 @@ export const TrialGuard = ({ children }: TrialGuardProps) => {
     return null;
   }
 
-  if (!isTrialActive && subscription?.status !== 'active') {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <div className="mx-auto w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4">
-              <Clock className="w-6 h-6 text-red-600" />
-            </div>
-            <CardTitle className="text-xl text-gray-900">Trial Expired</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center space-y-4">
-            <p className="text-gray-600">
-              Your 14-day free trial has ended. To continue using Trichat, please upgrade to a paid plan.
-            </p>
-            <div className="space-y-3">
-              <Button 
-                className="w-full"
-                onClick={() => {
-                  // This would typically redirect to a payment page
-                  console.log('Redirect to upgrade page');
-                }}
-              >
-                <CreditCard className="w-4 h-4 mr-2" />
-                Upgrade to Pro
-              </Button>
-              <Button 
-                variant="outline"
-                className="w-full"
-                onClick={() => navigate('/auth')}
-              >
-                Sign Out
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
+  // Allow access for free plans, active subscriptions, and active trials
+  if (subscription?.status === 'free' || subscription?.status === 'active' || isTrialActive) {
+    return <>{children}</>;
   }
 
-  return <>{children}</>;
+  // Show upgrade prompt for expired trials or cancelled subscriptions
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <div className="mx-auto w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4">
+            <Clock className="w-6 h-6 text-red-600" />
+          </div>
+          <CardTitle className="text-xl text-gray-900">Trial Expired</CardTitle>
+        </CardHeader>
+        <CardContent className="text-center space-y-4">
+          <p className="text-gray-600">
+            Your 14-day free trial has ended. To continue using Trichat, please upgrade to a paid plan or switch to our free plan with limited features.
+          </p>
+          <div className="space-y-3">
+            <Button 
+              className="w-full"
+              onClick={() => navigate('/pricing')}
+            >
+              <CreditCard className="w-4 h-4 mr-2" />
+              View Pricing Plans
+            </Button>
+            <Button 
+              variant="outline"
+              className="w-full"
+              onClick={() => navigate('/auth')}
+            >
+              Sign Out
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
 };

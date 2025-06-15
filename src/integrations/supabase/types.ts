@@ -625,12 +625,26 @@ export type Database = {
         Args: { user_id: string }
         Returns: number
       }
+      get_user_plan_details: {
+        Args: { user_id: string }
+        Returns: {
+          plan_type: string
+          status: Database["public"]["Enums"]["subscription_status"]
+          agent_limit: number
+          current_agent_count: number
+          trial_days_remaining: number
+        }[]
+      }
       get_user_role: {
         Args: { user_id: string }
         Returns: Database["public"]["Enums"]["user_role"]
       }
       is_trial_active: {
         Args: { user_id: string }
+        Returns: boolean
+      }
+      user_has_feature_access: {
+        Args: { user_id: string; feature_key: string }
         Returns: boolean
       }
     }
