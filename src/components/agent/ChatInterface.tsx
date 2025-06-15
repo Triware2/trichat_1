@@ -63,9 +63,9 @@ export const ChatInterface = ({
     "Your issue has been resolved."
   ];
 
-  // Create chat context for ticket raising
+  // Create chat context for ticket raising - fix property name from 'text' to 'message'
   const chatContext = messages.slice(-5).map(msg => 
-    `${msg.sender}: ${msg.text}`
+    `${msg.sender}: ${msg.message}`
   ).join('\n');
 
   return (
