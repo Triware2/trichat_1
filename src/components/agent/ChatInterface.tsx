@@ -63,7 +63,7 @@ export const ChatInterface = ({
   ];
 
   return (
-    <div className="h-full flex bg-white flex-col">
+    <div className="h-full flex flex-col bg-white">
       {/* Fixed Header */}
       <div className="flex-shrink-0 bg-white border-b border-slate-200 z-10">
         <ChatHeader 
@@ -73,17 +73,18 @@ export const ChatInterface = ({
         />
       </div>
       
-      {/* Scrollable Messages Area with Independent Scroll */}
-      <div className="flex-1 flex flex-col relative min-h-0">
-        <div className="flex-1 overflow-y-auto">
+      {/* Scrollable Messages Area - Independent scroll */}
+      <div className="flex-1 min-h-0 overflow-hidden relative">
+        <div className="h-full overflow-y-auto">
+          {/* Bot Conversation Section - Only show if there's bot history */}
+          {botConversationHistory.length > 0 && (
+            <div className="p-4 border-b border-blue-200 bg-blue-50/30">
+              <BotConversationSection botConversationHistory={botConversationHistory} />
+            </div>
+          )}
+          
+          {/* Messages with padding bottom for floating input */}
           <div className="pb-48">
-            {/* Bot Conversation Section - Only show if there's bot history */}
-            {botConversationHistory.length > 0 && (
-              <div className="p-4 border-b border-blue-200 bg-blue-50/30">
-                <BotConversationSection botConversationHistory={botConversationHistory} />
-              </div>
-            )}
-            
             <MessageList 
               messages={messages} 
               privateNotes={privateNotes}
@@ -95,19 +96,21 @@ export const ChatInterface = ({
           </div>
         </div>
 
-        {/* Fixed Floating Input Section - positioned absolutely and stays in place */}
-        <FloatingInputSection
-          showCannedResponses={showCannedResponses}
-          setShowCannedResponses={setShowCannedResponses}
-          message={message}
-          setMessage={setMessage}
-          isPrivateNoteMode={isPrivateNoteMode}
-          setIsPrivateNoteMode={setIsPrivateNoteMode}
-          onSendMessage={handleSendMessage}
-          onFileUpload={handleFileUpload}
-          onImageUpload={handleImageUpload}
-          onCannedResponseSelect={handleCannedResponseSelect}
-        />
+        {/* Fixed Floating Input Section - positioned absolutely */}
+        <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-200">
+          <FloatingInputSection
+            showCannedResponses={showCannedResponses}
+            setShowCannedResponses={setShowCannedResponses}
+            message={message}
+            setMessage={setMessage}
+            isPrivateNoteMode={isPrivateNoteMode}
+            setIsPrivateNoteMode={setIsPrivateNoteMode}
+            onSendMessage={handleSendMessage}
+            onFileUpload={handleFileUpload}
+            onImageUpload={handleImageUpload}
+            onCannedResponseSelect={handleCannedResponseSelect}
+          />
+        </div>
 
         {/* Quick Responses - Fixed position within chat interface */}
         <div className="absolute bottom-52 right-6 z-50">

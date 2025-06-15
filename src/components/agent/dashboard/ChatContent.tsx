@@ -78,34 +78,30 @@ export const ChatContent = ({
   ] : [];
 
   return (
-    <div className="h-full flex">
+    <div className="h-full flex overflow-hidden">
       {/* Left Section - Conversations List with Independent Scroll */}
-      <div className="w-80 border-r border-slate-200 bg-white flex-shrink-0 h-full max-h-full">
-        <div className="h-full overflow-hidden">
-          <ChatList 
-            chats={chats}
-            selectedChat={selectedChat}
-            onChatSelect={onChatSelect}
-            onFilter={onFilter}
-          />
-        </div>
+      <div className="w-80 border-r border-slate-200 bg-white flex-shrink-0 h-full">
+        <ChatList 
+          chats={chats}
+          selectedChat={selectedChat}
+          onChatSelect={onChatSelect}
+          onFilter={onFilter}
+        />
       </div>
       
       {/* Middle Section - Chat Interface with Independent Scroll */}
-      <div className="flex-1 h-full max-h-full">
-        <div className="h-full overflow-hidden">
-          <ChatInterface
-            customerName={getSelectedCustomerName()}
-            customerStatus="Online"
-            selectedChatId={selectedChat}
-            onSendMessage={onSendMessage}
-            botConversationHistory={mockBotHistory}
-          />
-        </div>
+      <div className="flex-1 h-full">
+        <ChatInterface
+          customerName={getSelectedCustomerName()}
+          customerStatus="Online"
+          selectedChatId={selectedChat}
+          onSendMessage={onSendMessage}
+          botConversationHistory={mockBotHistory}
+        />
       </div>
       
       {/* Right Section - Customer Info with Independent Scroll */}
-      <div className="w-80 border-l border-slate-200 bg-slate-50 flex-shrink-0 h-full max-h-full">
+      <div className="w-80 border-l border-slate-200 bg-slate-50 flex-shrink-0 h-full">
         <div className="h-full overflow-y-auto">
           <div className="p-3 space-y-4">
             <CustomerComplaintsPreview 
