@@ -5,155 +5,133 @@ import { Badge } from '@/components/ui/badge';
 import { 
   BarChart3, 
   TrendingUp, 
-  Download, 
-  Calendar,
-  Users,
-  DollarSign,
-  Activity,
-  Eye,
-  Target,
-  Zap,
-  Globe,
-  Filter,
-  Settings
+  Users, 
+  Activity, 
+  Plus,
+  Download,
+  Eye
 } from 'lucide-react';
 
 export const AnalyticsEngine = () => {
   const analyticsMetrics = [
-    { title: 'Total Sessions', value: '2.4M', change: '+24.8%', icon: Activity, color: 'from-blue-400 to-blue-600' },
-    { title: 'Revenue Growth', value: '+$1.2M', change: '+31.7%', icon: DollarSign, color: 'from-emerald-400 to-emerald-600' },
-    { title: 'User Engagement', value: '89.3%', change: '+12.4%', icon: Users, color: 'from-purple-400 to-purple-600' },
-    { title: 'Conversion Rate', value: '18.7%', change: '+5.2%', icon: Target, color: 'from-orange-400 to-orange-600' },
-    { title: 'API Performance', value: '99.8%', change: '+0.3%', icon: Zap, color: 'from-green-400 to-green-600' },
-    { title: 'Global Reach', value: '145', change: '+23', icon: Globe, color: 'from-indigo-400 to-indigo-600' }
+    { 
+      title: 'Total Sessions', 
+      value: '847,392', 
+      change: '+18.7%', 
+      icon: Activity, 
+      trend: 'up'
+    },
+    { 
+      title: 'Active Users', 
+      value: '12,847', 
+      change: '+24.3%', 
+      icon: Users, 
+      trend: 'up'
+    },
+    { 
+      title: 'Conversion Rate', 
+      value: '12.4%', 
+      change: '+2.1%', 
+      icon: TrendingUp, 
+      trend: 'up'
+    },
+    { 
+      title: 'Data Points', 
+      value: '8.4M', 
+      change: '+31.2%', 
+      icon: BarChart3, 
+      trend: 'up'
+    }
   ];
 
   const reports = [
     { 
       id: 1, 
-      name: 'Client Usage Analytics', 
-      type: 'Usage', 
-      lastRun: '2 hours ago', 
-      status: 'completed',
-      insights: 'API usage increased 23% this month',
-      trend: 'up'
+      name: 'User Behavior Analysis',
+      type: 'Behavioral', 
+      status: 'ready',
+      lastRun: '2 hours ago',
+      insights: 23
     },
     { 
       id: 2, 
-      name: 'Revenue Deep Dive', 
-      type: 'Financial', 
-      lastRun: '1 day ago', 
-      status: 'completed',
-      insights: 'Enterprise tier driving 67% of revenue',
-      trend: 'up'
+      name: 'Performance Dashboard',
+      type: 'Performance', 
+      status: 'running',
+      lastRun: '1 day ago',
+      insights: 18
     },
     { 
       id: 3, 
-      name: 'Performance Metrics', 
-      type: 'Technical', 
-      lastRun: '6 hours ago', 
-      status: 'running',
-      insights: 'Response time improved by 15ms',
-      trend: 'up'
-    },
-    { 
-      id: 4, 
-      name: 'Customer Satisfaction', 
-      type: 'Operations', 
-      lastRun: '3 hours ago', 
-      status: 'completed',
-      insights: 'CSAT score increased to 4.8/5',
-      trend: 'up'
-    },
-    { 
-      id: 5, 
-      name: 'Security Analysis', 
-      type: 'Security', 
-      lastRun: '12 hours ago', 
-      status: 'completed',
-      insights: 'Zero security incidents this week',
-      trend: 'stable'
-    },
-    { 
-      id: 6, 
-      name: 'Growth Forecast', 
-      type: 'Predictive', 
-      lastRun: '1 day ago', 
-      status: 'completed',
-      insights: 'Projected 40% growth next quarter',
-      trend: 'up'
+      name: 'Revenue Analytics',
+      type: 'Financial', 
+      status: 'ready',
+      lastRun: '3 hours ago',
+      insights: 31
     }
   ];
 
-  const topInsights = [
-    {
-      title: 'Peak Usage Pattern Identified',
-      description: 'API calls peak at 2-4 PM EST daily, consider auto-scaling',
-      impact: 'High',
-      category: 'Performance'
+  const insights = [
+    { 
+      id: 1, 
+      insight: 'Mobile traffic increased by 34%',
+      impact: 'high', 
+      category: 'Traffic',
+      time: '1 hour ago'
     },
-    {
-      title: 'Enterprise Client Expansion',
-      description: '67% of enterprise clients are under-utilizing their plans',
-      impact: 'Medium',
-      category: 'Revenue'
+    { 
+      id: 2, 
+      insight: 'Peak usage time shifted to 2PM',
+      impact: 'medium', 
+      category: 'Usage',
+      time: '3 hours ago'
     },
-    {
-      title: 'Regional Growth Opportunity',
-      description: 'EU market showing 45% higher engagement rates',
-      impact: 'High',
-      category: 'Growth'
-    },
-    {
-      title: 'Feature Adoption Insight',
-      description: 'Analytics dashboard is most requested feature',
-      impact: 'Medium',
-      category: 'Product'
+    { 
+      id: 3, 
+      insight: 'Feature adoption rate improved',
+      impact: 'high', 
+      category: 'Product',
+      time: '1 day ago'
     }
   ];
 
   return (
-    <div className="p-8 space-y-8 bg-gradient-to-br from-gray-50/30 to-white min-h-screen">
+    <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-start">
         <div>
-          <div className="flex items-center space-x-3 mb-2">
-            <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl">
-              <BarChart3 className="w-6 h-6 text-white" />
-            </div>
-            <h1 className="text-4xl font-bold text-gray-900">Analytics Intelligence Engine</h1>
-          </div>
-          <p className="text-gray-600 ml-12">Advanced data insights and predictive analytics</p>
+          <h1 className="text-2xl font-semibold text-gray-900 mb-2">Analytics Engine</h1>
+          <p className="text-gray-600">Advanced data analytics and business intelligence</p>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" size="sm" className="border-gray-300">
-            <Filter className="w-4 h-4 mr-2" />
-            Custom Filters
+          <Button variant="outline" size="sm">
+            <Download className="w-4 h-4 mr-2" />
+            Export Data
           </Button>
-          <Button size="sm" className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700">
-            <Settings className="w-4 h-4 mr-2" />
-            Build Report
+          <Button size="sm">
+            <Plus className="w-4 h-4 mr-2" />
+            Create Report
           </Button>
         </div>
       </div>
 
       {/* Analytics Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {analyticsMetrics.map((metric, index) => {
           const IconComponent = metric.icon;
           return (
-            <Card key={index} className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+            <Card key={index} className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-gray-700">{metric.title}</CardTitle>
-                <div className={`p-3 rounded-xl bg-gradient-to-r ${metric.color} shadow-lg`}>
-                  <IconComponent className="h-5 w-5 text-white" />
-                </div>
+                <IconComponent className="h-4 w-4 text-gray-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-gray-900 mb-1">{metric.value}</div>
+                <div className="text-2xl font-semibold text-gray-900 mb-1">{metric.value}</div>
                 <div className="flex items-center space-x-1">
-                  <TrendingUp className="w-4 h-4 text-green-600" />
-                  <p className="text-sm font-medium text-green-600">{metric.change} from last month</p>
+                  <TrendingUp className="w-3 h-3 text-green-600" />
+                  <p className="text-xs text-green-600">
+                    {metric.change} from last period
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -161,118 +139,85 @@ export const AnalyticsEngine = () => {
         })}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Intelligent Reports */}
-        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Reports */}
+        <Card className="border border-gray-200 shadow-sm">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2 text-gray-900">
-              <BarChart3 className="w-5 h-5 text-indigo-600" />
-              <span>Intelligent Reports</span>
+              <BarChart3 className="w-5 h-5 text-gray-600" />
+              <span>Analytics Reports</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3">
             {reports.map((report) => (
-              <div key={report.id} className="flex items-center justify-between p-4 rounded-lg bg-gradient-to-r from-gray-50 to-white border border-gray-200 hover:shadow-md transition-shadow">
-                <div className="flex items-center space-x-4">
-                  <div className="p-2 bg-indigo-100 rounded-lg">
-                    <BarChart3 className="w-5 h-5 text-indigo-600" />
+              <div key={report.id} className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                <div className="flex items-center space-x-3">
+                  <div className="p-1 rounded-full bg-blue-100">
+                    <BarChart3 className="w-3 h-3 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 text-sm">{report.name}</h3>
-                    <div className="flex items-center space-x-2 text-xs text-gray-600 mt-1">
-                      <span>Type: {report.type}</span>
-                      <span>•</span>
-                      <span>Last run: {report.lastRun}</span>
-                    </div>
-                    <div className="text-xs text-blue-600 mt-1 font-medium">{report.insights}</div>
+                    <h4 className="font-medium text-gray-900 text-sm">{report.name}</h4>
+                    <p className="text-sm text-gray-600">{report.type} • {report.insights} insights</p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-3">
-                  <Badge className={report.status === 'completed' ? 'bg-green-100 text-green-700 border-green-200' : 'bg-yellow-100 text-yellow-700 border-yellow-200'}>
+                <div className="text-right">
+                  <Badge 
+                    variant="outline"
+                    className={`text-xs ${
+                      report.status === 'ready' ? 'text-green-700 border-green-300' :
+                      'text-yellow-700 border-yellow-300'
+                    }`}
+                  >
                     {report.status}
                   </Badge>
-                  <Button size="sm" variant="outline" className="bg-white/60">
-                    <Eye className="w-4 h-4 mr-1" />
-                    View
-                  </Button>
-                  <Button size="sm" variant="outline" className="bg-white/60">
-                    <Download className="w-4 h-4" />
-                  </Button>
+                  <p className="text-xs text-gray-500 mt-1">{report.lastRun}</p>
                 </div>
               </div>
             ))}
           </CardContent>
         </Card>
 
-        {/* AI-Powered Insights */}
-        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+        {/* Key Insights */}
+        <Card className="border border-gray-200 shadow-sm">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2 text-gray-900">
-              <Zap className="w-5 h-5 text-purple-600" />
-              <span>AI-Powered Insights</span>
+              <Eye className="w-5 h-5 text-gray-600" />
+              <span>Key Insights</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {topInsights.map((insight, index) => (
-              <div key={index} className="p-4 rounded-lg bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200">
-                <div className="flex items-start justify-between mb-2">
-                  <h4 className="font-semibold text-gray-900 text-sm">{insight.title}</h4>
-                  <div className="flex items-center space-x-2">
-                    <Badge 
-                      variant="outline"
-                      className={`text-xs ${
-                        insight.impact === 'High' ? 'bg-red-100 text-red-700 border-red-200' :
-                        'bg-yellow-100 text-yellow-700 border-yellow-200'
-                      }`}
-                    >
-                      {insight.impact} Impact
-                    </Badge>
-                    <Badge variant="outline" className="text-xs bg-purple-100 text-purple-700 border-purple-200">
-                      {insight.category}
-                    </Badge>
+          <CardContent className="space-y-3">
+            {insights.map((insight) => (
+              <div key={insight.id} className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                <div className="flex items-center space-x-3">
+                  <div className={`p-1 rounded-full ${
+                    insight.impact === 'high' ? 'bg-red-100' : 'bg-yellow-100'
+                  }`}>
+                    <TrendingUp className={`w-3 h-3 ${
+                      insight.impact === 'high' ? 'text-red-600' : 'text-yellow-600'
+                    }`} />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900 text-sm">{insight.insight}</h4>
+                    <p className="text-sm text-gray-600">{insight.category}</p>
                   </div>
                 </div>
-                <p className="text-sm text-gray-600">{insight.description}</p>
+                <div className="text-right">
+                  <Badge 
+                    variant="outline"
+                    className={`text-xs ${
+                      insight.impact === 'high' ? 'text-red-700 border-red-300' :
+                      'text-yellow-700 border-yellow-300'
+                    }`}
+                  >
+                    {insight.impact} impact
+                  </Badge>
+                  <p className="text-xs text-gray-500 mt-1">{insight.time}</p>
+                </div>
               </div>
             ))}
-            <Button className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white">
-              <Zap className="w-4 h-4 mr-2" />
-              Generate More Insights
-            </Button>
           </CardContent>
         </Card>
       </div>
-
-      {/* Quick Actions */}
-      <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-gray-900">Analytics Quick Actions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Button variant="outline" className="h-24 flex-col bg-white/60 hover:shadow-lg transition-all">
-              <Calendar className="w-8 h-8 mb-2 text-blue-600" />
-              <span className="font-semibold">Custom Date Range</span>
-              <span className="text-xs text-gray-500">Set time periods</span>
-            </Button>
-            <Button variant="outline" className="h-24 flex-col bg-white/60 hover:shadow-lg transition-all">
-              <Download className="w-8 h-8 mb-2 text-green-600" />
-              <span className="font-semibold">Export Data</span>
-              <span className="text-xs text-gray-500">Download reports</span>
-            </Button>
-            <Button variant="outline" className="h-24 flex-col bg-white/60 hover:shadow-lg transition-all">
-              <Target className="w-8 h-8 mb-2 text-purple-600" />
-              <span className="font-semibold">Set KPI Goals</span>
-              <span className="text-xs text-gray-500">Track objectives</span>
-            </Button>
-            <Button variant="outline" className="h-24 flex-col bg-white/60 hover:shadow-lg transition-all">
-              <Eye className="w-8 h-8 mb-2 text-orange-600" />
-              <span className="font-semibold">Real-time Monitor</span>
-              <span className="text-xs text-gray-500">Live dashboards</span>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };

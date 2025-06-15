@@ -3,136 +3,115 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
-  Bot, 
+  Workflow, 
+  Play, 
+  Clock, 
   Zap, 
-  Activity, 
-  Settings,
-  Play,
-  Pause,
   Plus,
-  Edit,
-  Clock,
-  CheckCircle,
-  AlertTriangle,
-  Target,
-  TrendingUp,
-  Users
+  Shield,
+  Settings
 } from 'lucide-react';
 
 export const AutomationHub = () => {
   const automationMetrics = [
-    { title: 'Active Workflows', value: '247', change: '+18.7%', icon: Bot, color: 'from-blue-400 to-blue-600' },
-    { title: 'Tasks Automated', value: '12.4K', change: '+31.2%', icon: Zap, color: 'from-purple-400 to-purple-600' },
-    { title: 'Time Saved', value: '847hrs', change: '+28.9%', icon: Clock, color: 'from-green-400 to-green-600' },
-    { title: 'Success Rate', value: '99.7%', change: '+0.3%', icon: CheckCircle, color: 'from-emerald-400 to-emerald-600' },
-    { title: 'Cost Reduction', value: '$34.2K', change: '+22.1%', icon: TrendingUp, color: 'from-orange-400 to-orange-600' },
-    { title: 'Efficiency Gain', value: '67%', change: '+12.4%', icon: Target, color: 'from-indigo-400 to-indigo-600' }
-  ];
-
-  const workflows = [
-    {
-      id: 1,
-      name: 'Client Onboarding Automation',
-      description: 'Automates new client setup, API key generation, and welcome emails',
-      trigger: 'New client registration',
-      status: 'active',
-      executions: '1,247',
-      successRate: '98.9%',
-      lastRun: '5 min ago',
-      category: 'Client Management'
+    { 
+      title: 'Active Workflows', 
+      value: '847', 
+      change: '+127', 
+      icon: Workflow, 
+      trend: 'up'
     },
-    {
-      id: 2,
-      name: 'Usage Alert System',
-      description: 'Monitors client usage and sends alerts when approaching limits',
-      trigger: 'Usage threshold reached',
-      status: 'active',
-      executions: '834',
-      successRate: '99.8%',
-      lastRun: '12 min ago',
-      category: 'Monitoring'
+    { 
+      title: 'Executions (24h)', 
+      value: '12,847', 
+      change: '+2,134', 
+      icon: Play, 
+      trend: 'up'
     },
-    {
-      id: 3,
-      name: 'Payment Failure Recovery',
-      description: 'Handles failed payments with retry logic and notifications',
-      trigger: 'Payment failure event',
-      status: 'active',
-      executions: '156',
-      successRate: '94.2%',
-      lastRun: '2 hours ago',
-      category: 'Billing'
+    { 
+      title: 'Scheduled Tasks', 
+      value: '234', 
+      change: '+23', 
+      icon: Clock, 
+      trend: 'up'
     },
-    {
-      id: 4,
-      name: 'System Health Monitoring',
-      description: 'Automatically scales resources based on system load',
-      trigger: 'System metrics threshold',
-      status: 'active',
-      executions: '2,891',
-      successRate: '99.9%',
-      lastRun: '1 min ago',
-      category: 'Infrastructure'
-    },
-    {
-      id: 5,
-      name: 'Security Incident Response',
-      description: 'Automates response to security threats and anomalies',
-      trigger: 'Security alert',
-      status: 'paused',
-      executions: '23',
-      successRate: '100%',
-      lastRun: '1 day ago',
-      category: 'Security'
+    { 
+      title: 'Success Rate', 
+      value: '99.2%', 
+      change: '+0.8%', 
+      icon: Zap, 
+      trend: 'up'
     }
   ];
 
-  const automationTemplates = [
-    {
-      name: 'Customer Support Escalation',
-      description: 'Automatically escalate tickets based on priority and response time',
-      category: 'Support',
-      complexity: 'Medium'
+  const workflows = [
+    { 
+      id: 1, 
+      name: 'Customer Onboarding Flow',
+      trigger: 'User Registration', 
+      status: 'active',
+      executions: '2,847',
+      lastRun: '5 minutes ago'
     },
-    {
-      name: 'Revenue Optimization',
-      description: 'Adjusts pricing tiers based on usage patterns and market conditions',
-      category: 'Revenue',
-      complexity: 'High'
+    { 
+      id: 2, 
+      name: 'Daily Report Generation',
+      trigger: 'Scheduled', 
+      status: 'active',
+      executions: '365',
+      lastRun: '2 hours ago'
     },
-    {
-      name: 'Data Backup Orchestration',
-      description: 'Manages automated backups with verification and rotation',
-      category: 'Infrastructure',
-      complexity: 'Low'
+    { 
+      id: 3, 
+      name: 'Alert Escalation',
+      trigger: 'System Alert', 
+      status: 'paused',
+      executions: '127',
+      lastRun: '1 day ago'
+    }
+  ];
+
+  const automationTasks = [
+    { 
+      id: 1, 
+      task: 'Database Backup',
+      type: 'System', 
+      schedule: 'Daily at 2:00 AM',
+      status: 'completed',
+      nextRun: 'Tomorrow at 2:00 AM'
     },
-    {
-      name: 'User Engagement Campaign',
-      description: 'Triggers personalized marketing campaigns based on user behavior',
-      category: 'Marketing',
-      complexity: 'Medium'
+    { 
+      id: 2, 
+      task: 'Performance Analytics',
+      type: 'Analytics', 
+      schedule: 'Every 6 hours',
+      status: 'running',
+      nextRun: 'In 3 hours'
+    },
+    { 
+      id: 3, 
+      task: 'Security Scan',
+      type: 'Security', 
+      schedule: 'Weekly on Monday',
+      status: 'scheduled',
+      nextRun: 'Monday at 9:00 AM'
     }
   ];
 
   return (
-    <div className="p-8 space-y-8 bg-gradient-to-br from-gray-50/30 to-white min-h-screen">
+    <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-start">
         <div>
-          <div className="flex items-center space-x-3 mb-2">
-            <div className="p-2 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl">
-              <Bot className="w-6 h-6 text-white" />
-            </div>
-            <h1 className="text-4xl font-bold text-gray-900">Automation Command Hub</h1>
-          </div>
-          <p className="text-gray-600 ml-12">Intelligent workflow automation and process optimization</p>
+          <h1 className="text-2xl font-semibold text-gray-900 mb-2">Automation Hub</h1>
+          <p className="text-gray-600">Workflow automation and scheduled task management</p>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" size="sm" className="border-gray-300">
+          <Button variant="outline" size="sm">
             <Settings className="w-4 h-4 mr-2" />
             Automation Settings
           </Button>
-          <Button size="sm" className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700">
+          <Button size="sm">
             <Plus className="w-4 h-4 mr-2" />
             Create Workflow
           </Button>
@@ -140,154 +119,114 @@ export const AutomationHub = () => {
       </div>
 
       {/* Automation Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {automationMetrics.map((metric, index) => {
           const IconComponent = metric.icon;
           return (
-            <Card key={index} className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+            <Card key={index} className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-gray-700">{metric.title}</CardTitle>
-                <div className={`p-3 rounded-xl bg-gradient-to-r ${metric.color} shadow-lg`}>
-                  <IconComponent className="h-5 w-5 text-white" />
-                </div>
+                <IconComponent className="h-4 w-4 text-gray-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-gray-900 mb-1">{metric.value}</div>
-                <p className="text-sm font-medium text-green-600">{metric.change} from last month</p>
+                <div className="text-2xl font-semibold text-gray-900 mb-1">{metric.value}</div>
+                <div className="flex items-center space-x-1">
+                  <span className="text-xs text-green-600">
+                    +{metric.change} this month
+                  </span>
+                </div>
               </CardContent>
             </Card>
           );
         })}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Active Workflows */}
-        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+        <Card className="border border-gray-200 shadow-sm">
           <CardHeader>
-            <CardTitle className="flex items-center justify-between text-gray-900">
-              <div className="flex items-center space-x-2">
-                <Activity className="w-5 h-5 text-blue-600" />
-                <span>Active Workflows</span>
-              </div>
-              <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-200">
-                {workflows.filter(w => w.status === 'active').length} Running
-              </Badge>
+            <CardTitle className="flex items-center space-x-2 text-gray-900">
+              <Workflow className="w-5 h-5 text-gray-600" />
+              <span>Active Workflows</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3">
             {workflows.map((workflow) => (
-              <div key={workflow.id} className="p-4 rounded-lg bg-gradient-to-r from-gray-50 to-white border border-gray-200 hover:shadow-md transition-shadow">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <h4 className="font-semibold text-gray-900 text-sm">{workflow.name}</h4>
-                      <Badge className={workflow.status === 'active' ? 'bg-green-100 text-green-700 border-green-200' : 'bg-yellow-100 text-yellow-700 border-yellow-200'}>
-                        {workflow.status}
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-gray-600 mb-2">{workflow.description}</p>
-                    <div className="flex items-center space-x-1 mb-2">
-                      <Badge variant="outline" className="text-xs bg-purple-100 text-purple-700 border-purple-200">
-                        {workflow.category}
-                      </Badge>
-                    </div>
+              <div key={workflow.id} className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                <div className="flex items-center space-x-3">
+                  <div className={`p-1 rounded-full ${
+                    workflow.status === 'active' ? 'bg-green-100' : 'bg-gray-100'
+                  }`}>
+                    <Play className={`w-3 h-3 ${
+                      workflow.status === 'active' ? 'text-green-600' : 'text-gray-600'
+                    }`} />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900 text-sm">{workflow.name}</h4>
+                    <p className="text-sm text-gray-600">{workflow.trigger} • {workflow.executions} runs</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4 text-xs text-gray-600 mb-3">
-                  <div>Executions: {workflow.executions}</div>
-                  <div>Success Rate: {workflow.successRate}</div>
-                  <div>Trigger: {workflow.trigger}</div>
-                  <div>Last Run: {workflow.lastRun}</div>
-                </div>
-                <div className="flex space-x-2">
-                  <Button size="sm" variant="outline" className="bg-white/60">
-                    {workflow.status === 'active' ? <Pause className="w-3 h-3 mr-1" /> : <Play className="w-3 h-3 mr-1" />}
-                    {workflow.status === 'active' ? 'Pause' : 'Resume'}
-                  </Button>
-                  <Button size="sm" variant="outline" className="bg-white/60">
-                    <Edit className="w-3 h-3 mr-1" />
-                    Edit
-                  </Button>
-                  <Button size="sm" variant="outline" className="bg-white/60">
-                    <Activity className="w-3 h-3 mr-1" />
-                    Logs
-                  </Button>
+                <div className="text-right">
+                  <Badge 
+                    variant="outline"
+                    className={`text-xs ${
+                      workflow.status === 'active' ? 'text-green-700 border-green-300' :
+                      'text-gray-700 border-gray-300'
+                    }`}
+                  >
+                    {workflow.status}
+                  </Badge>
+                  <p className="text-xs text-gray-500 mt-1">{workflow.lastRun}</p>
                 </div>
               </div>
             ))}
           </CardContent>
         </Card>
 
-        {/* Automation Templates */}
-        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+        {/* Scheduled Tasks */}
+        <Card className="border border-gray-200 shadow-sm">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2 text-gray-900">
-              <Bot className="w-5 h-5 text-purple-600" />
-              <span>Automation Templates</span>
+              <Clock className="w-5 h-5 text-gray-600" />
+              <span>Scheduled Tasks</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {automationTemplates.map((template, index) => (
-              <div key={index} className="p-4 rounded-lg bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200">
-                <div className="flex items-start justify-between mb-2">
-                  <h4 className="font-semibold text-gray-900 text-sm">{template.name}</h4>
-                  <div className="flex items-center space-x-2">
-                    <Badge 
-                      variant="outline"
-                      className={`text-xs ${
-                        template.complexity === 'High' ? 'bg-red-100 text-red-700 border-red-200' :
-                        template.complexity === 'Medium' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
-                        'bg-green-100 text-green-700 border-green-200'
-                      }`}
-                    >
-                      {template.complexity}
-                    </Badge>
-                    <Badge variant="outline" className="text-xs bg-blue-100 text-blue-700 border-blue-200">
-                      {template.category}
-                    </Badge>
+          <CardContent className="space-y-3">
+            {automationTasks.map((task) => (
+              <div key={task.id} className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                <div className="flex items-center space-x-3">
+                  <div className={`p-1 rounded-full ${
+                    task.status === 'completed' ? 'bg-green-100' :
+                    task.status === 'running' ? 'bg-blue-100' : 'bg-yellow-100'
+                  }`}>
+                    <Clock className={`w-3 h-3 ${
+                      task.status === 'completed' ? 'text-green-600' :
+                      task.status === 'running' ? 'text-blue-600' : 'text-yellow-600'
+                    }`} />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900 text-sm">{task.task}</h4>
+                    <p className="text-sm text-gray-600">{task.type} • {task.schedule}</p>
                   </div>
                 </div>
-                <p className="text-sm text-gray-600 mb-3">{template.description}</p>
-                <Button size="sm" className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white">
-                  <Plus className="w-3 h-3 mr-1" />
-                  Use Template
-                </Button>
+                <div className="text-right">
+                  <Badge 
+                    variant="outline"
+                    className={`text-xs ${
+                      task.status === 'completed' ? 'text-green-700 border-green-300' :
+                      task.status === 'running' ? 'text-blue-700 border-blue-300' :
+                      'text-yellow-700 border-yellow-300'
+                    }`}
+                  >
+                    {task.status}
+                  </Badge>
+                  <p className="text-xs text-gray-500 mt-1">{task.nextRun}</p>
+                </div>
               </div>
             ))}
           </CardContent>
         </Card>
       </div>
-
-      {/* Quick Actions */}
-      <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-gray-900">Automation Quick Actions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Button variant="outline" className="h-24 flex-col bg-white/60 hover:shadow-lg transition-all">
-              <Zap className="w-8 h-8 mb-2 text-purple-600" />
-              <span className="font-semibold">Workflow Builder</span>
-              <span className="text-xs text-gray-500">Drag & drop interface</span>
-            </Button>
-            <Button variant="outline" className="h-24 flex-col bg-white/60 hover:shadow-lg transition-all">
-              <Clock className="w-8 h-8 mb-2 text-blue-600" />
-              <span className="font-semibold">Schedule Manager</span>
-              <span className="text-xs text-gray-500">Time-based triggers</span>
-            </Button>
-            <Button variant="outline" className="h-24 flex-col bg-white/60 hover:shadow-lg transition-all">
-              <Users className="w-8 h-8 mb-2 text-green-600" />
-              <span className="font-semibold">Team Collaboration</span>
-              <span className="text-xs text-gray-500">Shared workflows</span>
-            </Button>
-            <Button variant="outline" className="h-24 flex-col bg-white/60 hover:shadow-lg transition-all">
-              <Target className="w-8 h-8 mb-2 text-orange-600" />
-              <span className="font-semibold">Performance Monitor</span>
-              <span className="text-xs text-gray-500">Track efficiency</span>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };
