@@ -7,6 +7,7 @@ import Pricing from '@/pages/Pricing';
 import Documentation from '@/pages/Documentation';
 import Resources from '@/pages/Resources';
 import AuditDashboard from '@/pages/AuditDashboard';
+import BillingPage from '@/pages/BillingPage';
 import ByUseCase from '@/pages/solutions/ByUseCase';
 import ByIndustry from '@/pages/solutions/ByIndustry';
 import BySize from '@/pages/solutions/BySize';
@@ -48,6 +49,18 @@ export const AppRouter = () => {
           element={
             <ProtectedRoute requiresPlatformAccess={true}>
               <AuditDashboard />
+            </ProtectedRoute>
+          } 
+        />
+
+        {/* Billing Page - Protected Route */}
+        <Route 
+          path="/billing" 
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <TrialGuard>
+                <BillingPage />
+              </TrialGuard>
             </ProtectedRoute>
           } 
         />

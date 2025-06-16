@@ -21,7 +21,8 @@ import {
   Heart,
   Zap,
   ClipboardList,
-  Lock
+  Lock,
+  CreditCard
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -136,6 +137,14 @@ export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
       feature: 'customization'
     },
     { 
+      id: 'billing', 
+      label: 'Billing', 
+      icon: CreditCard, 
+      path: '/billing',
+      badge: null,
+      feature: 'basic_chat'
+    },
+    { 
       id: 'settings', 
       label: 'System Settings', 
       icon: Settings, 
@@ -162,6 +171,8 @@ export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
     if (isPlatformCreator || hasFeatureAccess(item.feature)) {
       if (item.path === '/audit') {
         navigate('/audit');
+      } else if (item.path === '/billing') {
+        navigate('/billing');
       } else {
         navigate(item.path);
         onTabChange(item.id);
@@ -183,6 +194,8 @@ export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
           const Icon = item.icon;
           const isActive = item.path === '/audit' 
             ? location.pathname === '/audit'
+            : item.path === '/billing'
+            ? location.pathname === '/billing'
             : activeTab === item.id;
           
           const hasAccess = isPlatformCreator || hasFeatureAccess(item.feature);
