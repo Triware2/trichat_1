@@ -1,5 +1,8 @@
 
 import { TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useFeatureAccess } from '@/hooks/use-feature-access';
+import { Badge } from '@/components/ui/badge';
+import { Lock } from 'lucide-react';
 import { 
   Activity, 
   Eye, 
@@ -15,13 +18,15 @@ interface SupervisorTabsProps {
 }
 
 export const SupervisorTabs = ({ activeTab, onTabChange }: SupervisorTabsProps) => {
+  const { hasFeatureAccess, isPlatformCreator } = useFeatureAccess();
+
   const tabs = [
-    { id: 'overview', label: 'Overview', icon: Activity },
-    { id: 'chats', label: 'Chat Supervision', icon: Eye },
-    { id: 'team', label: 'Team Monitor', icon: Users },
-    { id: 'team-settings', label: 'Team Settings', icon: Settings },
-    { id: 'queue', label: 'Queue Management', icon: MessageSquare },
-    { id: 'reports', label: 'Reports', icon: BarChart3 },
+    { id: 'overview', label: 'Overview', icon: Activity, feature: 'supervisor_overview' },
+    { id: 'chats', label: 'Chat Supervision', icon: Eye, feature: 'supervisor_chat_supervision' },
+    { id: 'team', label: 'Team Monitor', icon: Users, feature: 'supervisor_team_monitor' },
+    { id: 'team-settings', label: 'Team Settings', icon: Settings, feature: 'supervisor_team_settings' },
+    { id: 'queue', label: 'Queue Management', icon: MessageSquare, feature: 'supervisor_queue_management' },
+    { id: 'reports', label: 'Reports', icon: BarChart3, feature: 'supervisor_reports' },
   ];
 
   return (
@@ -31,22 +36,35 @@ export const SupervisorTabs = ({ activeTab, onTabChange }: SupervisorTabsProps) 
           <div className="flex space-x-0">
             {tabs.map((tab) => {
               const Icon = tab.icon;
+              const hasAccess = isPlatformCreator || hasFeatureAccess(tab.feature);
+              
               return (
                 <TabsTrigger
                   key={tab.id}
                   value={tab.id}
-                  onClick={() => onTabChange(tab.id)}
+                  onClick={() => hasAccess && onTabChange(tab.id)}
+                  disabled={!hasAccess}
                   className={`
                     flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all duration-200
-                    border-b-2 border-transparent whitespace-nowrap
-                    ${activeTab === tab.id 
+                    border-b-2 border-transparent whitespace-nowrap relative
+                    ${activeTab === tab.id && hasAccess
                       ? 'text-blue-600 border-blue-600 bg-blue-50/50' 
-                      : 'text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                      : hasAccess
+                        ? 'text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                        : 'text-gray-400 cursor-not-allowed'
                     }
                   `}
                 >
                   <Icon className="w-4 h-4" />
                   {tab.label}
+                  {!hasAccess && !isPlatformCreator && (
+                    <Lock className="w-3 h-3 ml-1 text-gray-400" />
+                  )}
+                  {!hasAccess && !isPlatformCreator && (
+                    <Badge variant="outline" className="ml-2 text-xs bg-gray-100 text-gray-500">
+                      Pro+
+                    </Badge>
+                  )}
                 </TabsTrigger>
               );
             })}

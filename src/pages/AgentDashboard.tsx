@@ -132,7 +132,11 @@ const AgentDashboard = () => {
       case 'contacts':
         return <ContactsContent />;
       case 'customer-insights':
-        return <CustomerInfo customer={getSelectedCustomer()} />;
+        return (
+          <FeatureGuard feature="customer_360">
+            <CustomerInfo customer={getSelectedCustomer()} />
+          </FeatureGuard>
+        );
       case 'settings':
         return <OtherTabsContent customer={getSelectedCustomer()} />;
       default:

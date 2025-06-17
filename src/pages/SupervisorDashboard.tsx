@@ -55,18 +55,22 @@ const SupervisorDashboard = () => {
           </TabsContent>
 
           <TabsContent value="chats" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2">
-                <ChatSupervision />
+            <FeatureGuard feature="supervisor_chat_supervision">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2">
+                  <ChatSupervision />
+                </div>
+                <div>
+                  <ManualAssignmentSettings />
+                </div>
               </div>
-              <div>
-                <ManualAssignmentSettings />
-              </div>
-            </div>
+            </FeatureGuard>
           </TabsContent>
 
           <TabsContent value="team">
-            <TeamMonitor />
+            <FeatureGuard feature="supervisor_team_monitor">
+              <TeamMonitor />
+            </FeatureGuard>
           </TabsContent>
 
           <TabsContent value="team-settings">
@@ -74,11 +78,15 @@ const SupervisorDashboard = () => {
           </TabsContent>
 
           <TabsContent value="queue">
-            <QueueManagement />
+            <FeatureGuard feature="supervisor_queue_management">
+              <QueueManagement />
+            </FeatureGuard>
           </TabsContent>
 
           <TabsContent value="reports">
-            <Reports />
+            <FeatureGuard feature="supervisor_reports">
+              <Reports />
+            </FeatureGuard>
           </TabsContent>
         </Tabs>
       </div>

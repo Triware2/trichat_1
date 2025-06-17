@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
@@ -61,7 +60,7 @@ export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
       label: 'Access Control', 
       icon: Shield, 
       path: '/admin/access-control',
-      badge: 'Growth+',
+      badge: null,
       feature: 'access_control_basic'
     },
     { 
@@ -69,7 +68,7 @@ export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
       label: 'Bot Training', 
       icon: Bot, 
       path: '/admin/chatbot-training',
-      badge: 'Pro+',
+      badge: 'Growth+',
       feature: 'bot_training_studio'
     },
     { 
@@ -85,15 +84,15 @@ export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
       label: 'SLA Management', 
       icon: Target, 
       path: '/admin/sla',
-      badge: 'Pro+',
-      feature: 'sla_management'
+      badge: 'Growth+',
+      feature: 'sla_create'
     },
     { 
       id: 'csat', 
       label: 'CSAT', 
       icon: Star, 
       path: '/admin/csat',
-      badge: 'Growth+',
+      badge: 'Pro+',
       feature: 'csat_dashboard'
     },
     { 
@@ -101,24 +100,24 @@ export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
       label: 'Analytics', 
       icon: BarChart3, 
       path: '/admin/analytics',
-      badge: 'Pro+',
-      feature: 'advanced_analytics'
+      badge: 'Growth+',
+      feature: 'analytics_overview'
     },
     { 
       id: 'widget', 
       label: 'Widgets', 
       icon: MessageSquare, 
       path: '/admin/widgets',
-      badge: 'Growth+',
-      feature: 'web_widget_variants'
+      badge: null,
+      feature: 'web_widget_basic'
     },
     { 
       id: 'datasources', 
       label: 'Data Sources', 
       icon: Database, 
       path: '/admin/data-sources',
-      badge: 'Pro+',
-      feature: 'data_sources'
+      badge: 'Growth+',
+      feature: 'data_sources_basic'
     },
     { 
       id: 'chat-management', 
@@ -133,8 +132,8 @@ export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
       label: 'Customization', 
       icon: PaintBucket, 
       path: '/admin/customization',
-      badge: 'Enterprise',
-      feature: 'customization'
+      badge: 'Growth+',
+      feature: 'customization_themes'
     },
     { 
       id: 'billing', 

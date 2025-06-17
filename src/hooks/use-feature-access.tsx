@@ -34,222 +34,231 @@ const PLAN_FUNCTIONALITY: Record<string, number> = {
 const PLAN_FEATURES: Record<string, string[]> = {
   'free': [
     // Admin dashboard (basic)
-    'basic_chat',
     'admin_dashboard_basic',
-    
-    // Add/remove agents
     'user_management_basic',
-    
-    // Agent chat dashboard
-    'agent_chat_dashboard',
-    
-    // Canned responses
-    'canned_responses',
-    
-    // Customer contacts
-    'customer_contacts',
-    
-    // Web widget (basic floating)
-    'web_widget_basic',
-    
-    // Basic system settings
+    'access_control_basic',
     'system_settings_basic',
     
-    // Basic reports
-    'basic_reports'
+    // Web widget (basic floating only)
+    'web_widget_basic',
+    'web_widget_integration',
+    
+    // Agent features (restricted)
+    'agent_chat_dashboard',
+    'customer_contacts',
+    'basic_reports',
+    
+    // Supervisor features (very limited)
+    'supervisor_overview',
+    'supervisor_team_settings'
   ],
   'growth': [
     // All Free features
-    'basic_chat',
     'admin_dashboard_basic',
     'user_management_basic',
-    'agent_chat_dashboard',
-    'canned_responses',
-    'customer_contacts',
-    'web_widget_basic',
-    'system_settings_basic',
-    'basic_reports',
-    
-    // Supervisor tools (chat monitor, reports)
-    'supervisor_tools',
-    'chat_monitoring',
-    'supervisor_reports',
-    
-    // Access control (basic)
     'access_control_basic',
+    'system_settings_basic',
+    'web_widget_basic',
+    'web_widget_integration',
+    'agent_chat_dashboard',
+    'customer_contacts',
+    'basic_reports',
+    'supervisor_overview',
+    'supervisor_team_settings',
     
-    // Web widget variants + APIs/Webhooks
-    'web_widget_variants',
+    // Chatbot features (limited)
+    'bot_training_view_deployed',
+    'bot_training_studio',
+    'sop_upload',
+    'test_chat_interface',
+    
+    // API access
     'api_access',
-    'webhooks',
     
-    // Slack, WordPress, Shopify integrations
-    'integration_slack',
-    'integration_wordpress',
-    'integration_shopify',
+    // SLA features (limited)
+    'sla_create',
+    'sla_overview',
     
-    // CSAT dashboard
-    'csat_dashboard',
+    // Analytics (limited)
+    'analytics_overview',
+    'analytics_performance',
+    'analytics_channels',
+    'analytics_agents',
     
-    // Analytics (basic)
-    'analytics_basic',
+    // Widget variants (no messaging apps)
+    'web_widget_variants',
     
-    // Chat rules & bulk ops
+    // Data sources (limited)
+    'data_sources_basic',
+    
+    // Chat management
+    'chat_management',
     'chat_rules',
     'bulk_operations',
-    'chat_management'
+    
+    // Customization (limited)
+    'customization_themes',
+    'customization_forms',
+    
+    // Supervisor features (expanded)
+    'supervisor_chat_supervision',
+    'supervisor_reports',
+    
+    // Agent features (full access)
+    'canned_responses',
+    'customer_360',
+    'agent_all_features'
   ],
   'pro': [
     // All Growth features
-    'basic_chat',
     'admin_dashboard_basic',
     'user_management_basic',
-    'agent_chat_dashboard',
-    'canned_responses',
-    'customer_contacts',
-    'web_widget_basic',
-    'system_settings_basic',
-    'basic_reports',
-    'supervisor_tools',
-    'chat_monitoring',
-    'supervisor_reports',
     'access_control_basic',
-    'web_widget_variants',
+    'system_settings_basic',
+    'web_widget_basic',
+    'web_widget_integration',
+    'agent_chat_dashboard',
+    'customer_contacts',
+    'basic_reports',
+    'supervisor_overview',
+    'supervisor_team_settings',
+    'bot_training_view_deployed',
+    'bot_training_studio',
+    'sop_upload',
+    'test_chat_interface',
     'api_access',
-    'webhooks',
-    'integration_slack',
-    'integration_wordpress',
-    'integration_shopify',
-    'csat_dashboard',
-    'analytics_basic',
+    'sla_create',
+    'sla_overview',
+    'analytics_overview',
+    'analytics_performance',
+    'analytics_channels',
+    'analytics_agents',
+    'web_widget_variants',
+    'data_sources_basic',
+    'chat_management',
     'chat_rules',
     'bulk_operations',
-    'chat_management',
+    'customization_themes',
+    'customization_forms',
+    'supervisor_chat_supervision',
+    'supervisor_reports',
+    'canned_responses',
+    'customer_360',
+    'agent_all_features',
     
-    // Bot training studio
-    'bot_training',
-    'bot_training_studio',
-    
-    // SOP upload, LLM config
-    'sop_upload',
-    'llm_configuration',
-    
-    // Sentiment analysis
-    'sentiment_analysis',
-    
-    // SLA creation & notification
+    // Pro additional features
+    'bot_training_llm_config',
+    'bot_analytics',
     'sla_management',
+    'sla_configuration',
+    'sla_escalations',
     'sla_notifications',
-    
-    // Escalation management
-    'escalation_management',
-    
-    // Business rule engine
-    'business_rules',
-    
-    // Form builder, theme editor
+    'sla_reporting',
+    'csat_dashboard',
+    'csat_management',
+    'advanced_analytics',
+    'custom_analytics',
+    'messaging_apps',
+    'data_sources',
+    'crm_integrations',
+    'ecommerce_integrations',
+    'customization_advanced',
     'form_builder',
     'theme_editor',
-    
-    // CRM integrations
-    'crm_integrations',
-    
-    // Custom fields, custom objects
+    'business_rules',
+    'sentiment_analysis',
+    'escalation_management',
     'custom_fields',
     'custom_objects',
     
-    // Customer 360
-    'customer_360',
-    
-    // Full analytics
-    'advanced_analytics',
-    
-    // CSAT management
-    'csat_management',
-    
-    // Data sources
-    'data_sources'
+    // Supervisor full access
+    'supervisor_queue_management',
+    'supervisor_team_monitor',
+    'supervisor_tools',
+    'chat_monitoring'
   ],
   'enterprise': [
-    // All Pro features
-    'basic_chat',
+    // All Pro features plus Enterprise exclusives
     'admin_dashboard_basic',
     'user_management_basic',
-    'agent_chat_dashboard',
-    'canned_responses',
-    'customer_contacts',
-    'web_widget_basic',
-    'system_settings_basic',
-    'basic_reports',
-    'supervisor_tools',
-    'chat_monitoring',
-    'supervisor_reports',
     'access_control_basic',
-    'web_widget_variants',
-    'api_access',
-    'webhooks',
-    'integration_slack',
-    'integration_wordpress',
-    'integration_shopify',
-    'csat_dashboard',
-    'analytics_basic',
-    'chat_rules',
-    'bulk_operations',
-    'chat_management',
-    'bot_training',
+    'system_settings_basic',
+    'web_widget_basic',
+    'web_widget_integration',
+    'agent_chat_dashboard',
+    'customer_contacts',
+    'basic_reports',
+    'supervisor_overview',
+    'supervisor_team_settings',
+    'bot_training_view_deployed',
     'bot_training_studio',
     'sop_upload',
-    'llm_configuration',
-    'sentiment_analysis',
+    'test_chat_interface',
+    'api_access',
+    'sla_create',
+    'sla_overview',
+    'analytics_overview',
+    'analytics_performance',
+    'analytics_channels',
+    'analytics_agents',
+    'web_widget_variants',
+    'data_sources_basic',
+    'chat_management',
+    'chat_rules',
+    'bulk_operations',
+    'customization_themes',
+    'customization_forms',
+    'supervisor_chat_supervision',
+    'supervisor_reports',
+    'canned_responses',
+    'customer_360',
+    'agent_all_features',
+    'bot_training_llm_config',
+    'bot_analytics',
     'sla_management',
+    'sla_configuration',
+    'sla_escalations',
     'sla_notifications',
-    'escalation_management',
-    'business_rules',
+    'sla_reporting',
+    'csat_dashboard',
+    'csat_management',
+    'advanced_analytics',
+    'custom_analytics',
+    'messaging_apps',
+    'data_sources',
+    'crm_integrations',
+    'ecommerce_integrations',
+    'customization_advanced',
     'form_builder',
     'theme_editor',
-    'crm_integrations',
+    'business_rules',
+    'sentiment_analysis',
+    'escalation_management',
     'custom_fields',
     'custom_objects',
-    'customer_360',
-    'advanced_analytics',
-    'csat_management',
-    'data_sources',
+    'supervisor_queue_management',
+    'supervisor_team_monitor',
+    'supervisor_tools',
+    'chat_monitoring',
     
-    // Sandbox environment
+    // Enterprise exclusive features
+    'customization_code_editor',
     'sandbox_environment',
-    
-    // Script editor
+    'api_management_dedicated',
     'script_editor',
-    
-    // Mobile SDKs
     'mobile_sdks',
-    
-    // Full access to messaging apps
     'messaging_whatsapp',
     'messaging_teams',
     'messaging_telegram',
     'messaging_apps_full',
-    
-    // Dedicated API management
-    'api_management_dedicated',
-    
-    // Data security, audit logs
     'data_security',
     'audit_logs',
     'platform_audit',
-    
-    // Priority support
     'priority_support',
-    
-    // SLA breach monitor
     'sla_breach_monitor',
-    
-    // Workflow automation
     'workflow_automation',
     'advanced_automation',
-    
-    // Customization
-    'customization',
+    'customization_full',
     'white_labeling',
     'sso_integration',
     'custom_workflows'

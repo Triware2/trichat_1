@@ -96,7 +96,7 @@ const AdminDashboard = () => {
         );
       case 'sla':
         return (
-          <FeatureGuard feature="sla_management">
+          <FeatureGuard feature="sla_create">
             <div className="min-h-screen bg-gray-50/30">
               <div className="max-w-full mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
                 <SLAManagement />
@@ -116,19 +116,19 @@ const AdminDashboard = () => {
         );
       case 'analytics':
         return (
-          <FeatureGuard feature="advanced_analytics">
+          <FeatureGuard feature="analytics_overview">
             <AnalyticsDashboard />
           </FeatureGuard>
         );
       case 'widget':
         return (
-          <FeatureGuard feature="web_widget_variants">
+          <FeatureGuard feature="web_widget_basic">
             <ChatWidgetGenerator />
           </FeatureGuard>
         );
       case 'datasources':
         return (
-          <FeatureGuard feature="data_sources">
+          <FeatureGuard feature="data_sources_basic">
             <div className="min-h-screen bg-gray-50/30">
               <div className="max-w-full mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
                 <DataSourcesManagement />
@@ -146,7 +146,7 @@ const AdminDashboard = () => {
         );
       case 'customization':
         return (
-          <FeatureGuard feature="customization">
+          <FeatureGuard feature="customization_themes">
             <CustomizationStudio />
           </FeatureGuard>
         );
