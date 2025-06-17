@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MessageSquare, Check, ArrowRight, X } from 'lucide-react';
+import { MessageSquare, Check, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PricingTier } from './types/pricing';
 
@@ -13,19 +13,16 @@ const pricingTiers: PricingTier[] = [
     period: "forever",
     description: "Perfect for getting started with basic customer support",
     features: [
-      "Up to 5 agents",
-      "Basic chat functionality",
-      "Basic reports", 
-      "Email support",
-      "25% of platform features"
+      "Admin dashboard (basic)",
+      "Add/remove agents (up to 5)",
+      "Agent chat dashboard",
+      "Canned responses",
+      "Customer contacts",
+      "Web widget (basic floating)",
+      "Basic system settings",
+      "Basic reports"
     ],
-    limitations: [
-      "No canned responses",
-      "No file sharing",
-      "No advanced routing",
-      "No API access",
-      "Limited functionality"
-    ],
+    limitations: [],
     cta: "Get Started Free",
     popular: false,
     color: "from-gray-500 to-gray-600",
@@ -38,20 +35,18 @@ const pricingTiers: PricingTier[] = [
     period: "per agent/month",
     description: "Growing businesses with enhanced features and capabilities",
     features: [
+      "All Free features",
       "Unlimited agents",
-      "14-day free trial",
-      "Canned responses",
-      "File sharing",
-      "Advanced routing",
-      "API access",
-      "50% of platform features"
+      "Supervisor tools (chat monitor, reports)",
+      "Access control (basic)",
+      "Web widget variants + APIs/Webhooks",
+      "Slack, WordPress, Shopify integrations",
+      "CSAT dashboard",
+      "Analytics (basic)",
+      "Chat rules & bulk operations",
+      "14-day free trial"
     ],
-    limitations: [
-      "No custom fields",
-      "No integrations",
-      "No advanced analytics",
-      "No priority support"
-    ],
+    limitations: [],
     cta: "Start Free Trial",
     popular: true,
     color: "from-blue-500 to-cyan-500",
@@ -62,23 +57,23 @@ const pricingTiers: PricingTier[] = [
     name: "Pro",
     price: "$10",
     period: "per agent/month",
-    description: "Professional teams with advanced tools and integrations",
+    description: "Professional teams with advanced tools and automation",
     features: [
-      "Unlimited agents",
-      "14-day free trial",
       "All Growth features",
-      "Custom fields",
-      "Integrations",
-      "Advanced analytics",
-      "Priority support",
-      "75% of platform features"
+      "Bot training studio",
+      "SOP upload, LLM configuration",
+      "Sentiment analysis",
+      "SLA creation & notifications",
+      "Escalation management",
+      "Business rule engine",
+      "Form builder, theme editor",
+      "CRM integrations",
+      "Custom fields, custom objects",
+      "Customer 360 view",
+      "Full analytics & reporting",
+      "14-day free trial"
     ],
-    limitations: [
-      "No white labeling",
-      "No SSO",
-      "No advanced automation",
-      "No custom workflows"
-    ],
+    limitations: [],
     cta: "Start Free Trial",
     popular: false,
     color: "from-purple-500 to-indigo-500",
@@ -89,17 +84,21 @@ const pricingTiers: PricingTier[] = [
     name: "Enterprise",
     price: "$15",
     period: "per agent/month", 
-    description: "Large organizations with complete platform access",
+    description: "Large organizations with complete platform access and enterprise features",
     features: [
-      "Unlimited agents",
-      "14-day free trial",
       "All Pro features",
-      "White labeling",
-      "SSO integration",
-      "Advanced automation",
-      "Custom workflows",
+      "Sandbox environment",
+      "Script editor",
+      "Mobile SDKs",
+      "WhatsApp, Teams, Telegram messaging",
+      "Dedicated API management",
+      "Data security & audit logs",
+      "Priority support",
+      "SLA breach monitoring",
+      "Workflow automation",
+      "White labeling & SSO",
       "100% platform access",
-      "Dedicated support"
+      "14-day free trial"
     ],
     limitations: [],
     cta: "Start Free Trial",
@@ -159,15 +158,9 @@ export const PricingCards = () => {
               <CardContent>
                 <div className="space-y-3 mb-6">
                   {tier.features.map((feature, featureIndex) => (
-                    <div key={featureIndex} className="flex items-center space-x-3">
-                      <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                    <div key={featureIndex} className="flex items-start space-x-3">
+                      <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
                       <span className="text-sm text-gray-700">{feature}</span>
-                    </div>
-                  ))}
-                  {tier.limitations.map((limitation, limitIndex) => (
-                    <div key={limitIndex} className="flex items-center space-x-3">
-                      <X className="w-4 h-4 text-red-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-500">{limitation}</span>
                     </div>
                   ))}
                 </div>

@@ -46,7 +46,7 @@ export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
       icon: BarChart3, 
       path: '/admin',
       badge: null,
-      feature: 'basic_chat'
+      feature: 'admin_dashboard_basic'
     },
     { 
       id: 'users', 
@@ -61,16 +61,16 @@ export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
       label: 'Access Control', 
       icon: Shield, 
       path: '/admin/access-control',
-      badge: null,
-      feature: 'user_management_basic'
+      badge: 'Growth+',
+      feature: 'access_control_basic'
     },
     { 
       id: 'chatbot', 
       label: 'Bot Training', 
       icon: Bot, 
       path: '/admin/chatbot-training',
-      badge: 'Enterprise',
-      feature: 'bot_training'
+      badge: 'Pro+',
+      feature: 'bot_training_studio'
     },
     { 
       id: 'api-keys', 
@@ -93,8 +93,8 @@ export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
       label: 'CSAT', 
       icon: Star, 
       path: '/admin/csat',
-      badge: 'Pro+',
-      feature: 'csat_management'
+      badge: 'Growth+',
+      feature: 'csat_dashboard'
     },
     { 
       id: 'analytics', 
@@ -110,7 +110,7 @@ export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
       icon: MessageSquare, 
       path: '/admin/widgets',
       badge: 'Growth+',
-      feature: 'widgets'
+      feature: 'web_widget_variants'
     },
     { 
       id: 'datasources', 
@@ -142,7 +142,7 @@ export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
       icon: CreditCard, 
       path: '/billing',
       badge: null,
-      feature: 'basic_chat'
+      feature: 'admin_dashboard_basic'
     },
     { 
       id: 'settings', 

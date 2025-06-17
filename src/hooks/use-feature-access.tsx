@@ -33,66 +33,226 @@ const PLAN_FUNCTIONALITY: Record<string, number> = {
 // Define which features are available for each plan
 const PLAN_FEATURES: Record<string, string[]> = {
   'free': [
+    // Admin dashboard (basic)
     'basic_chat',
+    'admin_dashboard_basic',
+    
+    // Add/remove agents
     'user_management_basic',
-    'basic_reports',
-    'system_settings_basic'
+    
+    // Agent chat dashboard
+    'agent_chat_dashboard',
+    
+    // Canned responses
+    'canned_responses',
+    
+    // Customer contacts
+    'customer_contacts',
+    
+    // Web widget (basic floating)
+    'web_widget_basic',
+    
+    // Basic system settings
+    'system_settings_basic',
+    
+    // Basic reports
+    'basic_reports'
   ],
   'growth': [
+    // All Free features
     'basic_chat',
+    'admin_dashboard_basic',
     'user_management_basic',
-    'basic_reports',
-    'system_settings_basic',
+    'agent_chat_dashboard',
     'canned_responses',
-    'file_sharing',
-    'advanced_routing',
+    'customer_contacts',
+    'web_widget_basic',
+    'system_settings_basic',
+    'basic_reports',
+    
+    // Supervisor tools (chat monitor, reports)
+    'supervisor_tools',
+    'chat_monitoring',
+    'supervisor_reports',
+    
+    // Access control (basic)
+    'access_control_basic',
+    
+    // Web widget variants + APIs/Webhooks
+    'web_widget_variants',
     'api_access',
-    'chat_management',
-    'widgets'
+    'webhooks',
+    
+    // Slack, WordPress, Shopify integrations
+    'integration_slack',
+    'integration_wordpress',
+    'integration_shopify',
+    
+    // CSAT dashboard
+    'csat_dashboard',
+    
+    // Analytics (basic)
+    'analytics_basic',
+    
+    // Chat rules & bulk ops
+    'chat_rules',
+    'bulk_operations',
+    'chat_management'
   ],
   'pro': [
+    // All Growth features
     'basic_chat',
+    'admin_dashboard_basic',
     'user_management_basic',
-    'basic_reports',
-    'system_settings_basic',
+    'agent_chat_dashboard',
     'canned_responses',
-    'file_sharing',
-    'advanced_routing',
+    'customer_contacts',
+    'web_widget_basic',
+    'system_settings_basic',
+    'basic_reports',
+    'supervisor_tools',
+    'chat_monitoring',
+    'supervisor_reports',
+    'access_control_basic',
+    'web_widget_variants',
     'api_access',
+    'webhooks',
+    'integration_slack',
+    'integration_wordpress',
+    'integration_shopify',
+    'csat_dashboard',
+    'analytics_basic',
+    'chat_rules',
+    'bulk_operations',
     'chat_management',
-    'widgets',
-    'custom_fields',
-    'integrations',
-    'advanced_analytics',
-    'priority_support',
+    
+    // Bot training studio
+    'bot_training',
+    'bot_training_studio',
+    
+    // SOP upload, LLM config
+    'sop_upload',
+    'llm_configuration',
+    
+    // Sentiment analysis
+    'sentiment_analysis',
+    
+    // SLA creation & notification
     'sla_management',
+    'sla_notifications',
+    
+    // Escalation management
+    'escalation_management',
+    
+    // Business rule engine
+    'business_rules',
+    
+    // Form builder, theme editor
+    'form_builder',
+    'theme_editor',
+    
+    // CRM integrations
+    'crm_integrations',
+    
+    // Custom fields, custom objects
+    'custom_fields',
+    'custom_objects',
+    
+    // Customer 360
+    'customer_360',
+    
+    // Full analytics
+    'advanced_analytics',
+    
+    // CSAT management
     'csat_management',
+    
+    // Data sources
     'data_sources'
   ],
   'enterprise': [
+    // All Pro features
     'basic_chat',
+    'admin_dashboard_basic',
     'user_management_basic',
-    'basic_reports',
-    'system_settings_basic',
+    'agent_chat_dashboard',
     'canned_responses',
-    'file_sharing',
-    'advanced_routing',
+    'customer_contacts',
+    'web_widget_basic',
+    'system_settings_basic',
+    'basic_reports',
+    'supervisor_tools',
+    'chat_monitoring',
+    'supervisor_reports',
+    'access_control_basic',
+    'web_widget_variants',
     'api_access',
+    'webhooks',
+    'integration_slack',
+    'integration_wordpress',
+    'integration_shopify',
+    'csat_dashboard',
+    'analytics_basic',
+    'chat_rules',
+    'bulk_operations',
     'chat_management',
-    'widgets',
-    'custom_fields',
-    'integrations',
-    'advanced_analytics',
-    'priority_support',
+    'bot_training',
+    'bot_training_studio',
+    'sop_upload',
+    'llm_configuration',
+    'sentiment_analysis',
     'sla_management',
+    'sla_notifications',
+    'escalation_management',
+    'business_rules',
+    'form_builder',
+    'theme_editor',
+    'crm_integrations',
+    'custom_fields',
+    'custom_objects',
+    'customer_360',
+    'advanced_analytics',
     'csat_management',
     'data_sources',
+    
+    // Sandbox environment
+    'sandbox_environment',
+    
+    // Script editor
+    'script_editor',
+    
+    // Mobile SDKs
+    'mobile_sdks',
+    
+    // Full access to messaging apps
+    'messaging_whatsapp',
+    'messaging_teams',
+    'messaging_telegram',
+    'messaging_apps_full',
+    
+    // Dedicated API management
+    'api_management_dedicated',
+    
+    // Data security, audit logs
+    'data_security',
+    'audit_logs',
+    'platform_audit',
+    
+    // Priority support
+    'priority_support',
+    
+    // SLA breach monitor
+    'sla_breach_monitor',
+    
+    // Workflow automation
+    'workflow_automation',
+    'advanced_automation',
+    
+    // Customization
     'customization',
     'white_labeling',
     'sso_integration',
-    'advanced_automation',
-    'custom_workflows',
-    'bot_training'
+    'custom_workflows'
   ]
 };
 

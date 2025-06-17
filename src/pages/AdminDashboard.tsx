@@ -68,7 +68,7 @@ const AdminDashboard = () => {
         );
       case 'access':
         return (
-          <FeatureGuard feature="user_management_basic">
+          <FeatureGuard feature="access_control_basic">
             <div className="min-h-screen bg-gray-50/30">
               <AccessManagementTabs />
             </div>
@@ -76,7 +76,7 @@ const AdminDashboard = () => {
         );
       case 'chatbot':
         return (
-          <FeatureGuard feature="bot_training">
+          <FeatureGuard feature="bot_training_studio">
             <div className="min-h-screen bg-gray-50/30">
               <div className="max-w-full mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
                 <BotTraining />
@@ -106,7 +106,7 @@ const AdminDashboard = () => {
         );
       case 'csat':
         return (
-          <FeatureGuard feature="csat_management">
+          <FeatureGuard feature="csat_dashboard">
             <div className="min-h-screen bg-gray-50/30">
               <div className="max-w-full mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
                 <CSATManagement />
@@ -122,7 +122,7 @@ const AdminDashboard = () => {
         );
       case 'widget':
         return (
-          <FeatureGuard feature="widgets">
+          <FeatureGuard feature="web_widget_variants">
             <ChatWidgetGenerator />
           </FeatureGuard>
         );

@@ -3,22 +3,48 @@ import { Check, X } from 'lucide-react';
 import { FeatureComparisonRow } from './types/pricing';
 
 const featureComparison: FeatureComparisonRow[] = [
-  { feature: "Basic Chat", free: true, growth: true, pro: true, enterprise: true },
+  // Basic Features
+  { feature: "Admin Dashboard", free: "Basic", growth: "Basic", pro: "Basic", enterprise: "Basic" },
   { feature: "Agent Management", free: "5 agents", growth: "Unlimited", pro: "Unlimited", enterprise: "Unlimited" },
+  { feature: "Agent Chat Dashboard", free: true, growth: true, pro: true, enterprise: true },
+  { feature: "Customer Contacts", free: true, growth: true, pro: true, enterprise: true },
   { feature: "Basic Reports", free: true, growth: true, pro: true, enterprise: true },
-  { feature: "Email Support", free: true, growth: true, pro: true, enterprise: true },
-  { feature: "Canned Responses", free: false, growth: true, pro: true, enterprise: true },
-  { feature: "File Sharing", free: false, growth: true, pro: true, enterprise: true },
-  { feature: "Advanced Routing", free: false, growth: true, pro: true, enterprise: true },
-  { feature: "API Access", free: false, growth: true, pro: true, enterprise: true },
-  { feature: "Custom Fields", free: false, growth: false, pro: true, enterprise: true },
-  { feature: "Integrations", free: false, growth: false, pro: true, enterprise: true },
-  { feature: "Advanced Analytics", free: false, growth: false, pro: true, enterprise: true },
-  { feature: "Priority Support", free: false, growth: false, pro: true, enterprise: true },
-  { feature: "White Labeling", free: false, growth: false, pro: false, enterprise: true },
-  { feature: "SSO", free: false, growth: false, pro: false, enterprise: true },
-  { feature: "Advanced Automation", free: false, growth: false, pro: false, enterprise: true },
-  { feature: "Custom Workflows", free: false, growth: false, pro: false, enterprise: true }
+  
+  // Growth Features
+  { feature: "Canned Responses", free: "Basic", growth: true, pro: true, enterprise: true },
+  { feature: "Web Widget", free: "Basic floating", growth: "Variants + API", pro: "Variants + API", enterprise: "Variants + API" },
+  { feature: "Supervisor Tools", free: false, growth: true, pro: true, enterprise: true },
+  { feature: "Chat Monitoring", free: false, growth: true, pro: true, enterprise: true },
+  { feature: "Access Control", free: false, growth: "Basic", pro: "Basic", enterprise: "Advanced" },
+  { feature: "APIs & Webhooks", free: false, growth: true, pro: true, enterprise: true },
+  { feature: "Basic Integrations", free: false, growth: "Slack, WordPress, Shopify", pro: "Slack, WordPress, Shopify", enterprise: "All integrations" },
+  { feature: "CSAT Dashboard", free: false, growth: true, pro: true, enterprise: true },
+  { feature: "Analytics", free: "Basic", growth: "Basic", pro: "Advanced", enterprise: "Advanced" },
+  { feature: "Chat Rules & Bulk Ops", free: false, growth: true, pro: true, enterprise: true },
+  
+  // Pro Features
+  { feature: "Bot Training Studio", free: false, growth: false, pro: true, enterprise: true },
+  { feature: "SOP Upload & LLM Config", free: false, growth: false, pro: true, enterprise: true },
+  { feature: "Sentiment Analysis", free: false, growth: false, pro: true, enterprise: true },
+  { feature: "SLA Management", free: false, growth: false, pro: true, enterprise: true },
+  { feature: "Escalation Management", free: false, growth: false, pro: true, enterprise: true },
+  { feature: "Business Rule Engine", free: false, growth: false, pro: true, enterprise: true },
+  { feature: "Form Builder & Theme Editor", free: false, growth: false, pro: true, enterprise: true },
+  { feature: "CRM Integrations", free: false, growth: false, pro: true, enterprise: true },
+  { feature: "Custom Fields & Objects", free: false, growth: false, pro: true, enterprise: true },
+  { feature: "Customer 360 View", free: false, growth: false, pro: true, enterprise: true },
+  
+  // Enterprise Features
+  { feature: "Sandbox Environment", free: false, growth: false, pro: false, enterprise: true },
+  { feature: "Script Editor", free: false, growth: false, pro: false, enterprise: true },
+  { feature: "Mobile SDKs", free: false, growth: false, pro: false, enterprise: true },
+  { feature: "WhatsApp, Teams, Telegram", free: false, growth: false, pro: false, enterprise: true },
+  { feature: "Dedicated API Management", free: false, growth: false, pro: false, enterprise: true },
+  { feature: "Data Security & Audit Logs", free: false, growth: false, pro: false, enterprise: true },
+  { feature: "Priority Support", free: false, growth: false, pro: false, enterprise: true },
+  { feature: "SLA Breach Monitoring", free: false, growth: false, pro: false, enterprise: true },
+  { feature: "Workflow Automation", free: false, growth: false, pro: false, enterprise: true },
+  { feature: "White Labeling & SSO", free: false, growth: false, pro: false, enterprise: true }
 ];
 
 export const FeatureComparison = () => {
@@ -30,7 +56,7 @@ export const FeatureComparison = () => {
         <X className="w-5 h-5 text-red-500" />
       );
     }
-    return <span className="text-sm text-gray-600">{value}</span>;
+    return <span className="text-sm text-gray-600 font-medium">{value}</span>;
   };
 
   return (
@@ -47,10 +73,22 @@ export const FeatureComparison = () => {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Features</th>
-                  <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">Free</th>
-                  <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">Growth</th>
-                  <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">Pro</th>
-                  <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">Enterprise</th>
+                  <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">
+                    Free<br/>
+                    <span className="text-xs font-normal text-gray-600">(25% access)</span>
+                  </th>
+                  <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">
+                    Growth<br/>
+                    <span className="text-xs font-normal text-gray-600">(50% access)</span>
+                  </th>
+                  <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">
+                    Pro<br/>
+                    <span className="text-xs font-normal text-gray-600">(75% access)</span>
+                  </th>
+                  <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">
+                    Enterprise<br/>
+                    <span className="text-xs font-normal text-gray-600">(100% access)</span>
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
