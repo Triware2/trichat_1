@@ -11,6 +11,7 @@ import { AllChatsContent } from '@/components/agent/dashboard/AllChatsContent';
 import { ContactsContent } from '@/components/agent/dashboard/ContactsContent';
 import { CustomerInfo } from '@/components/agent/CustomerInfo';
 import { OtherTabsContent } from '@/components/agent/dashboard/OtherTabsContent';
+import { FeatureGuard } from '@/components/FeatureGuard';
 import { MessageSquare, Users, Clock, CheckCircle } from 'lucide-react';
 
 const AgentDashboard = () => {

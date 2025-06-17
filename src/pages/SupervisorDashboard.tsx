@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
@@ -12,6 +11,7 @@ import { SupervisorTabs } from '@/components/supervisor/SupervisorTabs';
 import { SupervisorOverview } from '@/components/supervisor/SupervisorOverview';
 import { ManualAssignmentSettings } from '@/components/supervisor/ManualAssignmentSettings';
 import { TeamSettings } from '@/components/supervisor/TeamSettings';
+import { FeatureGuard } from '@/components/FeatureGuard';
 
 const SupervisorDashboard = () => {
   const location = useLocation();
