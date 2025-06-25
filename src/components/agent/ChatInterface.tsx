@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { MessageList } from './MessageList';
 import { QuickResponses } from './QuickResponses';
@@ -9,13 +8,18 @@ import { usePrivateNotes } from './PrivateNotes';
 import { useChatData } from './hooks/useChatData';
 import { useMessageHandling } from './hooks/useMessageHandling';
 import { ChatMessage } from '@/components/admin/chatbot/types';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { CannedResponses } from './CannedResponses';
 
 interface ChatInterfaceProps {
   customerName: string;
   customerStatus: string;
-  selectedChatId: number;
+  selectedChatId: string | null;
   onSendMessage: (message: string) => void;
   botConversationHistory?: ChatMessage[];
+  agentName: string;
+  subject?: string;
+  onSubjectChange?: (newSubject: string) => Promise<void>;
 }
 
 export const ChatInterface = ({ 
@@ -23,7 +27,10 @@ export const ChatInterface = ({
   customerStatus, 
   selectedChatId, 
   onSendMessage,
-  botConversationHistory = []
+  botConversationHistory = [],
+  agentName,
+  subject,
+  onSubjectChange
 }: ChatInterfaceProps) => {
   const [showCannedResponses, setShowCannedResponses] = useState(false);
   
@@ -51,32 +58,24 @@ export const ChatInterface = ({
     handleImageUpload
   } = useMessageHandling(messages, setMessages, onSendMessage, addNote, botConversationHistory);
 
-  const quickResponses = [
-    "Thank you for contacting us!",
-    "I'd be happy to help you with that.",
-    "Let me check that information for you.",
-    "Is there anything else I can help you with?",
-    "Thank you for your patience.",
-    "I understand your concern.",
-    "Let me transfer you to the right department.",
-    "Your issue has been resolved."
-  ];
+  const handleSelectAndClose = (responseText: string) => {
+    handleCannedResponseSelect(responseText);
+    setShowCannedResponses(false);
+  };
 
   return (
     <div className="h-full flex flex-col bg-white relative">
-      {/* Fixed Header - Always visible at top */}
-      <div className="flex-shrink-0 bg-white border-b border-slate-200 z-20 shadow-sm">
+      {/* Header - Fixed */}
         <ChatHeader 
           customerName={customerName} 
           customerStatus={customerStatus} 
           chatId={selectedChatId}
+          agentName={agentName}
+          subject={subject}
+          onSubjectChange={onSubjectChange}
         />
-      </div>
-      
-      {/* Main Chat Content Area - Independent scrollable sections */}
-      <div className="flex-1 flex flex-col min-h-0 relative">
-        
-        {/* Bot Conversation History Section - Independent scroll */}
+      {/* Scrollable message area (bot history + messages) */}
+      <div className="flex-1 min-h-0 flex flex-col overflow-y-auto bg-slate-50">
         {botConversationHistory.length > 0 && (
           <div className="flex-shrink-0 border-b border-blue-200 bg-blue-50/30 max-h-80 overflow-y-auto">
             <div className="p-4">
@@ -84,32 +83,19 @@ export const ChatInterface = ({
             </div>
           </div>
         )}
-        
-        {/* Messages Section - Independent scroll, takes remaining space */}
-        <div className="flex-1 min-h-0 relative bg-slate-50">
-          <div className="h-full overflow-y-auto pb-40">
-            <MessageList 
-              messages={messages} 
-              privateNotes={privateNotes}
-              isTyping={isTyping}
-              onDeleteNote={handleDeleteNote}
-              canDeleteNote={canDeleteNote}
-              botConversationHistory={[]}
-            />
-          </div>
-        </div>
-
-        {/* Quick Responses - Floating on the right side */}
-        <div className="absolute right-4 bottom-44 z-30">
-          <QuickResponses responses={quickResponses} onResponseSelect={handleQuickResponse} />
+        <div className="flex-1 min-h-0">
+          <MessageList 
+            messages={messages} 
+            privateNotes={privateNotes}
+            isTyping={isTyping}
+            onDeleteNote={handleDeleteNote}
+            canDeleteNote={canDeleteNote}
+            botConversationHistory={[]}
+          />
         </div>
       </div>
-
-      {/* Floating Input Section - Always fixed at bottom */}
-      <div className="absolute bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 shadow-lg">
+      {/* Input Section - Fixed */}
         <FloatingInputSection
-          showCannedResponses={showCannedResponses}
-          setShowCannedResponses={setShowCannedResponses}
           message={message}
           setMessage={setMessage}
           isPrivateNoteMode={isPrivateNoteMode}
@@ -117,9 +103,13 @@ export const ChatInterface = ({
           onSendMessage={handleSendMessage}
           onFileUpload={handleFileUpload}
           onImageUpload={handleImageUpload}
-          onCannedResponseSelect={handleCannedResponseSelect}
-        />
-      </div>
+        setShowCannedResponses={setShowCannedResponses}
+      />
+      <Sheet open={showCannedResponses} onOpenChange={setShowCannedResponses}>
+        <SheetContent className="w-[500px] sm:w-[540px] p-0">
+          <CannedResponses onSelectResponse={handleSelectAndClose} />
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

@@ -1,18 +1,21 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { User, Clock, AlertCircle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { Database } from '@/integrations/supabase/types';
+
+type AgentProfile = Pick<Database['public']['Tables']['profiles']['Row'], 'id' | 'full_name' | 'status' | 'max_concurrent_chats'> & { activeChats: number };
 
 interface ChatData {
-  id: number;
+  id: string;
   customer: string;
   email: string;
   subject: string;
-  status: 'open' | 'pending' | 'resolved' | 'urgent';
-  priority: 'Low' | 'Medium' | 'High' | 'Critical';
+  status: 'open' | 'pending' | 'resolved' | 'urgent' | 'closed' | 'active' | 'queued' | 'escalated';
+  priority: 'Low' | 'Medium' | 'High' | 'Critical' | 'Urgent';
   assignedAgent: string | null;
   createdAt: string;
   category: string;
@@ -22,24 +25,37 @@ interface ManualAssignmentModalProps {
   isOpen: boolean;
   onClose: () => void;
   chat: ChatData | null;
-  onAssign: (chatId: number, agentName: string) => void;
+  onAssignment: (chatId: string, agentName: string) => void;
 }
 
-// Mock available agents - in real app, this would come from API
-const availableAgents = [
-  { id: 1, name: 'Agent Smith', status: 'available', activeChats: 3, maxChats: 8 },
-  { id: 2, name: 'Agent Davis', status: 'busy', activeChats: 7, maxChats: 8 },
-  { id: 3, name: 'Agent Wilson', status: 'available', activeChats: 2, maxChats: 8 },
-  { id: 4, name: 'Agent Johnson', status: 'away', activeChats: 0, maxChats: 8 },
-  { id: 5, name: 'Agent Brown', status: 'available', activeChats: 5, maxChats: 8 },
-];
-
-export const ManualAssignmentModal = ({ isOpen, onClose, chat, onAssign }: ManualAssignmentModalProps) => {
+export const ManualAssignmentModal = ({ isOpen, onClose, chat, onAssignment }: ManualAssignmentModalProps) => {
   const [selectedAgent, setSelectedAgent] = useState<string>('');
+  const [availableAgents, setAvailableAgents] = useState<AgentProfile[]>([]);
+
+  useEffect(() => {
+    if (isOpen) {
+      const fetchAgents = async () => {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('id, full_name, status, max_concurrent_chats')
+          .in('role', ['agent', 'supervisor']);
+
+        if (error) {
+          console.error("Error fetching agents:", error);
+        } else if (data) {
+          // In a real app, 'activeChats' would be a dynamic value.
+          const agentsWithLoad = data.map(agent => ({ ...agent, activeChats: Math.floor(Math.random() * (agent.max_concurrent_chats || 8)) }));
+          setAvailableAgents(agentsWithLoad);
+        }
+      };
+      fetchAgents();
+    }
+  }, [isOpen]);
 
   const handleAssign = () => {
     if (selectedAgent && chat) {
-      onAssign(chat.id, selectedAgent);
+      onAssignment(chat.id, selectedAgent);
+      onClose();
       setSelectedAgent('');
     }
   };
@@ -58,7 +74,8 @@ export const ManualAssignmentModal = ({ isOpen, onClose, chat, onAssign }: Manua
       Critical: 'text-red-600',
       High: 'text-orange-600',
       Medium: 'text-yellow-600',
-      Low: 'text-green-600'
+      Low: 'text-green-600',
+      Urgent: 'text-red-700'
     };
     return colors[priority as keyof typeof colors] || 'text-gray-600';
   };
@@ -122,17 +139,17 @@ export const ManualAssignmentModal = ({ isOpen, onClose, chat, onAssign }: Manua
               </SelectTrigger>
               <SelectContent>
                 {availableAgents.map((agent) => (
-                  <SelectItem key={agent.id} value={agent.name}>
+                  <SelectItem key={agent.id} value={agent.full_name}>
                     <div className="flex items-center justify-between w-full min-w-0">
                       <div className="flex items-center gap-2 min-w-0">
-                        <span className="font-medium truncate">{agent.name}</span>
+                        <span className="font-medium truncate">{agent.full_name}</span>
                         <Badge className={getStatusBadge(agent.status)}>
                           {agent.status}
                         </Badge>
                       </div>
                       <div className="flex items-center gap-1 text-xs text-gray-500 ml-2">
                         <Clock className="w-3 h-3" />
-                        {agent.activeChats}/{agent.maxChats}
+                        {agent.activeChats}/{agent.max_concurrent_chats}
                       </div>
                     </div>
                   </SelectItem>
@@ -150,13 +167,13 @@ export const ManualAssignmentModal = ({ isOpen, onClose, chat, onAssign }: Manua
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               {availableAgents.map((agent) => (
                 <div key={agent.id} className="flex items-center justify-between">
-                  <span className="font-medium">{agent.name}</span>
+                  <span className="font-medium">{agent.full_name}</span>
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className={getStatusBadge(agent.status)}>
                       {agent.status}
                     </Badge>
                     <span className="text-xs text-gray-600">
-                      {agent.activeChats}/{agent.maxChats}
+                      {agent.activeChats}/{agent.max_concurrent_chats}
                     </span>
                   </div>
                 </div>

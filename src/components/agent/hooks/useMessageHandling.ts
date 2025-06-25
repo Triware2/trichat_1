@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { ChatMessage } from '@/components/admin/chatbot/types';
@@ -55,11 +54,6 @@ export const useMessageHandling = (
         setMessages([...messages, newMessage]);
         onSendMessage(message.trim());
         setMessage('');
-        
-        toast({
-          title: "Message sent",
-          description: "Your message has been delivered to the customer.",
-        });
 
         // Simulate customer response
         setTimeout(() => {
@@ -82,18 +76,10 @@ export const useMessageHandling = (
 
   const handleQuickResponse = (response: string) => {
     setMessage(response);
-    toast({
-      title: "Quick response selected",
-      description: "Message has been added to your input field.",
-    });
   };
 
-  const handleCannedResponseSelect = (response: CannedResponse) => {
-    setMessage(response.message);
-    toast({
-      title: "Canned response selected",
-      description: "Response has been added to your input field.",
-    });
+  const handleCannedResponseSelect = (responseText: string) => {
+    setMessage(responseText);
   };
 
   const handleFileUpload = () => {
@@ -106,10 +92,6 @@ export const useMessageHandling = (
       fileName: 'troubleshooting_guide.pdf'
     };
     setMessages([...messages, fileMessage]);
-    toast({
-      title: "File uploaded",
-      description: "Document has been shared with the customer.",
-    });
   };
 
   const handleImageUpload = () => {
@@ -122,10 +104,6 @@ export const useMessageHandling = (
       fileName: 'product_screenshot.png'
     };
     setMessages([...messages, imageMessage]);
-    toast({
-      title: "Image uploaded",
-      description: "Screenshot has been shared with the customer.",
-    });
   };
 
   return {

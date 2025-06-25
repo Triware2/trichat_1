@@ -1,4 +1,3 @@
-
 import { Sidebar, SidebarContent, SidebarHeader } from '@/components/ui/sidebar';
 import { SidebarPerformanceStats } from './SidebarPerformanceStats';
 import { SidebarHeader as CustomSidebarHeader } from './SidebarHeader';
@@ -14,10 +13,9 @@ interface TodayPerformance {
 interface AgentSidebarProps {
   todayPerformance: TodayPerformance;
   activeTab?: string;
-  onTabChange?: (tab: string) => void;
 }
 
-export const AgentSidebar = ({ todayPerformance, activeTab = 'dashboard', onTabChange }: AgentSidebarProps) => {
+export const AgentSidebar = ({ todayPerformance, activeTab = 'dashboard' }: AgentSidebarProps) => {
   return (
     <Sidebar className="border-r-0 bg-gradient-to-b from-slate-50 to-white shadow-xl" collapsible="icon">
       {/* Header Section with Stats */}
@@ -30,7 +28,7 @@ export const AgentSidebar = ({ todayPerformance, activeTab = 'dashboard', onTabC
       
       {/* Navigation Content */}
       <SidebarContent className="p-4 space-y-2 group-data-[collapsible=icon]:p-2">
-        <SidebarNavigation activeTab={activeTab} onTabChange={onTabChange} />
+        <SidebarNavigation activeTab={activeTab} />
         <SidebarStatusIndicator />
       </SidebarContent>
     </Sidebar>

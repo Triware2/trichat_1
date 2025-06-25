@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -17,101 +17,56 @@ import {
   MessageSquare,
   ChevronLeft,
   ChevronRight,
-  UserPlus
+  UserPlus,
+  Inbox
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ManualAssignmentModal } from './ManualAssignmentModal';
+import { supabase } from '@/integrations/supabase/client';
+import { Database } from '@/integrations/supabase/types';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+
+type ChatStatus = Database['public']['Enums']['chat_status'];
+type ChatPriority = Database['public']['Enums']['chat_priority'];
 
 interface ChatData {
-  id: number;
+  id: string;
   customer: string;
   email: string;
   phone: string;
   subject: string;
-  status: 'open' | 'pending' | 'resolved' | 'urgent';
-  priority: 'Low' | 'Medium' | 'High' | 'Critical';
+  status: ChatStatus;
+  priority: 'Low' | 'Medium' | 'High' | 'Critical' | 'Urgent';
   assignedAgent: string | null;
   createdAt: string;
   lastActivity: string;
-  frtTarget: number; // minutes
-  frtElapsed: number; // minutes
-  source: 'website' | 'email' | 'phone' | 'social';
+  frtTarget: number; 
+  frtElapsed: number; 
+  source: string;
   category: string;
 }
 
-const mockChats: ChatData[] = [
-  {
-    id: 1,
-    customer: 'John Smith',
-    email: 'john@example.com',
-    phone: '+1234567890',
-    subject: 'Order delivery issue',
-    status: 'urgent',
-    priority: 'High',
-    assignedAgent: 'Agent Smith',
-    createdAt: '2024-01-15T10:30:00Z',
-    lastActivity: '2024-01-15T11:45:00Z',
-    frtTarget: 15,
-    frtElapsed: 25,
-    source: 'website',
-    category: 'Order Issues'
-  },
-  {
-    id: 2,
-    customer: 'Alice Johnson',
-    email: 'alice@example.com',
-    phone: '+1234567891',
-    subject: 'Product return request',
-    status: 'open',
-    priority: 'Medium',
-    assignedAgent: null,
-    createdAt: '2024-01-15T09:15:00Z',
-    lastActivity: '2024-01-15T09:15:00Z',
-    frtTarget: 30,
-    frtElapsed: 10,
-    source: 'email',
-    category: 'Returns'
-  },
-  {
-    id: 3,
-    customer: 'Bob Williams',
-    email: 'bob@example.com',
-    phone: '+1234567892',
-    subject: 'Technical support needed',
-    status: 'pending',
-    priority: 'Critical',
-    assignedAgent: 'Agent Davis',
-    createdAt: '2024-01-15T08:00:00Z',
-    lastActivity: '2024-01-15T10:20:00Z',
-    frtTarget: 10,
-    frtElapsed: 15,
-    source: 'phone',
-    category: 'Technical'
-  },
-  {
-    id: 4,
-    customer: 'Emily Brown',
-    email: 'emily@example.com',
-    phone: '+1234567893',
-    subject: 'Account access problem',
-    status: 'resolved',
-    priority: 'Low',
-    assignedAgent: 'Agent Wilson',
-    createdAt: '2024-01-14T14:30:00Z',
-    lastActivity: '2024-01-14T16:45:00Z',
-    frtTarget: 60,
-    frtElapsed: 45,
-    source: 'social',
-    category: 'Account'
-  }
-];
+interface AllChatsContentProps {
+  onChatSelect: (chatId: string) => void;
+  refreshKey?: string | number;
+}
 
 // Mock supervisor settings - in real app, this would come from API/context
 const mockSupervisorSettings = {
   manualAssignmentEnabled: true
 };
 
-export const AllChatsContent = () => {
+const mapPriority = (priority: ChatPriority): ChatData['priority'] => {
+  const mapping: Record<ChatPriority, ChatData['priority']> = {
+    low: 'Low',
+    medium: 'Medium',
+    high: 'High',
+    urgent: 'Urgent',
+  };
+  return mapping[priority];
+};
+
+export const AllChatsContent = ({ onChatSelect, refreshKey }: AllChatsContentProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
@@ -121,9 +76,55 @@ export const AllChatsContent = () => {
   const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({});
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
-  const [chats, setChats] = useState(mockChats);
+  const [chats, setChats] = useState<ChatData[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isAssignmentModalOpen, setIsAssignmentModalOpen] = useState(false);
   const [selectedChatForAssignment, setSelectedChatForAssignment] = useState<ChatData | null>(null);
+
+  useEffect(() => {
+    const fetchChats = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('chats')
+        .select(`
+          id,
+          created_at,
+          updated_at,
+          status,
+          priority,
+          subject,
+          channel,
+          customers ( name, email, phone ),
+          profiles ( full_name )
+        `);
+
+      if (error) {
+        console.error("Error fetching chats:", error);
+        setChats([]);
+      } else if (data) {
+        const formattedData: ChatData[] = data.map((chat: any) => ({
+          id: chat.id,
+          customer: chat.customers?.name || 'Unknown Customer',
+          email: chat.customers?.email || 'N/A',
+          phone: chat.customers?.phone || 'N/A',
+          subject: chat.subject || 'No Subject',
+          status: chat.status,
+          priority: mapPriority(chat.priority),
+          assignedAgent: chat.profiles?.full_name || null,
+          createdAt: chat.created_at,
+          lastActivity: chat.updated_at,
+          frtTarget: 30, // Mocked for now
+          frtElapsed: 10, // Mocked for now
+          source: chat.channel || 'unknown',
+          category: chat.metadata?.category || 'General'
+        }));
+        setChats(formattedData);
+      }
+      setLoading(false);
+    };
+
+    fetchChats();
+  }, [refreshKey]);
 
   const filteredChats = useMemo(() => {
     let filtered = chats.filter(chat => {
@@ -145,7 +146,7 @@ export const AllChatsContent = () => {
 
     // Sort by status priority: open/urgent first, then pending, then resolved
     filtered.sort((a, b) => {
-      const statusPriority = { urgent: 0, open: 1, pending: 2, resolved: 3 };
+      const statusPriority = { urgent: 0, open: 1, pending: 2, resolved: 3, closed: 4, active: 5, queued: 6, escalated: 7 };
       return statusPriority[a.status] - statusPriority[b.status];
     });
 
@@ -164,7 +165,7 @@ export const AllChatsContent = () => {
     setIsAssignmentModalOpen(true);
   };
 
-  const handleAssignmentComplete = (chatId: number, agentName: string) => {
+  const handleAssignmentComplete = (chatId: string, agentName: string) => {
     setChats(prevChats => 
       prevChats.map(chat => 
         chat.id === chatId 
@@ -181,7 +182,11 @@ export const AllChatsContent = () => {
       urgent: 'bg-red-100 text-red-800',
       open: 'bg-blue-100 text-blue-800',
       pending: 'bg-yellow-100 text-yellow-800',
-      resolved: 'bg-green-100 text-green-800'
+      resolved: 'bg-green-100 text-green-800',
+      closed: 'bg-gray-100 text-gray-800',
+      active: 'bg-cyan-100 text-cyan-800',
+      queued: 'bg-indigo-100 text-indigo-800',
+      escalated: 'bg-pink-100 text-pink-800',
     };
     return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
   };
@@ -226,6 +231,21 @@ export const AllChatsContent = () => {
     setCurrentPage(1);
   };
 
+  const NoChatsPlaceholder = () => (
+    <div className="text-center py-16">
+      <Inbox className="mx-auto h-16 w-16 text-slate-300" />
+      <h3 className="mt-4 text-lg font-semibold text-slate-800">No Chats Found</h3>
+      <p className="mt-2 text-sm text-slate-500">
+        There are no chats matching your current filters. <br />
+        Try adjusting your search or filter criteria.
+      </p>
+      <Button variant="outline" className="mt-6" onClick={clearFilters}>
+        <Filter className="w-4 h-4 mr-2" />
+        Clear All Filters
+      </Button>
+    </div>
+  );
+
   return (
     <div className="h-full overflow-hidden">
       <div className="h-full flex flex-col">
@@ -234,24 +254,18 @@ export const AllChatsContent = () => {
             <div className="flex items-center justify-between">
               <CardTitle className="text-xl font-semibold text-gray-900">All Chats</CardTitle>
               <div className="flex items-center gap-3">
-                <Badge variant="outline" className="text-sm">
-                  {filteredChats.length} chats
-                </Badge>
+                <Badge variant="outline" className="text-sm">{filteredChats.length} chats</Badge>
                 {mockSupervisorSettings.manualAssignmentEnabled && (
-                  <Badge className="bg-blue-100 text-blue-800 text-sm">
-                    Manual Assignment Enabled
-                  </Badge>
+                  <Badge className="bg-blue-100 text-blue-800 text-sm">Manual Assignment Enabled</Badge>
                 )}
               </div>
             </div>
           </CardHeader>
-          
-          <CardContent className="flex flex-col h-full overflow-hidden">
-            {/* Advanced Filters */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4 mb-6">
-              {/* ... keep existing code (search and filter inputs) */}
+          <CardContent className="flex flex-col h-full overflow-hidden p-0">
+            {/* Filters */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4 mb-6 px-6 pt-4">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
                 <Input
                   placeholder="Search chats..."
                   value={searchTerm}
@@ -259,37 +273,33 @@ export const AllChatsContent = () => {
                   className="pl-10"
                 />
               </div>
-              
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Filter by status" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="urgent">Urgent</SelectItem>
+                  <SelectItem value="all">All Statuses</SelectItem>
                   <SelectItem value="open">Open</SelectItem>
                   <SelectItem value="pending">Pending</SelectItem>
                   <SelectItem value="resolved">Resolved</SelectItem>
+                  <SelectItem value="urgent">Urgent</SelectItem>
+                  <SelectItem value="queued">Queued</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="escalated">Escalated</SelectItem>
+                  <SelectItem value="closed">Closed</SelectItem>
                 </SelectContent>
               </Select>
-
               <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Priority" />
-                </SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Filter by priority" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Priority</SelectItem>
-                  <SelectItem value="Critical">Critical</SelectItem>
-                  <SelectItem value="High">High</SelectItem>
-                  <SelectItem value="Medium">Medium</SelectItem>
+                  <SelectItem value="all">All Priorities</SelectItem>
                   <SelectItem value="Low">Low</SelectItem>
+                  <SelectItem value="Medium">Medium</SelectItem>
+                  <SelectItem value="High">High</SelectItem>
+                  <SelectItem value="Critical">Critical</SelectItem>
+                  <SelectItem value="Urgent">Urgent</SelectItem>
                 </SelectContent>
               </Select>
-
               <Select value={agentFilter} onValueChange={setAgentFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Agent" />
-                </SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Agent" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Agents</SelectItem>
                   <SelectItem value="unassigned">Unassigned</SelectItem>
@@ -298,11 +308,8 @@ export const AllChatsContent = () => {
                   <SelectItem value="Agent Wilson">Agent Wilson</SelectItem>
                 </SelectContent>
               </Select>
-
               <Select value={sourceFilter} onValueChange={setSourceFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Source" />
-                </SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Source" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Sources</SelectItem>
                   <SelectItem value="website">Website</SelectItem>
@@ -311,133 +318,118 @@ export const AllChatsContent = () => {
                   <SelectItem value="social">Social</SelectItem>
                 </SelectContent>
               </Select>
-
-              <Button variant="outline" onClick={clearFilters} className="flex items-center gap-2">
-                <Filter className="w-4 h-4" />
-                Clear Filters
-              </Button>
+              <Button variant="ghost" onClick={clearFilters} className="w-full justify-center">Clear Filters</Button>
             </div>
-
-            {/* Chat Table */}
-            <div className="flex-1 overflow-auto border rounded-lg">
+            {/* Table or Placeholder */}
+            <div className="flex-1 overflow-auto">
+              {loading ? (
+                <div className="flex items-center justify-center h-full">
+                  <p>Loading chats...</p>
+                </div>
+              ) : filteredChats.length > 0 ? (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Customer</TableHead>
+                      <TableHead className="w-[250px]">Customer</TableHead>
                     <TableHead>Subject</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Priority</TableHead>
                     <TableHead>Agent</TableHead>
+                      <TableHead>FRT Status</TableHead>
                     <TableHead>Source</TableHead>
-                    <TableHead>FRT Status</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead>Last Activity</TableHead>
-                    {mockSupervisorSettings.manualAssignmentEnabled && (
-                      <TableHead>Actions</TableHead>
-                    )}
+                      <TableHead>Category</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {paginatedChats.map((chat) => {
-                    const frtStatus = getFRTStatus(chat);
+                    {paginatedChats.map(chat => {
+                      const frt = getFRTStatus(chat);
                     return (
-                      <TableRow key={chat.id} className="hover:bg-gray-50">
+                        <TableRow
+                          key={chat.id}
+                          onClick={() => onChatSelect(chat.id)}
+                          className="cursor-pointer hover:bg-slate-50"
+                        >
                         <TableCell>
-                          <div>
-                            <div className="font-medium">{chat.customer}</div>
-                            <div className="text-sm text-gray-500">{chat.email}</div>
-                          </div>
+                            <div className="font-medium text-slate-800">{chat.customer}</div>
+                            <div className="text-xs text-slate-500">{chat.email}</div>
+                        </TableCell>
+                          <TableCell>{chat.subject}</TableCell>
+                        <TableCell>
+                            <Badge variant="outline" className={getStatusBadge(chat.status)}>{chat.status}</Badge>
                         </TableCell>
                         <TableCell>
-                          <div className="max-w-xs truncate" title={chat.subject}>
-                            {chat.subject}
-                          </div>
+                            <Badge className={getPriorityBadge(chat.priority)}>{chat.priority}</Badge>
                         </TableCell>
-                        <TableCell>
-                          <Badge className={getStatusBadge(chat.status)}>
-                            {chat.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={getPriorityBadge(chat.priority)}>
-                            {chat.priority}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          {chat.assignedAgent ? (
-                            <div className="flex items-center gap-2">
-                              <User className="w-4 h-4 text-gray-400" />
-                              {chat.assignedAgent}
-                            </div>
-                          ) : (
-                            <span className="text-gray-400 italic">Unassigned</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{chat.source}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className={`flex items-center gap-2 ${frtStatus.color}`}>
-                            {frtStatus.icon}
-                            <span className="text-sm">
-                              {chat.frtElapsed}m / {chat.frtTarget}m
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-sm">
-                            {format(new Date(chat.createdAt), 'MMM dd, HH:mm')}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-sm">
-                            {format(new Date(chat.lastActivity), 'MMM dd, HH:mm')}
-                          </div>
-                        </TableCell>
-                        {mockSupervisorSettings.manualAssignmentEnabled && (
+                          <TableCell>{chat.assignedAgent || <span className="text-slate-400 italic">Unassigned</span>}</TableCell>
                           <TableCell>
+                            <div className={`flex items-center gap-2 ${frt.color}`}>{frt.icon}<span>{chat.frtElapsed} / {chat.frtTarget} min</span></div>
+                          </TableCell>
+                          <TableCell>{chat.source}</TableCell>
+                          <TableCell>{chat.category}</TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-2">
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  onChatSelect(chat.id);
+                                }}
+                              >
+                                <MessageSquare className="w-4 h-4 mr-1" />
+                                View
+                              </Button>
+                              {mockSupervisorSettings.manualAssignmentEnabled && (
                             <Button 
                               variant="outline" 
                               size="sm"
-                              onClick={() => handleAssignChat(chat)}
-                              className="flex items-center gap-2"
+                                  onClick={e => {
+                                    e.stopPropagation();
+                                    handleAssignChat(chat);
+                                  }}
                             >
-                              <UserPlus className="w-4 h-4" />
+                                  <UserPlus className="w-4 h-4 mr-2" />
                               {chat.assignedAgent ? 'Reassign' : 'Assign'}
                             </Button>
+                              )}
+                            </div>
                           </TableCell>
-                        )}
                       </TableRow>
                     );
                   })}
                 </TableBody>
               </Table>
+              ) : (
+                <NoChatsPlaceholder />
+              )}
             </div>
-
             {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-between mt-4 pt-4 border-t">
-                <div className="text-sm text-gray-500">
-                  Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredChats.length)} of {filteredChats.length} chats
-                </div>
+            {filteredChats.length > itemsPerPage && (
+              <div className="flex items-center justify-between p-4 border-t">
+                <span className="text-sm text-slate-600">
+                  Showing {paginatedChats.length} of {filteredChats.length} results
+                </span>
                 <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                     disabled={currentPage === 1}
                   >
                     <ChevronLeft className="w-4 h-4" />
+                    Previous
                   </Button>
-                  <span className="text-sm">
+                  <span className="text-sm font-medium">
                     Page {currentPage} of {totalPages}
                   </span>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                     disabled={currentPage === totalPages}
                   >
+                    Next
                     <ChevronRight className="w-4 h-4" />
                   </Button>
                 </div>
@@ -445,8 +437,6 @@ export const AllChatsContent = () => {
             )}
           </CardContent>
         </Card>
-      </div>
-
       {/* Manual Assignment Modal */}
       <ManualAssignmentModal
         isOpen={isAssignmentModalOpen}
@@ -455,8 +445,9 @@ export const AllChatsContent = () => {
           setSelectedChatForAssignment(null);
         }}
         chat={selectedChatForAssignment}
-        onAssign={handleAssignmentComplete}
+          onAssignment={handleAssignmentComplete}
       />
+      </div>
     </div>
   );
 };

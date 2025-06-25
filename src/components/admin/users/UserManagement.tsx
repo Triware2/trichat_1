@@ -21,6 +21,7 @@ import {
   Download,
   Upload
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface User {
   id: string;
@@ -47,70 +48,35 @@ export const UserManagement = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchUsers = async () => {
       setIsLoading(true);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const mockUsers: User[] = [
-        {
-          id: '1',
-          name: 'John Admin',
-          email: 'john@trichat.com',
-          role: 'admin',
-          status: 'active',
-          lastLogin: '2024-01-15 10:30 AM',
-          createdAt: '2023-01-15',
-          phone: '+1 (555) 123-4567',
-          department: 'IT',
-          permissions: ['all']
-        },
-        {
-          id: '2',
-          name: 'Sarah Supervisor',
-          email: 'sarah@trichat.com',
-          role: 'supervisor',
-          status: 'active',
-          lastLogin: '2024-01-15 09:15 AM',
-          createdAt: '2023-03-20',
-          phone: '+1 (555) 234-5678',
-          department: 'Support',
-          permissions: ['manage_agents', 'view_reports']
-        },
-        {
-          id: '3',
-          name: 'Mike Agent',
-          email: 'mike@trichat.com',
-          role: 'agent',
-          status: 'active',
-          lastLogin: '2024-01-15 11:45 AM',
-          createdAt: '2023-06-10',
-          phone: '+1 (555) 345-6789',
-          department: 'Support',
-          permissions: ['handle_chats', 'view_customer_data']
-        },
-        {
-          id: '4',
-          name: 'Emily Viewer',
-          email: 'emily@trichat.com',
-          role: 'viewer',
-          status: 'inactive',
-          lastLogin: '2024-01-10 02:20 PM',
-          createdAt: '2023-08-15',
-          phone: '+1 (555) 456-7890',
-          department: 'Analytics',
-          permissions: ['view_reports']
-        }
-      ];
-      
-      setUsers(mockUsers);
-      setFilteredUsers(mockUsers);
+      setError(null);
+      const { data, error } = await supabase.from('profiles').select('*');
+      if (error) {
+        setError('Failed to fetch users');
+        setIsLoading(false);
+        return;
+      }
+      const mappedUsers: User[] = (data || []).map((u: any) => ({
+        id: u.id,
+        name: u.full_name,
+        email: u.email,
+        role: u.role || 'agent',
+        status: u.status || 'active',
+        lastLogin: u.last_seen || '',
+        createdAt: u.created_at || '',
+        avatar: u.avatar_url || '',
+        phone: u.phone || '',
+        department: u.department || '',
+        permissions: u.permissions || [],
+      }));
+      setUsers(mappedUsers);
+      setFilteredUsers(mappedUsers);
       setIsLoading(false);
     };
-
     fetchUsers();
   }, []);
 
@@ -139,8 +105,47 @@ export const UserManagement = () => {
     setIsAddUserOpen(true);
   };
 
-  const handleUserAdded = (newUser: User) => {
-    setUsers(prev => [...prev, newUser]);
+  const handleUserAdded = async (newUser: User) => {
+    setIsLoading(true);
+    setError(null);
+    const { error } = await supabase.from('profiles').insert({
+      id: newUser.id,
+      full_name: newUser.name,
+      email: newUser.email,
+      role: newUser.role,
+      status: newUser.status,
+      avatar_url: newUser.avatar,
+      phone: newUser.phone,
+      department: newUser.department,
+      permissions: newUser.permissions,
+      created_at: new Date().toISOString(),
+    });
+    if (error) {
+      setError('Failed to add user');
+      setIsLoading(false);
+      toast({ title: 'Error', description: 'Failed to add user.' });
+      return;
+    }
+    toast({ title: 'User Added', description: 'The user has been successfully added.' });
+    setIsAddUserOpen(false);
+    // Refetch users
+    const { data } = await supabase.from('profiles').select('*');
+    const mappedUsers: User[] = (data || []).map((u: any) => ({
+      id: u.id,
+      name: u.full_name,
+      email: u.email,
+      role: u.role || 'agent',
+      status: u.status || 'active',
+      lastLogin: u.last_seen || '',
+      createdAt: u.created_at || '',
+      avatar: u.avatar_url || '',
+      phone: u.phone || '',
+      department: u.department || '',
+      permissions: u.permissions || [],
+    }));
+    setUsers(mappedUsers);
+    setFilteredUsers(mappedUsers);
+    setIsLoading(false);
   };
 
   const handleEditUser = (user: User) => {
@@ -148,22 +153,108 @@ export const UserManagement = () => {
     setIsEditing(true);
   };
 
-  const handleDeleteUser = (userId: string) => {
-    setUsers(users.filter(user => user.id !== userId));
-    toast({
-      title: "User Deleted",
-      description: "The user has been successfully removed.",
-    });
+  const handleUserUpdated = async (updatedUser: User) => {
+    setIsLoading(true);
+    setError(null);
+    const { error } = await supabase.from('profiles').update({
+      full_name: updatedUser.name,
+      email: updatedUser.email,
+      role: updatedUser.role,
+      status: updatedUser.status,
+      avatar_url: updatedUser.avatar,
+      phone: updatedUser.phone,
+      department: updatedUser.department,
+      permissions: updatedUser.permissions,
+    }).eq('id', updatedUser.id);
+    if (error) {
+      setError('Failed to update user');
+      setIsLoading(false);
+      toast({ title: 'Error', description: 'Failed to update user.' });
+      return;
+    }
+    toast({ title: 'User Updated', description: 'The user has been successfully updated.' });
+    setIsEditing(false);
+    setSelectedUser(null);
+    // Refetch users
+    const { data } = await supabase.from('profiles').select('*');
+    const mappedUsers: User[] = (data || []).map((u: any) => ({
+      id: u.id,
+      name: u.full_name,
+      email: u.email,
+      role: u.role || 'agent',
+      status: u.status || 'active',
+      lastLogin: u.last_seen || '',
+      createdAt: u.created_at || '',
+      avatar: u.avatar_url || '',
+      phone: u.phone || '',
+      department: u.department || '',
+      permissions: u.permissions || [],
+    }));
+    setUsers(mappedUsers);
+    setFilteredUsers(mappedUsers);
+    setIsLoading(false);
   };
 
-  const handleStatusChange = (userId: string, newStatus: string) => {
-    setUsers(users.map(user =>
-      user.id === userId ? { ...user, status: newStatus as any } : user
-    ));
-    toast({
-      title: "Status Updated",
-      description: `User status changed to ${newStatus}.`,
-    });
+  const handleDeleteUser = async (userId: string) => {
+    setIsLoading(true);
+    setError(null);
+    const { error } = await supabase.from('profiles').delete().eq('id', userId);
+    if (error) {
+      setError('Failed to delete user');
+      setIsLoading(false);
+      toast({ title: 'Error', description: 'Failed to delete user.' });
+      return;
+    }
+    toast({ title: 'User Deleted', description: 'The user has been successfully removed.' });
+    // Refetch users
+    const { data } = await supabase.from('profiles').select('*');
+    const mappedUsers: User[] = (data || []).map((u: any) => ({
+      id: u.id,
+      name: u.full_name,
+      email: u.email,
+      role: u.role || 'agent',
+      status: u.status || 'active',
+      lastLogin: u.last_seen || '',
+      createdAt: u.created_at || '',
+      avatar: u.avatar_url || '',
+      phone: u.phone || '',
+      department: u.department || '',
+      permissions: u.permissions || [],
+    }));
+    setUsers(mappedUsers);
+    setFilteredUsers(mappedUsers);
+    setIsLoading(false);
+  };
+
+  const handleStatusChange = async (userId: string, newStatus: string) => {
+    setIsLoading(true);
+    setError(null);
+    const { error } = await supabase.from('profiles').update({ status: newStatus }).eq('id', userId);
+    if (error) {
+      setError('Failed to update status');
+      setIsLoading(false);
+      toast({ title: 'Error', description: 'Failed to update status.' });
+      return;
+    }
+    toast({ title: 'Status Updated', description: `User status changed to ${newStatus}.` });
+    // Refetch users
+    const { data } = await supabase.from('profiles').select('*');
+    const mappedUsers: User[] = (data || []).map((u: any) => ({
+      id: u.id,
+      name: u.full_name,
+      email: u.email,
+      role: u.role || 'agent',
+      status: u.status || 'active',
+      lastLogin: u.last_seen || '',
+      createdAt: u.created_at || '',
+      avatar: u.avatar_url || '',
+      phone: u.phone || '',
+      department: u.department || '',
+      permissions: u.permissions || [],
+    }));
+    setUsers(mappedUsers);
+    setFilteredUsers(mappedUsers);
+    setIsLoading(false);
   };
 
   const getRoleColor = (role: string) => {

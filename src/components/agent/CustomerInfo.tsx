@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { CustomerInfoHeader } from './customer/CustomerInfoHeader';
 import { CustomerTabsContent } from './customer/CustomerTabsContent';
@@ -29,7 +28,7 @@ export const CustomerInfo = ({ customer }: CustomerInfoProps) => {
   };
 
   return (
-    <div className="h-full bg-white overflow-y-auto">
+    <div className="h-full min-h-screen bg-gradient-to-br from-emerald-50 via-white to-blue-50 p-6 md:p-12 overflow-y-auto rounded-3xl shadow-xl">
       <CustomerInfoHeader
         customer={currentCustomer}
         customerInsights={customerInsights}

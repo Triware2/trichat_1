@@ -1,359 +1,514 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  MessageSquare, 
-  Send, 
-  Eye, 
-  UserCheck, 
-  AlertTriangle,
-  Search,
-  Filter,
-  MoreHorizontal
-} from 'lucide-react';
+import { MessageSquare, Send, Eye, UserCheck, AlertTriangle, Search, Filter, MoreHorizontal, Download, RefreshCw, UserCircle2, CheckCircle2, AlertCircle, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/use-auth';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 interface Chat {
-  id: number;
+  id: string;
   customer: string;
   agent: string;
-  status: 'active' | 'pending' | 'escalated';
-  priority: 'High' | 'Medium' | 'Low';
+  status: string;
+  priority: string;
   lastMessage: string;
   time: string;
   unread: number;
-  messages: Array<{
-    id: number;
-    sender: 'agent' | 'customer' | 'supervisor';
-    message: string;
-    time: string;
-  }>;
+}
+
+interface Message {
+  id: string;
+  sender_id: string | null;
+  sender_type: string;
+  content: string;
+  created_at: string | null;
 }
 
 export const ChatSupervision = () => {
-  const [selectedChat, setSelectedChat] = useState<number | null>(null);
+  const { user } = useAuth();
+  const [chats, setChats] = useState<Chat[]>([]);
+  const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [supervisorMessage, setSupervisorMessage] = useState('');
+  const [loadingChats, setLoadingChats] = useState(true);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const [myChats, setMyChats] = useState<Chat[]>([]);
 
-  const activeChats: Chat[] = [
-    {
-      id: 1,
-      customer: "John Smith",
-      agent: "Sarah Johnson",
-      status: "active",
-      priority: "High",
-      lastMessage: "I need help with my order urgently",
-      time: "2 min ago",
-      unread: 2,
-      messages: [
-        { id: 1, sender: "customer", message: "Hi, I need help with my recent order #12345", time: "10:30 AM" },
-        { id: 2, sender: "agent", message: "Hello! I'd be happy to help you with your order.", time: "10:31 AM" },
-        { id: 3, sender: "customer", message: "It was supposed to arrive yesterday but I haven't received it yet", time: "10:32 AM" },
-        { id: 4, sender: "agent", message: "Let me check the tracking information for you.", time: "10:33 AM" },
-        { id: 5, sender: "customer", message: "I need help with my order urgently", time: "10:35 AM" }
-      ]
-    },
-    {
-      id: 2,
-      customer: "Emily Davis",
-      agent: "Mike Chen",
-      status: "escalated",
-      priority: "High",
-      lastMessage: "This issue needs supervisor attention",
-      time: "5 min ago",
-      unread: 3,
-      messages: [
-        { id: 1, sender: "customer", message: "I can't access my account and I'm losing business", time: "10:25 AM" },
-        { id: 2, sender: "agent", message: "I understand your concern. Let me try to help.", time: "10:26 AM" },
-        { id: 3, sender: "customer", message: "This is taking too long, I need immediate help!", time: "10:28 AM" },
-        { id: 4, sender: "agent", message: "This issue needs supervisor attention", time: "10:30 AM" }
-      ]
-    },
-    {
-      id: 3,
-      customer: "Robert Wilson",
-      agent: "Emily Rodriguez",
-      status: "pending",
-      priority: "Medium",
-      lastMessage: "Waiting for technical team response",
-      time: "8 min ago",
-      unread: 1,
-      messages: [
-        { id: 1, sender: "customer", message: "My software keeps crashing", time: "10:20 AM" },
-        { id: 2, sender: "agent", message: "I'll need to check with our technical team.", time: "10:22 AM" },
-        { id: 3, sender: "customer", message: "How long will this take?", time: "10:25 AM" },
-        { id: 4, sender: "agent", message: "Waiting for technical team response", time: "10:27 AM" }
-      ]
-    }
-  ];
+  // Fetch chats
+  useEffect(() => {
+    const fetchChats = async () => {
+      setLoadingChats(true);
+      setError(null);
+      try {
+        const { data, error: fetchError } = await supabase
+          .from('chats')
+          .select('id, customer_id, assigned_agent_id, status, priority, updated_at, subject')
+          .in('status', ['active', 'escalated'])
+          .order('updated_at', { ascending: false });
+        if (fetchError) throw new Error('Failed to fetch chats');
+        // Fetch customer and agent names
+        const customerIds = [...new Set((data || []).map((c: any) => c.customer_id).filter(Boolean))];
+        const agentIds = [...new Set((data || []).map((c: any) => c.assigned_agent_id).filter(Boolean))];
+        const [{ data: customers }, { data: agents }] = await Promise.all([
+          customerIds.length > 0 ? supabase.from('customers').select('id, name').in('id', customerIds) : { data: [] },
+          agentIds.length > 0 ? supabase.from('profiles').select('id, full_name').in('id', agentIds) : { data: [] },
+        ]);
+        const getName = (id: string, arr: any[], key: string) => arr?.find((a: any) => a.id === id)?.[key] || 'Unknown';
+        const mappedChats = (data || []).map((c: any) => ({
+          id: c.id,
+          customer: getName(c.customer_id, customers, 'name'),
+          agent: getName(c.assigned_agent_id, agents, 'full_name'),
+          status: c.status,
+          priority: c.priority,
+          lastMessage: c.subject || '',
+          time: c.updated_at ? new Date(c.updated_at).toLocaleString() : '',
+          unread: 0,
+        }));
+        setChats(mappedChats);
+      } catch (err: any) {
+        setError(err.message || 'Failed to fetch chats');
+      } finally {
+        setLoadingChats(false);
+      }
+    };
+    fetchChats();
+  }, []);
 
-  const selectedChatData = activeChats.find(chat => chat.id === selectedChat);
+  // Fetch messages for selected chat
+  useEffect(() => {
+    if (!selectedChatId) return;
+    const fetchMessages = async () => {
+      setLoadingMessages(true);
+      setError(null);
+      try {
+        const { data, error: fetchError } = await supabase
+          .from('messages')
+          .select('*')
+          .eq('chat_id', selectedChatId)
+          .order('created_at', { ascending: true });
+        if (fetchError) throw new Error('Failed to fetch messages');
+        setMessages(data || []);
+      } catch (err: any) {
+        setError(err.message || 'Failed to fetch messages');
+      } finally {
+        setLoadingMessages(false);
+      }
+    };
+    fetchMessages();
+  }, [selectedChatId]);
 
-  const getPriorityBadge = (priority: string) => {
-    const variants = {
-      'High': 'destructive',
-      'Medium': 'default',
-      'Low': 'secondary'
-    } as const;
-    return <Badge variant={variants[priority as keyof typeof variants]}>{priority}</Badge>;
-  };
+  // Fetch chats assigned to supervisor
+  useEffect(() => {
+    if (!user?.id) return;
+    const fetchMyChats = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('chats')
+          .select('id, customer_id, assigned_agent_id, status, priority, updated_at, subject')
+          .eq('assigned_agent_id', user.id)
+          .in('status', ['active', 'escalated'])
+          .order('updated_at', { ascending: false });
+        if (error) throw new Error('Failed to fetch my chats');
+        // Fetch customer names
+        const customerIds = [...new Set((data || []).map((c: any) => c.customer_id).filter(Boolean))];
+        const { data: customers } = customerIds.length > 0
+          ? await supabase.from('customers').select('id, name').in('id', customerIds)
+          : { data: [] };
+        const getName = (id: string, arr: any[], key: string) => arr?.find((a: any) => a.id === id)?.[key] || 'Unknown';
+        const mappedChats = (data || []).map((c: any) => ({
+          id: c.id,
+          customer: getName(c.customer_id, customers, 'name'),
+          agent: user.id,
+          status: c.status,
+          priority: c.priority,
+          lastMessage: c.subject || '',
+          time: c.updated_at ? new Date(c.updated_at).toLocaleString() : '',
+          unread: 0,
+        }));
+        setMyChats(mappedChats);
+      } catch (err) {
+        setMyChats([]);
+      }
+    };
+    fetchMyChats();
+  }, [user?.id, chats]);
 
-  const getStatusBadge = (status: string) => {
-    const variants = {
-      'active': 'default',
-      'pending': 'secondary',
-      'escalated': 'destructive'
-    } as const;
-    return <Badge variant={variants[status as keyof typeof variants]}>{status}</Badge>;
-  };
-
-  const filteredChats = activeChats.filter(chat => {
+  // Filtered chats
+  const filteredChats = chats.filter(chat => {
     const matchesSearch = chat.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         chat.agent.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         chat.lastMessage.toLowerCase().includes(searchTerm.toLowerCase());
+      chat.agent.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      chat.lastMessage.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filterStatus === 'all' || chat.status === filterStatus;
     return matchesSearch && matchesFilter;
   });
 
-  const handleChatSelect = (chatId: number) => {
-    setSelectedChat(chatId);
-    const chat = activeChats.find(c => c.id === chatId);
-    toast({
-      title: "Chat selected",
-      description: `Viewing conversation between ${chat?.agent} and ${chat?.customer}`,
-    });
-  };
-
-  const handleSendSupervisorMessage = () => {
-    if (supervisorMessage.trim() && selectedChatData) {
-      const newMessage = {
-        id: selectedChatData.messages.length + 1,
-        sender: 'supervisor' as const,
-        message: supervisorMessage.trim(),
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-      
-      // In a real app, this would update the chat data
+  // Send supervisor message
+  const handleSendSupervisorMessage = async () => {
+    if (!supervisorMessage.trim() || !selectedChatId || !user?.id) return;
+    setSending(true);
+    setError(null);
+    try {
+      const supervisorId = user.id;
+      const { error: sendError } = await supabase.from('messages').insert([
+        {
+          chat_id: selectedChatId,
+          sender_id: supervisorId,
+          sender_type: 'supervisor',
+          message_type: 'text',
+          content: supervisorMessage.trim(),
+          created_at: new Date().toISOString(),
+        },
+      ]);
+      if (sendError) throw new Error('Failed to send message');
       setSupervisorMessage('');
-      
       toast({
-        title: "Message sent",
-        description: `Your message has been sent to the conversation between ${selectedChatData.agent} and ${selectedChatData.customer}`,
+        title: 'Message sent',
+        description: 'Your message has been sent as supervisor.',
       });
+      // Refresh messages
+      const { data } = await supabase
+        .from('messages')
+        .select('id, sender_id, sender_type, content, created_at')
+        .eq('chat_id', selectedChatId)
+        .order('created_at', { ascending: true });
+      setMessages(data || []);
+    } catch (err: any) {
+      setError(err.message || 'Failed to send message');
+    } finally {
+      setSending(false);
     }
   };
 
-  const handleTakeOver = () => {
-    if (selectedChatData) {
+  // Take over chat (assign to supervisor)
+  const handleTakeOver = async () => {
+    if (!selectedChatId || !user?.id) return;
+    setError(null);
+    try {
+      const supervisorId = user.id;
+      // Update chat assignment
+      const { error: updateError } = await supabase
+        .from('chats')
+        .update({ assigned_agent_id: supervisorId })
+        .eq('id', selectedChatId);
+      if (updateError) throw new Error('Failed to take over chat');
+      // Log assignment in chat_assignments table
+      const { error: logError } = await supabase
+        .from('chat_assignments')
+        .insert([
+          {
+            chat_id: selectedChatId,
+            agent_id: supervisorId,
+            assigned_by: supervisorId,
+            assigned_at: new Date().toISOString(),
+            is_active: true,
+          },
+        ]);
+      if (logError) throw new Error('Takeover succeeded, but failed to log assignment');
       toast({
-        title: "Chat taken over",
-        description: `You are now handling the conversation with ${selectedChatData.customer}`,
+        title: 'Chat taken over',
+        description: 'You are now handling this conversation.',
       });
-    }
-  };
-
-  const handleEscalateToManager = () => {
-    if (selectedChatData) {
+      // Refresh chats
+      const { data, error: fetchError } = await supabase
+        .from('chats')
+        .select('id, customer_id, assigned_agent_id, status, priority, updated_at, subject')
+        .in('status', ['active', 'escalated'])
+        .order('updated_at', { ascending: false });
+      if (!fetchError) {
+        setChats((data || []).map((c: any) => ({
+          id: c.id,
+          customer: c.customer_id,
+          agent: c.assigned_agent_id,
+          status: c.status,
+          priority: c.priority,
+          lastMessage: c.subject || '',
+          time: c.updated_at ? new Date(c.updated_at).toLocaleString() : '',
+          unread: 0,
+        })));
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to take over chat');
       toast({
-        title: "Escalated to manager",
-        description: `Chat with ${selectedChatData.customer} has been escalated to management`,
+        title: 'Error',
+        description: err.message || 'Failed to take over chat',
+        variant: 'destructive',
       });
     }
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Chat Supervision</h2>
-          <p className="text-gray-600">Monitor and participate in ongoing customer conversations</p>
+    <div className="min-h-screen w-full bg-[#f9fafb] font-sans overflow-x-hidden">
+      {/* Header Row */}
+      <div className="px-4 py-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <Tabs defaultValue="active" className="hidden md:block">
+            <TabsList className="bg-white rounded-xl shadow border flex gap-2">
+              <TabsTrigger value="active" className="font-semibold text-md px-4">Active</TabsTrigger>
+              <TabsTrigger value="escalated" className="font-semibold text-md px-4">Escalated</TabsTrigger>
+            </TabsList>
+          </Tabs>
+          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <MessageSquare className="w-7 h-7 text-blue-500" />
+            Chat Supervision
+          </h2>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="outline">{filteredChats.length} Active Chats</Badge>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="hover:bg-blue-100" onClick={() => window.location.reload()}><RefreshCw className="w-5 h-5" /></Button>
+              </TooltipTrigger>
+              <TooltipContent>Refresh</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="hover:bg-blue-100"><Download className="w-5 h-5" /></Button>
+              </TooltipTrigger>
+              <TooltipContent>Export Report</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Avatar className="w-9 h-9 border-2 border-blue-200">
+                  <AvatarFallback><UserCircle2 className="w-7 h-7 text-blue-400" /></AvatarFallback>
+                </Avatar>
+              </TooltipTrigger>
+              <TooltipContent>Supervisor Profile</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Chat List */}
-        <div className="lg:col-span-1">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MessageSquare className="w-5 h-5" />
-                Active Conversations
-              </CardTitle>
-              <div className="space-y-2">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+      {/* Main 3-Column Layout */}
+      <div className="w-full px-4 h-[calc(100vh-120px)]">
+        <div className="grid grid-cols-12 gap-4 w-full h-full transition-all">
+          {/* Left: Active Conversations */}
+          <div className="col-span-12 md:col-span-3 h-full min-h-0 flex flex-col w-full max-w-none overflow-y-auto transition-all">
+            <Card className="bg-white rounded-2xl shadow-md border-0 flex flex-col h-full">
+              <CardHeader className="p-5 border-b bg-gradient-to-r from-blue-50 to-purple-50 rounded-t-2xl">
+                <CardTitle className="flex items-center gap-2 text-lg font-semibold">
+                  <MessageSquare className="w-5 h-5 text-blue-500" />
+                  Active Conversations
+                </CardTitle>
+                <div className="relative mt-4">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <Input
-                    placeholder="Search chats..."
+                    placeholder="Search by agent, customer, or topic"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
+                    className="pl-12 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-200"
                   />
                 </div>
-                <div className="flex gap-2">
-                  <Button 
-                    variant={filterStatus === 'all' ? 'default' : 'outline'} 
-                    size="sm"
-                    onClick={() => setFilterStatus('all')}
-                  >
-                    All
-                  </Button>
-                  <Button 
-                    variant={filterStatus === 'escalated' ? 'default' : 'outline'} 
-                    size="sm"
-                    onClick={() => setFilterStatus('escalated')}
-                  >
-                    Escalated
-                  </Button>
-                  <Button 
-                    variant={filterStatus === 'pending' ? 'default' : 'outline'} 
-                    size="sm"
-                    onClick={() => setFilterStatus('pending')}
-                  >
-                    Pending
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="space-y-1">
-                {filteredChats.map((chat) => (
-                  <div 
-                    key={chat.id} 
-                    className={`p-4 hover:bg-gray-50 cursor-pointer border-b transition-colors ${
-                      selectedChat === chat.id ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
-                    }`}
-                    onClick={() => handleChatSelect(chat.id)}
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <div>
-                        <h4 className="font-medium text-gray-900">{chat.customer}</h4>
-                        <p className="text-sm text-gray-600">Agent: {chat.agent}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {chat.unread > 0 && (
-                          <Badge variant="destructive" className="text-xs">
-                            {chat.unread}
-                          </Badge>
-                        )}
-                        {getPriorityBadge(chat.priority)}
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-600 truncate mb-2">{chat.lastMessage}</p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-500">{chat.time}</span>
-                      {getStatusBadge(chat.status)}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Chat Interface */}
-        <div className="lg:col-span-2">
-          {selectedChatData ? (
-            <Card className="h-[600px] flex flex-col">
-              <CardHeader className="border-b">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>{selectedChatData.customer}</CardTitle>
-                    <CardDescription>
-                      Handled by {selectedChatData.agent} • {getStatusBadge(selectedChatData.status)} • {getPriorityBadge(selectedChatData.priority)}
-                    </CardDescription>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={handleTakeOver}>
-                      <UserCheck className="w-4 h-4 mr-2" />
-                      Take Over
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={handleEscalateToManager}>
-                      <AlertTriangle className="w-4 h-4 mr-2" />
-                      Escalate
-                    </Button>
-                    <Button variant="ghost" size="sm">
-                      <MoreHorizontal className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
               </CardHeader>
-
-              <CardContent className="flex-1 p-0 flex flex-col">
-                {/* Messages Area */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                  {selectedChatData.messages.map((message) => (
-                    <div key={message.id} className={`flex ${
-                      message.sender === 'agent' || message.sender === 'supervisor' ? 'justify-end' : 'justify-start'
-                    }`}>
-                      <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                        message.sender === 'supervisor' 
-                          ? 'bg-purple-600 text-white border-l-4 border-l-purple-800'
-                          : message.sender === 'agent' 
-                          ? 'bg-blue-600 text-white' 
-                          : 'bg-gray-200 text-gray-900'
-                      }`}>
-                        {message.sender === 'supervisor' && (
-                          <p className="text-xs text-purple-100 mb-1">Supervisor</p>
-                        )}
-                        <p className="text-sm">{message.message}</p>
-                        <p className={`text-xs mt-1 ${
-                          message.sender === 'supervisor' ? 'text-purple-100' :
-                          message.sender === 'agent' ? 'text-blue-100' : 'text-gray-500'
-                        }`}>
-                          {message.time}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Supervisor Message Input */}
-                <div className="p-4 border-t bg-purple-50">
-                  <div className="flex items-center gap-2">
-                    <Input 
-                      placeholder="Send message as supervisor..."
-                      value={supervisorMessage}
-                      onChange={(e) => setSupervisorMessage(e.target.value)}
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault();
-                          handleSendSupervisorMessage();
-                        }
-                      }}
-                      className="flex-1 border-purple-200 focus:border-purple-400"
-                    />
-                    <Button 
-                      size="sm" 
-                      onClick={handleSendSupervisorMessage}
-                      disabled={!supervisorMessage.trim()}
-                      className="bg-purple-600 hover:bg-purple-700"
-                    >
-                      <Send className="w-4 h-4" />
-                    </Button>
+              <CardContent className="p-0 overflow-y-auto flex-1">
+                {loadingChats ? (
+                  <div className="p-8 text-center text-gray-400">Loading chats...</div>
+                ) : error ? (
+                  <div className="p-8 text-center text-red-600">{error}</div>
+                ) : filteredChats.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-16">
+                    <AlertCircle className="w-12 h-12 text-gray-300 mb-4" />
+                    <div className="text-gray-400 text-lg font-medium">No active chats at the moment</div>
                   </div>
-                  <p className="text-xs text-purple-700 mt-1">
-                    Your messages will be marked as supervisor interventions
-                  </p>
-                </div>
+                ) : (
+                  <div className="divide-y">
+                    {filteredChats.map((chat) => (
+                      <div
+                        key={chat.id}
+                        className={`flex items-center gap-3 px-5 py-4 cursor-pointer transition-all rounded-xl ${selectedChatId === chat.id ? 'bg-blue-50 border-l-4 border-blue-500 shadow' : 'hover:bg-gray-50'}`}
+                        onClick={() => setSelectedChatId(chat.id)}
+                      >
+                        <Avatar className="w-10 h-10 bg-blue-100">
+                          <AvatarFallback>{chat.customer?.[0]?.toUpperCase() || '?'}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-gray-900 truncate">{chat.customer}</span>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span>
+                                    <Badge className="text-xs capitalize px-2 py-0.5" variant="outline">
+                                      {chat.priority === 'high' ? <ArrowUpRight className="inline w-3 h-3 text-red-500 mr-1" /> : chat.priority === 'low' ? <ArrowDownRight className="inline w-3 h-3 text-green-500 mr-1" /> : null}
+                                      {chat.priority}
+                                    </Badge>
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent>Priority: {chat.priority}</TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span>
+                                    <Badge className={`text-xs capitalize px-2 py-0.5 ${chat.status === 'active' ? 'bg-green-100 text-green-800' : chat.status === 'escalated' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'}`}>
+                                      {chat.status === 'active' ? <CheckCircle2 className="inline w-3 h-3 mr-1 text-green-500" /> : chat.status === 'escalated' ? <AlertCircle className="inline w-3 h-3 mr-1 text-yellow-500" /> : null}
+                                      {chat.status}
+                                    </Badge>
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent>Status: {chat.status}</TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                          <p className="text-xs text-gray-500 truncate max-w-xs">{chat.lastMessage}</p>
+                          <p className="text-xs text-gray-400 mt-1">{chat.time}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
-          ) : (
-            <Card className="h-[600px] flex items-center justify-center">
-              <div className="text-center">
-                <Eye className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500">Select a conversation to monitor and participate</p>
-              </div>
+          </div>
+          {/* Center: Conversation Panel */}
+          <div className="col-span-12 md:col-span-6 h-full min-h-0 flex flex-col w-full max-w-none overflow-y-auto transition-all">
+            <Card className="bg-white rounded-2xl shadow-md border-0 flex flex-col h-full min-h-[520px]">
+              <CardHeader className="rounded-t-2xl p-6 border-b bg-gradient-to-r from-purple-50 to-blue-50 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                <div>
+                  <CardTitle className="text-lg font-bold">Conversation</CardTitle>
+                  <CardDescription className="text-gray-500">View and participate in the selected chat</CardDescription>
+                </div>
+                {selectedChatId && (
+                  <div className="flex items-center gap-2 mt-2 md:mt-0">
+                    <Button variant="outline" size="sm" onClick={handleTakeOver} className="font-bold border-2 border-blue-500 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-50">
+                      Take Over
+                    </Button>
+                    <Button variant="outline" size="sm" className="font-bold border-2 border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50">
+                      End Chat
+                    </Button>
+                    <Button variant="outline" size="sm" className="font-bold border-2 border-yellow-400 text-yellow-700 px-4 py-2 rounded-lg hover:bg-yellow-50">
+                      Escalate
+                    </Button>
+                  </div>
+                )}
+              </CardHeader>
+              <CardContent className="flex-1 flex flex-col justify-between p-6 min-h-[400px]">
+                {!selectedChatId ? (
+                  <div className="flex flex-col items-center justify-center h-full py-16">
+                    <Eye className="w-16 h-16 text-blue-200 mb-6" />
+                    <div className="text-gray-400 text-xl font-semibold mb-2">No conversation selected</div>
+                    <div className="text-gray-500 text-md">Select a conversation to supervise or participate.</div>
+                  </div>
+                ) : loadingMessages ? (
+                  <div className="text-gray-400 text-center my-24 text-lg">Loading messages...</div>
+                ) : error ? (
+                  <div className="text-red-600 text-center my-24 text-lg">{error}</div>
+                ) : (
+                  <div className="flex flex-col h-full">
+                    <div className="flex-1 overflow-y-auto space-y-4 pb-4 max-h-[340px]">
+                      {messages.map((msg) => (
+                        <div key={msg.id} className={`flex ${msg.sender_type === 'supervisor' ? 'justify-end' : 'justify-start'}`}>
+                          <div className={`rounded-2xl px-5 py-3 shadow-sm ${msg.sender_type === 'supervisor' ? 'bg-gradient-to-r from-purple-200 to-blue-200 text-purple-900' : 'bg-gray-100 text-gray-900'}`} style={{ maxWidth: '70%' }}>
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-xs font-semibold uppercase tracking-wide">
+                                {msg.sender_type.charAt(0).toUpperCase() + msg.sender_type.slice(1)}
+                              </span>
+                              {msg.sender_type === 'supervisor' && (
+                                <span className="ml-2 px-2 py-0.5 rounded-full bg-purple-500 text-white text-xs font-bold">Supervisor</span>
+                              )}
+                            </div>
+                            <p className="text-base break-words">{msg.content}</p>
+                            <p className="text-xs text-gray-500 mt-2 text-right">{msg.created_at ? new Date(msg.created_at).toLocaleTimeString() : ''}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    {/* Sticky Message Input */}
+                    <div className="flex items-center gap-3 mt-6 sticky bottom-0 bg-white py-4 rounded-b-2xl border-t">
+                      <Input
+                        placeholder="Send message as supervisor..."
+                        value={supervisorMessage}
+                        onChange={(e) => setSupervisorMessage(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') handleSendSupervisorMessage(); }}
+                        disabled={sending}
+                        className="flex-1 px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-200"
+                      />
+                      <Button onClick={handleSendSupervisorMessage} disabled={!supervisorMessage.trim() || sending} className="bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg rounded-lg px-6 py-3 text-lg">
+                        <Send className="w-5 h-5" />
+                      </Button>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-2 text-center">Your messages will be marked as supervisor interventions</p>
+                  </div>
+                )}
+              </CardContent>
             </Card>
-          )}
+          </div>
+          {/* Right: My Chats */}
+          <div className="col-span-12 md:col-span-3 h-full min-h-0 flex flex-col w-full max-w-none overflow-y-auto transition-all">
+            <Card className="bg-white rounded-2xl shadow-md border-0 flex flex-col h-full">
+              <CardHeader className="p-5 border-b bg-gradient-to-r from-green-50 to-blue-50 rounded-t-2xl">
+                <CardTitle className="flex items-center gap-2 text-lg font-semibold">
+                  <UserCheck className="w-5 h-5 text-green-500" />
+                  My Chats
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0 overflow-y-auto flex-1">
+                {myChats.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-16">
+                    <AlertCircle className="w-12 h-12 text-gray-300 mb-4" />
+                    <div className="text-gray-400 text-lg font-medium">You have no assigned chats</div>
+                  </div>
+                ) : (
+                  <div className="divide-y">
+                    {myChats.map((chat) => (
+                      <div
+                        key={chat.id}
+                        className={`flex items-center gap-3 px-5 py-4 cursor-pointer transition-all rounded-xl ${selectedChatId === chat.id ? 'bg-green-50 border-l-4 border-green-500 shadow' : 'hover:bg-gray-50'}`}
+                        onClick={() => setSelectedChatId(chat.id)}
+                      >
+                        <Avatar className="w-10 h-10 bg-green-100">
+                          <AvatarFallback>{chat.customer?.[0]?.toUpperCase() || '?'}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-gray-900 truncate">{chat.customer}</span>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span>
+                                    <Badge className="text-xs capitalize px-2 py-0.5" variant="outline">
+                                      {chat.priority === 'high' ? <ArrowUpRight className="inline w-3 h-3 text-red-500 mr-1" /> : chat.priority === 'low' ? <ArrowDownRight className="inline w-3 h-3 text-green-500 mr-1" /> : null}
+                                      {chat.priority}
+                                    </Badge>
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent>Priority: {chat.priority}</TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span>
+                                    <Badge className={`text-xs capitalize px-2 py-0.5 ${chat.status === 'active' ? 'bg-green-100 text-green-800' : chat.status === 'escalated' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'}`}>
+                                      {chat.status === 'active' ? <CheckCircle2 className="inline w-3 h-3 mr-1 text-green-500" /> : chat.status === 'escalated' ? <AlertCircle className="inline w-3 h-3 mr-1 text-yellow-500" /> : null}
+                                      {chat.status}
+                                    </Badge>
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent>Status: {chat.status}</TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                          <p className="text-xs text-gray-500 truncate max-w-xs">{chat.lastMessage}</p>
+                          <p className="text-xs text-gray-400 mt-1">{chat.time}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>

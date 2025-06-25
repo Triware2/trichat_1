@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -21,84 +20,85 @@ import {
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ChatRule } from './types';
+import { supabase } from '@/integrations/supabase/client';
 
 export const ChatRules = () => {
-  const [rules, setRules] = useState<ChatRule[]>([
-    {
-      id: '1',
-      name: 'VIP Customer Priority',
-      conditions: {
-        customerType: 'vip',
-        channel: ['website', 'whatsapp']
-      },
-      actions: {
-        priority: 'high',
-        assignTo: 'senior_agent',
-        autoResponse: 'Thank you for contacting us! A senior agent will assist you immediately.',
-        tag: ['vip', 'priority']
-      },
-      enabled: true,
-      createdAt: '2024-01-15'
-    },
-    {
-      id: '2',
-      name: 'After Hours Auto Response',
-      conditions: {
-        timeRange: {
-          start: '18:00',
-          end: '09:00'
-        }
-      },
-      actions: {
-        autoResponse: 'We are currently closed. Our business hours are 9 AM to 6 PM. We will respond to your message during business hours.',
-        tag: ['after_hours']
-      },
-      enabled: true,
-      createdAt: '2024-01-14'
-    },
-    {
-      id: '3',
-      name: 'Billing Keywords Escalation',
-      conditions: {
-        keywords: ['billing', 'payment', 'refund', 'charge'],
-        sentiment: 'negative'
-      },
-      actions: {
-        escalate: true,
-        assignTo: 'billing_specialist',
-        priority: 'high',
-        tag: ['billing', 'escalated']
-      },
-      enabled: true,
-      createdAt: '2024-01-13'
-    },
-    {
-      id: '4',
-      name: 'New Customer Welcome',
-      conditions: {
-        customerType: 'new'
-      },
-      actions: {
-        autoResponse: 'Welcome! We\'re excited to help you. A dedicated agent will be with you shortly.',
-        tag: ['new_customer', 'welcome'],
-        priority: 'medium'
-      },
-      enabled: false,
-      createdAt: '2024-01-12'
-    }
-  ]);
-
+  const [rules, setRules] = useState<ChatRule[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedRule, setSelectedRule] = useState<ChatRule | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
-  const toggleRule = (ruleId: string) => {
-    setRules(prev => prev.map(rule => 
-      rule.id === ruleId ? { ...rule, enabled: !rule.enabled } : rule
-    ));
+  // Fetch rules from Supabase
+  useEffect(() => {
+    const fetchRules = async () => {
+      setLoading(true);
+      setError(null);
+      const { data, error } = await supabase.from('chat_rules').select('*');
+      if (error) {
+        setError('Failed to fetch rules');
+        setLoading(false);
+        return;
+      }
+      setRules(data || []);
+      setLoading(false);
+    };
+    fetchRules();
+  }, []);
+
+  // Add Rule
+  const addRule = async (rule: ChatRule) => {
+    setLoading(true);
+    setError(null);
+    const { error } = await supabase.from('chat_rules').insert(rule);
+    if (error) {
+      setError('Failed to add rule');
+      setLoading(false);
+      return;
+    }
+    // Refetch rules
+    const { data } = await supabase.from('chat_rules').select('*');
+    setRules(data || []);
+    setLoading(false);
   };
 
-  const deleteRule = (ruleId: string) => {
-    setRules(prev => prev.filter(rule => rule.id !== ruleId));
+  // Update Rule
+  const updateRule = async (rule: ChatRule) => {
+    setLoading(true);
+    setError(null);
+    const { error } = await supabase.from('chat_rules').update(rule).eq('id', rule.id);
+    if (error) {
+      setError('Failed to update rule');
+      setLoading(false);
+      return;
+    }
+    // Refetch rules
+    const { data } = await supabase.from('chat_rules').select('*');
+    setRules(data || []);
+    setLoading(false);
+  };
+
+  // Delete Rule
+  const deleteRule = async (ruleId: string) => {
+    setLoading(true);
+    setError(null);
+    const { error } = await supabase.from('chat_rules').delete().eq('id', ruleId);
+    if (error) {
+      setError('Failed to delete rule');
+      setLoading(false);
+      return;
+    }
+    // Refetch rules
+    const { data } = await supabase.from('chat_rules').select('*');
+    setRules(data || []);
+    setLoading(false);
+  };
+
+  // Toggle Rule
+  const toggleRule = async (ruleId: string) => {
+    const rule = rules.find((r) => r.id === ruleId);
+    if (!rule) return;
+    await updateRule({ ...rule, enabled: !rule.enabled });
   };
 
   const getPriorityColor = (priority?: string) => {

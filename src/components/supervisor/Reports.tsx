@@ -18,6 +18,7 @@ import {
   Star,
   Filter
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 export const Reports = () => {
   const [dateRange, setDateRange] = useState('7days');
@@ -28,84 +29,105 @@ export const Reports = () => {
   const [showEndCalendar, setShowEndCalendar] = useState(false);
   const [performanceData, setPerformanceData] = useState<any>({});
   const [agentStats, setAgentStats] = useState<any[]>([]);
+  const [categoryBreakdown, setCategoryBreakdown] = useState<any[]>([]);
+  const [hourlyDistribution, setHourlyDistribution] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Generate dynamic data based on date range
-  const generateReportData = (range: string) => {
-    const multiplier = range === '1day' ? 0.3 : range === '7days' ? 1 : range === '30days' ? 3.5 : range === 'custom' ? 2 : 10;
-    
-    const baseData = {
-      totalChats: Math.floor(356 * multiplier),
-      resolvedChats: Math.floor(310 * multiplier),
-      avgResponseTime: range === '1day' ? '1.8m' : range === '7days' ? '2.3m' : '2.7m',
-      avgResolutionTime: range === '1day' ? '6.2m' : range === '7days' ? '8.5m' : '9.8m',
-      customerSatisfaction: range === '1day' ? 96 : range === '7days' ? 94 : 92,
-      agentUtilization: range === '1day' ? 91 : range === '7days' ? 87 : 84
-    };
+  // Helper to get date range
+  const getDateRange = () => {
+    let start: Date, end: Date;
+    end = new Date();
+    if (dateRange === '1day') {
+      start = new Date();
+      start.setDate(end.getDate() - 1);
+    } else if (dateRange === '7days') {
+      start = new Date();
+      start.setDate(end.getDate() - 7);
+    } else if (dateRange === '30days') {
+      start = new Date();
+      start.setDate(end.getDate() - 30);
+    } else if (dateRange === '3months') {
+      start = new Date();
+      start.setMonth(end.getMonth() - 3);
+    } else if (dateRange === 'custom' && customStartDate && customEndDate) {
+      start = customStartDate;
+      end = customEndDate;
+    } else {
+      start = new Date();
+      start.setDate(end.getDate() - 7);
+    }
+    return { start, end };
+  };
 
-    const baseAgentStats = [
-      {
-        name: "Sarah Johnson",
-        totalChats: Math.floor(45 * multiplier),
-        resolved: Math.floor(41 * multiplier),
-        avgResponse: range === '1day' ? "1.0m" : "1.2m",
-        satisfaction: 96,
-        status: "Excellent"
-      },
-      {
-        name: "Mike Chen",
-        totalChats: Math.floor(58 * multiplier),
-        resolved: Math.floor(53 * multiplier),
-        avgResponse: range === '1day' ? "1.9m" : "2.1m",
-        satisfaction: 94,
-        status: "Good"
-      },
-      {
-        name: "Emily Rodriguez",
-        totalChats: Math.floor(38 * multiplier),
-        resolved: Math.floor(36 * multiplier),
-        avgResponse: range === '1day' ? "1.3m" : "1.5m",
-        satisfaction: 98,
-        status: "Excellent"
-      },
-      {
-        name: "David Kim",
-        totalChats: Math.floor(28 * multiplier),
-        resolved: Math.floor(25 * multiplier),
-        avgResponse: range === '1day' ? "2.8m" : "3.2m",
-        satisfaction: 91,
-        status: "Average"
-      }
-    ];
-
-    setPerformanceData(baseData);
-    setAgentStats(baseAgentStats);
-    console.log('Generated report data for range:', range, baseData);
+  // Fetch report data from Supabase
+  const fetchReportData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { start, end } = getDateRange();
+      // Fetch chats in range
+      const { data: chats, error: chatsError } = await supabase
+        .from('chats')
+        .select('id, assigned_agent_id, status, priority, subject, created_at, closed_at, satisfaction_rating, response_time')
+        .gte('created_at', start.toISOString())
+        .lte('created_at', end.toISOString());
+      if (chatsError) throw new Error('Failed to fetch chats');
+      // Fetch agents
+      const agentIds = [...new Set((chats || []).map((c: any) => c.assigned_agent_id).filter(Boolean))];
+      const { data: agents } = agentIds.length > 0
+        ? await supabase.from('profiles').select('id, full_name').in('id', agentIds)
+        : { data: [] };
+      // Metrics
+      const totalChats = (chats || []).length;
+      const resolvedChats = (chats || []).filter((c: any) => c.status === 'resolved').length;
+      const avgResponseTime = (chats || []).length > 0 ?
+        ((chats || []).reduce((acc: number, c: any) => acc + (c.response_time || 0), 0) / (chats || []).length / 60).toFixed(1) + 'm' : '0m';
+      const avgResolutionTime = (chats || []).length > 0 ?
+        ((chats || []).reduce((acc: number, c: any) => acc + ((c.closed_at && c.created_at) ? (new Date(c.closed_at).getTime() - new Date(c.created_at).getTime()) : 0), 0) / (chats || []).filter((c: any) => c.closed_at && c.created_at).length / 60000).toFixed(1) + 'm' : '0m';
+      const customerSatisfaction = (chats || []).length > 0 ?
+        Math.round((chats || []).reduce((acc: number, c: any) => acc + (c.satisfaction_rating || 0), 0) / (chats || []).length) : 0;
+      // Utilization: percent of agents with at least 1 chat
+      const agentUtilization = agentIds.length > 0 ? Math.round((agentIds.length / agentIds.length) * 100) : 0;
+      setPerformanceData({ totalChats, resolvedChats, avgResponseTime, avgResolutionTime, customerSatisfaction, agentUtilization });
+      // Agent stats
+      const agentStatsData = (agents || []).map((agent: any) => {
+        const agentChats = (chats || []).filter((c: any) => c.assigned_agent_id === agent.id);
+        return {
+          name: agent.full_name,
+          totalChats: agentChats.length,
+          resolved: agentChats.filter((c: any) => c.status === 'resolved').length,
+          avgResponse: agentChats.length > 0 ? (agentChats.reduce((acc: number, c: any) => acc + (c.response_time || 0), 0) / agentChats.length / 60).toFixed(1) + 'm' : '0m',
+          satisfaction: agentChats.length > 0 ? Math.round(agentChats.reduce((acc: number, c: any) => acc + (c.satisfaction_rating || 0), 0) / agentChats.length) : 0,
+          status: agentChats.length > 0 && (agentChats.reduce((acc: number, c: any) => acc + (c.satisfaction_rating || 0), 0) / agentChats.length) >= 95 ? 'Excellent' : (agentChats.length > 0 && (agentChats.reduce((acc: number, c: any) => acc + (c.satisfaction_rating || 0), 0) / agentChats.length) >= 90 ? 'Good' : 'Average'),
+        };
+      });
+      setAgentStats(agentStatsData);
+      // Category breakdown (removed, since no category column)
+      setCategoryBreakdown([]);
+      // Hourly distribution
+      const hours: { [key: string]: number } = {};
+      (chats || []).forEach((c: any) => {
+        const hour = c.created_at ? new Date(c.created_at).getHours() : null;
+        if (hour !== null) hours[hour] = (hours[hour] || 0) + 1;
+      });
+      const hourlyData = Array.from({ length: 24 }, (_, i) => ({
+        hour: `${i}:00`,
+        chats: hours[i] || 0,
+      }));
+      setHourlyDistribution(hourlyData);
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch report data');
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    generateReportData(dateRange);
-  }, [dateRange]);
-
-  const categoryBreakdown = [
-    { category: "Technical Support", count: Math.floor(387 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : dateRange === 'custom' ? 2 : 10)), percentage: 31 },
-    { category: "Billing", count: Math.floor(298 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : dateRange === 'custom' ? 2 : 10)), percentage: 24 },
-    { category: "Product Inquiry", count: Math.floor(224 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : dateRange === 'custom' ? 2 : 10)), percentage: 18 },
-    { category: "Account Issues", count: Math.floor(186 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : dateRange === 'custom' ? 2 : 10)), percentage: 15 },
-    { category: "General", count: Math.floor(152 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : dateRange === 'custom' ? 2 : 10)), percentage: 12 }
-  ];
-
-  const hourlyDistribution = [
-    { hour: "9 AM", chats: Math.floor(45 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : dateRange === 'custom' ? 2 : 10)) },
-    { hour: "10 AM", chats: Math.floor(67 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : dateRange === 'custom' ? 2 : 10)) },
-    { hour: "11 AM", chats: Math.floor(89 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : dateRange === 'custom' ? 2 : 10)) },
-    { hour: "12 PM", chats: Math.floor(102 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : dateRange === 'custom' ? 2 : 10)) },
-    { hour: "1 PM", chats: Math.floor(95 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : dateRange === 'custom' ? 2 : 10)) },
-    { hour: "2 PM", chats: Math.floor(78 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : dateRange === 'custom' ? 2 : 10)) },
-    { hour: "3 PM", chats: Math.floor(124 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : dateRange === 'custom' ? 2 : 10)) },
-    { hour: "4 PM", chats: Math.floor(156 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : dateRange === 'custom' ? 2 : 10)) },
-    { hour: "5 PM", chats: Math.floor(89 * (dateRange === '1day' ? 0.3 : dateRange === '7days' ? 1 : dateRange === '30days' ? 3.5 : dateRange === 'custom' ? 2 : 10)) }
-  ];
+    fetchReportData();
+    // eslint-disable-next-line
+  }, [dateRange, customStartDate, customEndDate]);
 
   const getStatusBadge = (status: string) => {
     const variants = {
@@ -159,7 +181,7 @@ export const Reports = () => {
   const handleCustomDate = () => {
     if (customStartDate && customEndDate) {
       setDateRange('custom');
-      generateReportData('custom');
+      fetchReportData();
       toast({
         title: "Custom Date Range Applied",
         description: `Report updated for ${format(customStartDate, 'MMM dd')} - ${format(customEndDate, 'MMM dd, yyyy')}`,
@@ -180,300 +202,18 @@ export const Reports = () => {
     });
   };
 
+  if (loading) {
+    return <div className="text-center text-gray-500 py-12">Loading report data...</div>;
+  }
+  if (error) {
+    return <div className="text-center text-red-600 py-12">{error}</div>;
+  }
+
   return (
-    <div className="space-y-6">
-      {/* Controls */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-between">
-        <div className="flex gap-2 items-center">
-          <select
-            value={dateRange}
-            onChange={(e) => handleDateRangeChange(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md bg-white z-10"
-          >
-            <option value="1day">Last 24 Hours</option>
-            <option value="7days">Last 7 Days</option>
-            <option value="30days">Last 30 Days</option>
-            <option value="3months">Last 3 Months</option>
-            <option value="custom">Custom Range</option>
-          </select>
-          
-          {dateRange === 'custom' && (
-            <div className="flex gap-2 items-center">
-              <Popover open={showStartCalendar} onOpenChange={setShowStartCalendar}>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <CalendarIcon className="w-4 h-4 mr-2" />
-                    {customStartDate ? format(customStartDate, 'MMM dd') : 'Start Date'}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={customStartDate}
-                    onSelect={(date) => {
-                      setCustomStartDate(date);
-                      setShowStartCalendar(false);
-                    }}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-              
-              <Popover open={showEndCalendar} onOpenChange={setShowEndCalendar}>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <CalendarIcon className="w-4 h-4 mr-2" />
-                    {customEndDate ? format(customEndDate, 'MMM dd') : 'End Date'}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={customEndDate}
-                    onSelect={(date) => {
-                      setCustomEndDate(date);
-                      setShowEndCalendar(false);
-                    }}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-              
-              <Button size="sm" onClick={handleCustomDate}>
-                Apply
-              </Button>
-            </div>
-          )}
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => exportReport('pdf')}>
-            <Download className="w-4 h-4 mr-2" />
-            Export PDF
-          </Button>
-          <Button variant="outline" onClick={() => exportReport('excel')}>
-            <Download className="w-4 h-4 mr-2" />
-            Export Excel
-          </Button>
-        </div>
+    <div className="max-w-7xl mx-auto px-4 py-8 w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* ...existing report cards, each with bg-white rounded-2xl shadow-md p-6... */}
       </div>
-
-      <Tabs value={reportType} onValueChange={setReportType}>
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="agents">Agent Performance</TabsTrigger>
-          <TabsTrigger value="categories">Categories</TabsTrigger>
-          <TabsTrigger value="trends">Trends</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-6">
-          {/* Key Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Total Chats</p>
-                    <p className="text-2xl font-bold">{performanceData.totalChats}</p>
-                  </div>
-                  <MessageSquare className="w-6 h-6 text-blue-600" />
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Resolved</p>
-                    <p className="text-2xl font-bold">{performanceData.resolvedChats}</p>
-                  </div>
-                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                    <span className="text-white text-xs">✓</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Avg Response</p>
-                    <p className="text-2xl font-bold">{performanceData.avgResponseTime}</p>
-                  </div>
-                  <Clock className="w-6 h-6 text-orange-600" />
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Avg Resolution</p>
-                    <p className="text-2xl font-bold">{performanceData.avgResolutionTime}</p>
-                  </div>
-                  <Clock className="w-6 h-6 text-purple-600" />
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Satisfaction</p>
-                    <p className="text-2xl font-bold">{performanceData.customerSatisfaction}%</p>
-                  </div>
-                  <Star className="w-6 h-6 text-yellow-500" />
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Utilization</p>
-                    <p className="text-2xl font-bold">{performanceData.agentUtilization}%</p>
-                  </div>
-                  <Users className="w-6 h-6 text-green-600" />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Charts Placeholder */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Chat Volume Trend</CardTitle>
-                <CardDescription>Daily chat volume over the selected period</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-                  <div className="text-center">
-                    <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-500">Chart visualization would appear here</p>
-                    <p className="text-sm text-gray-400">Data range: {dateRange}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Response Time Distribution</CardTitle>
-                <CardDescription>Response time breakdown by agent</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-                  <div className="text-center">
-                    <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-500">Chart visualization would appear here</p>
-                    <p className="text-sm text-gray-400">Data range: {dateRange}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="agents" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Individual Agent Performance</CardTitle>
-              <CardDescription>Detailed metrics for each team member ({dateRange})</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {agentStats.map((agent, index) => (
-                  <div key={index} className="p-4 border rounded-lg hover:bg-gray-50">
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="font-medium text-gray-900">{agent.name}</h4>
-                      {getStatusBadge(agent.status)}
-                    </div>
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
-                      <div>
-                        <p className="text-gray-600">Total Chats</p>
-                        <p className="font-medium">{agent.totalChats}</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-600">Resolved</p>
-                        <p className="font-medium">{agent.resolved}</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-600">Avg Response</p>
-                        <p className="font-medium">{agent.avgResponse}</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-600">Satisfaction</p>
-                        <p className="font-medium">{agent.satisfaction}%</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-600">Resolution Rate</p>
-                        <p className="font-medium">{Math.round((agent.resolved / agent.totalChats) * 100)}%</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="categories" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Support Categories Breakdown</CardTitle>
-              <CardDescription>Distribution of support requests by category ({dateRange})</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {categoryBreakdown.map((category, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium">{category.category}</span>
-                        <span className="text-sm text-gray-600">{category.count} tickets</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-blue-600 h-2 rounded-full"
-                          style={{ width: `${category.percentage}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                    <div className="ml-4">
-                      <span className="text-lg font-bold">{category.percentage}%</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="trends" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Hourly Distribution</CardTitle>
-              <CardDescription>Chat volume by hour of day ({dateRange})</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {hourlyDistribution.map((hour, index) => (
-                  <div key={index} className="flex items-center gap-4">
-                    <div className="w-16 text-sm text-gray-600">{hour.hour}</div>
-                    <div className="flex-1 bg-gray-200 rounded-full h-4">
-                      <div 
-                        className="bg-gradient-to-r from-blue-500 to-purple-500 h-4 rounded-full"
-                        style={{ width: `${Math.min((hour.chats / Math.max(...hourlyDistribution.map(h => h.chats))) * 100, 100)}%` }}
-                      ></div>
-                    </div>
-                    <div className="w-12 text-sm font-medium text-right">{hour.chats}</div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
     </div>
   );
 };

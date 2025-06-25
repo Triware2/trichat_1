@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from '@/components/ui/card';
 import { LucideIcon } from 'lucide-react';
 
@@ -26,14 +25,14 @@ export const DashboardStats = ({ stats, onStatClick }: DashboardStatsProps) => {
           <CardContent className="p-6">
             <div className="flex items-start justify-between">
               <div className="space-y-2">
-                <p className="text-sm font-medium text-slate-600 uppercase tracking-wide">
+                <p className="text-sm font-medium text-slate-600 uppercase tracking-wide font-roboto">
                   {stat.title}
                 </p>
-                <p className="text-3xl font-bold text-slate-900 group-hover:text-slate-700 transition-colors">
+                <p className="text-3xl font-extrabold text-black group-hover:text-slate-900 transition-colors">
                   {stat.value}
                 </p>
                 <div className="flex items-center text-sm text-emerald-600">
-                  <span className="font-medium">+12%</span>
+                  <span className="font-bold">+12%</span>
                   <span className="text-slate-500 ml-1">vs last month</span>
                 </div>
               </div>

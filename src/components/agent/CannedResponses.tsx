@@ -1,345 +1,304 @@
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useEffect, useMemo } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/use-auth';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
-import { 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Save, 
-  X,
-  MessageSquare,
-  Tag,
-  Search
-} from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose } from '@/components/ui/dialog';
+import { Plus, Search, MessageSquare, Tag, Trash2, Edit, XCircle } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-interface CannedResponse {
+// This interface now matches the database schema
+export interface CannedResponse {
   id: number;
+  user_id: string;
   title: string;
   message: string;
-  category: string;
-  createdAt: string;
+  category: string | null;
+  created_at: string;
 }
 
 interface CannedResponsesProps {
-  onSelectResponse?: (response: CannedResponse) => void;
-  isSelectionMode?: boolean;
+  onSelectResponse?: (responseText: string) => void;
+  className?: string;
 }
 
-export const CannedResponses = ({ onSelectResponse, isSelectionMode = false }: CannedResponsesProps) => {
+export const CannedResponses = ({ onSelectResponse, className }: CannedResponsesProps) => {
   const { toast } = useToast();
-
-  const [responses, setResponses] = useState<CannedResponse[]>([
-    {
-      id: 1,
-      title: "Welcome Message",
-      message: "Hello! Thank you for contacting us. I'm here to help you with any questions or concerns you may have.",
-      category: "greeting",
-      createdAt: "2024-01-15"
-    },
-    {
-      id: 2,
-      title: "Order Status Check",
-      message: "I'd be happy to check your order status for you. Could you please provide me with your order number?",
-      category: "orders",
-      createdAt: "2024-01-15"
-    },
-    {
-      id: 3,
-      title: "Refund Process",
-      message: "I understand you'd like to request a refund. Let me review your order details and guide you through the refund process.",
-      category: "refunds",
-      createdAt: "2024-01-16"
-    },
-    {
-      id: 4,
-      title: "Technical Support",
-      message: "I see you're experiencing a technical issue. Let me help you troubleshoot this problem step by step.",
-      category: "technical",
-      createdAt: "2024-01-16"
-    },
-    {
-      id: 5,
-      title: "Account Access",
-      message: "I'm sorry to hear you're having trouble accessing your account. Let me help you resolve this issue quickly.",
-      category: "account",
-      createdAt: "2024-01-17"
-    }
-  ]);
-
-  const [isCreating, setIsCreating] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [newResponse, setNewResponse] = useState({
-    title: '',
-    message: '',
-    category: ''
-  });
+  const { user } = useAuth();
+  const [responses, setResponses] = useState<CannedResponse[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingResponse, setEditingResponse] = useState<CannedResponse | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [showMineOnly, setShowMineOnly] = useState(true); // Default to "My Responses"
 
-  const categories = ['all', 'greeting', 'orders', 'refunds', 'technical', 'account', 'closing'];
+  useEffect(() => {
+    fetchResponses();
+  }, [user]); // Refetch if user changes
 
-  const handleCreate = () => {
-    if (!newResponse.title.trim() || !newResponse.message.trim()) {
+  const fetchResponses = async () => {
+    if (!user) return;
+    setIsLoading(true);
+    
+    const { data, error } = await supabase
+      .from('canned_responses')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
       toast({
-        title: "Missing Information",
-        description: "Please fill in both title and message fields.",
-        variant: "destructive"
+        title: 'Error fetching responses',
+        description: error.message,
+        variant: 'destructive',
       });
+      console.error("Error fetching responses:", error);
+    } else {
+      setResponses(data || []);
+    }
+    setIsLoading(false);
+  };
+
+  const filteredResponses = useMemo(() => {
+    return responses.filter(response => {
+      const matchesOwner = !showMineOnly || response.user_id === user?.id;
+      const matchesCategory = selectedCategory === 'All' || response.category === selectedCategory;
+      const matchesSearch = searchTerm === '' ||
+        response.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        response.message.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesOwner && matchesCategory && matchesSearch;
+    });
+  }, [responses, showMineOnly, selectedCategory, searchTerm, user]);
+
+  const allCategories = useMemo(() => {
+    const categories = new Set(responses.map(r => r.category).filter(Boolean) as string[]);
+    return ['All', ...categories];
+  }, [responses]);
+
+  const handleSaveResponse = async (formData: { title: string; message: string; category: string; }) => {
+    if (!user) {
+        toast({ title: 'You must be logged in', variant: 'destructive' });
       return;
     }
 
-    const response: CannedResponse = {
-      id: responses.length + 1,
-      title: newResponse.title,
-      message: newResponse.message,
-      category: newResponse.category || 'general',
-      createdAt: new Date().toISOString().split('T')[0]
+    const responseData = {
+        user_id: user.id,
+        title: formData.title,
+        message: formData.message,
+        category: formData.category || null,
     };
 
-    setResponses([...responses, response]);
-    setNewResponse({ title: '', message: '', category: '' });
-    setIsCreating(false);
-    
-    toast({
-      title: "Response Created",
-      description: "Your canned response has been created successfully.",
-    });
-  };
+    const { error } = editingResponse
+        ? await supabase.from('canned_responses').update(responseData).eq('id', editingResponse.id)
+        : await supabase.from('canned_responses').insert(responseData);
 
-  const handleEdit = (id: number) => {
-    const response = responses.find(r => r.id === id);
-    if (response) {
-      setNewResponse({
-        title: response.title,
-        message: response.message,
-        category: response.category
-      });
-      setEditingId(id);
+    if (error) {
+        toast({ title: 'Failed to save response', description: error.message, variant: 'destructive' });
+    } else {
+        toast({ title: `Response ${editingResponse ? 'updated' : 'created'}`, description: 'Your response has been saved successfully.' });
+        await fetchResponses(); // Refresh the list
+        setIsDialogOpen(false);
+        setEditingResponse(null);
     }
   };
 
-  const handleUpdate = () => {
-    if (!newResponse.title.trim() || !newResponse.message.trim()) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in both title and message fields.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setResponses(responses.map(r => 
-      r.id === editingId 
-        ? { ...r, title: newResponse.title, message: newResponse.message, category: newResponse.category }
-        : r
-    ));
-    setNewResponse({ title: '', message: '', category: '' });
-    setEditingId(null);
-    
-    toast({
-      title: "Response Updated",
-      description: "Your canned response has been updated successfully.",
-    });
-  };
-
-  const handleDelete = (id: number) => {
-    setResponses(responses.filter(r => r.id !== id));
-    toast({
-      title: "Response Deleted",
-      description: "The canned response has been deleted.",
-    });
-  };
-
-  const handleSelect = (response: CannedResponse) => {
-    if (onSelectResponse) {
-      onSelectResponse(response);
-      toast({
-        title: "Response Selected",
-        description: "The canned response has been added to your message.",
-      });
+  const handleDeleteResponse = async (id: number) => {
+    const { error } = await supabase.from('canned_responses').delete().eq('id', id);
+    if (error) {
+        toast({ title: 'Failed to delete response', description: error.message, variant: 'destructive' });
+    } else {
+        toast({ title: 'Response deleted', description: 'The response has been removed.' });
+        await fetchResponses();
     }
   };
 
-  const filteredResponses = responses.filter(response => {
-    const matchesSearch = response.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         response.message.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || response.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const openEditDialog = (response: CannedResponse) => {
+    setEditingResponse(response);
+    setIsDialogOpen(true);
+  };
 
-  const getCategoryColor = (category: string) => {
-    const colors = {
-      greeting: 'bg-green-100 text-green-800 border-green-200',
-      orders: 'bg-blue-100 text-blue-800 border-blue-200',
-      refunds: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      technical: 'bg-red-100 text-red-800 border-red-200',
-      account: 'bg-purple-100 text-purple-800 border-purple-200',
-      closing: 'bg-gray-100 text-gray-800 border-gray-200',
-      general: 'bg-gray-100 text-gray-800 border-gray-200'
-    };
-    return colors[category as keyof typeof colors] || colors.general;
+  const openNewDialog = () => {
+    setEditingResponse(null);
+    setIsDialogOpen(true);
   };
 
   return (
-    <div className="h-full bg-white">
-      {/* Header */}
-      <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
-        <div className="flex items-center justify-between mb-4">
+    <div className={`h-full flex flex-col bg-slate-50 ${className || ''}`.trim()}>
+      <header className="p-4 border-b border-slate-200 bg-white">
+        <div className="flex items-center justify-between gap-4 mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
               <MessageSquare className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-slate-900">Canned Responses</h2>
-              <p className="text-sm text-slate-600">Manage your quick response templates</p>
+                    <h2 className="text-lg font-bold text-slate-800">Canned Responses</h2>
+                    <p className="text-sm text-slate-500">Manage & use response templates</p>
             </div>
-          </div>
-          {!isSelectionMode && (
-            <Button size="sm" onClick={() => setIsCreating(true)} className="bg-orange-500 hover:bg-orange-600 text-white">
+            </div>
+            <Button onClick={openNewDialog} size="sm">
               <Plus className="w-4 h-4 mr-2" />
-              New Response
+                Create New
             </Button>
-          )}
         </div>
-        
-        <div className="space-y-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+        <div className="flex items-center gap-2">
+            <div className="relative flex-grow">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
             <Input
-              placeholder="Search responses..."
+                placeholder="Search by keyword..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 border-slate-200 focus:border-orange-300 focus:ring-orange-200"
+                className="pl-9 bg-slate-50 border-slate-200 focus:border-orange-400 focus:ring-orange-400"
             />
           </div>
-          
-          <div className="flex flex-wrap gap-2">
-            {categories.map(category => (
+            <div className='flex items-center gap-2 p-1 bg-slate-100 rounded-md'>
+                 <Button variant={showMineOnly ? 'default' : 'ghost'} size="sm" onClick={() => setShowMineOnly(true)} className='text-xs'>
+                     My Responses
+                 </Button>
+                 <Button variant={!showMineOnly ? 'default' : 'ghost'} size="sm" onClick={() => setShowMineOnly(false)} className='text-xs'>
+                     All
+                 </Button>
+            </div>
+        </div>
+      </header>
+
+      <div className="p-4 border-b border-slate-200 bg-white">
+          <div className="flex items-center gap-2 overflow-x-auto pb-2">
+              <Tag className="w-4 h-4 text-slate-500 shrink-0"/>
+              {allCategories.map(category => (
               <Button
                 key={category}
                 variant={selectedCategory === category ? "default" : "outline"}
                 size="sm"
                 onClick={() => setSelectedCategory(category)}
-                className={`text-xs ${selectedCategory === category ? 'bg-orange-500 hover:bg-orange-600' : 'hover:bg-slate-100'}`}
+                      className={`text-xs rounded-full h-7 ${selectedCategory === category ? 'bg-orange-500 hover:bg-orange-600 text-white' : 'bg-white hover:bg-slate-100'}`}
               >
-                {category.charAt(0).toUpperCase() + category.slice(1)}
+                      {category}
               </Button>
             ))}
-          </div>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="p-6 space-y-4 overflow-y-auto" style={{ height: 'calc(100% - 200px)' }}>
-        {(isCreating || editingId !== null) && (
-          <Card className="border-2 border-orange-200 shadow-md">
-            <CardContent className="p-4">
-              <div className="space-y-4">
-                <Input
-                  placeholder="Response title..."
-                  value={newResponse.title}
-                  onChange={(e) => setNewResponse({...newResponse, title: e.target.value})}
-                  className="border-slate-200 focus:border-orange-300 focus:ring-orange-200"
-                />
-                <Input
-                  placeholder="Category (e.g., orders, refunds, technical)..."
-                  value={newResponse.category}
-                  onChange={(e) => setNewResponse({...newResponse, category: e.target.value})}
-                  className="border-slate-200 focus:border-orange-300 focus:ring-orange-200"
-                />
-                <Textarea
-                  placeholder="Response message..."
-                  value={newResponse.message}
-                  onChange={(e) => setNewResponse({...newResponse, message: e.target.value})}
-                  rows={4}
-                  className="border-slate-200 focus:border-orange-300 focus:ring-orange-200"
-                />
-                <div className="flex gap-2">
-                  <Button 
-                    size="sm" 
-                    onClick={editingId ? handleUpdate : handleCreate} 
-                    className="bg-orange-500 hover:bg-orange-600 text-white"
-                  >
-                    <Save className="w-4 h-4 mr-2" />
-                    {editingId ? 'Update' : 'Create'}
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    onClick={() => {
-                      setIsCreating(false);
-                      setEditingId(null);
-                      setNewResponse({ title: '', message: '', category: '' });
-                    }}
-                  >
-                    <X className="w-4 h-4 mr-2" />
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        <div className="grid gap-4">
-          {filteredResponses.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <MessageSquare className="w-8 h-8 text-slate-400" />
-              </div>
-              <h3 className="text-lg font-medium text-slate-900 mb-2">No responses found</h3>
-              <p className="text-sm text-slate-600">
-                {searchTerm ? "Try adjusting your search terms" : "Create your first canned response to get started"}
-              </p>
+      <main className="flex-1 overflow-y-auto p-4 space-y-3">
+        {isLoading ? (
+            <p className="text-center text-slate-500">Loading responses...</p>
+        ) : filteredResponses.length === 0 ? (
+            <div className="text-center py-10">
+                <XCircle className="mx-auto w-12 h-12 text-slate-300" />
+                <h3 className="mt-4 text-lg font-medium text-slate-700">No Responses Found</h3>
+                <p className="mt-1 text-sm text-slate-500">Try adjusting your filters or create a new response.</p>
             </div>
           ) : (
-            filteredResponses.map((response) => (
-              <Card key={response.id} className="hover:shadow-md transition-all duration-200 border border-slate-200">
-                <CardContent className="p-4">
-                  <div className="space-y-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-slate-900 text-lg mb-1">{response.title}</h4>
-                        <div className="flex items-center gap-2 mb-2">
-                          <Badge className={`text-xs border ${getCategoryColor(response.category)}`}>
-                            <Tag className="w-3 h-3 mr-1" />
-                            {response.category}
-                          </Badge>
-                          <span className="text-xs text-slate-500">Created: {response.createdAt}</span>
-                        </div>
-                      </div>
-                      {!isSelectionMode && (
-                        <div className="flex gap-1">
-                          <Button size="sm" variant="ghost" onClick={() => handleEdit(response.id)} className="h-8 w-8 p-0 hover:bg-slate-100">
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button size="sm" variant="ghost" onClick={() => handleDelete(response.id)} className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600">
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                    <p className="text-sm text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-lg">{response.message}</p>
-                    {isSelectionMode && (
-                      <Button 
-                        size="sm" 
-                        className="w-full bg-orange-500 hover:bg-orange-600 text-white"
-                        onClick={() => handleSelect(response)}
-                      >
-                        Use This Response
-                      </Button>
-                    )}
+          filteredResponses.map(response => (
+            <ResponseCard 
+              key={response.id} 
+              response={response} 
+              onSelect={onSelectResponse}
+              onEdit={() => openEditDialog(response)}
+              onDelete={() => handleDeleteResponse(response.id)}
+            />
+          ))
+        )}
+      </main>
+
+      <ResponseDialog 
+        isOpen={isDialogOpen} 
+        setIsOpen={setIsDialogOpen}
+        onSave={handleSaveResponse}
+        editingResponse={editingResponse}
+      />
                   </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
+  );
+};
+
+// Sub-component for displaying a single response card
+const ResponseCard = ({ response, onSelect, onEdit, onDelete }: { response: CannedResponse, onSelect?: (text: string) => void, onEdit: () => void, onDelete: () => void }) => {
+  return (
+    <div className="bg-white p-4 rounded-lg border border-slate-200 hover:border-orange-400 hover:shadow-sm transition-all group">
+      <div className="flex items-start justify-between">
+        <div>
+          <h4 className="font-semibold text-slate-800">{response.title}</h4>
+          {response.category && <Badge variant="secondary" className="mt-1">{response.category}</Badge>}
+        </div>
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onEdit}>
+                            <Edit className="w-4 h-4 text-slate-500" />
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent><p>Edit</p></TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onDelete}>
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                        </Button>
+            </TooltipTrigger>
+                    <TooltipContent><p>Delete</p></TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         </div>
       </div>
+      <p className="text-sm text-slate-600 my-3">{response.message}</p>
+      {onSelect && (
+        <Button onClick={() => onSelect(response.message)} className="w-full mt-2" size="sm">
+          Use This Response
+        </Button>
+      )}
     </div>
+  );
+}
+
+// Sub-component for the create/edit dialog
+const ResponseDialog = ({ isOpen, setIsOpen, onSave, editingResponse }: { isOpen: boolean, setIsOpen: (open: boolean) => void, onSave: (data: any) => void, editingResponse: CannedResponse | null }) => {
+    const [formData, setFormData] = useState({ title: '', message: '', category: '' });
+
+    useEffect(() => {
+        if (isOpen) {
+            setFormData({
+                title: editingResponse?.title || '',
+                message: editingResponse?.message || '',
+                category: editingResponse?.category || '',
+            });
+        }
+    }, [isOpen, editingResponse]);
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        onSave(formData);
+    };
+
+    return (
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogContent className="sm:max-w-[480px]">
+                <form onSubmit={handleSubmit}>
+          <DialogHeader>
+                        <DialogTitle>{editingResponse ? 'Edit' : 'Create'} Canned Response</DialogTitle>
+          </DialogHeader>
+                    <div className="py-6 space-y-4">
+                        <div className="space-y-2">
+                            <label htmlFor="title" className="text-sm font-medium">Title</label>
+                            <Input id="title" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} placeholder="e.g., Order Status Inquiry" required />
+                        </div>
+                        <div className="space-y-2">
+                            <label htmlFor="message" className="text-sm font-medium">Message</label>
+                            <Textarea id="message" value={formData.message} onChange={(e) => setFormData({...formData, message: e.target.value})} placeholder="Enter the response text..." className="min-h-[100px]" required />
+                        </div>
+                        <div className="space-y-2">
+                            <label htmlFor="category" className="text-sm font-medium">Category</label>
+                            <Input id="category" value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})} placeholder="e.g., orders, greeting (optional)" />
+                        </div>
+          </div>
+                    <DialogFooter>
+                        <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
+                        <Button type="submit">Save Response</Button>
+          </DialogFooter>
+                </form>
+        </DialogContent>
+      </Dialog>
   );
 };

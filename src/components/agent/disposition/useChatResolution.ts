@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { ChatResolution } from './types';
 
@@ -26,11 +25,13 @@ export const useChatResolution = () => {
     }
   };
 
-  const getChatResolution = (chatId: number) => {
+  const getChatResolution = (chatId: string | null) => {
+    if (!chatId) return undefined;
     return resolutions.find(r => r.chatId === chatId);
   };
 
-  const isChatResolved = (chatId: number) => {
+  const isChatResolved = (chatId: string | null) => {
+    if (!chatId) return false;
     return resolutions.some(r => r.chatId === chatId);
   };
 

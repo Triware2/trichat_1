@@ -5,8 +5,9 @@ import { Badge } from '@/components/ui/badge';
 import { DashboardStats } from '@/components/agent/DashboardStats';
 import { QueueStatus } from '@/components/agent/QueueStatus';
 import { RecentActivity } from '@/components/agent/RecentActivity';
-import { Search, Filter, Star, TrendingUp, MessageSquare, Award } from 'lucide-react';
+import { Search, Filter, Star, TrendingUp, MessageSquare, Award, UserCircle, Plus } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface DashboardContentProps {
   stats: Array<{
@@ -15,67 +16,48 @@ interface DashboardContentProps {
     icon: any;
     color: string;
   }>;
-  chats: Array<{
-    id: number;
-    customer: string;
-    lastMessage: string;
-    time: string;
-    status: string;
-    unread: number;
-    priority: string;
-  }>;
+  agentName: string;
   activities: Array<{
     customer: string;
     action: string;
     time: string;
     type: string;
   }>;
+  feedback: {
+    csat: number;
+    dsat: number;
+    totalResponses: number;
+    recentFeedback: Array<{
+      rating: number;
+      feedback: string;
+      customer: string;
+      date: string;
+    }>;
+  };
   onStatClick: (statTitle: string) => void;
-  onQueueAction: (customer: string) => void;
+  onQueueAction: (chatId: string) => void;
+  queue: any[];
+  todayPerformance: any;
 }
 
 export const DashboardContent = ({ 
   stats, 
-  chats, 
+  agentName,
   activities, 
+  feedback,
   onStatClick, 
-  onQueueAction 
+  onQueueAction,
+  queue,
+  todayPerformance
 }: DashboardContentProps) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
 
   const handleGlobalSearch = () => {
     if (searchQuery.trim()) {
       console.log('Global search for:', searchQuery);
       // Global search functionality would be implemented here
     }
-  };
-
-  // CSAT data for the agent
-  const csatData = {
-    averageCSAT: 4.6,
-    totalResponses: 89,
-    responseRate: 72,
-    npsScore: 54,
-    recentFeedback: [
-      {
-        rating: 5,
-        feedback: 'Excellent service! Very knowledgeable and helpful.',
-        customer: 'John S.',
-        date: '2 hours ago'
-      },
-      {
-        rating: 4,
-        feedback: 'Good support, resolved my issue quickly.',
-        customer: 'Sarah M.',
-        date: '1 day ago'
-      },
-      {
-        rating: 5,
-        feedback: 'Amazing support! Solved my issue in minutes.',
-        customer: 'Mike R.',
-        date: '2 days ago'
-      }
-    ]
   };
 
   const getRatingStars = (rating: number) => {
@@ -87,122 +69,114 @@ export const DashboardContent = ({
   };
 
   return (
-    <div className="h-full p-6 overflow-y-auto">
-      <div className="space-y-6">
-        {/* Global Search Section */}
-        <Card className="border border-slate-200 shadow-sm">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Search className="w-5 h-5 text-emerald-500" />
-              Global Search
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="flex gap-3">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
-                <Input
-                  placeholder="Search conversations, customers, tickets, or any content..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 border-slate-200 focus:border-emerald-300 focus:ring-emerald-200"
-                  onKeyPress={(e) => e.key === 'Enter' && handleGlobalSearch()}
-                />
-              </div>
-              <Button 
-                onClick={handleGlobalSearch}
-                className="bg-emerald-500 hover:bg-emerald-600 text-white px-6"
-              >
-                <Search className="w-4 h-4 mr-2" />
-                Search
-              </Button>
-              <Button variant="outline" className="px-4">
-                <Filter className="w-4 h-4" />
-              </Button>
+    <div className="dashboard-bg min-h-screen p-6 md:p-8">
+      {/* Redesigned Frosted Glass Header */}
+      <header className="relative bg-white/80 backdrop-blur-lg shadow-xl rounded-3xl px-10 py-7 flex items-center justify-between mb-10 border border-slate-100">
+        <div className="flex items-center gap-6">
+          <div className="relative">
+            <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center shadow-lg ring-4 ring-blue-200 animate-pulse-slow">
+              <UserCircle className="w-9 h-9 text-blue-500" />
             </div>
-            <p className="text-xs text-slate-600 mt-2">
-              Search across all conversations, customer profiles, tickets, and knowledge base
-            </p>
-          </CardContent>
-        </Card>
-
-        <DashboardStats stats={stats} onStatClick={onStatClick} />
-
-        {/* CSAT Performance Overview */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Star className="w-5 h-5 text-yellow-500" />
-              My CSAT Performance
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-              <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <Star className="w-5 h-5 text-yellow-500" />
-                  <span className="text-sm text-gray-600">CSAT Score</span>
-                </div>
-                <p className="text-2xl font-bold text-gray-900">{csatData.averageCSAT}</p>
-                <Badge className="bg-green-100 text-green-800 text-xs mt-1">+0.3</Badge>
-              </div>
-
-              <div className="text-center p-4 bg-green-50 rounded-lg">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <MessageSquare className="w-5 h-5 text-blue-500" />
-                  <span className="text-sm text-gray-600">Response Rate</span>
-                </div>
-                <p className="text-2xl font-bold text-gray-900">{csatData.responseRate}%</p>
-                <Badge className="bg-blue-100 text-blue-800 text-xs mt-1">+5%</Badge>
-              </div>
-
-              <div className="text-center p-4 bg-purple-50 rounded-lg">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <TrendingUp className="w-5 h-5 text-purple-500" />
-                  <span className="text-sm text-gray-600">NPS Score</span>
-                </div>
-                <p className="text-2xl font-bold text-gray-900">{csatData.npsScore}</p>
-                <Badge className="bg-purple-100 text-purple-800 text-xs mt-1">+8</Badge>
-              </div>
-
-              <div className="text-center p-4 bg-orange-50 rounded-lg">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <Award className="w-5 h-5 text-orange-500" />
-                  <span className="text-sm text-gray-600">Total Reviews</span>
-                </div>
-                <p className="text-2xl font-bold text-gray-900">{csatData.totalResponses}</p>
-                <Badge className="bg-gray-100 text-gray-800 text-xs mt-1">This month</Badge>
-              </div>
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xl font-extrabold font-roboto text-black">Welcome back, {agentName}!</span>
+              <span className="text-2xl">👋</span>
             </div>
-
-            {/* Recent Feedback */}
-            <div>
-              <h4 className="font-medium text-gray-900 mb-3">Recent Customer Feedback</h4>
-              <div className="space-y-3">
-                {csatData.recentFeedback.map((feedback, index) => (
-                  <div key={index} className="border rounded-lg p-3 bg-gray-50">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="flex items-center">
-                          {getRatingStars(feedback.rating)}
-                        </div>
-                        <span className="text-xs text-gray-500">{feedback.date}</span>
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-800 mb-1">"{feedback.feedback}"</p>
-                    <p className="text-xs text-gray-600">- {feedback.customer}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          <QueueStatus chats={chats} onQueueAction={onQueueAction} />
-          <RecentActivity activities={activities} />
+            <div className="mt-1 text-base font-medium text-slate-600 font-roboto">Here's your performance overview</div>
+            <div className="mt-2 h-1 w-16 bg-gradient-to-r from-blue-400 to-blue-200 rounded-full opacity-60"></div>
+          </div>
         </div>
-      </div>
+        <button className="rounded-full p-3 bg-slate-100 hover:bg-blue-100 transition shadow" onClick={() => navigate('/agent/notifications')}>
+            <span className="sr-only">Notifications</span>
+          <svg className="w-7 h-7 text-blue-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          </svg>
+          </button>
+      </header>
+
+      {/* Stat Cards Row */}
+      <section className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
+        {/* Placeholder stat cards, replace with mapped stats */}
+        {stats.map((stat, idx) => (
+          <div key={idx} className="glass flex flex-col items-start justify-between p-6 rounded-2xl shadow group hover:shadow-xl transition cursor-pointer">
+            <div className="flex items-center gap-3 mb-2">
+              <span className="p-3 rounded-xl shadow-md bg-gradient-to-tr from-blue-400 to-blue-600 text-white group-hover:scale-110 transition-transform"><stat.icon className="w-6 h-6" /></span>
+              <span className="text-xs font-medium tracking-wide text-slate-600 dark:text-slate-400 uppercase">{stat.title}</span>
+            </div>
+            <div className="flex items-end gap-2">
+              <span className="text-2xl font-extrabold text-black dark:text-white">{stat.value}</span>
+              {/* Placeholder for trend arrow/mini graph */}
+              <span className="text-green-500 text-xs font-bold">+12%</span>
+            </div>
+            <span className="text-xs text-slate-400 mt-1">vs last month</span>
+          </div>
+        ))}
+      </section>
+
+      <main className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Performance & Feedback */}
+        <section className="lg:col-span-2 flex flex-col gap-8">
+          {/* Performance Card + DSAT Card */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* CSAT Score Card */}
+            <div className="glass rounded-2xl p-8 shadow flex flex-col items-center justify-center">
+              <div className="relative w-32 h-32 flex items-center justify-center">
+                <svg className="absolute w-full h-full" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="45" stroke="#e0e7ff" strokeWidth="10" fill="none" />
+                  <circle cx="50" cy="50" r="45" stroke="#6366f1" strokeWidth="10" fill="none" strokeDasharray="282.74" strokeDashoffset={`${282.74 * (1 - feedback.csat / 100)}`} strokeLinecap="round" />
+                </svg>
+                <span className="text-3xl font-extrabold text-black">{feedback.csat.toFixed(1)}%</span>
+              </div>
+              <span className="mt-2 text-lg font-bold text-slate-800 dark:text-slate-200">CSAT Score</span>
+            </div>
+            {/* DSAT Score Card */}
+            <div className="glass rounded-2xl p-8 shadow flex flex-col items-center justify-center">
+              <div className="relative w-32 h-32 flex items-center justify-center">
+                <svg className="absolute w-full h-full" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="45" stroke="#fee2e2" strokeWidth="10" fill="none" />
+                  <circle cx="50" cy="50" r="45" stroke="#f87171" strokeWidth="10" fill="none" strokeDasharray="282.74" strokeDashoffset={`${282.74 * (1 - feedback.dsat / 100)}`} strokeLinecap="round" />
+                </svg>
+                <span className="text-3xl font-extrabold text-red-500">{feedback.dsat.toFixed(1)}%</span>
+              </div>
+              <span className="mt-2 text-lg font-bold text-slate-800 dark:text-slate-200">DSAT Score</span>
+            </div>
+            {/* Total Responses Card */}
+            <div className="glass rounded-2xl p-8 shadow flex flex-col items-center justify-center">
+              <div className="relative w-32 h-32 flex items-center justify-center">
+                 <svg className="absolute w-full h-full" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="45" stroke="#f0fdf4" strokeWidth="10" fill="none" />
+                  <circle cx="50" cy="50" r="45" stroke="#22c55e" strokeWidth="10" fill="none" strokeDasharray="282.74" strokeDashoffset="0" strokeLinecap="round" />
+                </svg>
+                <span className="text-3xl font-extrabold text-green-600">{feedback.totalResponses}</span>
+              </div>
+              <span className="mt-2 text-lg font-bold text-slate-800 dark:text-slate-200">Total Responses</span>
+            </div>
+          </div>
+          {/* Recent Feedback */}
+          <div className="glass rounded-2xl p-8 shadow flex flex-col">
+            <h3 className="text-lg font-extrabold text-black dark:text-white mb-3">Recent Feedback</h3>
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {feedback.recentFeedback.length > 0 ? (
+                feedback.recentFeedback.map((fb, idx) => (
+                  <div key={idx} className="glass px-4 py-2 rounded-xl shadow text-slate-700 dark:text-slate-200 flex-shrink-0">
+                    <div className="flex items-center gap-2 mb-1">{getRatingStars(fb.rating)}</div>
+                    <p className="font-medium">"<span className='font-bold'>{fb.customer}</span> {fb.feedback}"</p>
+                    <p className="text-xs text-slate-400 mt-1 text-right">- {fb.customer}</p>
+                  </div>
+                ))
+              ) : (
+                <p className="text-slate-500 font-medium">No feedback yet for this month.</p>
+              )}
+            </div>
+          </div>
+        </section>
+        {/* My Queue & Recent Activity */}
+        <aside className="flex flex-col gap-6">
+          <QueueStatus chats={queue} onQueueAction={onQueueAction} small />
+          <RecentActivity activities={activities} small />
+        </aside>
+      </main>
     </div>
   );
 };

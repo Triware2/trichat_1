@@ -1,9 +1,9 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Package, User, Calendar, DollarSign, AlertCircle, Phone, Mail, MapPin } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ContactProperties {
   orderId: string;
@@ -22,7 +22,7 @@ interface ContactProperties {
 }
 
 interface ContactPropertiesPanelProps {
-  chatId: number;
+  chatId: string | null;
   customerName: string;
 }
 
@@ -33,77 +33,46 @@ export const ContactPropertiesPanel = ({ chatId, customerName }: ContactProperti
   // Simulate API call to fetch contact properties based on chat context
   useEffect(() => {
     const fetchContactProperties = async () => {
+      if (!chatId) {
+        setLoading(false);
+        return;
+      }
       setLoading(true);
       
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock data based on chatId - this would come from your actual API
-      const mockProperties: { [key: number]: ContactProperties } = {
-        1: {
-          orderId: "#12345",
-          orderStatus: "Shipped",
-          orderDate: "2024-01-10",
-          orderAmount: "$89.99",
-          productName: "Premium Support Plan",
-          issueType: "Delivery Delay",
-          priority: "High",
-          customerTier: "Premium",
-          lastPurchase: "2024-01-10",
-          totalSpent: "$2,450.00",
-          location: "New York, USA",
-          phone: "+1 (555) 123-4567",
-          email: "john.smith@email.com"
-        },
-        2: {
-          orderId: "#12346",
-          orderStatus: "Delivered",
-          orderDate: "2024-01-08",
-          orderAmount: "$29.99",
-          productName: "Monthly Subscription",
-          issueType: "General Inquiry",
-          priority: "Low",
-          customerTier: "Standard",
-          lastPurchase: "2024-01-08",
-          totalSpent: "$156.99",
-          location: "Los Angeles, USA",
-          phone: "+1 (555) 987-6543",
-          email: "alice.johnson@email.com"
-        },
-        3: {
-          orderId: "#12347",
-          orderStatus: "Processing",
-          orderDate: "2024-01-12",
-          orderAmount: "$159.99",
-          productName: "Annual Plan Upgrade",
-          issueType: "Billing Question",
-          priority: "Medium",
-          customerTier: "Premium",
-          lastPurchase: "2024-01-12",
-          totalSpent: "$890.45",
-          location: "Chicago, USA",
-          phone: "+1 (555) 456-7890",
-          email: "bob.williams@email.com"
-        },
-        4: {
-          orderId: "#12348",
-          orderStatus: "Cancelled",
-          orderDate: "2024-01-11",
-          orderAmount: "$199.99",
-          productName: "Enterprise License",
-          issueType: "Product Issue",
-          priority: "High",
-          customerTier: "Enterprise",
-          lastPurchase: "2024-01-11",
-          totalSpent: "$5,678.90",
-          location: "Seattle, USA",
-          phone: "+1 (555) 321-0987",
-          email: "emily.brown@email.com"
-        }
-      };
+      try {
+        const { data: chatData, error: chatError } = await supabase
+          .from('chats')
+          .select('*, customers(*)')
+          .eq('id', chatId)
+          .single();
 
-      setProperties(mockProperties[chatId] || mockProperties[1]);
+        if (chatError) throw chatError;
+
+        if (chatData && chatData.customers) {
+          const customer = chatData.customers as any; // The relationship returns an object, not an array for single()
+          const metadata = chatData.metadata as any; // For easier access
+
+          setProperties({
+            orderId: chatData.id.toString(),
+            orderStatus: chatData.status,
+            orderDate: new Date(chatData.created_at).toLocaleDateString(),
+            orderAmount: metadata?.orderAmount || 'N/A',
+            productName: metadata?.productName || 'N/A',
+            issueType: metadata?.issueType || 'Inquiry',
+            priority: chatData.priority || 'Medium',
+            customerTier: customer.metadata?.tier || 'Standard',
+            lastPurchase: customer.metadata?.last_purchase_date || 'N/A',
+            totalSpent: customer.metadata?.total_spent ? `$${customer.metadata.total_spent.toFixed(2)}` : '$0.00',
+            location: customer.location || 'Unknown',
+            phone: customer.phone || 'N/A',
+            email: customer.email,
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching contact properties:", error);
+      } finally {
       setLoading(false);
+      }
     };
 
     fetchContactProperties();
@@ -150,38 +119,38 @@ export const ContactPropertiesPanel = ({ chatId, customerName }: ContactProperti
   }
 
   return (
-    <Card className="w-80 h-fit border-slate-200 shadow-sm">
-      <CardHeader className="pb-3 bg-gradient-to-r from-slate-50 to-white">
-        <CardTitle className="text-sm font-medium text-slate-700 flex items-center gap-2">
-          <User className="w-4 h-4" />
+    <>
+      <CardHeader className="pb-2 bg-gradient-to-r from-slate-50 to-white dark:from-slate-900 dark:to-slate-950 rounded-t-2xl">
+        <CardTitle className="text-base font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-2">
+          <User className="w-5 h-5" />
           Contact Properties
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4 p-4">
+      <div className="space-y-6 p-4">
         {/* Order Information */}
         <div className="space-y-2">
-          <div className="flex items-center gap-2 text-xs font-medium text-slate-600">
-            <Package className="w-3 h-3" />
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-600">
+            <Package className="w-4 h-4" />
             ORDER DETAILS
           </div>
           <div className="space-y-1 text-sm">
-            <div className="flex justify-between">
-              <span className="text-slate-600">Order ID:</span>
-              <span className="font-medium text-slate-900">{properties.orderId}</span>
+            <div className="flex flex-wrap justify-between items-center min-w-0">
+              <span className="text-slate-600 min-w-0">Order ID:</span>
+              <span className="font-medium text-slate-900 break-words min-w-0">{properties.orderId}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-slate-600">Status:</span>
-              <Badge variant="outline" className={getStatusColor(properties.orderStatus)}>
+            <div className="flex flex-wrap justify-between items-center min-w-0">
+              <span className="text-slate-600 min-w-0">Status:</span>
+              <Badge variant="outline" className={getStatusColor(properties.orderStatus) + ' break-words min-w-0'}>
                 {properties.orderStatus}
               </Badge>
             </div>
-            <div className="flex justify-between">
-              <span className="text-slate-600">Amount:</span>
-              <span className="font-medium text-slate-900">{properties.orderAmount}</span>
+            <div className="flex flex-wrap justify-between items-center min-w-0">
+              <span className="text-slate-600 min-w-0">Amount:</span>
+              <span className="font-medium text-slate-900 break-words min-w-0">{properties.orderAmount}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-slate-600">Product:</span>
-              <span className="font-medium text-slate-900 text-right">{properties.productName}</span>
+            <div className="flex flex-wrap justify-between items-center min-w-0">
+              <span className="text-slate-600 min-w-0">Product:</span>
+              <span className="font-medium text-slate-900 text-right break-words min-w-0">{properties.productName}</span>
             </div>
           </div>
         </div>
@@ -190,17 +159,17 @@ export const ContactPropertiesPanel = ({ chatId, customerName }: ContactProperti
 
         {/* Issue Information */}
         <div className="space-y-2">
-          <div className="flex items-center gap-2 text-xs font-medium text-slate-600">
-            <AlertCircle className="w-3 h-3" />
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-600">
+            <AlertCircle className="w-4 h-4" />
             ISSUE DETAILS
           </div>
           <div className="space-y-1 text-sm">
-            <div className="flex justify-between">
-              <span className="text-slate-600">Type:</span>
-              <span className="font-medium text-slate-900">{properties.issueType}</span>
+            <div className="flex flex-wrap justify-between items-center min-w-0">
+              <span className="text-slate-600 min-w-0">Type:</span>
+              <span className="font-medium text-slate-900 break-words min-w-0">{properties.issueType}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-slate-600">Priority:</span>
+            <div className="flex flex-wrap justify-between items-center min-w-0">
+              <span className="text-slate-600 min-w-0">Priority:</span>
               <Badge variant="outline" className={getPriorityColor(properties.priority)}>
                 {properties.priority}
               </Badge>
@@ -212,20 +181,20 @@ export const ContactPropertiesPanel = ({ chatId, customerName }: ContactProperti
 
         {/* Customer Information */}
         <div className="space-y-2">
-          <div className="flex items-center gap-2 text-xs font-medium text-slate-600">
-            <DollarSign className="w-3 h-3" />
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-600">
+            <DollarSign className="w-4 h-4" />
             CUSTOMER INFO
           </div>
           <div className="space-y-1 text-sm">
-            <div className="flex justify-between">
-              <span className="text-slate-600">Tier:</span>
-              <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200">
+            <div className="flex flex-wrap justify-between items-center min-w-0">
+              <span className="text-slate-600 min-w-0">Tier:</span>
+              <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200 break-words min-w-0">
                 {properties.customerTier}
               </Badge>
             </div>
-            <div className="flex justify-between">
-              <span className="text-slate-600">Total Spent:</span>
-              <span className="font-medium text-slate-900">{properties.totalSpent}</span>
+            <div className="flex flex-wrap justify-between items-center min-w-0">
+              <span className="text-slate-600 min-w-0">Total Spent:</span>
+              <span className="font-medium text-slate-900 break-words min-w-0">{properties.totalSpent}</span>
             </div>
           </div>
         </div>
@@ -234,26 +203,26 @@ export const ContactPropertiesPanel = ({ chatId, customerName }: ContactProperti
 
         {/* Contact Information */}
         <div className="space-y-2">
-          <div className="flex items-center gap-2 text-xs font-medium text-slate-600">
-            <Phone className="w-3 h-3" />
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-600">
+            <Phone className="w-4 h-4" />
             CONTACT INFO
           </div>
           <div className="space-y-1 text-sm">
-            <div className="flex items-center gap-2">
-              <Mail className="w-3 h-3 text-slate-400" />
-              <span className="text-slate-900 text-xs">{properties.email}</span>
+            <div className="flex flex-wrap justify-between items-center min-w-0">
+              <span className="text-slate-600 min-w-0">Email:</span>
+              <span className="text-slate-900 text-xs break-words min-w-0">{properties.email}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Phone className="w-3 h-3 text-slate-400" />
-              <span className="text-slate-900 text-xs">{properties.phone}</span>
+            <div className="flex flex-wrap justify-between items-center min-w-0">
+              <span className="text-slate-600 min-w-0">Phone:</span>
+              <span className="text-slate-900 text-xs break-words min-w-0">{properties.phone}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <MapPin className="w-3 h-3 text-slate-400" />
-              <span className="text-slate-900 text-xs">{properties.location}</span>
+            <div className="flex flex-wrap justify-between items-center min-w-0">
+              <span className="text-slate-600 min-w-0">Location:</span>
+              <span className="text-slate-900 text-xs break-words min-w-0">{properties.location}</span>
             </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </>
   );
 };

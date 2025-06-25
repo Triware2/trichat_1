@@ -1,11 +1,11 @@
-
 import { useState, useEffect } from 'react';
 import { ChatMessage } from '@/components/admin/chatbot/types';
 
-export const useChatData = (selectedChatId: number) => {
-  const getMessagesForChat = (chatId: number): ChatMessage[] => {
-    const messageMap: { [key: number]: ChatMessage[] } = {
-      1: [
+export const useChatData = (selectedChatId: string | null) => {
+  const getMessagesForChat = (chatId: string | null): ChatMessage[] => {
+    if (!chatId) return [];
+    const messageMap: { [key: string]: ChatMessage[] } = {
+      'd8b8a5a3-7b1f-4d2c-9b9a-1e2f3a4b5c6d': [
         {
           id: 1,
           sender: "customer",
@@ -28,7 +28,7 @@ export const useChatData = (selectedChatId: number) => {
           type: "text"
         }
       ],
-      2: [
+      'a1b2c3d4-e5f6-7890-1234-567890abcdef': [
         {
           id: 1,
           sender: "customer",
@@ -51,7 +51,7 @@ export const useChatData = (selectedChatId: number) => {
           type: "text"
         }
       ],
-      3: [
+      'b2c3d4e5-f6a7-8901-2345-67890abcdef1': [
         {
           id: 1,
           sender: "customer",
@@ -67,7 +67,7 @@ export const useChatData = (selectedChatId: number) => {
           type: "text"
         }
       ],
-      4: [
+      'c3d4e5f6-a7b8-9012-3456-7890abcdef12': [
         {
           id: 1,
           sender: "customer",

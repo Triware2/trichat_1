@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
 import { 
   Send,
   Paperclip,
@@ -10,8 +9,16 @@ import {
   StickyNote,
   FileAudio,
   FileVideo,
-  X
+  X,
+  MessageSquare
 } from 'lucide-react';
+import { Drawer, DrawerTrigger, DrawerContent } from '@/components/ui/drawer';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { CannedResponses } from './CannedResponses';
+// @ts-ignore
+import { Picker } from 'emoji-mart';
+// @ts-ignore
+import 'emoji-mart/css/emoji-mart.css';
 
 interface MessageInputAreaProps {
   message: string;
@@ -21,6 +28,7 @@ interface MessageInputAreaProps {
   onSendMessage: () => void;
   onFileUpload: () => void;
   onImageUpload: () => void;
+  setShowCannedResponses: (show: boolean) => void;
 }
 
 interface MediaAttachment {
@@ -37,10 +45,13 @@ export const MessageInputArea = ({
   setIsPrivateNoteMode,
   onSendMessage,
   onFileUpload,
-  onImageUpload
+  onImageUpload,
+  setShowCannedResponses
 }: MessageInputAreaProps) => {
-  const { toast } = useToast();
   const [mediaAttachments, setMediaAttachments] = useState<MediaAttachment[]>([]);
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -50,10 +61,36 @@ export const MessageInputArea = ({
   };
 
   const handleEmojiPicker = () => {
-    toast({
-      title: "Emoji picker",
-      description: "Emoji picker opened.",
-    });
+    setShowEmojiPicker((prev) => !prev);
+  };
+
+  const handleEmojiSelect = (emoji: any) => {
+    if (isPrivateNoteMode) {
+      setMessage(message + emoji.native); // If you want a separate private note message state, update that here instead
+    } else {
+      setMessage(message + emoji.native);
+    }
+    setShowEmojiPicker(false);
+  };
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (isPrivateNoteMode) {
+        const attachment: MediaAttachment = {
+          type: 'file',
+          name: file.name,
+          file: file,
+        };
+        setMediaAttachments(prev => [...prev, attachment]);
+      } else {
+        setMessage(message + ` [${file.name}]`);
+      }
+    }
+  };
+
+  const handleFileButtonClick = () => {
+    fileInputRef.current?.click();
   };
 
   const handleMediaUpload = (type: 'image' | 'audio' | 'video') => {
@@ -84,11 +121,6 @@ export const MessageInputArea = ({
           url: URL.createObjectURL(file)
         };
         setMediaAttachments(prev => [...prev, attachment]);
-        
-        toast({
-          title: "Media attached",
-          description: `${file.name} has been added to your private note.`,
-        });
       }
     };
     
@@ -126,7 +158,7 @@ export const MessageInputArea = ({
   }, [mediaAttachments]);
 
   return (
-    <div className="p-4 bg-white">
+    <div className="p-2 bg-white">
       {/* Private Note Mode Indicator */}
       {isPrivateNoteMode && (
         <div className="mb-3 flex items-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200 rounded-lg">
@@ -169,127 +201,91 @@ export const MessageInputArea = ({
         </div>
       )}
       
-      {/* Main Input Container with Modern Design */}
-      <div className="flex items-end gap-3 p-3 bg-gradient-to-r from-slate-50 to-white rounded-2xl border border-slate-200 shadow-sm focus-within:shadow-md focus-within:border-orange-300 transition-all duration-200">
+      {/* World-Class Input Container */}
+      <div className={`
+        flex items-center gap-2 px-2 py-1.5 
+        bg-white rounded-full border-2 
+        ${isPrivateNoteMode 
+          ? 'border-amber-300 focus-within:border-amber-500' 
+          : 'border-slate-200 focus-within:border-orange-500'
+        }
+        focus-within:ring-2 ${isPrivateNoteMode ? 'focus-within:ring-amber-500/30' : 'focus-within:ring-orange-500/30'}
+        transition-all duration-300 ease-in-out
+      `}>
+        {/* Left-side Action Buttons */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className={`rounded-full flex-shrink-0 ${isPrivateNoteMode ? 'text-amber-600 bg-amber-100' : 'text-slate-500 hover:bg-slate-100'}`}
+          title={isPrivateNoteMode ? "Switch to public message" : "Add Private Note"}
+          onClick={() => setIsPrivateNoteMode(!isPrivateNoteMode)}
+        >
+          <StickyNote className="w-5 h-5" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="rounded-full text-slate-500 hover:bg-slate-100 flex-shrink-0"
+          title="Use Canned Response"
+          onClick={() => setShowCannedResponses(true)}
+        >
+          <MessageSquare className="w-5 h-5" />
+        </Button>
+
+        {/* Text Input - Flexible */}
+        <Input
+          className="flex-1 h-full border-0 bg-transparent focus:ring-0 focus:outline-none text-sm px-2 placeholder-slate-400"
+          placeholder={isPrivateNoteMode ? "Type a private note..." : "Type your message..."}
+          value={message}
+          onChange={e => setMessage(e.target.value)}
+          onKeyDown={handleKeyPress}
+        />
         
-        {/* Left Action Buttons */}
-        <div className="flex items-center gap-1">
-          {isPrivateNoteMode ? (
-            // Media upload buttons for private notes
-            <>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => handleMediaUpload('image')} 
-                className="h-8 w-8 p-0 hover:bg-amber-100 rounded-xl transition-colors"
-                title="Attach image"
-              >
-                <Image className="w-4 h-4 text-amber-600" />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => handleMediaUpload('audio')} 
-                className="h-8 w-8 p-0 hover:bg-amber-100 rounded-xl transition-colors"
-                title="Attach audio"
-              >
-                <FileAudio className="w-4 h-4 text-amber-600" />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => handleMediaUpload('video')} 
-                className="h-8 w-8 p-0 hover:bg-amber-100 rounded-xl transition-colors"
-                title="Attach video"
-              >
-                <FileVideo className="w-4 h-4 text-amber-600" />
-              </Button>
-            </>
-          ) : (
-            // Regular file upload buttons for customer messages
-            <>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={onFileUpload} 
-                className="h-8 w-8 p-0 hover:bg-slate-100 rounded-xl transition-colors"
-                title="Attach file"
-              >
-                <Paperclip className="w-4 h-4 text-slate-600" />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={onImageUpload} 
-                className="h-8 w-8 p-0 hover:bg-slate-100 rounded-xl transition-colors"
-                title="Attach image"
-              >
-                <Image className="w-4 h-4 text-slate-600" />
-              </Button>
-            </>
-          )}
-        </div>
+        {/* Right-side Action Buttons */}
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileInputChange}
+          className="hidden"
+        />
+        <Button
+          variant="ghost"
+          size="icon"
+          className="rounded-full text-slate-500 hover:bg-slate-100 flex-shrink-0"
+          onClick={handleFileButtonClick}
+          title="Attach file"
+        >
+          <Paperclip className="w-5 h-5" />
+        </Button>
+        <Popover open={showEmojiPicker} onOpenChange={setShowEmojiPicker}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full text-slate-500 hover:bg-slate-100 flex-shrink-0"
+              onClick={handleEmojiPicker}
+              title="Add emoji"
+            >
+              <Smile className="w-5 h-5" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent 
+              align="end" 
+              className="p-0 border-none shadow-2xl mb-2"
+          >
+            <Picker onSelect={handleEmojiSelect} set="apple" />
+          </PopoverContent>
+        </Popover>
 
-        {/* Text Input - Takes remaining space */}
-        <div className="flex-1">
-          <Input 
-            placeholder={isPrivateNoteMode ? "Add a private note..." : "Type your message..."}
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
-            className={`border-0 bg-transparent focus:ring-0 focus-visible:ring-0 text-sm placeholder:text-slate-500 p-0 h-auto min-h-[32px] resize-none ${
-              isPrivateNoteMode ? 'placeholder:text-amber-600' : ''
-            }`}
-            style={{ boxShadow: 'none' }}
-          />
-        </div>
-
-        {/* Right Action Buttons */}
-        <div className="flex items-center gap-1">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={handleEmojiPicker} 
-            className="h-8 w-8 p-0 hover:bg-slate-100 rounded-xl transition-colors"
-            title="Add emoji"
-          >
-            <Smile className="w-4 h-4 text-slate-600" />
-          </Button>
-          
-          {/* Private Note Toggle */}
-          <Button
-            variant={isPrivateNoteMode ? "default" : "ghost"}
-            size="sm"
-            onClick={() => setIsPrivateNoteMode(!isPrivateNoteMode)}
-            className={`h-8 w-8 p-0 rounded-xl transition-all ${
-              isPrivateNoteMode 
-                ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm' 
-                : 'hover:bg-amber-50 text-amber-600'
-            }`}
-            title={isPrivateNoteMode ? "Switch to customer message" : "Add private note"}
-          >
-            <StickyNote className="w-4 h-4" />
-          </Button>
-          
-          {/* Send Button */}
-          <Button 
-            size="sm" 
-            onClick={handleSendWithAttachments}
-            disabled={!message.trim() && mediaAttachments.length === 0}
-            className={`h-8 w-8 p-0 rounded-xl transition-all ${
-              isPrivateNoteMode
-                ? 'bg-amber-500 hover:bg-amber-600 text-white disabled:bg-amber-300'
-                : 'bg-orange-500 hover:bg-orange-600 text-white disabled:bg-orange-300'
-            } ${(!message.trim() && mediaAttachments.length === 0) ? 'opacity-50 cursor-not-allowed' : 'shadow-sm hover:shadow-md'}`}
-            title={isPrivateNoteMode ? "Add note" : "Send message"}
-          >
-            {isPrivateNoteMode ? (
-              <StickyNote className="w-4 h-4" />
-            ) : (
-              <Send className="w-4 h-4" />
-            )}
-          </Button>
-        </div>
+        {/* Send Button */}
+        <Button
+          size="icon"
+          className="rounded-full w-9 h-9 bg-gradient-to-br from-orange-500 to-red-500 text-white shadow-lg hover:shadow-xl transition-all flex-shrink-0"
+          onClick={handleSendWithAttachments}
+          disabled={!message.trim() && !mediaAttachments.length}
+        >
+          <Send className="w-4 h-4" />
+        </Button>
       </div>
     </div>
   );

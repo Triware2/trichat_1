@@ -1,4 +1,3 @@
-
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,18 +10,32 @@ import {
   Eye,
   Lock
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface SidebarNavigationProps {
   activeTab: string;
-  onTabChange?: (tab: string) => void;
 }
 
-export const SidebarNavigation = ({ activeTab, onTabChange }: SidebarNavigationProps) => {
+export const SidebarNavigation = ({ activeTab }: SidebarNavigationProps) => {
   const { hasFeatureAccess, isPlatformCreator } = useFeatureAccess();
+  const navigate = useNavigate();
+
+  const tabToPathMap: { [key: string]: string } = {
+    'dashboard': '/agent',
+    'chat': '/agent/active-chat',
+    'all-chats': '/agent/all-chats',
+    'contacts': '/agent/contacts',
+    'customer-insights': '/agent/customer-360',
+    'settings': '/agent/settings',
+    'profile': '/agent/profile',
+  };
 
   const handleTabClick = (tabValue: string, hasAccess: boolean) => {
-    if (hasAccess && onTabChange) {
-      onTabChange(tabValue);
+    if (hasAccess) {
+      const path = tabToPathMap[tabValue];
+      if (path) {
+        navigate(path);
+      }
     }
   };
 

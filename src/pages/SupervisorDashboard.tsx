@@ -9,7 +9,6 @@ import { ChatSupervision } from '@/components/supervisor/ChatSupervision';
 import { SupervisorHeader } from '@/components/supervisor/SupervisorHeader';
 import { SupervisorTabs } from '@/components/supervisor/SupervisorTabs';
 import { SupervisorOverview } from '@/components/supervisor/SupervisorOverview';
-import { ManualAssignmentSettings } from '@/components/supervisor/ManualAssignmentSettings';
 import { TeamSettings } from '@/components/supervisor/TeamSettings';
 import { FeatureGuard } from '@/components/FeatureGuard';
 
@@ -44,7 +43,7 @@ const SupervisorDashboard = () => {
         userEmail="supervisor@trichat.com"
       />
       
-      <div className="p-6">
+      <div>
         <SupervisorHeader />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -59,9 +58,6 @@ const SupervisorDashboard = () => {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2">
                   <ChatSupervision />
-                </div>
-                <div>
-                  <ManualAssignmentSettings />
                 </div>
               </div>
             </FeatureGuard>

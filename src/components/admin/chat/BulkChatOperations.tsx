@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -28,49 +27,13 @@ import {
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { BulkOperation, ChatFilter } from './types';
+import { supabase } from '@/integrations/supabase/client';
 
 export const BulkChatOperations = () => {
-  const [operations, setOperations] = useState<BulkOperation[]>([
-    {
-      id: '1',
-      type: 'assign',
-      status: 'completed',
-      totalChats: 150,
-      processedChats: 150,
-      createdAt: '2024-01-15 14:30',
-      createdBy: 'admin@company.com',
-      parameters: { agentId: 'agent_123', reason: 'Load balancing' }
-    },
-    {
-      id: '2',
-      type: 'close',
-      status: 'running',
-      totalChats: 89,
-      processedChats: 45,
-      createdAt: '2024-01-15 15:45',
-      createdBy: 'admin@company.com',
-      parameters: { reason: 'Resolved automatically', disposition: 'auto_resolved' }
-    },
-    {
-      id: '3',
-      type: 'tag',
-      status: 'failed',
-      totalChats: 200,
-      processedChats: 0,
-      createdAt: '2024-01-15 16:00',
-      createdBy: 'supervisor@company.com',
-      parameters: { tags: ['priority', 'follow_up'], action: 'add' }
-    }
-  ]);
-
-  const [selectedChats] = useState([
-    { id: '1', customer: 'John Doe', channel: 'website', status: 'active', agent: 'Agent 1', priority: 'high' },
-    { id: '2', customer: 'Jane Smith', channel: 'whatsapp', status: 'waiting', agent: null, priority: 'medium' },
-    { id: '3', customer: 'Bob Johnson', channel: 'facebook', status: 'closed', agent: 'Agent 2', priority: 'low' },
-    { id: '4', customer: 'Alice Brown', channel: 'email', status: 'active', agent: 'Agent 1', priority: 'high' },
-    { id: '5', customer: 'Charlie Wilson', channel: 'website', status: 'waiting', agent: null, priority: 'medium' }
-  ]);
-
+  const [operations, setOperations] = useState<BulkOperation[]>([]);
+  const [chats, setChats] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [bulkFilters, setBulkFilters] = useState<ChatFilter>({
     channels: [],
     status: [],
@@ -79,9 +42,24 @@ export const BulkChatOperations = () => {
     dateRange: { start: '', end: '' },
     tags: []
   });
-
   const [selectedChatIds, setSelectedChatIds] = useState<string[]>([]);
   const [bulkAction, setBulkAction] = useState('');
+
+  useEffect(() => {
+    const fetchChats = async () => {
+      setLoading(true);
+      setError(null);
+      const { data, error } = await supabase.from('chats').select('*');
+      if (error) {
+        setError('Failed to fetch chats');
+        setLoading(false);
+        return;
+      }
+      setChats(data || []);
+      setLoading(false);
+    };
+    fetchChats();
+  }, []);
 
   const getOperationIcon = (type: string) => {
     switch (type) {
@@ -107,7 +85,7 @@ export const BulkChatOperations = () => {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedChatIds(selectedChats.map(chat => chat.id));
+      setSelectedChatIds(chats.map(chat => chat.id));
     } else {
       setSelectedChatIds([]);
     }
@@ -121,34 +99,36 @@ export const BulkChatOperations = () => {
     }
   };
 
-  const executeBulkOperation = () => {
+  const executeBulkOperation = async () => {
     if (!bulkAction || selectedChatIds.length === 0) return;
-
+    setLoading(true);
+    setError(null);
+    let updateData = {};
+    if (bulkAction === 'close') updateData = { status: 'closed' };
+    if (bulkAction === 'assign') updateData = { assigned_agent_id: 'agent_123' };
+    if (bulkAction === 'tag') updateData = { tags: ['priority', 'follow_up'] };
+    const { error } = await supabase.from('chats').update(updateData).in('id', selectedChatIds);
+    if (error) {
+      setError('Bulk operation failed');
+      setLoading(false);
+      return;
+    }
     const newOperation: BulkOperation = {
       id: Date.now().toString(),
       type: bulkAction as any,
-      status: 'pending',
+      status: 'completed',
       totalChats: selectedChatIds.length,
-      processedChats: 0,
+      processedChats: selectedChatIds.length,
       createdAt: new Date().toLocaleString(),
       createdBy: 'current_user@company.com',
-      parameters: {}
+      parameters: updateData
     };
-
     setOperations(prev => [newOperation, ...prev]);
-    
-    // Simulate operation execution
-    setTimeout(() => {
-      setOperations(prev => prev.map(op => 
-        op.id === newOperation.id 
-          ? { ...op, status: 'running' }
-          : op
-      ));
-    }, 1000);
-
-    // Clear selection
+    const { data } = await supabase.from('chats').select('*');
+    setChats(data || []);
     setSelectedChatIds([]);
     setBulkAction('');
+    setLoading(false);
   };
 
   return (
@@ -286,7 +266,7 @@ export const BulkChatOperations = () => {
             <CardTitle>Select Chats for Bulk Operation</CardTitle>
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-600">
-                {selectedChatIds.length} of {selectedChats.length} selected
+                {selectedChatIds.length} of {chats.length} selected
               </span>
             </div>
           </div>
@@ -297,7 +277,7 @@ export const BulkChatOperations = () => {
               <TableRow>
                 <TableHead className="w-12">
                   <Checkbox 
-                    checked={selectedChatIds.length === selectedChats.length && selectedChats.length > 0}
+                    checked={selectedChatIds.length === chats.length && chats.length > 0}
                     onCheckedChange={handleSelectAll}
                   />
                 </TableHead>
@@ -309,7 +289,7 @@ export const BulkChatOperations = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {selectedChats.map((chat) => (
+              {chats.map((chat) => (
                 <TableRow key={chat.id}>
                   <TableCell>
                     <Checkbox 

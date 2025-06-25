@@ -1,13 +1,11 @@
-
 import { useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
 
-interface PrivateNote {
+export interface PrivateNote {
   id: number;
   content: string;
   author: string;
   timestamp: string;
-  chatId: number;
+  chatId: string;
   type: 'private-note';
   attachments?: {
     type: 'image' | 'file' | 'media' | 'audio' | 'video';
@@ -17,7 +15,7 @@ interface PrivateNote {
 }
 
 interface PrivateNotesProps {
-  chatId: number;
+  chatId: string | null;
   currentUserRole?: 'agent' | 'supervisor' | 'admin';
   currentUserName?: string;
 }
@@ -29,7 +27,7 @@ export const PrivateNotes = ({ chatId, currentUserRole = 'agent', currentUserNam
       content: "Customer seems frustrated about delivery delay. Offered 20% discount on next order.",
       author: "Sarah Johnson",
       timestamp: "10:25 AM",
-      chatId: 1,
+      chatId: "d8b8a5a3-7b1f-4d2c-9b9a-1e2f3a4b5c6d",
       type: 'private-note',
       attachments: [
         {
@@ -44,7 +42,7 @@ export const PrivateNotes = ({ chatId, currentUserRole = 'agent', currentUserNam
       content: "Follow up needed - customer requested manager callback.",
       author: "Mike Chen", 
       timestamp: "11:10 AM",
-      chatId: 1,
+      chatId: "d8b8a5a3-7b1f-4d2c-9b9a-1e2f3a4b5c6d",
       type: 'private-note',
       attachments: [
         {
@@ -55,33 +53,21 @@ export const PrivateNotes = ({ chatId, currentUserRole = 'agent', currentUserNam
       ]
     }
   ]);
-  
-  const { toast } = useToast();
 
-  const chatNotes = notes.filter(note => note.chatId === chatId);
+  const chatNotes = chatId ? notes.filter(note => note.chatId === chatId) : [];
 
   const canDeleteNote = (noteAuthor: string) => {
     return noteAuthor === currentUserName || currentUserRole === 'supervisor' || currentUserRole === 'admin';
   };
 
   const handleDeleteNote = (noteId: number, noteAuthor: string) => {
-    if (!canDeleteNote(noteAuthor)) {
-      toast({
-        title: "Access denied",
-        description: "You can only delete your own notes.",
-        variant: "destructive"
-      });
-      return;
-    }
+    if (!canDeleteNote(noteAuthor)) return;
 
     setNotes(notes.filter(note => note.id !== noteId));
-    toast({
-      title: "Note deleted",
-      description: "The private note has been removed.",
-    });
   };
 
   const addNote = (content: string, attachments?: { type: 'image' | 'file' | 'media' | 'audio' | 'video'; name: string; url?: string; }[]) => {
+    if (!chatId) return;
     const note: PrivateNote = {
       id: notes.length + 1,
       content: content.trim(),
@@ -101,11 +87,6 @@ export const PrivateNotes = ({ chatId, currentUserRole = 'agent', currentUserNam
     const attachmentText = attachments && attachments.length > 0 
       ? ` with ${attachments.length} attachment(s)`
       : '';
-    
-    toast({
-      title: "Private note added",
-      description: `Your internal note${attachmentText} has been saved for team collaboration.`,
-    });
 
     return note;
   };
@@ -114,6 +95,6 @@ export const PrivateNotes = ({ chatId, currentUserRole = 'agent', currentUserNam
 };
 
 // Export the hook for use in parent component
-export const usePrivateNotes = (chatId: number, currentUserRole?: 'agent' | 'supervisor' | 'admin', currentUserName?: string) => {
+export const usePrivateNotes = (chatId: string | null, currentUserRole?: 'agent' | 'supervisor' | 'admin', currentUserName?: string) => {
   return PrivateNotes({ chatId, currentUserRole, currentUserName });
 };

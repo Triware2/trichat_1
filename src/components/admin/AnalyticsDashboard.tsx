@@ -26,68 +26,125 @@ import {
   Code
 } from 'lucide-react';
 import { CustomAnalyticsBuilder } from './analytics/CustomAnalyticsBuilder';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 export const AnalyticsDashboard = () => {
-  const monthlyData = [
-    { month: 'Jan', chats: 1200, resolved: 1100, satisfaction: 4.2 },
-    { month: 'Feb', chats: 1400, resolved: 1250, satisfaction: 4.3 },
-    { month: 'Mar', chats: 1800, resolved: 1650, satisfaction: 4.1 },
-    { month: 'Apr', chats: 1600, resolved: 1480, satisfaction: 4.4 },
-    { month: 'May', chats: 2000, resolved: 1850, satisfaction: 4.5 },
-    { month: 'Jun', chats: 2200, resolved: 2050, satisfaction: 4.6 }
-  ];
+  const [monthlyData, setMonthlyData] = useState<any[]>([]);
+  const [dailyData, setDailyData] = useState<any[]>([]);
+  const [channelData, setChannelData] = useState<any[]>([]);
+  const [kpiCards, setKpiCards] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const dailyData = [
-    { day: 'Mon', chats: 45, avgTime: 3.2 },
-    { day: 'Tue', chats: 52, avgTime: 2.8 },
-    { day: 'Wed', chats: 49, avgTime: 3.1 },
-    { day: 'Thu', chats: 63, avgTime: 2.9 },
-    { day: 'Fri', chats: 71, avgTime: 3.4 },
-    { day: 'Sat', chats: 35, avgTime: 2.7 },
-    { day: 'Sun', chats: 28, avgTime: 2.5 }
-  ];
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        // Fetch chats for monthly and daily stats
+        const { data: chats, error: chatsError } = await supabase.from('chats').select('*');
+        if (chatsError) throw new Error('Failed to fetch chats');
 
-  const channelData = [
-    { name: 'Website Chat', value: 45, color: '#3B82F6' },
-    { name: 'Mobile App', value: 30, color: '#8B5CF6' },
-    { name: 'Email', value: 15, color: '#10B981' },
-    { name: 'Social Media', value: 10, color: '#F59E0B' }
-  ];
+        // Fetch agents
+        const { data: agents, error: agentsError } = await supabase.from('profiles').select('*').eq('role', 'agent');
+        if (agentsError) throw new Error('Failed to fetch agents');
 
-  const kpiCards = [
-    {
-      title: 'Total Conversations',
-      value: '12,345',
-      change: '+12.5%',
-      trend: 'up',
-      icon: MessageSquare,
-      color: 'text-blue-600'
-    },
-    {
-      title: 'Avg Response Time',
-      value: '2.3 min',
-      change: '-15.2%',
-      trend: 'down',
-      icon: Clock,
-      color: 'text-green-600'
-    },
-    {
-      title: 'Customer Satisfaction',
-      value: '4.6/5',
-      change: '+8.3%',
-      trend: 'up',
-      icon: Star,
-      color: 'text-yellow-600'
-    },
-    {
-      title: 'Active Agents',
-      value: '24',
-      change: '+2%',
-      trend: 'up',
-      icon: Users,
-      color: 'text-purple-600'
-    }
-  ];
+        // Monthly Data (last 6 months)
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const now = new Date();
+        const monthlyStats = Array.from({ length: 6 }, (_, i) => {
+          const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
+          const monthStr = months[d.getMonth()];
+          const chatsInMonth = chats.filter((c: any) => c.created_at && new Date(c.created_at).getMonth() === d.getMonth() && new Date(c.created_at).getFullYear() === d.getFullYear());
+          const resolved = chatsInMonth.filter((c: any) => c.status === 'resolved').length;
+          const satisfaction = chatsInMonth.length > 0 ? (chatsInMonth.reduce((acc: number, c: any) => acc + (c.satisfaction_rating || 0), 0) / chatsInMonth.length) : 0;
+          return {
+            month: monthStr,
+            chats: chatsInMonth.length,
+            resolved,
+            satisfaction: satisfaction ? Number(satisfaction.toFixed(2)) : null,
+          };
+        });
+        setMonthlyData(monthlyStats);
+
+        // Daily Data (last 7 days)
+        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const dailyStats = Array.from({ length: 7 }, (_, i) => {
+          const d = new Date(now);
+          d.setDate(now.getDate() - (6 - i));
+          const dayStr = days[d.getDay()];
+          const chatsInDay = chats.filter((c: any) => c.created_at && new Date(c.created_at).toDateString() === d.toDateString());
+          const avgTime = chatsInDay.length > 0 ? (chatsInDay.reduce((acc: number, c: any) => acc + (c.response_time || 0), 0) / chatsInDay.length / 60).toFixed(1) : null;
+          return {
+            day: dayStr,
+            chats: chatsInDay.length,
+            avgTime: avgTime ? Number(avgTime) : null,
+          };
+        });
+        setDailyData(dailyStats);
+
+        // Channel Data (group by channel)
+        const channelMap: Record<string, { name: string; value: number; color: string }> = {
+          'website': { name: 'Website Chat', value: 0, color: '#3B82F6' },
+          'mobile': { name: 'Mobile App', value: 0, color: '#8B5CF6' },
+          'email': { name: 'Email', value: 0, color: '#10B981' },
+          'social': { name: 'Social Media', value: 0, color: '#F59E0B' },
+        };
+        chats.forEach((c: any) => {
+          if (c.channel && channelMap[c.channel]) {
+            channelMap[c.channel].value += 1;
+          }
+        });
+        setChannelData(Object.values(channelMap));
+
+        // KPIs
+        const totalChats = chats.length;
+        const avgResponse = totalChats > 0 ? (chats.reduce((acc: number, c: any) => acc + (c.response_time || 0), 0) / totalChats / 60).toFixed(1) : '0';
+        const avgSatisfaction = totalChats > 0 ? (chats.reduce((acc: number, c: any) => acc + (c.satisfaction_rating || 0), 0) / totalChats).toFixed(2) : '0';
+        const activeAgents = agents.length;
+        setKpiCards([
+          {
+            title: 'Total Conversations',
+            value: totalChats.toLocaleString(),
+            change: '',
+            trend: 'up',
+            icon: MessageSquare,
+            color: 'text-blue-600',
+          },
+          {
+            title: 'Avg Response Time',
+            value: `${avgResponse} min`,
+            change: '',
+            trend: 'down',
+            icon: Clock,
+            color: 'text-green-600',
+          },
+          {
+            title: 'Customer Satisfaction',
+            value: `${avgSatisfaction}/5`,
+            change: '',
+            trend: 'up',
+            icon: Star,
+            color: 'text-yellow-600',
+          },
+          {
+            title: 'Active Agents',
+            value: activeAgents.toString(),
+            change: '',
+            trend: 'up',
+            icon: Users,
+            color: 'text-purple-600',
+          },
+        ]);
+      } catch (err: any) {
+        setError(err.message || 'Failed to fetch analytics');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAnalytics();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50/30">

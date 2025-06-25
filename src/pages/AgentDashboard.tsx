@@ -1,7 +1,5 @@
-
-import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import { Tabs } from '@/components/ui/tabs';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useLocation, useNavigate, Route, Routes } from 'react-router-dom';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { NavigationHeader } from '@/components/NavigationHeader';
 import { AgentSidebar } from '@/components/agent/dashboard/AgentSidebar';
@@ -13,167 +11,291 @@ import { CustomerInfo } from '@/components/agent/CustomerInfo';
 import { OtherTabsContent } from '@/components/agent/dashboard/OtherTabsContent';
 import { FeatureGuard } from '@/components/FeatureGuard';
 import { MessageSquare, Users, Clock, CheckCircle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/use-auth';
+import { CustomerData } from '@/components/agent/customer/CustomerDataTypes';
+import { AgentProfile } from '@/pages/AgentProfile';
+import { Customer360 } from '@/components/agent/dashboard/Customer360';
 
-const AgentDashboard = () => {
-  console.log("AgentDashboard component rendering...");
-  
-  const location = useLocation();
-  const [selectedChat, setSelectedChat] = useState(1);
-  const [activeTab, setActiveTab] = useState('dashboard');
-
-  // Map URL paths to tab names
   const getTabFromPath = (pathname: string) => {
+  if (pathname.startsWith('/agent/active-chat/')) return 'chat';
     const pathMap: { [key: string]: string } = {
       '/agent': 'dashboard',
       '/agent/active-chat': 'chat',
       '/agent/all-chats': 'all-chats',
       '/agent/contacts': 'contacts',
       '/agent/customer-360': 'customer-insights',
-      '/agent/settings': 'settings'
+    '/agent/settings': 'settings',
+    '/agent/profile': 'profile',
     };
     return pathMap[pathname] || 'dashboard';
   };
 
-  // Update active tab based on current route
-  useEffect(() => {
-    const tab = getTabFromPath(location.pathname);
-    setActiveTab(tab);
+const mapChatData = (chat: any) => ({
+  id: chat.id,
+  customer: chat.customers?.name || 'Unknown Customer',
+  lastMessage: chat.lastMessage || chat.subject || 'No subject',
+  time: chat.time || new Date(chat.updated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+  status: chat.status,
+  unread: chat.unread || 0,
+  priority: chat.priority,
+  ...chat
+});
+
+const AgentDashboard = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  
+  const { activeTab, selectedChatId } = useMemo(() => {
+    const path = location.pathname;
+    const tab = getTabFromPath(path);
+    let id: string | null = null;
+    if (tab === 'chat' && path.includes('/agent/active-chat/')) {
+        const parts = path.split('/');
+        const chatId = parts[parts.length - 1];
+        if (chatId && chatId !== 'active-chat') {
+            id = chatId;
+        }
+    }
+    return { activeTab: tab, selectedChatId: id };
   }, [location.pathname]);
 
-  const [stats, setStats] = useState([
-    { title: 'Open Tickets', value: '24', icon: MessageSquare, color: 'bg-blue-50 text-blue-600 border-blue-200' },
-    { title: 'Active Users', value: '150', icon: Users, color: 'bg-emerald-50 text-emerald-600 border-emerald-200' },
-    { title: 'Avg. Wait Time', value: '3 mins', icon: Clock, color: 'bg-amber-50 text-amber-600 border-amber-200' },
-    { title: 'Resolution Rate', value: '95%', icon: CheckCircle, color: 'bg-violet-50 text-violet-600 border-violet-200' },
-  ]);
+  const [agentChats, setAgentChats] = useState<any[]>([]);
+  const [activeChat, setActiveChat] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [stats, setStats] = useState<any[]>([]);
+  const [activities, setActivities] = useState<any[]>([]);
+  const [todayPerformance, setTodayPerformance] = useState<any>({});
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
+  const [subjectRefreshKey, setSubjectRefreshKey] = useState(0);
 
-  const [chats, setChats] = useState([
-    { id: 1, customer: 'John Smith', lastMessage: 'Hi, I need help with my order', time: '10:30 AM', status: 'urgent', unread: 2, priority: 'High' },
-    { id: 2, customer: 'Alice Johnson', lastMessage: 'Thanks, issue resolved!', time: '10:45 AM', status: 'resolved', unread: 0, priority: 'Low' },
-    { id: 3, customer: 'Bob Williams', lastMessage: 'Still waiting for a response...', time: '11:00 AM', status: 'pending', unread: 1, priority: 'Medium' },
-    { id: 4, customer: 'Emily Brown', lastMessage: 'The product is not working as expected', time: '11:15 AM', status: 'pending', unread: 3, priority: 'High' },
-  ]);
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const customerIdFromUrl = searchParams.get('customerId');
+    if (customerIdFromUrl) {
+      setSelectedCustomerId(customerIdFromUrl);
+    }
+  }, [location.search]);
 
-  const [activities, setActivities] = useState([
-    { customer: 'John Smith', action: 'Opened a new ticket', time: '10:30 AM', type: 'success' },
-    { customer: 'Alice Johnson', action: 'Closed the ticket', time: '10:45 AM', type: 'success' },
-    { customer: 'Bob Williams', action: 'Awaiting response', time: '11:00 AM', type: 'warning' },
-    { customer: 'Emily Brown', action: 'Reported a problem', time: '11:15 AM', type: 'error' },
-  ]);
+  const fetchCustomersForChats = useCallback(async (chats: any[]) => {
+    if (chats.length === 0) return [];
+    
+    const customerIds = [...new Set(chats.map(c => c.customer_id).filter(Boolean))];
+    
+    if (customerIds.length === 0) {
+      return chats.map(chat => ({ ...chat, customers: null }));
+    }
 
-  const todayPerformance = {
-    chatsHandled: 12,
-    avgResponse: '2.3min',
-    satisfaction: 4.8
-  };
+    const { data: customersData, error: customersError } = await supabase
+      .from('customers')
+      .select('*')
+      .in('id', customerIds);
 
-  const getSelectedCustomer = () => {
-    const selectedChatData = chats.find(chat => chat.id === selectedChat);
-    return {
-      name: selectedChatData?.customer || 'John Smith',
-      email: 'john.smith@email.com',
-      phone: '+1 (555) 123-4567',
-      location: 'New York, USA',
-      customerSince: '2023-01-15',
-      tier: 'Premium',
-      previousChats: 12,
-      satisfaction: 4.8,
-      lastContact: '2024-01-10',
-      totalOrders: 8,
-      totalSpent: '$2,450.00'
+    if (customersError) {
+      console.error("Error fetching customers for chats:", customersError);
+      return chats.map(chat => ({ ...chat, customers: null }));
+    }
+    
+    const customersById = new Map(customersData.map(c => [c.id, c]));
+
+    return chats.map(chat => ({
+      ...chat,
+      customers: customersById.get(chat.customer_id) || null
+    }));
+  }, []);
+
+  useEffect(() => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
+    const fetchAllChatData = async () => {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        const { data: assignedChatsData, error: assignedChatsError } = await supabase
+          .from('chats')
+          .select('*')
+          .eq('assigned_agent_id', user.id)
+          .neq('status', 'resolved')
+          .neq('status', 'closed');
+
+        if (assignedChatsError) throw new Error(`Could not load assigned conversations. Reason: ${assignedChatsError.message}`);
+        
+        const chatsWithCustomers = await fetchCustomersForChats(assignedChatsData || []);
+        setAgentChats(chatsWithCustomers.map(mapChatData));
+        
+        if (selectedChatId) {
+          if (activeChat?.id !== selectedChatId) {
+            const { data: activeChatData, error: activeChatError } = await supabase
+              .from('chats')
+              .select('*')
+              .eq('id', selectedChatId)
+              .single();
+
+            if (activeChatError) throw new Error(`Could not load conversation ${selectedChatId}.`);
+            
+            if (activeChatData) {
+              const [chatWithCustomer] = await fetchCustomersForChats([activeChatData]);
+              setActiveChat(mapChatData(chatWithCustomer));
+            } else {
+              setActiveChat(null);
+            }
+          }
+        } else {
+          setActiveChat(null);
+        }
+      } catch (e: any) {
+        console.error(e);
+        setError(e.message);
+      } finally {
+        setLoading(false);
+      }
     };
+    
+    fetchAllChatData();
+  }, [user, selectedChatId, fetchCustomersForChats]);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      if (!user || agentChats.length === 0) return;
+
+      try {
+        // Parallel fetching for dashboard stats
+        const [
+          { count: activeAgentsCount },
+          { data: resolvedChats },
+          { data: notificationData }
+        ] = await Promise.all([
+          supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'agent').eq('status', 'online'),
+          supabase.from('chats').select('id').eq('assigned_agent_id', user.id).eq('status', 'resolved'),
+          supabase.from('notifications').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(5)
+        ]);
+        
+        const openTickets = agentChats.length;
+        const totalAssignedChats = openTickets + (resolvedChats?.length || 0);
+        const resolutionRate = totalAssignedChats > 0 ? (((resolvedChats?.length || 0) / totalAssignedChats) * 100).toFixed(1) : '0';
+        const avgWaitTime = agentChats.length > 0 ? (agentChats.reduce((acc, c) => acc + (c.wait_time || 0), 0) / agentChats.length / 60).toFixed(1) : '0';
+
+        setStats([
+          { title: 'Open Tickets', value: openTickets.toString(), icon: MessageSquare, color: 'bg-blue-500 text-white' },
+          { title: 'Active Agents', value: (activeAgentsCount || 0).toString(), icon: Users, color: 'bg-emerald-500 text-white' },
+          { title: 'Avg. Wait Time', value: `${avgWaitTime} mins`, icon: Clock, color: 'bg-amber-400 text-white' },
+          { title: 'Resolution Rate', value: `${resolutionRate}%`, icon: CheckCircle, color: 'bg-violet-500 text-white' },
+        ]);
+        
+        setActivities((notificationData || []).map(n => ({
+          customer: (n.data as any)?.customer_name || 'System',
+          action: n.message,
+          time: new Date(n.created_at).toLocaleTimeString(),
+          type: n.type === 'system_alert' ? 'warning' : 'info'
+        })));
+
+        setTodayPerformance({
+          chatsHandled: openTickets,
+          avgResponse: `${avgWaitTime} min`,
+          satisfaction: agentChats.length > 0 ? (agentChats.reduce((acc, c) => acc + (c.satisfaction_rating || 0), 0) / agentChats.length).toFixed(2) : '0',
+        });
+      } catch (err: any) {
+        console.error("Error fetching dashboard stats:", err.message);
+        setError("Could not load dashboard stats.");
+      }
+    };
+    
+    fetchDashboardData();
+  }, [user, agentChats]);
+
+  const handleChatSelect = (chatId: string) => {
+    navigate(`/agent/active-chat/${chatId}`);
   };
 
-  const getSelectedCustomerName = () => {
-    const selectedChatData = chats.find(chat => chat.id === selectedChat);
-    return selectedChatData?.customer || 'John Smith';
+  const handleCustomerSelect = (customerId: string) => {
+    setSelectedCustomerId(customerId);
   };
 
-  const handleStatClick = (statTitle: string) => {
-    console.log(`Stat clicked: ${statTitle}`);
+  const handleBackToSearch = () => {
+    navigate('/agent/customer-360', { replace: true });
+    setSelectedCustomerId(null);
   };
 
-  const handleQueueAction = (customer: string) => {
-    console.log(`Queue action for: ${customer}`);
+  const handleQueueAction = (chatId: string) => {
+    navigate(`/agent/active-chat/${chatId}`);
   };
 
-  const handleSendMessage = (message: string) => {
-    console.log(`Sending message: ${message}`);
-  };
-
-  const handleFilter = () => {
-    console.log('Filtering chats...');
+  // Handler to update subject in both activeChat and agentChats
+  const handleUpdateChatSubject = async (chatId: string, newSubject: string) => {
+    setAgentChats(prev => prev.map(chat => chat.id === chatId ? { ...chat, subject: newSubject } : chat));
+    setActiveChat(prev => prev && prev.id === chatId ? { ...prev, subject: newSubject } : prev);
+    setSubjectRefreshKey(k => k + 1);
   };
 
   const renderTabContent = () => {
+    if (loading && activeTab === 'chat') return <div>Loading...</div>;
+    if (error) return <div className="p-4 text-red-500">{error}</div>;
+
+    if (selectedCustomerId) {
+      return <Customer360 customerId={selectedCustomerId} onBack={handleBackToSearch} agentId={user?.id} refreshKey={subjectRefreshKey} />;
+    }
+
     switch (activeTab) {
       case 'dashboard':
-        return (
-          <DashboardContent
-            stats={stats}
-            chats={chats}
-            activities={activities}
-            onStatClick={handleStatClick}
-            onQueueAction={handleQueueAction}
-          />
-        );
+        return <DashboardContent stats={stats} agentName={user?.email || ''} activities={activities} queue={agentChats} todayPerformance={todayPerformance} onQueueAction={handleQueueAction} onStatClick={()=>{}} feedback={{csat:0, dsat:0, totalResponses:0, recentFeedback:[]}} />;
       case 'chat':
-        return (
-          <ChatContent
-            chats={chats}
-            selectedChat={selectedChat}
-            onChatSelect={setSelectedChat}
-            onFilter={handleFilter}
-            onSendMessage={handleSendMessage}
-            getSelectedCustomerName={getSelectedCustomerName}
-          />
-        );
+        return <ChatContent 
+                  chats={agentChats}
+                  chat={activeChat} 
+                  onSendMessage={() => {}}
+                  agentName={user?.email || ''} 
+                  onChatSelect={handleChatSelect}
+                  onSubjectUpdated={handleUpdateChatSubject}
+                />;
       case 'all-chats':
-        return <AllChatsContent />;
+        return <AllChatsContent onChatSelect={handleChatSelect} refreshKey={subjectRefreshKey} />;
       case 'contacts':
-        return <ContactsContent />;
+        return <ContactsContent onCustomerSelect={handleCustomerSelect} />;
       case 'customer-insights':
         return (
           <FeatureGuard feature="customer_360">
-            <CustomerInfo customer={getSelectedCustomer()} />
+            <Customer360 
+              customerId={selectedCustomerId} 
+              onBack={handleBackToSearch} 
+              agentId={user?.id}
+              refreshKey={subjectRefreshKey}
+            />
           </FeatureGuard>
         );
       case 'settings':
-        return <OtherTabsContent customer={getSelectedCustomer()} />;
+        return <OtherTabsContent title="Settings" />;
+      case 'profile':
+        return <AgentProfile />;
       default:
-        return (
-          <DashboardContent
-            stats={stats}
-            chats={chats}
-            activities={activities}
-            onStatClick={handleStatClick}
-            onQueueAction={handleQueueAction}
-          />
-        );
+        return <div>Select a tab</div>;
     }
   };
 
   return (
-    <div className="h-screen bg-gray-50">
-      <NavigationHeader 
-        title="Agent Dashboard" 
-        role="agent"
-        userEmail="agent@trichat.com"
-      />
+    <div className="min-h-screen h-screen w-full flex flex-col bg-gray-50">
+      <div className="fixed top-0 left-0 right-0 z-50">
+        <NavigationHeader 
+          title="Agent Dashboard" 
+          role="agent"
+          userEmail={user?.email}
+        />
+      </div>
 
-      {/* Main Content with Sidebar */}
-      <div className="h-[calc(100vh-64px)]">
+      <div className="flex-1 flex min-h-0 pt-16">
         <SidebarProvider defaultOpen={true}>
-          <div className="flex h-full w-full">
-            {/* Collapsible Sidebar */}
+          <div className="flex w-full h-full min-h-0">
             <AgentSidebar 
               todayPerformance={todayPerformance}
               activeTab={activeTab}
-              onTabChange={setActiveTab}
             />
 
-            {/* Main Content Area */}
-            <SidebarInset className="flex-1 overflow-hidden">
+            <SidebarInset className="flex-1">
               {renderTabContent()}
             </SidebarInset>
           </div>
@@ -183,4 +305,18 @@ const AgentDashboard = () => {
   );
 };
 
-export default AgentDashboard;
+const AgentNotifications = () => (
+  <div className="max-w-2xl mx-auto mt-16 p-8 bg-white rounded-2xl shadow">
+    <h2 className="text-xl font-bold mb-4">Notifications</h2>
+    <p className="text-slate-600">You have no new notifications.</p>
+  </div>
+);
+
+export default function AgentDashboardWrapper() {
+  return (
+    <Routes>
+      <Route path="/agent/notifications" element={<AgentNotifications />} />
+      <Route path="*" element={<AgentDashboard />} />
+    </Routes>
+  );
+}

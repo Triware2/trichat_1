@@ -1,4 +1,3 @@
-
 export interface Disposition {
   id: string;
   name: string;
@@ -19,7 +18,7 @@ export interface DispositionField {
 }
 
 export interface ChatResolution {
-  chatId: number;
+  chatId: string;
   dispositionId: string;
   fields: Record<string, string | number>;
   notes: string;

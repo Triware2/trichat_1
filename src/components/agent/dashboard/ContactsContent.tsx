@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -7,78 +6,97 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, Filter, Plus, Phone, Mail, MessageSquare, User, Calendar } from 'lucide-react';
-import { AddContactModal } from './AddContactModal';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import { supabase } from '@/integrations/supabase/client';
 
 interface Contact {
-  id: number;
+  id: string;
   name: string;
   email: string;
   phone: string;
   company: string;
   status: 'active' | 'inactive' | 'pending';
-  tier: 'Basic' | 'Premium' | 'Enterprise';
+  tier: 'Basic' | 'Premium' | 'Enterprise' | 'Standard';
   lastContact: string;
   totalChats: number;
   satisfaction: number;
 }
 
-const mockContacts: Contact[] = [
-  {
-    id: 1,
-    name: 'John Smith',
-    email: 'john@example.com',
-    phone: '+1234567890',
-    company: 'Acme Corp',
+interface ContactsContentProps {
+  onCustomerSelect: (customerId: string) => void;
+}
+
+const mockContact: Contact = {
+  id: 'mock-contact-1',
+  name: 'John Doe (Mock)',
+  email: 'john.doe@example.com',
+  phone: '123-456-7890',
+  company: 'Mock Industries',
     status: 'active',
     tier: 'Premium',
-    lastContact: '2024-01-15',
-    totalChats: 12,
-    satisfaction: 4.8
-  },
-  {
-    id: 2,
-    name: 'Alice Johnson',
-    email: 'alice@example.com', 
-    phone: '+1234567891',
-    company: 'Tech Solutions',
-    status: 'active',
-    tier: 'Enterprise',
-    lastContact: '2024-01-14',
-    totalChats: 8,
-    satisfaction: 4.5
-  },
-  {
-    id: 3,
-    name: 'Bob Williams',
-    email: 'bob@example.com',
-    phone: '+1234567892',
-    company: 'StartupXYZ',
-    status: 'pending',
-    tier: 'Basic',
-    lastContact: '2024-01-13',
-    totalChats: 3,
-    satisfaction: 4.2
-  }
-];
+  lastContact: new Date().toISOString(),
+  totalChats: 5,
+  satisfaction: 4.5,
+};
 
-export const ContactsContent = () => {
-  const [contacts, setContacts] = useState<Contact[]>(mockContacts);
+export const ContactsContent = ({ onCustomerSelect }: ContactsContentProps) => {
+  const [contacts, setContacts] = useState<Contact[]>([mockContact]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [tierFilter, setTierFilter] = useState('all');
-  const [showAddModal, setShowAddModal] = useState(false);
 
-  const filteredContacts = contacts.filter(contact => {
+  useEffect(() => {
+    const fetchContacts = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('customers')
+        .select('*');
+
+      if (error) {
+        console.error('Error fetching contacts:', error);
+        setContacts([]);
+      } else if (data) {
+        const formattedContacts: Contact[] = data.map((customer: any) => ({
+          id: customer.id,
+          name: customer.name || 'N/A',
+          email: customer.email || 'N/A',
+          phone: customer.phone || 'N/A',
+          company: customer.metadata?.company || 'N/A',
+          status: customer.metadata?.status || 'inactive',
+          tier: customer.metadata?.tier || 'Basic',
+          lastContact: customer.updated_at,
+          totalChats: customer.metadata?.totalChats || 0,
+          satisfaction: customer.metadata?.satisfaction || 0
+        }));
+        setContacts([mockContact, ...formattedContacts]);
+      }
+      setLoading(false);
+    };
+
+    fetchContacts();
+  }, []);
+
+  const filteredContacts = useMemo(() => {
+    return contacts.filter(contact => {
     const matchesSearch = searchTerm === '' || 
       contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      contact.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      contact.company.toLowerCase().includes(searchTerm.toLowerCase());
+        contact.email.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = statusFilter === 'all' || contact.status === statusFilter;
     const matchesTier = tierFilter === 'all' || contact.tier === tierFilter;
 
     return matchesSearch && matchesStatus && matchesTier;
   });
+  }, [contacts, searchTerm, statusFilter, tierFilter]);
 
   const getStatusBadge = (status: string) => {
     const colors = {
@@ -98,19 +116,6 @@ export const ContactsContent = () => {
     return colors[tier as keyof typeof colors] || 'bg-gray-100 text-gray-800';
   };
 
-  const handleAddContact = (contactData: any) => {
-    const newContact: Contact = {
-      id: contacts.length + 1,
-      ...contactData,
-      status: 'pending' as const,
-      lastContact: new Date().toISOString().split('T')[0],
-      totalChats: 0,
-      satisfaction: 0
-    };
-    setContacts([...contacts, newContact]);
-    setShowAddModal(false);
-  };
-
   const clearFilters = () => {
     setSearchTerm('');
     setStatusFilter('all');
@@ -122,28 +127,27 @@ export const ContactsContent = () => {
       <div className="h-full flex flex-col">
         <Card className="flex-1 overflow-hidden">
           <CardHeader className="pb-4">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="flex items-center justify-between">
               <CardTitle className="text-xl font-semibold text-gray-900">Contacts</CardTitle>
-              <Button onClick={() => setShowAddModal(true)} className="flex items-center gap-2">
-                <Plus className="w-4 h-4" />
-                Add Contact
-              </Button>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="relative w-full md:w-64">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    placeholder="Search contacts..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
             </div>
           </CardHeader>
           
           <CardContent className="flex flex-col h-full overflow-hidden">
             {/* Filters */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  placeholder="Search contacts..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger>
                   <SelectValue placeholder="Status" />
@@ -190,8 +194,20 @@ export const ContactsContent = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredContacts.map((contact) => (
-                    <TableRow key={contact.id} className="hover:bg-gray-50">
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center py-10 text-slate-500">
+                        <User className="w-12 h-12 mx-auto mb-2 animate-pulse" />
+                        <p>Loading contacts...</p>
+                      </TableCell>
+                    </TableRow>
+                  ) : filteredContacts.length > 0 ? (
+                    filteredContacts.map((contact) => (
+                      <TableRow 
+                        key={contact.id} 
+                        className="hover:bg-gray-50 cursor-pointer"
+                        onClick={() => onCustomerSelect(contact.id)}
+                      >
                       <TableCell>
                         <div>
                           <div className="font-medium">{contact.name}</div>
@@ -201,7 +217,7 @@ export const ContactsContent = () => {
                           </div>
                           <div className="text-sm text-gray-500 flex items-center gap-2">
                             <Phone className="w-3 h-3" />
-                            {contact.phone}
+                              {contact.phone || 'N/A'}
                           </div>
                         </div>
                       </TableCell>
@@ -219,13 +235,12 @@ export const ContactsContent = () => {
                       <TableCell>
                         <div className="flex items-center gap-2 text-sm">
                           <Calendar className="w-4 h-4 text-gray-400" />
-                          {contact.lastContact}
+                            {contact.lastContact ? new Date(contact.lastContact).toLocaleDateString() : 'N/A'}
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <MessageSquare className="w-4 h-4 text-gray-400" />
-                          {contact.totalChats}
+                            <MessageSquare className="w-4 h-4" />
                         </div>
                       </TableCell>
                       <TableCell>
@@ -245,18 +260,20 @@ export const ContactsContent = () => {
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))}
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center py-10 text-slate-500">
+                        <User className="w-12 h-12 mx-auto mb-2" />
+                        <p>No contacts found.</p>
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </div>
           </CardContent>
         </Card>
-
-        <AddContactModal
-          open={showAddModal}
-          onOpenChange={setShowAddModal}
-          onContactAdded={handleAddContact}
-        />
       </div>
     </div>
   );

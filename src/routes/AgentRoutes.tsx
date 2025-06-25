@@ -1,4 +1,3 @@
-
 import { Route } from 'react-router-dom';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { TrialGuard } from '@/components/TrialGuard';
@@ -9,6 +8,17 @@ export const AgentRoutes = () => (
   <>
     <Route 
       path="/agent" 
+      element={
+        <ProtectedRoute allowedRoles={['agent', 'supervisor', 'admin']}>
+          <TrialGuard>
+            <TrialBanner />
+            <AgentDashboard />
+          </TrialGuard>
+        </ProtectedRoute>
+      } 
+    />
+    <Route 
+      path="/agent/active-chat/:chatId" 
       element={
         <ProtectedRoute allowedRoles={['agent', 'supervisor', 'admin']}>
           <TrialGuard>
@@ -64,6 +74,17 @@ export const AgentRoutes = () => (
     />
     <Route 
       path="/agent/settings" 
+      element={
+        <ProtectedRoute allowedRoles={['agent', 'supervisor', 'admin']}>
+          <TrialGuard>
+            <TrialBanner />
+            <AgentDashboard />
+          </TrialGuard>
+        </ProtectedRoute>
+      } 
+    />
+    <Route 
+      path="/agent/profile" 
       element={
         <ProtectedRoute allowedRoles={['agent', 'supervisor', 'admin']}>
           <TrialGuard>

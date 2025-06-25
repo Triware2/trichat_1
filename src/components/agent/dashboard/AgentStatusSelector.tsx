@@ -1,11 +1,12 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { ChevronDown, Circle } from 'lucide-react';
+import { useAuth } from '@/hooks/use-auth';
+import { supabase } from '@/integrations/supabase/client';
 
-type AgentStatus = 'live' | 'break' | 'meeting' | 'away' | 'offline';
+type AgentStatus = 'online' | 'break' | 'meeting' | 'offline';
 
 interface StatusConfig {
   label: string;
@@ -15,29 +16,23 @@ interface StatusConfig {
 }
 
 const statusConfig: Record<AgentStatus, StatusConfig> = {
-  live: {
+  online: {
     label: 'Available',
     color: 'text-green-700',
     bgColor: 'bg-green-100',
     dotColor: 'bg-green-500'
   },
   break: {
-    label: 'On Break',
+    label: 'Break',
     color: 'text-yellow-700',
     bgColor: 'bg-yellow-100',
     dotColor: 'bg-yellow-500'
   },
   meeting: {
-    label: 'In Meeting',
+    label: 'Meeting',
     color: 'text-blue-700',
     bgColor: 'bg-blue-100',
     dotColor: 'bg-blue-500'
-  },
-  away: {
-    label: 'Away',
-    color: 'text-orange-700',
-    bgColor: 'bg-orange-100',
-    dotColor: 'bg-orange-500'
   },
   offline: {
     label: 'Offline',
@@ -48,12 +43,21 @@ const statusConfig: Record<AgentStatus, StatusConfig> = {
 };
 
 export const AgentStatusSelector = () => {
-  const [currentStatus, setCurrentStatus] = useState<AgentStatus>('live');
+  const { user } = useAuth();
+  const [currentStatus, setCurrentStatus] = useState<AgentStatus>('online');
+  const [loading, setLoading] = useState(false);
 
-  const handleStatusChange = (status: AgentStatus) => {
+  const handleStatusChange = async (status: AgentStatus) => {
     setCurrentStatus(status);
-    console.log(`Agent status changed to: ${status}`);
-    // In a real app, this would make an API call to update the agent's status
+    setLoading(true);
+    if (user?.id) {
+      await supabase
+        .from('profiles')
+        .update({ status })
+        .eq('id', user.id);
+      // Optionally: trigger a real-time event or notification for supervisors here
+    }
+    setLoading(false);
   };
 
   const currentConfig = statusConfig[currentStatus];
@@ -68,6 +72,7 @@ export const AgentStatusSelector = () => {
           <Button 
             variant="outline" 
             className="h-9 px-3 gap-2 hover:bg-gray-50 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:gap-0"
+            disabled={loading}
           >
             {/* Full badge for expanded state */}
             <Badge className={`${currentConfig.bgColor} ${currentConfig.color} hover:${currentConfig.bgColor} gap-1.5 px-2 py-1 group-data-[collapsible=icon]:hidden`}>
@@ -99,3 +104,5 @@ export const AgentStatusSelector = () => {
     </div>
   );
 };
+
+// Note: For real-time supervisor sync, subscribe to the 'profiles' table in the supervisor dashboard using Supabase real-time.

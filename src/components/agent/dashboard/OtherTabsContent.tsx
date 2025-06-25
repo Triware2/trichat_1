@@ -1,10 +1,12 @@
-
 import { AgentSettings } from './AgentSettings';
 
 interface OtherTabsContentProps {
-  customer: any;
+  title: string;
 }
 
-export const OtherTabsContent = ({ customer }: OtherTabsContentProps) => {
-  return <AgentSettings />;
+export const OtherTabsContent = ({ title }: OtherTabsContentProps) => {
+  if (title === 'Settings') {
+    return <AgentSettings />;
+  }
+  return <div className="p-6">{title}</div>;
 };

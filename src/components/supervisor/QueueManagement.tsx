@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -15,81 +15,79 @@ import {
   RefreshCw,
   Filter
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/use-auth';
+import { ManualAssignmentSettings } from './ManualAssignmentSettings';
 
 export const QueueManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterPriority, setFilterPriority] = useState('all');
   const { toast } = useToast();
+  const { user: supervisor } = useAuth();
+  const [queueItems, setQueueItems] = useState<any[]>([]);
+  const [availableAgents, setAvailableAgents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const queueItems = [
-    {
-      id: 1,
-      customerName: "John Smith",
-      customerEmail: "john.smith@email.com",
-      subject: "Payment issue with order #12345",
-      priority: "High",
-      waitTime: "8m 32s",
-      category: "Billing",
-      assignedAgent: null,
-      lastMessage: "I can't process my refund, getting error message",
-      timestamp: "2 minutes ago"
-    },
-    {
-      id: 2,
-      customerName: "Sarah Wilson",
-      customerEmail: "sarah.w@email.com",
-      subject: "Product inquiry - Premium features",
-      priority: "Medium",
-      waitTime: "5m 15s",
-      category: "Sales",
-      assignedAgent: "Mike Chen",
-      lastMessage: "Can you explain the difference between plans?",
-      timestamp: "5 minutes ago"
-    },
-    {
-      id: 3,
-      customerName: "Robert Brown",
-      customerEmail: "robert.b@email.com",
-      subject: "Technical support needed",
-      priority: "Low",
-      waitTime: "12m 8s",
-      category: "Technical",
-      assignedAgent: null,
-      lastMessage: "Having trouble connecting to the API",
-      timestamp: "12 minutes ago"
-    },
-    {
-      id: 4,
-      customerName: "Maria Garcia",
-      customerEmail: "maria.g@email.com",
-      subject: "Account access problems",
-      priority: "High",
-      waitTime: "3m 45s",
-      category: "Account",
-      assignedAgent: null,
-      lastMessage: "Can't log into my account, password reset not working",
-      timestamp: "1 minute ago"
-    },
-    {
-      id: 5,
-      customerName: "David Lee",
-      customerEmail: "david.l@email.com",
-      subject: "Shipping delay inquiry",
-      priority: "Medium",
-      waitTime: "15m 22s",
-      category: "Shipping",
-      assignedAgent: "Emily Rodriguez",
-      lastMessage: "When will my order arrive? Tracking shows no updates",
-      timestamp: "15 minutes ago"
+  const fetchQueueAndAgents = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Fetch queued chats
+      const { data: chats, error: chatError } = await supabase
+        .from('chats')
+        .select('id, customer_id, subject, priority, status, assigned_agent_id, created_at, closed_at')
+        .eq('status', 'queued');
+      if (chatError) throw new Error('Failed to fetch queue');
+      // Fetch customers
+      const customerIds = [...new Set((chats || []).map((c: any) => c.customer_id).filter(Boolean))];
+      const { data: customers } = customerIds.length > 0
+        ? await supabase.from('customers').select('id, name, email').in('id', customerIds)
+        : { data: [] };
+      // Fetch agents
+      const { data: agents, error: agentError } = await supabase
+        .from('profiles')
+        .select('id, full_name, status')
+        .eq('role', 'agent');
+      if (agentError) throw new Error('Failed to fetch agents');
+      // Map queue items
+      const mappedQueue = (chats || []).map((chat: any) => {
+        const customer = customers?.find((c: any) => c.id === chat.customer_id);
+        const assignedAgent = agents?.find((a: any) => a.id === chat.assigned_agent_id);
+        return {
+          id: chat.id,
+          customerName: customer?.name || 'Unknown',
+          customerEmail: customer?.email || '',
+          subject: chat.subject || '',
+          priority: chat.priority ? chat.priority.charAt(0).toUpperCase() + chat.priority.slice(1) : 'Normal',
+          waitTime: chat.created_at ? `${Math.floor((Date.now() - new Date(chat.created_at).getTime()) / 60000)}m` : '-',
+          category: '-',
+          assignedAgent: assignedAgent ? assignedAgent.full_name : null,
+          lastMessage: '',
+          timestamp: chat.created_at ? new Date(chat.created_at).toLocaleString() : '',
+        };
+      });
+      setQueueItems(mappedQueue);
+      // Map available agents
+      const mappedAgents = (agents || []).map((agent: any) => ({
+        id: agent.id,
+        name: agent.full_name,
+        status: agent.status === 'online' ? 'Available' : agent.status.charAt(0).toUpperCase() + agent.status.slice(1),
+        activeChats: (chats || []).filter((c: any) => c.assigned_agent_id === agent.id).length,
+      }));
+      setAvailableAgents(mappedAgents);
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch queue or agents');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
-  const availableAgents = [
-    { name: "Sarah Johnson", status: "Available", activeChats: 2 },
-    { name: "Mike Chen", status: "Busy", activeChats: 5 },
-    { name: "Emily Rodriguez", status: "Available", activeChats: 1 },
-    { name: "David Kim", status: "Away", activeChats: 0 }
-  ];
+  useEffect(() => {
+    fetchQueueAndAgents();
+    // eslint-disable-next-line
+  }, []);
 
   const filteredQueue = queueItems.filter(item => {
     const matchesSearch = item.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -107,36 +105,109 @@ export const QueueManagement = () => {
     return <Badge variant={variants[priority as keyof typeof variants]}>{priority}</Badge>;
   };
 
-  const handleAssignAgent = (queueId: number, agentName: string) => {
-    if (!agentName) return;
-    
-    toast({
-      title: "Agent Assigned",
-      description: `Queue item ${queueId} has been assigned to ${agentName}`,
-    });
-    console.log(`Assigning queue item ${queueId} to ${agentName}`);
+  const handleAssignAgent = async (queueId: string, agentId: string) => {
+    if (!agentId || !supervisor?.id) return;
+    setActionLoading(true);
+    setError(null);
+    try {
+      // Update chat assignment
+      const { error: updateError } = await supabase
+        .from('chats')
+        .update({ assigned_agent_id: agentId })
+        .eq('id', queueId);
+      if (updateError) throw new Error('Failed to assign agent');
+      // Log assignment
+      const { error: logError } = await supabase
+        .from('chat_assignments')
+        .insert([
+          {
+            chat_id: queueId,
+            agent_id: agentId,
+            assigned_by: supervisor.id,
+            assigned_at: new Date().toISOString(),
+            note: 'Queue assignment',
+          },
+        ]);
+      if (logError) throw new Error('Assignment succeeded, but failed to log assignment');
+      toast({
+        title: 'Agent Assigned',
+        description: `Queue item has been assigned to agent`,
+      });
+      fetchQueueAndAgents();
+    } catch (err: any) {
+      setError(err.message || 'Failed to assign agent');
+      toast({
+        title: 'Error',
+        description: err.message || 'Failed to assign agent',
+        variant: 'destructive',
+      });
+    } finally {
+      setActionLoading(false);
+    }
   };
 
-  const handlePriorityChange = (queueId: number, newPriority: string) => {
-    toast({
-      title: "Priority Updated",
-      description: `Queue item ${queueId} priority changed to ${newPriority}`,
-    });
-    console.log(`Changing priority of queue item ${queueId} to ${newPriority}`);
+  const handlePriorityChange = async (queueId: string, newPriority: string) => {
+    setActionLoading(true);
+    setError(null);
+    try {
+      const { error } = await supabase
+        .from('chats')
+        .update({ priority: newPriority.toLowerCase() })
+        .eq('id', queueId);
+      if (error) throw new Error('Failed to update priority');
+      toast({
+        title: 'Priority Updated',
+        description: `Queue item priority changed to ${newPriority}`,
+      });
+      fetchQueueAndAgents();
+    } catch (err: any) {
+      setError(err.message || 'Failed to update priority');
+      toast({
+        title: 'Error',
+        description: err.message || 'Failed to update priority',
+        variant: 'destructive',
+      });
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   const handleRefresh = () => {
+    fetchQueueAndAgents();
     toast({
-      title: "Queue Refreshed",
-      description: "Queue data has been updated",
+      title: 'Queue Refreshed',
+      description: 'Queue data has been updated',
     });
   };
 
-  const handleAutoAssign = () => {
-    toast({
-      title: "Auto-Assignment Started",
-      description: "Automatically assigning queue items to available agents",
-    });
+  const handleAutoAssign = async () => {
+    setActionLoading(true);
+    setError(null);
+    try {
+      // Find unassigned queue items
+      const unassigned = queueItems.filter((item) => !item.assignedAgent);
+      const available = availableAgents.filter((a) => a.status === 'Available');
+      if (unassigned.length === 0 || available.length === 0) throw new Error('No unassigned items or available agents');
+      // Simple round-robin assignment
+      for (let i = 0; i < unassigned.length; i++) {
+        const agent = available[i % available.length];
+        await handleAssignAgent(unassigned[i].id, agent.id);
+      }
+      toast({
+        title: 'Auto-Assignment Complete',
+        description: 'Unassigned queue items have been assigned to available agents.',
+      });
+      fetchQueueAndAgents();
+    } catch (err: any) {
+      setError(err.message || 'Failed to auto-assign');
+      toast({
+        title: 'Error',
+        description: err.message || 'Failed to auto-assign',
+        variant: 'destructive',
+      });
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   const handleViewCustomer = (queueId: number) => {
@@ -147,10 +218,9 @@ export const QueueManagement = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Queue Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
+    <div className="max-w-7xl mx-auto px-4 py-8 w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Card className="bg-white rounded-2xl shadow-md p-6">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -161,7 +231,7 @@ export const QueueManagement = () => {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-white rounded-2xl shadow-md p-6">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -174,7 +244,7 @@ export const QueueManagement = () => {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-white rounded-2xl shadow-md p-6">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -185,7 +255,7 @@ export const QueueManagement = () => {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-white rounded-2xl shadow-md p-6">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -200,8 +270,7 @@ export const QueueManagement = () => {
         </Card>
       </div>
 
-      {/* Controls */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-between">
+      <div className="flex flex-col sm:flex-row gap-4 justify-between mt-6">
         <div className="flex gap-2">
           <Input
             placeholder="Search queue..."
@@ -232,8 +301,7 @@ export const QueueManagement = () => {
         </div>
       </div>
 
-      {/* Queue Table */}
-      <Card>
+      <Card className="mt-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <MessageSquare className="w-5 h-5" />
@@ -268,7 +336,6 @@ export const QueueManagement = () => {
                   <TableCell>
                     <div>
                       <p className="font-medium text-gray-900 max-w-xs truncate">{item.subject}</p>
-                      <p className="text-sm text-gray-500 max-w-xs truncate">{item.lastMessage}</p>
                     </div>
                   </TableCell>
                   <TableCell>{getPriorityBadge(item.priority)}</TableCell>
@@ -290,27 +357,25 @@ export const QueueManagement = () => {
                         <span className="text-sm">{item.assignedAgent}</span>
                       </div>
                     ) : (
-                      <span className="text-sm text-gray-500">Unassigned</span>
+                      <select
+                        onChange={(e) => handleAssignAgent(item.id, e.target.value)}
+                        className="text-xs px-2 py-1 border rounded bg-white z-10"
+                        defaultValue=""
+                        disabled={actionLoading}
+                      >
+                        <option value="" disabled>Assign to...</option>
+                        {availableAgents
+                          .filter(agent => agent.status === 'Available')
+                          .map(agent => (
+                            <option key={agent.id} value={agent.id}>
+                              {agent.name}
+                            </option>
+                          ))}
+                      </select>
                     )}
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-1">
-                      {!item.assignedAgent && (
-                        <select
-                          onChange={(e) => handleAssignAgent(item.id, e.target.value)}
-                          className="text-xs px-2 py-1 border rounded bg-white z-10"
-                          defaultValue=""
-                        >
-                          <option value="" disabled>Assign to...</option>
-                          {availableAgents
-                            .filter(agent => agent.status === 'Available')
-                            .map(agent => (
-                              <option key={agent.name} value={agent.name}>
-                                {agent.name}
-                              </option>
-                            ))}
-                        </select>
-                      )}
                       <Button 
                         variant="ghost" 
                         size="sm"
@@ -327,8 +392,7 @@ export const QueueManagement = () => {
         </CardContent>
       </Card>
 
-      {/* Available Agents */}
-      <Card>
+      <Card className="mt-6">
         <CardHeader>
           <CardTitle>Available Agents</CardTitle>
           <CardDescription>Current agent availability and workload</CardDescription>
@@ -351,6 +415,7 @@ export const QueueManagement = () => {
           </div>
         </CardContent>
       </Card>
+      <ManualAssignmentSettings />
     </div>
   );
 };

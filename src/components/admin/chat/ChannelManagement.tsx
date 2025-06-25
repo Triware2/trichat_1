@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -26,95 +25,85 @@ import {
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ChatChannel } from './types';
+import { supabase } from '@/integrations/supabase/client';
 
 export const ChannelManagement = () => {
-  const [channels, setChannels] = useState<ChatChannel[]>([
-    {
-      id: '1',
-      name: 'Website Chat',
-      type: 'website',
-      status: 'active',
-      priority: 'high',
-      maxConcurrentChats: 50,
-      currentActiveChats: 23,
-      businessHours: {
-        enabled: true,
-        timezone: 'UTC',
-        schedule: {
-          monday: { start: '09:00', end: '17:00', enabled: true },
-          tuesday: { start: '09:00', end: '17:00', enabled: true },
-          wednesday: { start: '09:00', end: '17:00', enabled: true },
-          thursday: { start: '09:00', end: '17:00', enabled: true },
-          friday: { start: '09:00', end: '17:00', enabled: true },
-          saturday: { start: '10:00', end: '14:00', enabled: false },
-          sunday: { start: '10:00', end: '14:00', enabled: false }
-        }
-      },
-      autoResponse: {
-        enabled: true,
-        message: 'Hello! We\'ll be with you shortly.',
-        delay: 30
-      },
-      routing: {
-        type: 'least_busy',
-        skillRequirements: ['general_support']
+  const [channels, setChannels] = useState<ChatChannel[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch channels from Supabase
+  useEffect(() => {
+    const fetchChannels = async () => {
+      setLoading(true);
+      setError(null);
+      const { data, error } = await supabase.from('channels').select('*');
+      if (error) {
+        setError('Failed to fetch channels');
+        setLoading(false);
+        return;
       }
-    },
-    {
-      id: '2',
-      name: 'WhatsApp Business',
-      type: 'whatsapp',
-      status: 'active',
-      priority: 'medium',
-      maxConcurrentChats: 30,
-      currentActiveChats: 8,
-      businessHours: {
-        enabled: true,
-        timezone: 'UTC',
-        schedule: {
-          monday: { start: '08:00', end: '20:00', enabled: true },
-          tuesday: { start: '08:00', end: '20:00', enabled: true },
-          wednesday: { start: '08:00', end: '20:00', enabled: true },
-          thursday: { start: '08:00', end: '20:00', enabled: true },
-          friday: { start: '08:00', end: '20:00', enabled: true },
-          saturday: { start: '09:00', end: '18:00', enabled: true },
-          sunday: { start: '09:00', end: '18:00', enabled: false }
-        }
-      },
-      autoResponse: {
-        enabled: true,
-        message: 'Thanks for reaching out! An agent will respond soon.',
-        delay: 60
-      },
-      routing: {
-        type: 'skill_based',
-        skillRequirements: ['whatsapp_support', 'mobile_support']
-      }
-    },
-    {
-      id: '3',
-      name: 'Facebook Messenger',
-      type: 'facebook',
-      status: 'inactive',
-      priority: 'low',
-      maxConcurrentChats: 20,
-      currentActiveChats: 0,
-      businessHours: {
-        enabled: false,
-        timezone: 'UTC',
-        schedule: {}
-      },
-      autoResponse: {
-        enabled: false,
-        message: '',
-        delay: 0
-      },
-      routing: {
-        type: 'round_robin',
-        skillRequirements: ['social_media']
-      }
+      setChannels(data || []);
+      setLoading(false);
+    };
+    fetchChannels();
+  }, []);
+
+  // Add Channel
+  const addChannel = async (channel: ChatChannel) => {
+    setLoading(true);
+    setError(null);
+    const { error } = await supabase.from('channels').insert(channel);
+    if (error) {
+      setError('Failed to add channel');
+      setLoading(false);
+      return;
     }
-  ]);
+    // Refetch channels
+    const { data } = await supabase.from('channels').select('*');
+    setChannels(data || []);
+    setLoading(false);
+  };
+
+  // Update Channel
+  const updateChannel = async (channel: ChatChannel) => {
+    setLoading(true);
+    setError(null);
+    const { error } = await supabase.from('channels').update(channel).eq('id', channel.id);
+    if (error) {
+      setError('Failed to update channel');
+      setLoading(false);
+      return;
+    }
+    // Refetch channels
+    const { data } = await supabase.from('channels').select('*');
+    setChannels(data || []);
+    setLoading(false);
+  };
+
+  // Delete Channel
+  const deleteChannel = async (channelId: string) => {
+    setLoading(true);
+    setError(null);
+    const { error } = await supabase.from('channels').delete().eq('id', channelId);
+    if (error) {
+      setError('Failed to delete channel');
+      setLoading(false);
+      return;
+    }
+    // Refetch channels
+    const { data } = await supabase.from('channels').select('*');
+    setChannels(data || []);
+    setLoading(false);
+  };
+
+  // Toggle Channel Status
+  const toggleChannelStatus = async (channelId: string) => {
+    const channel = channels.find((c) => c.id === channelId);
+    if (!channel) return;
+    const newStatus = channel.status === 'active' ? 'inactive' : 'active';
+    await updateChannel({ ...channel, status: newStatus });
+  };
 
   const getChannelIcon = (type: string) => {
     switch (type) {
@@ -136,17 +125,6 @@ export const ChannelManagement = () => {
       case 'maintenance': return 'bg-yellow-100 text-yellow-800';
       default: return 'bg-gray-100 text-gray-800';
     }
-  };
-
-  const toggleChannelStatus = (channelId: string) => {
-    setChannels(prev => prev.map(channel => 
-      channel.id === channelId 
-        ? { 
-            ...channel, 
-            status: channel.status === 'active' ? 'inactive' : 'active' 
-          }
-        : channel
-    ));
   };
 
   return (
@@ -273,14 +251,7 @@ export const ChannelManagement = () => {
                 <Switch 
                   checked={channel.businessHours.enabled}
                   onCheckedChange={(checked) => {
-                    setChannels(prev => prev.map(ch => 
-                      ch.id === channel.id 
-                        ? { 
-                            ...ch, 
-                            businessHours: { ...ch.businessHours, enabled: checked }
-                          }
-                        : ch
-                    ));
+                    updateChannel({ ...channel, businessHours: { ...channel.businessHours, enabled: checked } });
                   }}
                 />
               </div>
@@ -291,14 +262,7 @@ export const ChannelManagement = () => {
                 <Switch 
                   checked={channel.autoResponse.enabled}
                   onCheckedChange={(checked) => {
-                    setChannels(prev => prev.map(ch => 
-                      ch.id === channel.id 
-                        ? { 
-                            ...ch, 
-                            autoResponse: { ...ch.autoResponse, enabled: checked }
-                          }
-                        : ch
-                    ));
+                    updateChannel({ ...channel, autoResponse: { ...channel.autoResponse, enabled: checked } });
                   }}
                 />
               </div>

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,9 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Search, Filter, Clock, MoreHorizontal } from 'lucide-react';
 
 interface Chat {
-  id: number;
+  id: string;
   customer: string;
   lastMessage: string;
+  subject?: string;
   time: string;
   status: string;
   unread: number;
@@ -18,18 +18,27 @@ interface Chat {
 
 interface ChatListProps {
   chats: Chat[];
-  selectedChat: number;
-  onChatSelect: (chatId: number) => void;
+  selectedChat: string | null;
+  onChatSelect: (chatId: string) => void;
   onFilter: () => void;
+  statusFilter?: string;
+  priorityFilter?: string;
 }
 
-export const ChatList = ({ chats, selectedChat, onChatSelect, onFilter }: ChatListProps) => {
+export const ChatList = ({ chats, selectedChat, onChatSelect, onFilter, statusFilter = 'all', priorityFilter = 'all' }: ChatListProps) => {
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredChats = chats.filter(chat =>
+  let filteredChats = chats.filter(chat =>
     chat.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
     chat.lastMessage.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  if (statusFilter !== 'all') {
+    filteredChats = filteredChats.filter(chat => chat.status === statusFilter);
+  }
+  if (priorityFilter !== 'all') {
+    filteredChats = filteredChats.filter(chat => (chat.priority || '').toLowerCase() === priorityFilter);
+  }
 
   const getPriorityColor = (priority: string) => {
     const colors = {
@@ -51,19 +60,9 @@ export const ChatList = ({ chats, selectedChat, onChatSelect, onFilter }: ChatLi
 
   return (
     <div className="h-full flex flex-col bg-white">
-      {/* Header - Fixed */}
-      <div className="p-4 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white flex-shrink-0">
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <h2 className="text-lg font-bold text-slate-900">Conversations</h2>
-            <p className="text-xs text-slate-600">{filteredChats.length} active chats</p>
-          </div>
-          <Button variant="outline" size="sm" onClick={onFilter} className="hover:bg-slate-100 p-2">
-            <Filter className="w-3 h-3" />
-          </Button>
-        </div>
-        
-        <div className="relative">
+      {/* Search and filter controls */}
+      <div className="px-4 py-2 flex items-center justify-between">
+        <div className="relative w-full">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-3 h-3" />
           <Input
             placeholder="Search conversations..."
@@ -72,6 +71,9 @@ export const ChatList = ({ chats, selectedChat, onChatSelect, onFilter }: ChatLi
             className="pl-8 text-sm border-slate-200 focus:border-orange-300 focus:ring-orange-200 bg-white h-8"
           />
         </div>
+        <Button variant="outline" size="sm" onClick={onFilter} className="hover:bg-slate-100 p-2 ml-2">
+          <Filter className="w-3 h-3" />
+        </Button>
       </div>
 
       {/* Chat List - Independently Scrollable content */}
@@ -120,7 +122,7 @@ export const ChatList = ({ chats, selectedChat, onChatSelect, onFilter }: ChatLi
                     </div>
                   </div>
                   
-                  <p className="text-xs text-slate-600 truncate mb-2 leading-relaxed">{chat.lastMessage}</p>
+                  <p className="text-xs text-slate-600 truncate mb-2 leading-relaxed">{chat.lastMessage || chat.subject || 'No subject'}</p>
                   
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-1">

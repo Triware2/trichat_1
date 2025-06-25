@@ -1,4 +1,4 @@
-
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -25,37 +25,82 @@ import {
   Calendar,
   Filter
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 export const ChatAnalytics = () => {
-  // Mock data for charts
-  const channelData = [
-    { name: 'Website', chats: 450, percentage: 45 },
-    { name: 'WhatsApp', chats: 300, percentage: 30 },
-    { name: 'Facebook', chats: 150, percentage: 15 },
-    { name: 'Email', chats: 100, percentage: 10 }
-  ];
+  const [channelData, setChannelData] = useState<any[]>([]);
+  const [timeData, setTimeData] = useState<any[]>([]);
+  const [responseTimeData, setResponseTimeData] = useState<any[]>([]);
+  const [metrics, setMetrics] = useState<any>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const timeData = [
-    { hour: '9 AM', chats: 25 },
-    { hour: '10 AM', chats: 45 },
-    { hour: '11 AM', chats: 65 },
-    { hour: '12 PM', chats: 85 },
-    { hour: '1 PM', chats: 75 },
-    { hour: '2 PM', chats: 95 },
-    { hour: '3 PM', chats: 120 },
-    { hour: '4 PM', chats: 110 },
-    { hour: '5 PM', chats: 85 }
-  ];
-
-  const responseTimeData = [
-    { day: 'Mon', avgTime: 2.3 },
-    { day: 'Tue', avgTime: 1.8 },
-    { day: 'Wed', avgTime: 2.1 },
-    { day: 'Thu', avgTime: 1.9 },
-    { day: 'Fri', avgTime: 2.5 },
-    { day: 'Sat', avgTime: 3.2 },
-    { day: 'Sun', avgTime: 2.8 }
-  ];
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const { data: chats, error: chatsError } = await supabase.from('chats').select('*');
+        if (chatsError) throw new Error('Failed to fetch chats');
+        // Channel distribution
+        const channelMap: Record<string, { name: string; chats: number }> = {};
+        chats.forEach((c: any) => {
+          if (!channelMap[c.channel]) channelMap[c.channel] = { name: c.channel, chats: 0 };
+          channelMap[c.channel].chats += 1;
+        });
+        const totalChats = chats.length;
+        const channelArr = Object.values(channelMap).map((c) => ({
+          ...c,
+          percentage: totalChats > 0 ? Math.round((c.chats / totalChats) * 100) : 0
+        }));
+        setChannelData(channelArr);
+        // Time data (by hour)
+        const hourMap: Record<string, number> = {};
+        chats.forEach((c: any) => {
+          if (c.created_at) {
+            const hour = new Date(c.created_at).getHours();
+            const label = hour < 12 ? `${hour === 0 ? 12 : hour} AM` : `${hour === 12 ? 12 : hour - 12} PM`;
+            if (!hourMap[label]) hourMap[label] = 0;
+            hourMap[label] += 1;
+          }
+        });
+        const timeArr = Object.entries(hourMap).map(([hour, chats]) => ({ hour, chats }));
+        setTimeData(timeArr);
+        // Response time data (by day)
+        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const dayMap: Record<string, { total: number; sum: number }> = {};
+        chats.forEach((c: any) => {
+          if (c.created_at && c.response_time) {
+            const day = days[new Date(c.created_at).getDay()];
+            if (!dayMap[day]) dayMap[day] = { total: 0, sum: 0 };
+            dayMap[day].total += 1;
+            dayMap[day].sum += c.response_time;
+          }
+        });
+        const responseArr = days.map((day) => ({
+          day,
+          avgTime: dayMap[day] && dayMap[day].total > 0 ? Number((dayMap[day].sum / dayMap[day].total / 60).toFixed(1)) : 0
+        }));
+        setResponseTimeData(responseArr);
+        // Key metrics
+        const resolved = chats.filter((c: any) => c.status === 'resolved').length;
+        const avgResponse = totalChats > 0 ? (chats.reduce((acc: number, c: any) => acc + (c.response_time || 0), 0) / totalChats / 60).toFixed(1) : '0';
+        const resolutionRate = totalChats > 0 ? ((resolved / totalChats) * 100).toFixed(1) : '0';
+        const avgSatisfaction = totalChats > 0 ? (chats.reduce((acc: number, c: any) => acc + (c.satisfaction_rating || 0), 0) / totalChats).toFixed(2) : '0';
+        setMetrics({
+          totalChats: totalChats.toLocaleString(),
+          avgResponse,
+          resolutionRate,
+          avgSatisfaction
+        });
+      } catch (err: any) {
+        setError(err.message || 'Failed to fetch analytics');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAnalytics();
+  }, []);
 
   const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444'];
 
@@ -99,7 +144,7 @@ export const ChatAnalytics = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Chats</p>
-                <p className="text-2xl font-bold">1,247</p>
+                <p className="text-2xl font-bold">{metrics.totalChats}</p>
                 <div className="flex items-center mt-1">
                   <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
                   <span className="text-sm text-green-600">+12.5%</span>
@@ -115,7 +160,7 @@ export const ChatAnalytics = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Avg Response Time</p>
-                <p className="text-2xl font-bold">2.3min</p>
+                <p className="text-2xl font-bold">{metrics.avgResponse}min</p>
                 <div className="flex items-center mt-1">
                   <TrendingDown className="w-4 h-4 text-green-500 mr-1" />
                   <span className="text-sm text-green-600">-8.2%</span>
@@ -131,7 +176,7 @@ export const ChatAnalytics = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Resolution Rate</p>
-                <p className="text-2xl font-bold">94.2%</p>
+                <p className="text-2xl font-bold">{metrics.resolutionRate}%</p>
                 <div className="flex items-center mt-1">
                   <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
                   <span className="text-sm text-green-600">+2.1%</span>
@@ -147,7 +192,7 @@ export const ChatAnalytics = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Customer Satisfaction</p>
-                <p className="text-2xl font-bold">4.8/5</p>
+                <p className="text-2xl font-bold">{metrics.avgSatisfaction}/5</p>
                 <div className="flex items-center mt-1">
                   <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
                   <span className="text-sm text-green-600">+0.3</span>

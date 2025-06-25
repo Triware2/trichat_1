@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -17,7 +16,7 @@ import { AlertTriangle, CheckCircle } from 'lucide-react';
 interface DispositionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  chatId: number;
+  chatId: string;
   customerName: string;
   onResolve: (resolution: ChatResolution) => void;
 }

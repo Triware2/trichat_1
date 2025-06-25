@@ -1,22 +1,8 @@
-
 import { useRef, useEffect } from 'react';
 import { File, Image, Video, Clock, Check, CheckCheck, StickyNote, X, Paperclip, User, FileAudio } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ChatMessage } from '@/components/admin/chatbot/types';
-
-interface PrivateNote {
-  id: number;
-  content: string;
-  author: string;
-  timestamp: string;
-  chatId: number;
-  type: 'private-note';
-  attachments?: {
-    type: 'image' | 'file' | 'media' | 'audio' | 'video';
-    name: string;
-    url?: string;
-  }[];
-}
+import { PrivateNote } from './PrivateNotes';
 
 interface MessageListProps {
   messages: ChatMessage[];
