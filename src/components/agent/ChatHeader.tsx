@@ -67,87 +67,90 @@ export const ChatHeader = ({ customerName, customerStatus, chatId, agentName, su
 
   return (
     <>
-      <div className="backdrop-blur-md bg-white/60 shadow-xl rounded-2xl px-6 py-3 flex items-center justify-between gap-x-6 border-b border-slate-200">
-        {/* Left: Avatar + Info */}
-        <div className="flex items-center gap-5 min-w-0 flex-1">
-          {/* Avatar with glow */}
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xl font-bold shadow-lg ring-4 ring-blue-200/30">
-            {customerName.charAt(0).toUpperCase()}
-          </div>
-          {/* Info Block */}
-          <div className="flex flex-col min-w-0">
-            {/* Name, Status, Subject Row (all inline) */}
-            <div className="flex items-center gap-3 min-w-0 flex-wrap">
-              <span className="font-semibold text-lg text-slate-900 truncate max-w-[160px]">{customerName}</span>
-              {/* Online/Offline badge only */}
-              <span className={`px-2 py-0.5 rounded-full font-semibold shadow-sm border border-slate-200 text-xs ml-0 ${customerStatus === 'Online' ? 'bg-green-500 text-white' : 'bg-slate-400 text-white'}`}>
-                {customerStatus === 'Online' ? 'Online' : 'Offline'}
-              </span>
-              {/* Subject (inline) */}
-              {editing ? (
-                <>
-                  <Input
-                    value={subjectInput}
-                    onChange={e => setSubjectInput(e.target.value)}
-                    className="w-60 text-sm h-8 bg-white/80 backdrop-blur rounded-lg shadow-sm border border-slate-200 ml-2"
-                    disabled={loading}
-                    autoFocus
-                  />
-                  <Button size="icon" variant="ghost" onClick={saveEdit} disabled={loading}>
-                    <Check className="w-4 h-4 text-green-600" />
-                  </Button>
-                  <Button size="icon" variant="ghost" onClick={cancelEdit} disabled={loading}>
-                    <X className="w-4 h-4 text-slate-400" />
-                  </Button>
-                  {loading && <span className="text-xs text-slate-400 ml-2">Saving...</span>}
-                  {error && <span className="text-xs text-red-500 ml-2">{error}</span>}
-                </>
-              ) : (
-                <>
-                  <span className="text-sm font-medium truncate max-w-[200px] px-3 py-1 bg-white/40 rounded-lg shadow-sm backdrop-blur border border-slate-100 text-slate-800 ml-2" title={subject}>
-                    {subject || 'No Subject'}
-                  </span>
-                  {onSubjectChange && (
-                    <button
-                      className="p-1 rounded hover:bg-slate-100 transition"
-                      onClick={startEdit}
-                      aria-label="Edit subject"
-                    >
-                      <Pencil className="w-4 h-4 text-slate-400" />
-                    </button>
-                  )}
-                </>
-              )}
+      <div className="bg-white/95 backdrop-blur-sm border-b border-slate-200/60 shadow-sm px-6 py-4">
+        <div className="flex items-center justify-between">
+          {/* Left: Avatar + Info */}
+          <div className="flex items-center gap-4 min-w-0 flex-1">
+            {/* Avatar */}
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-semibold shadow-lg">
+              {customerName.charAt(0).toUpperCase()}
             </div>
-            {/* Online/Handled by Row */}
-            <div className="flex items-center gap-2 mt-1 min-w-0">
-              <span className="text-xs text-slate-400 font-medium">•</span>
-              <span className="text-xs text-slate-500 font-medium">Handled by:</span>
-              <span className="ml-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-green-400 to-blue-400 text-white text-xs font-semibold shadow-sm truncate max-w-[140px]">
-                {agentName}
-              </span>
+            {/* Info Block */}
+            <div className="flex flex-col min-w-0 flex-1">
+              {/* Name and Status Row */}
+              <div className="flex items-center gap-3 min-w-0 mb-1">
+                <h2 className="text-lg font-semibold text-slate-900 truncate">{customerName}</h2>
+                {/* Status badge */}
+                <Badge 
+                  variant="outline" 
+                  className={`text-xs font-medium ${customerStatus === 'Online' ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-slate-100 text-slate-600 border-slate-200'}`}
+                >
+                  {customerStatus}
+                </Badge>
+              </div>
+              
+              {/* Subject Row */}
+              <div className="flex items-center gap-2 min-w-0">
+                {editing ? (
+                  <div className="flex items-center gap-2 flex-1">
+                    <Input
+                      value={subjectInput}
+                      onChange={e => setSubjectInput(e.target.value)}
+                      className="flex-1 text-sm h-8 bg-white border-slate-200 focus:border-blue-500 focus:ring-blue-500"
+                      disabled={loading}
+                      autoFocus
+                      placeholder="Enter subject..."
+                    />
+                    <Button size="sm" onClick={saveEdit} disabled={loading} className="bg-emerald-500 hover:bg-emerald-600 text-white">
+                      <Check className="w-4 h-4" />
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={cancelEdit} disabled={loading} className="border-slate-200 hover:bg-slate-50">
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-sm text-slate-600 font-medium">
+                      Subject: <span className="text-slate-900">{subject || 'No subject'}</span>
+                    </span>
+                    <Button size="sm" variant="ghost" onClick={startEdit} className="text-slate-500 hover:text-slate-700 hover:bg-slate-100">
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
+                {error && (
+                  <span className="text-xs text-red-600 ml-2">{error}</span>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-        {/* Right: Glassy Resolve Button */}
-        <div className="flex items-center w-auto justify-end">
-          <div className="backdrop-blur bg-white/70 rounded-full shadow-lg">
-          <ResolveButton 
-            onResolve={handleResolve}
-            chatStatus={chatStatus}
-            disabled={chatStatus === 'resolved'}
-              className="transition-transform hover:scale-105 hover:shadow-xl rounded-full px-6 py-2 text-base font-semibold"
-          />
+
+          {/* Right: Chat actions */}
+          <div className="flex items-center gap-3">
+            <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">
+              Chat #{chatId}
+            </Badge>
+            <Badge 
+              variant={chatStatus === 'resolved' ? 'default' : 'secondary'}
+              className={chatStatus === 'resolved' ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-amber-100 text-amber-800 border-amber-200'}
+            >
+              {chatStatus === 'resolved' ? 'Resolved' : 'Active'}
+            </Badge>
+            <ResolveButton 
+              onResolve={handleResolve} 
+              disabled={chatStatus === 'resolved'}
+              chatStatus={chatStatus}
+            />
           </div>
         </div>
       </div>
-
+      
       <DispositionModal
         isOpen={showDispositionModal}
         onClose={() => setShowDispositionModal(false)}
+        onResolve={handleChatResolution}
         chatId={chatId || ''}
         customerName={customerName}
-        onResolve={handleChatResolution}
       />
     </>
   );

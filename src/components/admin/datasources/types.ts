@@ -22,6 +22,8 @@ export interface DataSourceConfig {
   apiUrl?: string;
   apiKey?: string;
   webhookUrl?: string;
+  provider?: string; // e.g., salesforce, hubspot, zendesk
+  platform?: string; // e.g., shopify, woocommerce, magento
   database?: {
     host: string;
     port: number;

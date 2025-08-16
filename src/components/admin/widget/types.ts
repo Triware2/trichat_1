@@ -1,5 +1,6 @@
 
 export interface WidgetConfig {
+  id?: string;
   title: string;
   subtitle: string;
   primaryColor: string;
@@ -22,10 +23,16 @@ export interface WidgetConfig {
   allowedFileTypes?: string[];
   customFields?: CustomField[];
   branding?: BrandingConfig;
+  appearance?: AppearanceConfig;
+  behavior?: BehaviorConfig;
   language?: string;
   timezone?: string;
   workingHours?: WorkingHours;
   autoResponders?: AutoResponder[];
+  // Advanced features
+  autoAssign?: boolean;
+  autoDetectLanguage?: boolean;
+  updatedAt?: string;
 }
 
 export interface CustomField {
@@ -41,6 +48,32 @@ export interface BrandingConfig {
   companyName?: string;
   hideTriChatBranding?: boolean;
   customFavicon?: string;
+}
+
+export interface AppearanceConfig {
+  secondaryColor?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  darkModeSupport?: boolean;
+  width?: number;
+  height?: number;
+  responsive?: boolean;
+  fontFamily?: string;
+  fontSize?: number;
+  boldHeadings?: boolean;
+  animationType?: string;
+  animationDuration?: number;
+  roundedCorners?: boolean;
+  shadowEffects?: boolean;
+}
+
+export interface BehaviorConfig {
+  showOnScroll?: boolean;
+  showOnExitIntent?: boolean;
+  showAfterDelay?: boolean;
+  delaySeconds?: number;
+  soundNotifications?: boolean;
+  desktopNotifications?: boolean;
 }
 
 export interface WorkingHours {

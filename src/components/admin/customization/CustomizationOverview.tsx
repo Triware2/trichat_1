@@ -60,11 +60,11 @@ export const CustomizationOverview = () => {
   return (
     <div className="space-y-8">
       {/* Hero Section */}
-      <Card className="border border-gray-200 bg-gradient-to-r from-blue-600 to-blue-700 text-white overflow-hidden">
+      <Card className="border border-slate-200 bg-gradient-to-r from-blue-600 to-blue-700 text-white overflow-hidden shadow-lg">
         <CardContent className="p-8 relative">
           <div className="flex items-center justify-between relative z-10">
             <div className="max-w-2xl">
-              <h2 className="text-heading-2 font-semibold mb-4 text-white">
+              <h2 className="text-2xl font-bold mb-4 text-white">
                 Welcome to Customization Studio
               </h2>
               <p className="text-blue-100 mb-8 leading-relaxed">

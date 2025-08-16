@@ -126,10 +126,8 @@ export const SLANotifications = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">SLA Notifications</h2>
-          <p className="text-sm text-gray-600 mt-1">
-            Configure notification templates and delivery settings for SLA events
-          </p>
+          <h2 className="text-base font-bold text-slate-900">SLA Notifications</h2>
+          <p className="text-sm text-slate-600 mt-1">Configure notification templates and delivery settings for SLA events</p>
         </div>
         <Button onClick={handleCreateTemplate} className="bg-blue-600 hover:bg-blue-700">
           <Plus className="w-4 h-4 mr-2" />
@@ -175,7 +173,7 @@ export const SLANotifications = () => {
       {selectedTab === 'templates' && (
         <Card className="border border-gray-200">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-base font-bold">
               <Mail className="w-5 h-5 text-blue-600" />
               Notification Templates
             </CardTitle>
@@ -243,7 +241,7 @@ export const SLANotifications = () => {
           {notificationSettings.map((category, categoryIndex) => (
             <Card key={categoryIndex} className="border border-gray-200">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-base font-bold">
                   <Settings className="w-5 h-5 text-blue-600" />
                   {category.category}
                 </CardTitle>
@@ -286,7 +284,7 @@ export const SLANotifications = () => {
           {/* Email Configuration */}
           <Card className="border border-gray-200">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-base font-bold">
                 <Mail className="w-5 h-5 text-blue-600" />
                 Email Settings
               </CardTitle>
@@ -315,7 +313,7 @@ export const SLANotifications = () => {
           {/* SMS Configuration */}
           <Card className="border border-gray-200">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-base font-bold">
                 <Smartphone className="w-5 h-5 text-green-600" />
                 SMS Settings
               </CardTitle>
@@ -353,7 +351,7 @@ export const SLANotifications = () => {
           {/* In-App Configuration */}
           <Card className="border border-gray-200">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-base font-bold">
                 <Bell className="w-5 h-5 text-purple-600" />
                 In-App Settings
               </CardTitle>

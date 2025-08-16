@@ -15,6 +15,8 @@ import {
   Download,
   Sparkles
 } from 'lucide-react';
+import { useEffect } from 'react';
+import { customizationService, ThemeConfig } from '@/services/customizationService';
 
 export const ThemeCustomizer = () => {
   const { toast } = useToast();
@@ -22,6 +24,10 @@ export const ThemeCustomizer = () => {
   const [primaryColor, setPrimaryColor] = useState('#3b82f6');
   const [secondaryColor, setSecondaryColor] = useState('#64748b');
   const [fontFamily, setFontFamily] = useState('Inter');
+  const [themeId, setThemeId] = useState<string | undefined>(undefined);
+  const [loading, setLoading] = useState(false);
+  const [logoUrl, setLogoUrl] = useState<string | undefined>(undefined);
+  const [faviconUrl, setFaviconUrl] = useState<string | undefined>(undefined);
 
   const predefinedThemes = [
     { id: 'default', name: 'Corporate Blue', primary: '#3b82f6', secondary: '#64748b' },
@@ -35,6 +41,23 @@ export const ThemeCustomizer = () => {
     'Inter', 'Roboto', 'Open Sans', 'Poppins', 'Montserrat', 'Source Sans Pro'
   ];
 
+  useEffect(() => {
+    const load = async () => {
+      const themes = await customizationService.listThemes({ from: 0, to: 0 });
+      if (themes && themes.length > 0) {
+        const t: ThemeConfig = themes[0];
+        setThemeId(t.id);
+        setSelectedTheme('custom');
+        setPrimaryColor(t.primary_color || '#3b82f6');
+        setSecondaryColor(t.secondary_color || '#64748b');
+        setFontFamily(t.font_family || 'Inter');
+        setLogoUrl((t as any).logo_url);
+        setFaviconUrl((t as any).favicon_url);
+      }
+    };
+    load();
+  }, []);
+
   const handleThemeSelect = (themeId: string) => {
     const theme = predefinedThemes.find(t => t.id === themeId);
     if (theme) {
@@ -44,10 +67,22 @@ export const ThemeCustomizer = () => {
     }
   };
 
-  const handleSaveTheme = () => {
+  const handleSaveTheme = async () => {
+    setLoading(true);
+    const saved = await customizationService.saveTheme({
+      id: themeId,
+      name: selectedTheme,
+      primary_color: primaryColor,
+      secondary_color: secondaryColor,
+      font_family: fontFamily,
+      ...(logoUrl ? { logo_url: logoUrl } : {}),
+      ...(faviconUrl ? { favicon_url: faviconUrl } : {})
+    });
+    setLoading(false);
+    if (saved?.id) setThemeId(saved.id);
     toast({
-      title: "Theme Saved",
-      description: "Your theme customizations have been applied successfully.",
+      title: 'Theme Saved',
+      description: 'Your theme customizations have been applied successfully.',
     });
   };
 
@@ -78,9 +113,9 @@ export const ThemeCustomizer = () => {
             <Eye className="w-4 h-4 mr-2" />
             Preview
           </Button>
-          <Button size="sm" onClick={handleSaveTheme}>
+          <Button size="sm" onClick={handleSaveTheme} disabled={loading}>
             <Save className="w-4 h-4 mr-2" />
-            Save Changes
+            {loading ? 'Saving...' : 'Save Changes'}
           </Button>
         </div>
       </div>
@@ -213,6 +248,19 @@ export const ThemeCustomizer = () => {
                 <p className="text-xs text-gray-500 mt-1">
                   PNG, JPG up to 2MB
                 </p>
+                <input type="file" accept="image/*" className="hidden" id="brand-logo-input" onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  const url = await customizationService.uploadBrandAsset(file, 'logos');
+                  if (url) setLogoUrl(url);
+                  toast({ title: url ? 'Logo uploaded' : 'Upload failed', description: url || 'Please try again.', variant: url ? 'default' : 'destructive' });
+                }} />
+                <Button variant="outline" size="sm" className="mt-3" onClick={() => document.getElementById('brand-logo-input')?.click()}>Upload Logo</Button>
+                {logoUrl && (
+                  <div className="mt-3 flex items-center justify-center">
+                    <img src={logoUrl} alt="Logo Preview" className="h-10 object-contain" />
+                  </div>
+                )}
               </div>
             </div>
 
@@ -223,6 +271,19 @@ export const ThemeCustomizer = () => {
                 <p className="text-xs text-gray-600">
                   Upload favicon (ICO, PNG 32x32)
                 </p>
+                <input type="file" accept="image/*,.ico" className="hidden" id="brand-favicon-input" onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  const url = await customizationService.uploadBrandAsset(file, 'favicons');
+                  if (url) setFaviconUrl(url);
+                  toast({ title: url ? 'Favicon uploaded' : 'Upload failed', description: url || 'Please try again.', variant: url ? 'default' : 'destructive' });
+                }} />
+                <Button variant="outline" size="sm" className="mt-2" onClick={() => document.getElementById('brand-favicon-input')?.click()}>Upload Favicon</Button>
+                {faviconUrl && (
+                  <div className="mt-2 flex items-center justify-center">
+                    <img src={faviconUrl} alt="Favicon Preview" className="h-6 w-6" />
+                  </div>
+                )}
               </div>
             </div>
 

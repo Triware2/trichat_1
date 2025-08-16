@@ -133,11 +133,7 @@ export const BulkChatOperations = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-xl font-semibold">Bulk Chat Operations</h2>
-          <p className="text-gray-600">Manage multiple chats simultaneously</p>
-        </div>
+      <div className="flex justify-end items-center">
         <div className="flex gap-2">
           <Button variant="outline" size="sm">
             <Download className="w-4 h-4 mr-2" />

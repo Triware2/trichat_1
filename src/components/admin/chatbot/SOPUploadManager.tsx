@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { chatbotService, Chatbot, ChatbotSOP } from '@/services/chatbotService';
 import { 
   Upload, 
   FileText, 
@@ -28,22 +29,25 @@ interface SOPUploadManagerProps {
   selectedBotId?: string | null;
 }
 
-interface SOPDocument {
-  id: string;
-  name: string;
-  type: string;
-  size: number;
-  uploadDate: string;
-  status: 'processing' | 'active' | 'error';
-  description?: string;
-}
-
 export const SOPUploadManager = ({ selectedBotId }: SOPUploadManagerProps) => {
   const { toast } = useToast();
   const [activeBot, setActiveBot] = useState('');
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
-  const [sopDocuments, setSopDocuments] = useState<SOPDocument[]>([]);
+  const [sopDocuments, setSopDocuments] = useState<ChatbotSOP[]>([]);
+  const [chatbots, setChatbots] = useState<Chatbot[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Load chatbots and SOPs
+  useEffect(() => {
+    loadChatbots();
+  }, []);
+
+  useEffect(() => {
+    if (activeBot) {
+      loadSOPs(activeBot);
+    }
+  }, [activeBot]);
 
   // Update activeBot when selectedBotId changes
   useEffect(() => {
@@ -52,73 +56,119 @@ export const SOPUploadManager = ({ selectedBotId }: SOPUploadManagerProps) => {
     }
   }, [selectedBotId]);
 
-  const llmBots = [
-    { id: '1', name: 'Customer Support Bot', model: 'GPT-4' },
-    { id: '3', name: 'Technical Support AI', model: 'Claude-3' }
-  ];
-
-  const mockSOPs: SOPDocument[] = [
-    {
-      id: '1',
-      name: 'Customer Service Guidelines.pdf',
-      type: 'PDF',
-      size: 2.4,
-      uploadDate: '2024-06-14',
-      status: 'active',
-      description: 'Complete customer service protocols and escalation procedures'
-    },
-    {
-      id: '2',
-      name: 'Technical Support Manual.docx',
-      type: 'DOCX',
-      size: 1.8,
-      uploadDate: '2024-06-13',
-      status: 'processing',
-      description: 'Technical troubleshooting steps and common solutions'
-    },
-    {
-      id: '3',
-      name: 'Billing Procedures.txt',
-      type: 'TXT',
-      size: 0.5,
-      uploadDate: '2024-06-12',
-      status: 'active',
-      description: 'Billing inquiries and payment processing guidelines'
-    }
-  ];
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      setIsUploading(true);
-      setUploadProgress(0);
-      
-      // Simulate upload progress
-      const interval = setInterval(() => {
-        setUploadProgress(prev => {
-          if (prev >= 100) {
-            clearInterval(interval);
-            setIsUploading(false);
-            toast({
-              title: "Upload Complete",
-              description: `${files[0].name} has been uploaded successfully`,
-            });
-            return 100;
-          }
-          return prev + 10;
-        });
-      }, 200);
+  const loadChatbots = async () => {
+    try {
+      setLoading(true);
+      const data = await chatbotService.getChatbots();
+      const llmBots = data.filter(bot => bot.type === 'llm');
+      setChatbots(llmBots);
+    } catch (error) {
+      console.error('Error loading chatbots:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load chatbots. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleDeleteSOP = (id: string) => {
-    const sop = sopDocuments.find(s => s.id === id) || mockSOPs.find(s => s.id === id);
-    setSopDocuments(sopDocuments.filter(s => s.id !== id));
-    toast({
-      title: "SOP Deleted",
-      description: `${sop?.name} has been deleted successfully`,
-      variant: "destructive"
-    });
+  const loadSOPs = async (chatbotId: string) => {
+    try {
+      const data = await chatbotService.getChatbotSOPs(chatbotId);
+      setSopDocuments(data);
+    } catch (error) {
+      console.error('Error loading SOPs:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load SOP documents. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0 && activeBot) {
+      setIsUploading(true);
+      setUploadProgress(0);
+      
+      try {
+        // Simulate upload progress
+        const progressInterval = setInterval(() => {
+          setUploadProgress(prev => {
+            if (prev >= 90) {
+              clearInterval(progressInterval);
+              return 90;
+            }
+            return prev + 10;
+          });
+        }, 200);
+
+        // Upload file to Supabase
+        const uploadedSOP = await chatbotService.uploadSOPFile(files[0], activeBot);
+        
+        // Update SOP status to active
+        await chatbotService.updateChatbotSOP(uploadedSOP.id, { status: 'active' });
+        
+        clearInterval(progressInterval);
+        setUploadProgress(100);
+        
+        // Add to local state
+        setSopDocuments(prev => [uploadedSOP, ...prev]);
+        
+        // Update chatbot SOP count
+        await chatbotService.updateChatbot(activeBot, {
+          sop_count: (sopDocuments.length + 1)
+        });
+        
+        toast({
+          title: "Upload Complete",
+          description: `${files[0].name} has been uploaded and processed successfully`,
+        });
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        toast({
+          title: "Upload Failed",
+          description: "Failed to upload file. Please try again.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsUploading(false);
+        setUploadProgress(0);
+      }
+    }
+  };
+
+  const handleDeleteSOP = async (id: string) => {
+    try {
+      const sop = sopDocuments.find(s => s.id === id);
+      if (!sop) return;
+
+      await chatbotService.deleteChatbotSOP(id);
+      setSopDocuments(prev => prev.filter(s => s.id !== id));
+      
+      // Update chatbot SOP count
+      if (activeBot) {
+        await chatbotService.updateChatbot(activeBot, {
+          sop_count: Math.max(0, (sopDocuments.length - 1))
+        });
+      }
+      
+      toast({
+        title: "SOP Deleted",
+        description: `${sop.name} has been deleted successfully`,
+        variant: "destructive"
+      });
+    } catch (error) {
+      console.error('Error deleting SOP:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete SOP. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -147,19 +197,50 @@ export const SOPUploadManager = ({ selectedBotId }: SOPUploadManagerProps) => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-6">
+        <div className="space-y-6">
+          <div className="h-8 bg-slate-200 rounded animate-pulse"></div>
+          <div className="h-64 bg-slate-200 rounded animate-pulse"></div>
+          <div className="h-96 bg-slate-200 rounded animate-pulse"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-6">
-      <div className="space-y-8">
+      <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h2 className="text-3xl font-semibold text-gray-900 tracking-tight">Knowledge Base Management</h2>
-            <p className="text-blue-600 font-medium mt-2 text-lg">AI Document Intelligence & Training Platform</p>
+            <h2 className="text-lg font-bold text-slate-900">SOP Upload & Training</h2>
+            <p className="text-sm text-slate-600 mt-1">Upload and train your AI with knowledge documents</p>
           </div>
-          <div className="flex gap-3">
-            <Button variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50">
+          <div className="flex items-center gap-3">
+            <Button variant="outline">
               <Download className="w-4 h-4 mr-2" />
-              Export Knowledge Base
+              Export Training Data
             </Button>
+            <div className="relative">
+              <input
+                type="file"
+                id="file-upload"
+                className="hidden"
+                onChange={handleFileUpload}
+                accept=".pdf,.docx,.txt,.md,.csv"
+                multiple={false}
+                disabled={!activeBot || isUploading}
+              />
+              <Button 
+                onClick={() => document.getElementById('file-upload')?.click()}
+                className="bg-blue-600 hover:bg-blue-700"
+                disabled={!activeBot || isUploading}
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                {isUploading ? 'Uploading...' : 'Upload Documents'}
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -182,13 +263,13 @@ export const SOPUploadManager = ({ selectedBotId }: SOPUploadManagerProps) => {
                 <SelectValue placeholder="Choose an AI-powered assistant" />
               </SelectTrigger>
               <SelectContent className="bg-white border-blue-200 shadow-xl">
-                {llmBots.map(bot => (
+                {chatbots.map(bot => (
                   <SelectItem key={bot.id} value={bot.id}>
                     <div className="flex items-center gap-3">
                       <Brain className="w-4 h-4 text-purple-600" />
                       <span className="font-medium">{bot.name}</span>
                       <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200">
-                        {bot.model}
+                        {bot.model || 'LLM'}
                       </Badge>
                     </div>
                   </SelectItem>
@@ -203,7 +284,7 @@ export const SOPUploadManager = ({ selectedBotId }: SOPUploadManagerProps) => {
                   </div>
                   <div>
                     <p className="font-semibold text-purple-800">
-                      Managing: {llmBots.find(b => b.id === activeBot)?.name}
+                      Managing: {chatbots.find(b => b.id === activeBot)?.name}
                     </p>
                     <p className="text-sm text-blue-600">AI Services Integration Active</p>
                   </div>
@@ -256,6 +337,7 @@ export const SOPUploadManager = ({ selectedBotId }: SOPUploadManagerProps) => {
                     accept=".pdf,.docx,.txt,.md"
                     onChange={handleFileUpload}
                     className="mt-6 max-w-xs mx-auto border-blue-200 focus:border-blue-400"
+                    disabled={isUploading}
                   />
                 </div>
 
@@ -286,87 +368,48 @@ export const SOPUploadManager = ({ selectedBotId }: SOPUploadManagerProps) => {
               </CardHeader>
               <CardContent className="p-6">
                 <div className="space-y-4">
-                  {(sopDocuments.length > 0 ? sopDocuments : mockSOPs).map(sop => (
-                    <div key={sop.id} className="flex items-center justify-between p-6 border border-blue-100 rounded-xl bg-gradient-to-r from-white to-blue-50/30 hover:shadow-md transition-all duration-300 group">
-                      <div className="flex items-center gap-4">
-                        <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-md group-hover:scale-110 transition-transform duration-300">
-                          {getStatusIcon(sop.status)}
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900 text-lg">{sop.name}</h3>
-                          <p className="text-blue-600 font-medium">{sop.description}</p>
-                          <div className="flex items-center gap-3 mt-2">
-                            <Badge variant="outline" className="text-xs bg-white border-blue-200 text-blue-700 font-medium">
-                              {sop.type}
-                            </Badge>
-                            <span className="text-xs text-gray-600 font-medium">{sop.size} MB</span>
-                            <span className="text-xs text-blue-600 font-medium">Processed: {sop.uploadDate}</span>
+                  {sopDocuments.length === 0 ? (
+                    <div className="text-center py-16">
+                      <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-indigo-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
+                        <Database className="w-10 h-10 text-blue-400" />
+                      </div>
+                      <h3 className="text-xl font-semibold text-slate-900 mb-2">No Documents Yet</h3>
+                      <p className="text-slate-600 mb-6">Upload your first document to start building your AI knowledge base.</p>
+                    </div>
+                  ) : (
+                    sopDocuments.map(sop => (
+                      <div key={sop.id} className="flex items-center justify-between p-6 border border-blue-100 rounded-xl bg-gradient-to-r from-white to-blue-50/30 hover:shadow-md transition-all duration-300 group">
+                        <div className="flex items-center gap-4">
+                          <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-md group-hover:scale-110 transition-transform duration-300">
+                            {getStatusIcon(sop.status)}
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-gray-900 text-lg">{sop.name}</h3>
+                            <p className="text-blue-600 font-medium">{sop.description}</p>
+                            <div className="flex items-center gap-3 mt-2">
+                              <Badge variant="outline" className="text-xs bg-white border-blue-200 text-blue-700 font-medium">
+                                {sop.type}
+                              </Badge>
+                              <span className="text-xs text-gray-600 font-medium">{sop.size?.toFixed(2)} MB</span>
+                              <span className="text-xs text-blue-600 font-medium">
+                                Processed: {sop.upload_date ? new Date(sop.upload_date).toLocaleDateString() : 'Unknown'}
+                              </span>
+                            </div>
                           </div>
                         </div>
+                        <div className="flex items-center gap-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            onClick={() => handleDeleteSOP(sop.id)}
+                            className="border-red-200 hover:bg-red-50 hover:border-red-300 text-red-600"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge className={`${getStatusColor(sop.status)} font-medium px-3 py-1.5 rounded-full`}>
-                          {sop.status}
-                        </Badge>
-                        <Button size="sm" variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50">
-                          <Download className="w-3 h-3" />
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={() => handleDeleteSOP(sop.id)} className="border-red-200 text-red-700 hover:bg-red-50">
-                          <Trash2 className="w-3 h-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-
-                  {sopDocuments.length === 0 && mockSOPs.length === 0 && (
-                    <div className="text-center py-16 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
-                      <div className="p-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-lg mx-auto w-fit mb-6">
-                        <Database className="w-8 h-8 text-white" />
-                      </div>
-                      <p className="text-xl font-semibold text-gray-800 mb-2">No documents uploaded yet</p>
-                      <p className="text-blue-600 font-medium">Upload your first knowledge document to get started</p>
-                    </div>
+                    ))
                   )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Training Status */}
-            <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-              <CardHeader className="bg-gradient-to-r from-blue-50/50 to-indigo-50/50 border-b border-blue-100/50">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl shadow-md">
-                    <Brain className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-xl font-semibold text-gray-900">AI Training Status</CardTitle>
-                    <p className="text-blue-600 font-medium mt-1">Real-time model performance metrics</p>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl border border-blue-100 shadow-sm">
-                    <div className="p-3 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl shadow-md mx-auto w-fit mb-4">
-                      <Database className="w-6 h-6 text-white" />
-                    </div>
-                    <p className="text-3xl font-bold text-blue-700 mb-2">{mockSOPs.length}</p>
-                    <p className="text-blue-600 font-medium">Documents Processed</p>
-                  </div>
-                  <div className="text-center p-6 bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl border border-emerald-100 shadow-sm">
-                    <div className="p-3 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl shadow-md mx-auto w-fit mb-4">
-                      <CheckCircle className="w-6 h-6 text-white" />
-                    </div>
-                    <p className="text-3xl font-bold text-emerald-700 mb-2">98%</p>
-                    <p className="text-emerald-600 font-medium">Training Accuracy</p>
-                  </div>
-                  <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl border border-purple-100 shadow-sm">
-                    <div className="p-3 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl shadow-md mx-auto w-fit mb-4">
-                      <Zap className="w-6 h-6 text-white" />
-                    </div>
-                    <p className="text-3xl font-bold text-purple-700 mb-2">Ready</p>
-                    <p className="text-purple-600 font-medium">AI Status</p>
-                  </div>
                 </div>
               </CardContent>
             </Card>

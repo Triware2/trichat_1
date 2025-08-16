@@ -106,7 +106,7 @@ export const BotChatInterface = ({ onEscalateToAgent, customerId }: BotChatInter
     // Low confidence response
     return {
       id: Date.now().toString(),
-      message: "I'm not sure I understand completely. Could you please rephrase your question?",
+      message: "I'm not sure I understand completely. Could you please rephrase your question or try asking about orders, refunds, or general support?",
       confidence: 0.3,
       intent: 'unknown'
     };

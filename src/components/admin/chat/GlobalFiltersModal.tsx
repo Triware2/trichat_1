@@ -7,17 +7,15 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { 
   Filter, 
-  X, 
-  Plus,
-  Calendar,
-  Users,
+  Calendar, 
+  Users, 
   MessageSquare,
   Clock,
+  Star,
   Tag,
-  Target
+  Save
 } from 'lucide-react';
 
 interface GlobalFiltersModalProps {
@@ -27,417 +25,268 @@ interface GlobalFiltersModalProps {
 
 export const GlobalFiltersModal = ({ open, onOpenChange }: GlobalFiltersModalProps) => {
   const [filters, setFilters] = useState({
-    channels: [] as string[],
-    status: [] as string[],
-    priority: [] as string[],
-    agents: [] as string[],
-    dateRange: {
-      start: '',
-      end: ''
-    },
-    tags: [] as string[],
-    customerType: '',
-    responseTime: {
-      min: '',
-      max: ''
-    },
-    sentiment: '',
-    escalated: false,
-    resolved: null as boolean | null
+    dateRange: '24h',
+    status: 'all',
+    priority: 'all',
+    channel: 'all',
+    agent: 'all',
+    tags: '',
+    hasRating: false,
+    minRating: 1,
+    responseTime: 'all'
   });
 
-  const [activeFilters, setActiveFilters] = useState<string[]>([]);
-
-  const channelOptions = ['website', 'whatsapp', 'facebook', 'instagram', 'email', 'sms'];
-  const statusOptions = ['active', 'waiting', 'closed', 'escalated'];
-  const priorityOptions = ['high', 'medium', 'low'];
-  const agentOptions = ['Agent Sarah', 'Agent Mike', 'Agent Lisa', 'Agent John'];
-  const customerTypes = ['new', 'returning', 'vip', 'premium'];
-  const sentimentOptions = ['positive', 'neutral', 'negative'];
-
-  const toggleFilter = (filterName: string) => {
-    setActiveFilters(prev => 
-      prev.includes(filterName) 
-        ? prev.filter(f => f !== filterName)
-        : [...prev, filterName]
-    );
-  };
-
-  const addToArrayFilter = (filterType: keyof typeof filters, value: string) => {
-    setFilters(prev => ({
-      ...prev,
-      [filterType]: [...(prev[filterType] as string[]), value]
-    }));
-  };
-
-  const removeFromArrayFilter = (filterType: keyof typeof filters, value: string) => {
-    setFilters(prev => ({
-      ...prev,
-      [filterType]: (prev[filterType] as string[]).filter(item => item !== value)
-    }));
-  };
-
-  const clearAllFilters = () => {
-    setFilters({
-      channels: [],
-      status: [],
-      priority: [],
-      agents: [],
-      dateRange: { start: '', end: '' },
-      tags: [],
-      customerType: '',
-      responseTime: { min: '', max: '' },
-      sentiment: '',
-      escalated: false,
-      resolved: null
-    });
-    setActiveFilters([]);
-  };
-
-  const applyFilters = () => {
-    console.log('Applying filters:', filters);
+  const handleSave = () => {
+    // Save filters logic here
+    console.log('Saving filters:', filters);
     onOpenChange(false);
   };
 
-  const getActiveFilterCount = () => {
-    let count = 0;
-    count += filters.channels.length;
-    count += filters.status.length;
-    count += filters.priority.length;
-    count += filters.agents.length;
-    count += filters.tags.length;
-    if (filters.dateRange.start || filters.dateRange.end) count++;
-    if (filters.customerType) count++;
-    if (filters.responseTime.min || filters.responseTime.max) count++;
-    if (filters.sentiment) count++;
-    if (filters.escalated) count++;
-    if (filters.resolved !== null) count++;
-    return count;
+  const handleReset = () => {
+    setFilters({
+      dateRange: '24h',
+      status: 'all',
+      priority: 'all',
+      channel: 'all',
+      agent: 'all',
+      tags: '',
+      hasRating: false,
+      minRating: 1,
+      responseTime: 'all'
+    });
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle className="flex items-center gap-2">
-              <Filter className="w-5 h-5 text-blue-600" />
-              Global Chat Filters
-              {getActiveFilterCount() > 0 && (
-                <Badge className="bg-blue-100 text-blue-800">
-                  {getActiveFilterCount()} active
-                </Badge>
-              )}
-            </DialogTitle>
-            <Button variant="outline" size="sm" onClick={clearAllFilters}>
-              Clear All
-            </Button>
-          </div>
+          <DialogTitle className="flex items-center gap-2">
+            <Filter className="w-5 h-5" />
+            Global Filters
+          </DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 py-4">
-          {/* Channels Filter */}
+        <div className="space-y-6 py-4">
+          {/* Time Range */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <MessageSquare className="w-4 h-4" />
-                Channels
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {channelOptions.map((channel) => (
-                <label key={channel} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={filters.channels.includes(channel)}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        addToArrayFilter('channels', channel);
-                      } else {
-                        removeFromArrayFilter('channels', channel);
-                      }
-                    }}
-                    className="rounded"
-                  />
-                  <span className="capitalize text-sm">{channel}</span>
-                </label>
-              ))}
-            </CardContent>
-          </Card>
-
-          {/* Status Filter */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <Target className="w-4 h-4" />
-                Status
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {statusOptions.map((status) => (
-                <label key={status} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={filters.status.includes(status)}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        addToArrayFilter('status', status);
-                      } else {
-                        removeFromArrayFilter('status', status);
-                      }
-                    }}
-                    className="rounded"
-                  />
-                  <span className="capitalize text-sm">{status}</span>
-                </label>
-              ))}
-            </CardContent>
-          </Card>
-
-          {/* Priority Filter */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <Tag className="w-4 h-4" />
-                Priority
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {priorityOptions.map((priority) => (
-                <label key={priority} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={filters.priority.includes(priority)}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        addToArrayFilter('priority', priority);
-                      } else {
-                        removeFromArrayFilter('priority', priority);
-                      }
-                    }}
-                    className="rounded"
-                  />
-                  <span className="capitalize text-sm">{priority}</span>
-                </label>
-              ))}
-            </CardContent>
-          </Card>
-
-          {/* Agents Filter */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <Users className="w-4 h-4" />
-                Agents
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {agentOptions.map((agent) => (
-                <label key={agent} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={filters.agents.includes(agent)}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        addToArrayFilter('agents', agent);
-                      } else {
-                        removeFromArrayFilter('agents', agent);
-                      }
-                    }}
-                    className="rounded"
-                  />
-                  <span className="text-sm">{agent}</span>
-                </label>
-              ))}
-            </CardContent>
-          </Card>
-
-          {/* Date Range Filter */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-base">
                 <Calendar className="w-4 h-4" />
-                Date Range
+                Time Range
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <Label className="text-xs">Start Date</Label>
-                <Input 
-                  type="date" 
-                  value={filters.dateRange.start}
-                  onChange={(e) => setFilters(prev => ({
-                    ...prev,
-                    dateRange: { ...prev.dateRange, start: e.target.value }
-                  }))}
-                />
-              </div>
-              <div>
-                <Label className="text-xs">End Date</Label>
-                <Input 
-                  type="date" 
-                  value={filters.dateRange.end}
-                  onChange={(e) => setFilters(prev => ({
-                    ...prev,
-                    dateRange: { ...prev.dateRange, end: e.target.value }
-                  }))}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Response Time Filter */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <Clock className="w-4 h-4" />
-                Response Time (min)
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <Label className="text-xs">Min</Label>
-                <Input 
-                  type="number" 
-                  placeholder="0"
-                  value={filters.responseTime.min}
-                  onChange={(e) => setFilters(prev => ({
-                    ...prev,
-                    responseTime: { ...prev.responseTime, min: e.target.value }
-                  }))}
-                />
-              </div>
-              <div>
-                <Label className="text-xs">Max</Label>
-                <Input 
-                  type="number" 
-                  placeholder="60"
-                  value={filters.responseTime.max}
-                  onChange={(e) => setFilters(prev => ({
-                    ...prev,
-                    responseTime: { ...prev.responseTime, max: e.target.value }
-                  }))}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Additional Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <Label>Customer Type</Label>
-            <Select 
-              value={filters.customerType}
-              onValueChange={(value) => setFilters(prev => ({ ...prev, customerType: value }))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="All types" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">All types</SelectItem>
-                {customerTypes.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type.charAt(0).toUpperCase() + type.slice(1)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label>Sentiment</Label>
-            <Select 
-              value={filters.sentiment}
-              onValueChange={(value) => setFilters(prev => ({ ...prev, sentiment: value }))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Any sentiment" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">Any sentiment</SelectItem>
-                {sentimentOptions.map((sentiment) => (
-                  <SelectItem key={sentiment} value={sentiment}>
-                    {sentiment.charAt(0).toUpperCase() + sentiment.slice(1)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label className="text-sm">Escalated Only</Label>
-              <Switch 
-                checked={filters.escalated}
-                onCheckedChange={(checked) => setFilters(prev => ({ ...prev, escalated: checked }))}
-              />
-            </div>
-            <div>
-              <Label>Resolution Status</Label>
-              <Select 
-                value={filters.resolved === null ? '' : filters.resolved.toString()}
-                onValueChange={(value) => setFilters(prev => ({ 
-                  ...prev, 
-                  resolved: value === '' ? null : value === 'true' 
-                }))}
-              >
+            <CardContent>
+              <Select value={filters.dateRange} onValueChange={(value) => setFilters(prev => ({ ...prev, dateRange: value }))}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Any status" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Any status</SelectItem>
-                  <SelectItem value="true">Resolved</SelectItem>
-                  <SelectItem value="false">Unresolved</SelectItem>
+                  <SelectItem value="1h">Last Hour</SelectItem>
+                  <SelectItem value="24h">Last 24 Hours</SelectItem>
+                  <SelectItem value="7d">Last 7 Days</SelectItem>
+                  <SelectItem value="30d">Last 30 Days</SelectItem>
+                  <SelectItem value="90d">Last 90 Days</SelectItem>
+                  <SelectItem value="custom">Custom Range</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </CardContent>
+          </Card>
+
+          {/* Status & Priority */}
+          <div className="grid grid-cols-2 gap-4">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <MessageSquare className="w-4 h-4" />
+                  Status
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Select value={filters.status} onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="queued">Queued</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="waiting">Waiting</SelectItem>
+                    <SelectItem value="resolved">Resolved</SelectItem>
+                    <SelectItem value="closed">Closed</SelectItem>
+                    <SelectItem value="escalated">Escalated</SelectItem>
+                  </SelectContent>
+                </Select>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Star className="w-4 h-4" />
+                  Priority
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Select value={filters.priority} onValueChange={(value) => setFilters(prev => ({ ...prev, priority: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Priorities</SelectItem>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="urgent">Urgent</SelectItem>
+                  </SelectContent>
+                </Select>
+              </CardContent>
+            </Card>
           </div>
+
+          {/* Channel & Agent */}
+          <div className="grid grid-cols-2 gap-4">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <MessageSquare className="w-4 h-4" />
+                  Channel
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Select value={filters.channel} onValueChange={(value) => setFilters(prev => ({ ...prev, channel: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Channels</SelectItem>
+                    <SelectItem value="website">Website</SelectItem>
+                    <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                    <SelectItem value="facebook">Facebook</SelectItem>
+                    <SelectItem value="instagram">Instagram</SelectItem>
+                    <SelectItem value="email">Email</SelectItem>
+                    <SelectItem value="sms">SMS</SelectItem>
+                    <SelectItem value="api">API</SelectItem>
+                  </SelectContent>
+                </Select>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Users className="w-4 h-4" />
+                  Assigned Agent
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Select value={filters.agent} onValueChange={(value) => setFilters(prev => ({ ...prev, agent: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Agents</SelectItem>
+                    <SelectItem value="unassigned">Unassigned</SelectItem>
+                    <SelectItem value="agent1">Agent 1</SelectItem>
+                    <SelectItem value="agent2">Agent 2</SelectItem>
+                    <SelectItem value="agent3">Agent 3</SelectItem>
+                  </SelectContent>
+                </Select>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Tags */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Tag className="w-4 h-4" />
+                Tags
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Input 
+                placeholder="Enter tags (comma separated)"
+                value={filters.tags}
+                onChange={(e) => setFilters(prev => ({ ...prev, tags: e.target.value }))}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Response Time */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Clock className="w-4 h-4" />
+                Response Time
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Select value={filters.responseTime} onValueChange={(value) => setFilters(prev => ({ ...prev, responseTime: value }))}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Response Times</SelectItem>
+                  <SelectItem value="under_1min">Under 1 minute</SelectItem>
+                  <SelectItem value="under_5min">Under 5 minutes</SelectItem>
+                  <SelectItem value="under_15min">Under 15 minutes</SelectItem>
+                  <SelectItem value="over_15min">Over 15 minutes</SelectItem>
+                </SelectContent>
+              </Select>
+            </CardContent>
+          </Card>
+
+          {/* Rating Filter */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Star className="w-4 h-4" />
+                Rating Filter
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label>Only show rated conversations</Label>
+                <Switch 
+                  checked={filters.hasRating}
+                  onCheckedChange={(checked) => setFilters(prev => ({ ...prev, hasRating: checked }))}
+                />
+              </div>
+              {filters.hasRating && (
+                <div className="space-y-2">
+                  <Label>Minimum Rating</Label>
+                  <Select value={filters.minRating.toString()} onValueChange={(value) => setFilters(prev => ({ ...prev, minRating: parseInt(value) }))}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">1+ Stars</SelectItem>
+                      <SelectItem value="2">2+ Stars</SelectItem>
+                      <SelectItem value="3">3+ Stars</SelectItem>
+                      <SelectItem value="4">4+ Stars</SelectItem>
+                      <SelectItem value="5">5 Stars</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Active Filters Display */}
-        {getActiveFilterCount() > 0 && (
-          <div className="p-4 bg-blue-50 rounded-lg">
-            <h4 className="text-sm font-medium text-blue-800 mb-2">Active Filters:</h4>
-            <div className="flex flex-wrap gap-2">
-              {filters.channels.map((channel) => (
-                <Badge key={`channel-${channel}`} variant="secondary" className="gap-1">
-                  Channel: {channel}
-                  <X 
-                    className="w-3 h-3 cursor-pointer" 
-                    onClick={() => removeFromArrayFilter('channels', channel)}
-                  />
-                </Badge>
-              ))}
-              {filters.status.map((status) => (
-                <Badge key={`status-${status}`} variant="secondary" className="gap-1">
-                  Status: {status}
-                  <X 
-                    className="w-3 h-3 cursor-pointer" 
-                    onClick={() => removeFromArrayFilter('status', status)}
-                  />
-                </Badge>
-              ))}
-              {filters.priority.map((priority) => (
-                <Badge key={`priority-${priority}`} variant="secondary" className="gap-1">
-                  Priority: {priority}
-                  <X 
-                    className="w-3 h-3 cursor-pointer" 
-                    onClick={() => removeFromArrayFilter('priority', priority)}
-                  />
-                </Badge>
-              ))}
-            </div>
+        {/* Actions */}
+        <div className="flex justify-between gap-3 pt-4 border-t">
+          <Button variant="outline" onClick={handleReset}>
+            Reset Filters
+          </Button>
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700">
+              <Save className="w-4 h-4 mr-2" />
+              Apply Filters
+            </Button>
           </div>
-        )}
-
-        <div className="flex justify-end gap-2 pt-4 border-t">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button onClick={applyFilters}>
-            Apply Filters ({getActiveFilterCount()})
-          </Button>
         </div>
       </DialogContent>
     </Dialog>

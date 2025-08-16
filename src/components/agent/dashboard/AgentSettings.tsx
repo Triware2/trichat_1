@@ -50,116 +50,159 @@ export const AgentSettings = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-          <Settings className="w-6 h-6" />
-          Agent Settings
-        </h1>
-        <p className="text-gray-600 mt-1">Personalize your agent dashboard experience</p>
+    <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-[#11b890]/5 to-[#11b890]/10 overflow-hidden">
+      {/* Header */}
+      <div className="bg-white/95 backdrop-blur-sm border-b border-slate-200/60 shadow-sm sticky top-0 z-20">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-[#11b890] to-[#0ea373] rounded-xl shadow-lg">
+              <Settings className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900">Agent Settings</h1>
+              <p className="text-sm text-slate-600 mt-1">Personalize your agent dashboard experience</p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Notifications */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Bell className="w-5 h-5" />
-              Notifications
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <Label htmlFor="notifications" className="font-medium">
-                  Desktop Notifications
-                </Label>
-                <p className="text-sm text-gray-600">Get notified about new chats</p>
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Notifications Card */}
+          <Card className="bg-white/80 backdrop-blur-sm border-slate-200/60 shadow-lg rounded-2xl overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50/50 border-b border-slate-200/60">
+              <CardTitle className="flex items-center space-x-3 text-xl font-semibold text-slate-900">
+                <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
+                  <Bell className="w-4 h-4 text-white" />
+                </div>
+                <span>Notifications</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <Label htmlFor="notifications" className="text-base font-medium text-slate-900">
+                    Desktop Notifications
+                  </Label>
+                  <p className="text-sm text-slate-600 mt-1">Get notified about new chats and messages</p>
+                </div>
+                <Switch
+                  id="notifications"
+                  checked={notifications}
+                  onCheckedChange={setNotifications}
+                />
               </div>
-              <Switch
-                id="notifications"
-                checked={notifications}
-                onCheckedChange={setNotifications}
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <Label htmlFor="sound-alerts" className="font-medium">
-                  Sound Alerts
-                </Label>
-                <p className="text-sm text-gray-600">Play sound for new messages</p>
+              
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <Label htmlFor="sound-alerts" className="text-base font-medium text-slate-900">
+                    Sound Alerts
+                  </Label>
+                  <p className="text-sm text-slate-600 mt-1">Play sound for new messages</p>
+                </div>
+                <Switch
+                  id="sound-alerts"
+                  checked={soundAlerts}
+                  onCheckedChange={setSoundAlerts}
+                />
               </div>
-              <Switch
-                id="sound-alerts"
-                checked={soundAlerts}
-                onCheckedChange={setSoundAlerts}
-              />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        {/* Appearance */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Monitor className="w-5 h-5" />
-              Appearance
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <Label htmlFor="dark-mode" className="font-medium">
-                  Dark Mode
-                </Label>
-                <p className="text-sm text-gray-600">Switch to dark theme</p>
+          {/* Appearance Card */}
+          <Card className="bg-white/80 backdrop-blur-sm border-slate-200/60 shadow-lg rounded-2xl overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-slate-50 to-[#11b890]/10 border-b border-slate-200/60">
+              <CardTitle className="flex items-center space-x-3 text-xl font-semibold text-slate-900">
+                <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-[#11b890] to-[#0ea373] rounded-lg">
+                  <Monitor className="w-4 h-4 text-white" />
+                </div>
+                <span>Appearance</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <Label htmlFor="dark-mode" className="text-base font-medium text-slate-900">
+                    Dark Mode
+                  </Label>
+                  <p className="text-sm text-slate-600 mt-1">Toggle dark theme for better night viewing</p>
+                </div>
+                <Switch
+                  id="dark-mode"
+                  checked={darkMode}
+                  onCheckedChange={setDarkMode}
+                />
               </div>
-              <Switch
-                id="dark-mode"
-                checked={darkMode}
-                onCheckedChange={setDarkMode}
-              />
-            </div>
-            <div className="pt-2">
-              <Badge variant="outline" className="text-xs">
-                Theme changes apply immediately
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        {/* Status Settings */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Volume2 className="w-5 h-5" />
-              Status Settings
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="away-timeout" className="font-medium">
-                Auto-Away Timeout (minutes)
-              </Label>
-              <Input
-                id="away-timeout"
-                type="number"
-                min="5"
-                max="60"
-                value={awayTimeout}
-                onChange={e => setAwayTimeout(e.target.value)}
-                className="w-24"
-              />
-              <p className="text-xs text-gray-600">Set between 5-60 minutes</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-      <div className="flex justify-end">
-        <Button onClick={handleSaveSettings} className="flex items-center gap-2">
-          <Save className="w-4 h-4" />
-          Save Settings
-        </Button>
+          {/* Profile Settings Card */}
+          <Card className="bg-white/80 backdrop-blur-sm border-slate-200/60 shadow-lg rounded-2xl overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-slate-50 to-purple-50/50 border-b border-slate-200/60">
+              <CardTitle className="flex items-center space-x-3 text-xl font-semibold text-slate-900">
+                <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg">
+                  <User className="w-4 h-4 text-white" />
+                </div>
+                <span>Profile Settings</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 space-y-6">
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="away-timeout" className="text-base font-medium text-slate-900">
+                    Auto-Away Timeout (minutes)
+                  </Label>
+                  <p className="text-sm text-slate-600 mt-1">Set status to away after inactivity</p>
+                  <Input
+                    id="away-timeout"
+                    type="number"
+                    value={awayTimeout}
+                    onChange={(e) => setAwayTimeout(e.target.value)}
+                    className="mt-2 bg-white border-slate-200 focus:border-[#11b890] focus:ring-[#11b890]"
+                    min="1"
+                    max="60"
+                  />
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Badge variant="outline" className="bg-[#11b890]/10 text-[#11b890] border-[#11b890]/30">
+                    Status: Online
+                  </Badge>
+                  <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">
+                    Agent Role
+                  </Badge>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Save Settings Card */}
+          <Card className="bg-white/80 backdrop-blur-sm border-slate-200/60 shadow-lg rounded-2xl overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-slate-50 to-[#11b890]/10 border-b border-slate-200/60">
+              <CardTitle className="flex items-center space-x-3 text-xl font-semibold text-slate-900">
+                <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-[#11b890] to-[#0ea373] rounded-lg">
+                  <Save className="w-4 h-4 text-white" />
+                </div>
+                <span>Save Changes</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="space-y-4">
+                <p className="text-sm text-slate-600">
+                  Your settings are automatically saved. Changes take effect immediately.
+                </p>
+                <Button 
+                  onClick={handleSaveSettings}
+                  className="w-full bg-gradient-to-r from-[#11b890] to-[#0ea373] hover:from-[#0ea373] hover:to-[#0d8f65] text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  Save All Settings
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

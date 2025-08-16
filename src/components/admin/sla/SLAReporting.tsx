@@ -29,17 +29,30 @@ import {
   Users
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { slaService } from '@/services/slaService';
+import { useEffect } from 'react';
+import { SLAMetrics } from './types';
 
 export const SLAReporting = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState('month');
+  const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'quarter' | 'year'>('month');
   const [selectedSLA, setSelectedSLA] = useState('all');
+  const [metrics, setMetrics] = useState<SLAMetrics[]>([]);
 
-  const complianceData = [
-    { name: 'Week 1', compliance: 96.2, breaches: 3, cases: 78 },
-    { name: 'Week 2', compliance: 94.8, breaches: 5, cases: 95 },
-    { name: 'Week 3', compliance: 97.1, breaches: 2, cases: 68 },
-    { name: 'Week 4', compliance: 93.5, breaches: 7, cases: 108 },
-  ];
+  useEffect(() => {
+    const load = async () => {
+      const periodMap: any = { week: 'week', month: 'month', quarter: 'quarter', year: 'month' };
+      const data = await slaService.listMetrics(selectedSLA === 'all' ? '' : selectedSLA, periodMap[selectedPeriod] || 'month');
+      setMetrics(data);
+    };
+    load();
+  }, [selectedSLA, selectedPeriod]);
+
+  const complianceData = metrics.map((m, idx) => ({
+    name: `P${idx + 1}`,
+    compliance: m.complianceRate,
+    breaches: m.breachedCases,
+    cases: m.totalCases,
+  }));
 
   const responseTimeData = [
     { name: 'Mon', avgResponse: 18, target: 20 },
@@ -51,35 +64,15 @@ export const SLAReporting = () => {
     { name: 'Sun', avgResponse: 14, target: 20 },
   ];
 
-  const slaPerformance = [
-    {
-      sla: 'Enterprise VIP',
-      totalCases: 245,
-      breached: 8,
-      compliance: 96.7,
-      avgResponse: '12m',
-      avgResolution: '3h 24m',
-      trend: 'up'
-    },
-    {
-      sla: 'Business Standard',
-      totalCases: 567,
-      breached: 23,
-      compliance: 95.9,
-      avgResponse: '18m',
-      avgResolution: '5h 12m',
-      trend: 'up'
-    },
-    {
-      sla: 'Basic Support',
-      totalCases: 892,
-      breached: 47,
-      compliance: 94.7,
-      avgResponse: '28m',
-      avgResolution: '8h 45m',
-      trend: 'down'
-    }
-  ];
+  const slaPerformance = metrics.slice(0, 3).map((m) => ({
+    sla: m.slaId,
+    totalCases: m.totalCases,
+    breached: m.breachedCases,
+    compliance: m.complianceRate,
+    avgResponse: `${m.avgResponseTime}m`,
+    avgResolution: `${m.avgResolutionTime}m`,
+    trend: 'up'
+  }));
 
   const breachAnalysis = [
     {
@@ -115,10 +108,8 @@ export const SLAReporting = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">SLA Reporting & Analytics</h2>
-          <p className="text-sm text-gray-600 mt-1">
-            Comprehensive analysis of SLA performance and compliance metrics
-          </p>
+          <h2 className="text-base font-bold text-slate-900">SLA Reporting & Analytics</h2>
+          <p className="text-sm text-slate-600 mt-1">Comprehensive analysis of SLA performance and compliance metrics</p>
         </div>
         <div className="flex items-center gap-3">
           <Select value={selectedSLA} onValueChange={setSelectedSLA}>
@@ -132,7 +123,7 @@ export const SLAReporting = () => {
               <SelectItem value="basic">Basic Support</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+          <Select value={selectedPeriod} onValueChange={(v) => setSelectedPeriod(v as any)}>
             <SelectTrigger className="w-32">
               <SelectValue />
             </SelectTrigger>
@@ -143,7 +134,27 @@ export const SLAReporting = () => {
               <SelectItem value="year">This Year</SelectItem>
             </SelectContent>
           </Select>
-          <Button className="bg-blue-600 hover:bg-blue-700">
+          <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => {
+            const headers = ['Period','Total Cases','Breached','Compliance','Avg Resp (m)','Avg Res (m)'];
+            const rows = metrics.map((m, i) => [
+              `P${i+1}`,
+              m.totalCases,
+              m.breachedCases,
+              m.complianceRate,
+              m.avgResponseTime,
+              m.avgResolutionTime
+            ].join(','));
+            const content = [headers.join(','), ...rows].join('\n');
+            const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `sla-report-${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }}>
             <Download className="w-4 h-4 mr-2" />
             Export Report
           </Button>
@@ -210,7 +221,7 @@ export const SLAReporting = () => {
         {/* Compliance Trend */}
         <Card className="border border-gray-200">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-base font-bold">
               <BarChart3 className="w-5 h-5 text-blue-600" />
               SLA Compliance Trend
             </CardTitle>
@@ -249,7 +260,7 @@ export const SLAReporting = () => {
         {/* Response Time Analysis */}
         <Card className="border border-gray-200">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-base font-bold">
               <Clock className="w-5 h-5 text-green-600" />
               Response Time vs Target
             </CardTitle>
@@ -274,7 +285,7 @@ export const SLAReporting = () => {
       {/* SLA Performance Table */}
       <Card className="border border-gray-200">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-base font-bold">
             <TrendingUp className="w-5 h-5 text-blue-600" />
             SLA Performance Summary
           </CardTitle>
@@ -332,7 +343,7 @@ export const SLAReporting = () => {
       {/* Root Cause Analysis */}
       <Card className="border border-gray-200">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-base font-bold">
             <AlertTriangle className="w-5 h-5 text-orange-600" />
             SLA Breach Analysis
           </CardTitle>

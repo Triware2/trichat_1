@@ -66,161 +66,149 @@ export const SLAManagement = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-900">SLA Management</h1>
-          <p className="text-gray-600 mt-1">
-            Configure and monitor Service Level Agreements across your platform
-          </p>
+      {/* Header Section */}
+      <div className="space-y-1">
+        <div className="flex items-center gap-3">
+          <Clock className="w-6 h-6 text-blue-600" />
+          <h1 className="text-2xl font-bold text-slate-900">SLA Management</h1>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleCreateSLA}>
-          <Plus className="w-4 h-4 mr-2" />
-          Create SLA
-        </Button>
+        <p className="text-sm text-slate-600">
+          Define and monitor service level agreements for customer support
+        </p>
       </div>
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* SLA Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {slaStats.map((stat, index) => (
-          <Card key={index} className="border border-gray-200">
+          <Card key={index} className="border border-slate-200 shadow-sm">
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className={`p-3 rounded-lg ${stat.bgColor}`}>
-                  <stat.icon className={`w-6 h-6 ${stat.color}`} />
+              <div className="flex items-center space-x-3">
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${stat.bgColor}`}>
+                  <stat.icon className={`w-5 h-5 ${stat.color}`} />
                 </div>
-                <Badge variant="outline" className="text-xs">
-                  {stat.change}
-                </Badge>
-              </div>
-              <div className="mt-4">
-                <p className="text-2xl font-semibold text-gray-900">{stat.value}</p>
-                <p className="text-sm text-gray-600 mt-1">{stat.title}</p>
+                <div>
+                  <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
+                  <p className="text-sm font-medium text-slate-600">{stat.title}</p>
+                </div>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Main Content Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <div className="bg-white border-b border-gray-200 -mx-6 px-6">
-          <TabsList className="h-auto p-0 bg-transparent w-full justify-start">
-            <div className="flex space-x-0 overflow-x-auto">
-              <TabsTrigger
-                value="overview"
-                className={`
-                  flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all duration-200
-                  border-b-2 border-transparent whitespace-nowrap
-                  ${activeTab === 'overview' 
-                    ? 'text-blue-600 border-blue-600 bg-blue-50/50' 
-                    : 'text-gray-600 hover:text-gray-900 hover:border-gray-300'
-                  }
-                `}
-              >
-                <BarChart3 className="w-4 h-4" />
-                Overview
-              </TabsTrigger>
-              <TabsTrigger
-                value="configuration"
-                className={`
-                  flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all duration-200
-                  border-b-2 border-transparent whitespace-nowrap
-                  ${activeTab === 'configuration' 
-                    ? 'text-blue-600 border-blue-600 bg-blue-50/50' 
-                    : 'text-gray-600 hover:text-gray-900 hover:border-gray-300'
-                  }
-                `}
-              >
-                <Settings className="w-4 h-4" />
-                Configuration
-              </TabsTrigger>
-              <TabsTrigger
-                value="monitoring"
-                className={`
-                  flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all duration-200
-                  border-b-2 border-transparent whitespace-nowrap
-                  ${activeTab === 'monitoring' 
-                    ? 'text-blue-600 border-blue-600 bg-blue-50/50' 
-                    : 'text-gray-600 hover:text-gray-900 hover:border-gray-300'
-                  }
-                `}
-              >
-                <Clock className="w-4 h-4" />
-                Monitoring
-              </TabsTrigger>
-              <TabsTrigger
-                value="escalation"
-                className={`
-                  flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all duration-200
-                  border-b-2 border-transparent whitespace-nowrap
-                  ${activeTab === 'escalation' 
-                    ? 'text-blue-600 border-blue-600 bg-blue-50/50' 
-                    : 'text-gray-600 hover:text-gray-900 hover:border-gray-300'
-                  }
-                `}
-              >
-                <Users className="w-4 h-4" />
-                Escalation
-              </TabsTrigger>
-              <TabsTrigger
-                value="notifications"
-                className={`
-                  flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all duration-200
-                  border-b-2 border-transparent whitespace-nowrap
-                  ${activeTab === 'notifications' 
-                    ? 'text-blue-600 border-blue-600 bg-blue-50/50' 
-                    : 'text-gray-600 hover:text-gray-900 hover:border-gray-300'
-                  }
-                `}
-              >
-                <Bell className="w-4 h-4" />
-                Notifications
-              </TabsTrigger>
-              <TabsTrigger
-                value="reporting"
-                className={`
-                  flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all duration-200
-                  border-b-2 border-transparent whitespace-nowrap
-                  ${activeTab === 'reporting' 
-                    ? 'text-blue-600 border-blue-600 bg-blue-50/50' 
-                    : 'text-gray-600 hover:text-gray-900 hover:border-gray-300'
-                  }
-                `}
-              >
-                <BarChart3 className="w-4 h-4" />
-                Reporting
-              </TabsTrigger>
-            </div>
-          </TabsList>
-        </div>
+      {/* Main Content */}
+      <Card className="border border-slate-200 shadow-sm">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <div className="border-b border-slate-200">
+            <TabsList className="h-auto bg-transparent p-0 space-x-0">
+              <div className="flex">
+                <TabsTrigger 
+                  value="overview" 
+                  className="flex items-center gap-2 px-6 py-4 text-sm font-medium transition-all duration-200 border-b-2 bg-transparent rounded-none border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300 data-[state=active]:bg-blue-50/50 data-[state=active]:text-blue-600 data-[state=active]:border-blue-600 data-[state=active]:shadow-none"
+                >
+                  <BarChart3 className="w-4 h-4" />
+                  Overview
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="configuration" 
+                  className="flex items-center gap-2 px-6 py-4 text-sm font-medium transition-all duration-200 border-b-2 bg-transparent rounded-none border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300 data-[state=active]:bg-blue-50/50 data-[state=active]:text-blue-600 data-[state=active]:border-blue-600 data-[state=active]:shadow-none"
+                >
+                  <Settings className="w-4 h-4" />
+                  Configuration
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="monitoring" 
+                  className="flex items-center gap-2 px-6 py-4 text-sm font-medium transition-all duration-200 border-b-2 bg-transparent rounded-none border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300 data-[state=active]:bg-blue-50/50 data-[state=active]:text-blue-600 data-[state=active]:border-blue-600 data-[state=active]:shadow-none"
+                >
+                  <Clock className="w-4 h-4" />
+                  Monitoring
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="escalation" 
+                  className="flex items-center gap-2 px-6 py-4 text-sm font-medium transition-all duration-200 border-b-2 bg-transparent rounded-none border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300 data-[state=active]:bg-blue-50/50 data-[state=active]:text-blue-600 data-[state=active]:border-blue-600 data-[state=active]:shadow-none"
+                >
+                  <AlertTriangle className="w-4 h-4" />
+                  Escalation
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="reporting" 
+                  className="flex items-center gap-2 px-6 py-4 text-sm font-medium transition-all duration-200 border-b-2 bg-transparent rounded-none border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300 data-[state=active]:bg-blue-50/50 data-[state=active]:text-blue-600 data-[state=active]:border-blue-600 data-[state=active]:shadow-none"
+                >
+                  <BarChart3 className="w-4 h-4" />
+                  Reporting
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="notifications" 
+                  className="flex items-center gap-2 px-6 py-4 text-sm font-medium transition-all duration-200 border-b-2 bg-transparent rounded-none border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300 data-[state=active]:bg-blue-50/50 data-[state=active]:text-blue-600 data-[state=active]:border-blue-600 data-[state=active]:shadow-none"
+                >
+                  <Bell className="w-4 h-4" />
+                  Notifications
+                </TabsTrigger>
+              </div>
+            </TabsList>
+          </div>
 
-        <div className="px-6">
-          <TabsContent value="overview" className="mt-0">
-            <SLAMonitoring />
+          <TabsContent value="overview" className="mt-0 p-6">
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card className="border border-slate-200 shadow-sm">
+                  <CardHeader className="border-b border-slate-100 bg-slate-50/50">
+                    <CardTitle className="text-base font-bold text-slate-900">Active SLA Rules</CardTitle>
+                    <CardDescription className="text-sm text-slate-600">
+                      Currently active service level agreements
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="space-y-4">
+                      {/* SLA rules content */}
+                      <div className="text-center py-8">
+                        <p className="text-sm text-slate-500">SLA rules will be displayed here</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border border-slate-200 shadow-sm">
+                  <CardHeader className="border-b border-slate-100 bg-slate-50/50">
+                    <CardTitle className="text-base font-bold text-slate-900">Recent Breaches</CardTitle>
+                    <CardDescription className="text-sm text-slate-600">
+                      Latest SLA violations and escalations
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="space-y-4">
+                      {/* Breaches content */}
+                      <div className="text-center py-8">
+                        <p className="text-sm text-slate-500">Recent breaches will be displayed here</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
           </TabsContent>
 
-          <TabsContent value="configuration" className="mt-0">
+          <TabsContent value="configuration" className="mt-0 p-6">
             <SLAConfiguration />
           </TabsContent>
 
-          <TabsContent value="monitoring" className="mt-0">
+          <TabsContent value="monitoring" className="mt-0 p-6">
             <SLAMonitoring />
           </TabsContent>
 
-          <TabsContent value="escalation" className="mt-0">
+          <TabsContent value="escalation" className="mt-0 p-6">
             <EscalationManagement />
           </TabsContent>
 
-          <TabsContent value="notifications" className="mt-0">
-            <SLANotifications />
-          </TabsContent>
-
-          <TabsContent value="reporting" className="mt-0">
+          <TabsContent value="reporting" className="mt-0 p-6">
             <SLAReporting />
           </TabsContent>
-        </div>
-      </Tabs>
+
+          <TabsContent value="notifications" className="mt-0 p-6">
+            <SLANotifications />
+          </TabsContent>
+        </Tabs>
+      </Card>
     </div>
   );
 };

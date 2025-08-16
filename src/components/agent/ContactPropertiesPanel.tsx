@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Package, User, Calendar, DollarSign, AlertCircle, Phone, Mail, MapPin } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { customizationService } from '@/services/customizationService';
 
 interface ContactProperties {
   orderId: string;
@@ -19,6 +20,7 @@ interface ContactProperties {
   location: string;
   phone: string;
   email: string;
+  customerId?: string;
 }
 
 interface ContactPropertiesPanelProps {
@@ -29,6 +31,9 @@ interface ContactPropertiesPanelProps {
 export const ContactPropertiesPanel = ({ chatId, customerName }: ContactPropertiesPanelProps) => {
   const [properties, setProperties] = useState<ContactProperties | null>(null);
   const [loading, setLoading] = useState(true);
+  const [customCustomerFields, setCustomCustomerFields] = useState<any[]>([]);
+  const [customCustomerValues, setCustomCustomerValues] = useState<Record<string, any>>({});
+  const [mountedSections, setMountedSections] = useState<Array<{ label: string; fields: any[]; record: any }>>([]);
 
   // Simulate API call to fetch contact properties based on chat context
   useEffect(() => {
@@ -40,6 +45,8 @@ export const ContactPropertiesPanel = ({ chatId, customerName }: ContactProperti
       setLoading(true);
       
       try {
+        const studioFields = await customizationService.listFieldsForObject('customers');
+        setCustomCustomerFields(studioFields || []);
         const { data: chatData, error: chatError } = await supabase
           .from('chats')
           .select('*, customers(*)')
@@ -51,6 +58,12 @@ export const ContactPropertiesPanel = ({ chatId, customerName }: ContactProperti
         if (chatData && chatData.customers) {
           const customer = chatData.customers as any; // The relationship returns an object, not an array for single()
           const metadata = chatData.metadata as any; // For easier access
+          const customerMeta = (customer?.metadata || {}) as Record<string, any>;
+          const values: Record<string, any> = {};
+          (studioFields || []).forEach((f: any) => {
+            values[f.name] = customerMeta[f.name] ?? '';
+          });
+          setCustomCustomerValues(values);
 
           setProperties({
             orderId: chatData.id.toString(),
@@ -66,6 +79,7 @@ export const ContactPropertiesPanel = ({ chatId, customerName }: ContactProperti
             location: customer.location || 'Unknown',
             phone: customer.phone || 'N/A',
             email: customer.email,
+            customerId: customer.id
           });
         }
       } catch (error) {
@@ -77,6 +91,34 @@ export const ContactPropertiesPanel = ({ chatId, customerName }: ContactProperti
 
     fetchContactProperties();
   }, [chatId]);
+
+  useEffect(() => {
+	(async () => {
+		try {
+			if (!properties) return;
+			const placements = await customizationService.listObjectPlacements({ destination: 'contact_panel' });
+			const active = (placements || []).filter((p: any) => p.is_active);
+			const sections: Array<{ label: string; fields: any[]; record: any }> = [];
+			for (const p of active) {
+				const objectId = p.object_id;
+				const fields = await customizationService.listObjectFields(objectId);
+				let records: any[] = [];
+				if (p.link_key === 'email' && properties.email) {
+					records = await customizationService.listObjectRecords(objectId, { from: 0, to: 0, search: undefined });
+					records = (records || []).filter(r => (r.data?.email || '').toLowerCase() === (properties.email || '').toLowerCase());
+				} else if (p.link_key === 'customer_id' && properties.customerId) {
+					records = await customizationService.listObjectRecordsForCustomer(objectId, properties.customerId);
+				}
+				const record = records?.[0] || null;
+				if (!record) continue;
+				const includeSet = new Set<string>((p.include_fields || []) as string[]);
+				const visibleFields = includeSet.size > 0 ? fields.filter((f: any) => includeSet.has(f.name)) : fields;
+				sections.push({ label: p.section_label, fields: visibleFields, record });
+			}
+			setMountedSections(sections);
+		} catch (e) { /* noop */ }
+	})();
+}, [properties?.customerId, properties?.email]);
 
   const getPriorityColor = (priority: string) => {
     switch (priority.toLowerCase()) {
@@ -196,6 +238,16 @@ export const ContactPropertiesPanel = ({ chatId, customerName }: ContactProperti
               <span className="text-slate-600 min-w-0">Total Spent:</span>
               <span className="font-medium text-slate-900 break-words min-w-0">{properties.totalSpent}</span>
             </div>
+            {customCustomerFields && customCustomerFields.length > 0 && (
+              <div className="pt-2">
+                {customCustomerFields.map((f: any) => (
+                  <div key={f.id} className="flex flex-wrap justify-between items-center min-w-0">
+                    <span className="text-slate-600 min-w-0">{f.label}:</span>
+                    <span className="font-medium text-slate-900 break-words min-w-0">{String(customCustomerValues[f.name] ?? '')}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -222,6 +274,19 @@ export const ContactPropertiesPanel = ({ chatId, customerName }: ContactProperti
             </div>
           </div>
         </div>
+        {mountedSections.map((sec, idx) => (
+	<div key={`mounted-${idx}`} className="mt-6">
+		<div className="text-xs font-semibold text-slate-500 mb-2">{sec.label}</div>
+		<div className="space-y-2">
+			{sec.fields.map((f: any) => (
+				<div key={f.id} className="flex items-center justify-between">
+					<span className="text-slate-500 text-sm">{f.label}</span>
+					<span className="text-slate-900 text-sm">{sec.record?.data?.[f.name] ?? '—'}</span>
+				</div>
+			))}
+		</div>
+	</div>
+))}
       </div>
     </>
   );

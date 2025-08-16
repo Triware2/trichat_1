@@ -1,91 +1,100 @@
-import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import { Tabs, TabsContent } from '@/components/ui/tabs';
+import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { NavigationHeader } from '@/components/NavigationHeader';
-import { TeamMonitor } from '@/components/supervisor/TeamMonitor';
-import { QueueManagement } from '@/components/supervisor/QueueManagement';
-import { Reports } from '@/components/supervisor/Reports';
-import { ChatSupervision } from '@/components/supervisor/ChatSupervision';
-import { SupervisorHeader } from '@/components/supervisor/SupervisorHeader';
 import { SupervisorTabs } from '@/components/supervisor/SupervisorTabs';
 import { SupervisorOverview } from '@/components/supervisor/SupervisorOverview';
+import { ChatSupervision } from '@/components/supervisor/ChatSupervision';
+import { TeamMonitor } from '@/components/supervisor/TeamMonitor';
 import { TeamSettings } from '@/components/supervisor/TeamSettings';
-import { FeatureGuard } from '@/components/FeatureGuard';
+import { QueueManagement } from '@/components/supervisor/QueueManagement';
+import { SupervisorProfile } from '@/components/supervisor/SupervisorProfile';
+import { SupervisorSettings } from '@/components/supervisor/SupervisorSettings';
+import SupervisorReports from '@/components/supervisor/Reports';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
+import { useAuth } from '@/hooks/use-auth';
 
 const SupervisorDashboard = () => {
+  const { user } = useAuth();
   const location = useLocation();
-  const [activeTab, setActiveTab] = useState('overview');
+  const navigate = useNavigate();
 
-  // Map URL paths to tab names
-  const getTabFromPath = (pathname: string) => {
-    const pathMap: { [key: string]: string } = {
-      '/supervisor': 'overview',
-      '/supervisor/chat-supervision': 'chats',
-      '/supervisor/team-monitor': 'team',
-      '/supervisor/team-settings': 'team-settings',
-      '/supervisor/queue-management': 'queue',
-      '/supervisor/reports': 'reports'
-    };
-    return pathMap[pathname] || 'overview';
+  // Get active tab from current route
+  const getActiveTab = () => {
+    const path = location.pathname;
+    if (path === '/supervisor' || path === '/supervisor/') return 'overview';
+    if (path.includes('/chat-supervision')) return 'chats';
+    if (path.includes('/team-monitor')) return 'team';
+    if (path.includes('/team-settings')) return 'team-settings';
+    if (path.includes('/queue-management')) return 'queue';
+    if (path.includes('/reports')) return 'reports';
+    if (path.includes('/profile')) return 'profile';
+    if (path.includes('/settings')) return 'settings';
+    return 'overview';
   };
 
-  // Update active tab based on current route
-  useEffect(() => {
-    const tab = getTabFromPath(location.pathname);
-    setActiveTab(tab);
-  }, [location.pathname]);
+  const currentTab = getActiveTab();
+
+  const handleTabChange = (newTab: string) => {
+    const pathMap: { [key: string]: string } = {
+      'overview': '/supervisor',
+      'chats': '/supervisor/chat-supervision',
+      'team': '/supervisor/team-monitor',
+      'team-settings': '/supervisor/team-settings',
+      'queue': '/supervisor/queue-management',
+      'reports': '/supervisor/reports',
+      'profile': '/supervisor/profile',
+      'settings': '/supervisor/settings'
+    };
+
+    const path = pathMap[newTab];
+    if (path) {
+      navigate(path);
+    }
+  };
+
+  const renderContent = () => {
+    switch (currentTab) {
+      case 'overview':
+        return <SupervisorOverview />;
+      case 'chats':
+        return <ChatSupervision />;
+      case 'team':
+        return <TeamMonitor />;
+      case 'team-settings':
+        return <TeamSettings />;
+      case 'queue':
+        return <QueueManagement />;
+      case 'reports':
+        return <SupervisorReports />;
+      case 'profile':
+        return <SupervisorProfile />;
+      case 'settings':
+        return <SupervisorSettings />;
+      default:
+        return <SupervisorOverview />;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Main Navigation Header */}
       <NavigationHeader 
         title="Supervisor Dashboard" 
         role="supervisor"
-        userEmail="supervisor@trichat.com"
+        userEmail={user?.email}
       />
       
-      <div>
-        <SupervisorHeader />
-
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <SupervisorTabs activeTab={activeTab} onTabChange={setActiveTab} />
-
-          <TabsContent value="overview" className="space-y-6">
-            <SupervisorOverview />
-          </TabsContent>
-
-          <TabsContent value="chats" className="space-y-6">
-            <FeatureGuard feature="supervisor_chat_supervision">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2">
-                  <ChatSupervision />
-                </div>
-              </div>
-            </FeatureGuard>
-          </TabsContent>
-
-          <TabsContent value="team">
-            <FeatureGuard feature="supervisor_team_monitor">
-              <TeamMonitor />
-            </FeatureGuard>
-          </TabsContent>
-
-          <TabsContent value="team-settings">
-            <TeamSettings />
-          </TabsContent>
-
-          <TabsContent value="queue">
-            <FeatureGuard feature="supervisor_queue_management">
-              <QueueManagement />
-            </FeatureGuard>
-          </TabsContent>
-
-          <TabsContent value="reports">
-            <FeatureGuard feature="supervisor_reports">
-              <Reports />
-            </FeatureGuard>
-          </TabsContent>
+      {/* Top Tab Navigation - Sticky */}
+      <div className="sticky top-16 z-40">
+        <Tabs value={currentTab} onValueChange={handleTabChange}>
+          <SupervisorTabs activeTab={currentTab} onTabChange={handleTabChange} />
         </Tabs>
       </div>
+      
+      {/* Full-width content */}
+      <main className="w-full">
+        {renderContent()}
+      </main>
     </div>
   );
 };

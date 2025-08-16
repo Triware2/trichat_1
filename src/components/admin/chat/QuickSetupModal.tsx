@@ -5,480 +5,211 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  Zap, 
   Globe, 
   MessageCircle, 
-  Users, 
-  Clock, 
-  Shield,
-  Bot,
-  Target,
-  Settings2,
-  Check
+  Facebook, 
+  Instagram, 
+  Mail, 
+  Smartphone,
+  Code,
+  Check,
+  Loader2
 } from 'lucide-react';
 
 interface QuickSetupModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onSetupComplete?: () => void;
 }
 
-export const QuickSetupModal = ({ open, onOpenChange }: QuickSetupModalProps) => {
-  const [setupStep, setSetupStep] = useState('channels');
-  const [setupData, setSetupData] = useState({
-    channels: {
-      website: { enabled: true, priority: 'high', maxChats: 50 },
-      whatsapp: { enabled: false, priority: 'medium', maxChats: 30 },
-      facebook: { enabled: false, priority: 'low', maxChats: 20 },
-      email: { enabled: false, priority: 'medium', maxChats: 100 }
-    },
-    businessHours: {
-      enabled: true,
-      timezone: 'UTC',
-      weekdays: { start: '09:00', end: '17:00' },
-      weekends: { start: '10:00', end: '14:00', enabled: false }
-    },
-    routing: {
-      strategy: 'least_busy',
-      fallbackEnabled: true,
-      skillBasedRouting: false,
-      priorityRouting: true
-    },
-    automation: {
-      autoResponse: true,
-      responseDelay: 30,
-      escalationEnabled: true,
-      escalationTime: 300,
-      botIntegration: false
-    },
-    agents: {
-      maxConcurrentChats: 5,
-      autoAssignment: true,
-      workloadBalancing: true,
-      skillRequirements: []
-    }
-  });
+export const QuickSetupModal = ({ open, onOpenChange, onSetupComplete }: QuickSetupModalProps) => {
+  const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [selectedChannels, setSelectedChannels] = useState<string[]>([]);
 
-  const setupSteps = [
-    { id: 'channels', title: 'Channel Setup', icon: Globe },
-    { id: 'hours', title: 'Business Hours', icon: Clock },
-    { id: 'routing', title: 'Chat Routing', icon: Target },
-    { id: 'automation', title: 'Automation', icon: Bot },
-    { id: 'agents', title: 'Agent Settings', icon: Users },
-    { id: 'review', title: 'Review & Deploy', icon: Check }
+  const channelOptions = [
+    { id: 'website', name: 'Website Chat', icon: Globe, description: 'Embed chat widget on your website' },
+    { id: 'whatsapp', name: 'WhatsApp Business', icon: MessageCircle, description: 'Connect to WhatsApp Business API' },
+    { id: 'facebook', name: 'Facebook Messenger', icon: Facebook, description: 'Integrate with Facebook Messenger' },
+    { id: 'instagram', name: 'Instagram DM', icon: Instagram, description: 'Handle Instagram direct messages' },
+    { id: 'email', name: 'Email Support', icon: Mail, description: 'Manage email support tickets' },
+    { id: 'sms', name: 'SMS Support', icon: Smartphone, description: 'Text message support' },
+    { id: 'api', name: 'API Integration', icon: Code, description: 'Custom API integration' }
   ];
 
-  const handleSetupComplete = () => {
-    console.log('Setup completed with data:', setupData);
+  const handleChannelToggle = (channelId: string) => {
+    setSelectedChannels(prev => 
+      prev.includes(channelId) 
+        ? prev.filter(id => id !== channelId)
+        : [...prev, channelId]
+    );
+  };
+
+  const handleSetup = async () => {
+    setLoading(true);
+    // Simulate setup process
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    setLoading(false);
+    onSetupComplete?.();
     onOpenChange(false);
+    setStep(1);
+    setSelectedChannels([]);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-2xl">
-            <Zap className="w-6 h-6 text-blue-600" />
-            Quick Setup Ecosystem
-          </DialogTitle>
-          <p className="text-gray-600">
-            World's most comprehensive chat management setup - configure everything in minutes
-          </p>
+          <DialogTitle>Quick Setup - Chat Management</DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-4 gap-6 py-6">
-          {/* Setup Navigation */}
-          <div className="space-y-2">
-            {setupSteps.map((step) => {
-              const Icon = step.icon;
-              const isActive = setupStep === step.id;
-              const isCompleted = setupSteps.findIndex(s => s.id === setupStep) > setupSteps.findIndex(s => s.id === step.id);
-              
-              return (
-                <button
-                  key={step.id}
-                  onClick={() => setSetupStep(step.id)}
-                  className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all ${
-                    isActive 
-                      ? 'bg-blue-100 text-blue-700 border-l-4 border-blue-600' 
-                      : isCompleted
-                      ? 'bg-green-50 text-green-700 border-l-4 border-green-500'
-                      : 'hover:bg-gray-50 text-gray-600'
-                  }`}
-                >
-                  <Icon className="w-5 h-5" />
-                  <span className="font-medium">{step.title}</span>
-                  {isCompleted && <Check className="w-4 h-4 ml-auto text-green-600" />}
-                </button>
-              );
-            })}
-          </div>
+        <div className="space-y-6 py-4">
+          {step === 1 && (
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Step 1: Select Communication Channels</h3>
+                <p className="text-sm text-slate-600 mb-4">
+                  Choose which channels you want to enable for customer communication
+                </p>
+              </div>
 
-          {/* Setup Content */}
-          <div className="col-span-3">
-            <Tabs value={setupStep} onValueChange={setSetupStep}>
-              {/* Channel Setup */}
-              <TabsContent value="channels" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Channel Configuration</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    {Object.entries(setupData.channels).map(([channel, config]) => (
-                      <div key={channel} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="flex items-center gap-3">
-                          <Switch 
-                            checked={config.enabled}
-                            onCheckedChange={(checked) => {
-                              setSetupData(prev => ({
-                                ...prev,
-                                channels: {
-                                  ...prev.channels,
-                                  [channel]: { ...config, enabled: checked }
-                                }
-                              }));
-                            }}
-                          />
-                          <div>
-                            <h4 className="font-medium capitalize">{channel}</h4>
-                            <p className="text-sm text-gray-600">
-                              Max {config.maxChats} concurrent chats
-                            </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {channelOptions.map((channel) => {
+                  const Icon = channel.icon;
+                  const isSelected = selectedChannels.includes(channel.id);
+                  
+                  return (
+                    <Card 
+                      key={channel.id}
+                      className={`cursor-pointer transition-all duration-200 ${
+                        isSelected 
+                          ? 'border-blue-500 bg-blue-50' 
+                          : 'border-slate-200 hover:border-slate-300'
+                      }`}
+                      onClick={() => handleChannelToggle(channel.id)}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-start gap-3">
+                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                            isSelected ? 'bg-blue-100' : 'bg-slate-100'
+                          }`}>
+                            <Icon className={`w-5 h-5 ${isSelected ? 'text-blue-600' : 'text-slate-600'}`} />
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="font-medium text-sm">{channel.name}</h4>
+                              {isSelected && <Check className="w-4 h-4 text-blue-600" />}
+                            </div>
+                            <p className="text-xs text-slate-600">{channel.description}</p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant={config.priority === 'high' ? 'destructive' : 'outline'}>
-                            {config.priority}
-                          </Badge>
-                          <Input 
-                            type="number" 
-                            value={config.maxChats}
-                            onChange={(e) => {
-                              setSetupData(prev => ({
-                                ...prev,
-                                channels: {
-                                  ...prev.channels,
-                                  [channel]: { ...config, maxChats: parseInt(e.target.value) }
-                                }
-                              }));
-                            }}
-                            className="w-20"
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-              </TabsContent>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
 
-              {/* Business Hours */}
-              <TabsContent value="hours" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Business Hours Configuration</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <Label>Enable Business Hours</Label>
-                      <Switch 
-                        checked={setupData.businessHours.enabled}
-                        onCheckedChange={(checked) => {
-                          setSetupData(prev => ({
-                            ...prev,
-                            businessHours: { ...prev.businessHours, enabled: checked }
-                          }));
-                        }}
-                      />
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label>Timezone</Label>
-                        <Select 
-                          value={setupData.businessHours.timezone}
-                          onValueChange={(value) => {
-                            setSetupData(prev => ({
-                              ...prev,
-                              businessHours: { ...prev.businessHours, timezone: value }
-                            }));
-                          }}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="UTC">UTC</SelectItem>
-                            <SelectItem value="EST">EST</SelectItem>
-                            <SelectItem value="PST">PST</SelectItem>
-                            <SelectItem value="CST">CST</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
+              <div className="flex justify-end gap-3">
+                <Button variant="outline" onClick={() => onOpenChange(false)}>
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={() => setStep(2)}
+                  disabled={selectedChannels.length === 0}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  Next Step
+                </Button>
+              </div>
+            </div>
+          )}
 
-                    <div className="space-y-3">
-                      <h4 className="font-medium">Weekdays</h4>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label>Start Time</Label>
-                          <Input 
-                            type="time" 
-                            value={setupData.businessHours.weekdays.start}
-                            onChange={(e) => {
-                              setSetupData(prev => ({
-                                ...prev,
-                                businessHours: {
-                                  ...prev.businessHours,
-                                  weekdays: { ...prev.businessHours.weekdays, start: e.target.value }
-                                }
-                              }));
-                            }}
-                          />
-                        </div>
-                        <div>
-                          <Label>End Time</Label>
-                          <Input 
-                            type="time" 
-                            value={setupData.businessHours.weekdays.end}
-                            onChange={(e) => {
-                              setSetupData(prev => ({
-                                ...prev,
-                                businessHours: {
-                                  ...prev.businessHours,
-                                  weekdays: { ...prev.businessHours.weekdays, end: e.target.value }
-                                }
-                              }));
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
+          {step === 2 && (
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Step 2: Configure Basic Settings</h3>
+                <p className="text-sm text-slate-600 mb-4">
+                  Set up basic configuration for your selected channels
+                </p>
+              </div>
 
-              {/* Routing */}
-              <TabsContent value="routing" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Chat Routing Strategy</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label>Routing Strategy</Label>
-                      <Select 
-                        value={setupData.routing.strategy}
-                        onValueChange={(value) => {
-                          setSetupData(prev => ({
-                            ...prev,
-                            routing: { ...prev.routing, strategy: value }
-                          }));
-                        }}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="round_robin">Round Robin</SelectItem>
-                          <SelectItem value="least_busy">Least Busy</SelectItem>
-                          <SelectItem value="skill_based">Skill Based</SelectItem>
-                          <SelectItem value="random">Random</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Business Hours</Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select timezone" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="UTC">UTC</SelectItem>
+                      <SelectItem value="EST">Eastern Time</SelectItem>
+                      <SelectItem value="PST">Pacific Time</SelectItem>
+                      <SelectItem value="GMT">GMT</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <Label>Enable Fallback Routing</Label>
-                        <Switch 
-                          checked={setupData.routing.fallbackEnabled}
-                          onCheckedChange={(checked) => {
-                            setSetupData(prev => ({
-                              ...prev,
-                              routing: { ...prev.routing, fallbackEnabled: checked }
-                            }));
-                          }}
-                        />
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <Label>Priority-based Routing</Label>
-                        <Switch 
-                          checked={setupData.routing.priorityRouting}
-                          onCheckedChange={(checked) => {
-                            setSetupData(prev => ({
-                              ...prev,
-                              routing: { ...prev.routing, priorityRouting: checked }
-                            }));
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
+                <div className="space-y-2">
+                  <Label>Auto Response</Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Enable auto response" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="enabled">Enabled</SelectItem>
+                      <SelectItem value="disabled">Disabled</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              {/* Automation */}
-              <TabsContent value="automation" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Automation Settings</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <Label>Auto Response</Label>
-                      <Switch 
-                        checked={setupData.automation.autoResponse}
-                        onCheckedChange={(checked) => {
-                          setSetupData(prev => ({
-                            ...prev,
-                            automation: { ...prev.automation, autoResponse: checked }
-                          }));
-                        }}
-                      />
-                    </div>
+                <div className="space-y-2">
+                  <Label>Routing Strategy</Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select routing" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="round_robin">Round Robin</SelectItem>
+                      <SelectItem value="least_busy">Least Busy</SelectItem>
+                      <SelectItem value="skill_based">Skill Based</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-                    <div>
-                      <Label>Response Delay (seconds)</Label>
-                      <Input 
-                        type="number" 
-                        value={setupData.automation.responseDelay}
-                        onChange={(e) => {
-                          setSetupData(prev => ({
-                            ...prev,
-                            automation: { ...prev.automation, responseDelay: parseInt(e.target.value) }
-                          }));
-                        }}
-                      />
-                    </div>
+                <div className="space-y-2">
+                  <Label>Max Concurrent Chats</Label>
+                  <Input type="number" placeholder="10" />
+                </div>
+              </div>
 
-                    <div className="flex items-center justify-between">
-                      <Label>Auto Escalation</Label>
-                      <Switch 
-                        checked={setupData.automation.escalationEnabled}
-                        onCheckedChange={(checked) => {
-                          setSetupData(prev => ({
-                            ...prev,
-                            automation: { ...prev.automation, escalationEnabled: checked }
-                          }));
-                        }}
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              {/* Agents */}
-              <TabsContent value="agents" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Agent Configuration</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label>Max Concurrent Chats per Agent</Label>
-                      <Input 
-                        type="number" 
-                        value={setupData.agents.maxConcurrentChats}
-                        onChange={(e) => {
-                          setSetupData(prev => ({
-                            ...prev,
-                            agents: { ...prev.agents, maxConcurrentChats: parseInt(e.target.value) }
-                          }));
-                        }}
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <Label>Auto Assignment</Label>
-                      <Switch 
-                        checked={setupData.agents.autoAssignment}
-                        onCheckedChange={(checked) => {
-                          setSetupData(prev => ({
-                            ...prev,
-                            agents: { ...prev.agents, autoAssignment: checked }
-                          }));
-                        }}
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <Label>Workload Balancing</Label>
-                      <Switch 
-                        checked={setupData.agents.workloadBalancing}
-                        onCheckedChange={(checked) => {
-                          setSetupData(prev => ({
-                            ...prev,
-                            agents: { ...prev.agents, workloadBalancing: checked }
-                          }));
-                        }}
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              {/* Review */}
-              <TabsContent value="review" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Review Configuration</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="p-4 bg-green-50 rounded-lg">
-                        <h4 className="font-medium text-green-800">Setup Summary</h4>
-                        <ul className="mt-2 space-y-1 text-sm text-green-700">
-                          <li>✓ {Object.values(setupData.channels).filter(c => c.enabled).length} channels configured</li>
-                          <li>✓ Business hours {setupData.businessHours.enabled ? 'enabled' : 'disabled'}</li>
-                          <li>✓ {setupData.routing.strategy} routing strategy</li>
-                          <li>✓ Automation {setupData.automation.autoResponse ? 'enabled' : 'disabled'}</li>
-                          <li>✓ Agent settings configured</li>
-                        </ul>
-                      </div>
-                      
-                      <Button onClick={handleSetupComplete} className="w-full" size="lg">
-                        Deploy Configuration
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
-          </div>
-        </div>
-
-        {/* Navigation Buttons */}
-        <div className="flex justify-between pt-4 border-t">
-          <Button 
-            variant="outline"
-            onClick={() => {
-              const currentIndex = setupSteps.findIndex(s => s.id === setupStep);
-              if (currentIndex > 0) {
-                setSetupStep(setupSteps[currentIndex - 1].id);
-              }
-            }}
-            disabled={setupStep === 'channels'}
-          >
-            Previous
-          </Button>
-          
-          <Button
-            onClick={() => {
-              const currentIndex = setupSteps.findIndex(s => s.id === setupStep);
-              if (currentIndex < setupSteps.length - 1) {
-                setSetupStep(setupSteps[currentIndex + 1].id);
-              }
-            }}
-            disabled={setupStep === 'review'}
-          >
-            Next
-          </Button>
+              <div className="flex justify-between gap-3">
+                <Button variant="outline" onClick={() => setStep(1)}>
+                  Back
+                </Button>
+                <div className="flex gap-3">
+                  <Button variant="outline" onClick={() => onOpenChange(false)}>
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={handleSetup}
+                    disabled={loading}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Setting up...
+                      </>
+                    ) : (
+                      'Complete Setup'
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

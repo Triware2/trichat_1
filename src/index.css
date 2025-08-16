@@ -170,6 +170,70 @@
     line-height: 1.2;
   }
 
+  /* Hide scrollbars while maintaining functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Modern subtle scrollbar for general use */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.3) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: rgba(148, 163, 184, 0.3);
+    border-radius: 6px;
+    border: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(148, 163, 184, 0.5);
+  }
+
+  /* Subtle slide-in animation for collapsed sidebar items */
+  @keyframes slideInFade {
+    from {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .animate-slide-in {
+    animation: slideInFade 0.3s ease-out forwards;
+  }
+
+  /* Smooth scale animation for hover effects */
+  @keyframes pulseGlow {
+    0%, 100% {
+      box-shadow: 0 0 0 0 rgba(251, 146, 60, 0);
+    }
+    50% {
+      box-shadow: 0 0 0 4px rgba(251, 146, 60, 0.1);
+    }
+  }
+
+  .animate-pulse-glow:hover {
+    animation: pulseGlow 1.5s infinite;
+  }
+
   .text-body-large {
     font-size: 16px;
     font-weight: 400;

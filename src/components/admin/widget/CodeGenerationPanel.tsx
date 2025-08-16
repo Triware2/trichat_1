@@ -1,162 +1,5376 @@
-
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Copy, Code } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { 
+  Copy, 
+  Code, 
+  Download, 
+  ExternalLink,
+  CheckCircle,
+  AlertCircle,
+  Info,
+  Terminal,
+  Globe,
+  Smartphone,
+  MessageSquare,
+  Database,
+  Zap,
+  Clock,
+  Sparkles,
+  FileText,
+  Layers,
+  Shield,
+  Rocket,
+  Video,
+  Apple
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { WidgetConfig, IntegrationType } from './types';
 
 interface CodeGenerationPanelProps {
   widgetConfig: WidgetConfig;
   integrationType: IntegrationType;
+  generatedCode: string;
+  isGenerating: boolean;
+  onGenerateCode: () => void;
+  onCopyCode: () => void;
+  onDownloadCode: () => void;
 }
 
-export const CodeGenerationPanel = ({ widgetConfig, integrationType }: CodeGenerationPanelProps) => {
+export const CodeGenerationPanel = ({ 
+  widgetConfig, 
+  integrationType, 
+  generatedCode,
+  isGenerating,
+  onGenerateCode,
+  onCopyCode,
+  onDownloadCode
+}: CodeGenerationPanelProps) => {
   const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState('code');
 
-  const generateWidgetCode = () => {
-    return `<!-- TriChat Widget Integration -->
-<script>
-  (function() {
-    window.TriChatConfig = {
-      title: "${widgetConfig.title}",
-      subtitle: "${widgetConfig.subtitle}",
-      primaryColor: "${widgetConfig.primaryColor}",
-      position: "${widgetConfig.position}",
-      welcomeMessage: "${widgetConfig.welcomeMessage}",
-      placeholder: "${widgetConfig.placeholder}",
-      showAvatar: ${widgetConfig.showAvatar},
-      autoOpen: ${widgetConfig.autoOpen},
-      department: "${widgetConfig.department}",
-      apiKey: "YOUR_API_KEY_HERE"
+  const getIntegrationInfo = () => {
+    const info = {
+      widget: {
+        title: 'Floating Widget',
+        description: 'Always visible chat widget on your website',
+        complexity: 'Easy',
+        timeToIntegrate: '2-5 minutes',
+        features: ['Real-time chat', 'Customizable position', 'Auto-open options', 'Mobile responsive']
+      },
+      button: {
+        title: 'Button Trigger',
+        description: 'Opens when users click your help button',
+        complexity: 'Easy',
+        timeToIntegrate: '3-7 minutes',
+        features: ['Custom button styling', 'Modal popup', 'Seamless integration', 'Event tracking']
+      },
+      inline: {
+        title: 'Inline Chat',
+        description: 'Embed chat directly in your page content',
+        complexity: 'Easy',
+        timeToIntegrate: '5-10 minutes',
+        features: ['Page integration', 'Custom sizing', 'Responsive design', 'Content flow']
+      },
+      popup: {
+        title: 'Popup Modal',
+        description: 'Chat opens in a centered modal window',
+        complexity: 'Easy',
+        timeToIntegrate: '3-8 minutes',
+        features: ['Modal overlay', 'Custom triggers', 'Mobile optimized', 'Focus management']
+      },
+      fullscreen: {
+        title: 'Fullscreen Chat',
+        description: 'Chat takes over the entire browser window',
+        complexity: 'Medium',
+        timeToIntegrate: '5-12 minutes',
+        features: ['Immersive experience', 'Mobile app feel', 'Custom branding', 'Full control']
+      },
+      iframe: {
+        title: 'iFrame Embed',
+        description: 'Embed chat using an iframe',
+        complexity: 'Medium',
+        timeToIntegrate: '7-15 minutes',
+        features: ['Cross-domain support', 'Sandbox security', 'Easy integration', 'Isolated environment']
+      },
+      api: {
+        title: 'REST API',
+        description: 'Integrate via RESTful API endpoints',
+        complexity: 'Advanced',
+        timeToIntegrate: '15-30 minutes',
+        features: ['Full control', 'Custom UI', 'Server-side integration', 'Real-time events']
+      },
+      webhook: {
+        title: 'Webhooks',
+        description: 'Receive real-time notifications from TriChat',
+        complexity: 'Advanced',
+        timeToIntegrate: '10-20 minutes',
+        features: ['Real-time notifications', 'Custom endpoints', 'Event filtering', 'Secure delivery']
+      },
+      wordpress: {
+        title: 'WordPress',
+        description: 'Direct integration without plugins',
+        complexity: 'Easy',
+        timeToIntegrate: '10-15 minutes',
+        features: ['Theme file editing', 'Code snippet integration', 'Custom styling', 'No plugin required']
+      },
+      shopify: {
+        title: 'Shopify',
+        description: 'Direct integration without apps',
+        complexity: 'Easy',
+        timeToIntegrate: '10-15 minutes',
+        features: ['Theme customization', 'Liquid template editing', 'Script tag integration', 'No app required']
+      },
+      react: {
+        title: 'React',
+        description: 'React component integration',
+        complexity: 'Medium',
+        timeToIntegrate: '10-20 minutes',
+        features: ['Component library', 'Hooks support', 'TypeScript', 'Custom styling']
+      },
+      vue: {
+        title: 'Vue.js',
+        description: 'Vue.js component integration',
+        complexity: 'Medium',
+        timeToIntegrate: '10-20 minutes',
+        features: ['Vue components', 'Composition API', 'TypeScript', 'Plugin system']
+      },
+      angular: {
+        title: 'Angular',
+        description: 'Angular component integration',
+        complexity: 'Medium',
+        timeToIntegrate: '15-25 minutes',
+        features: ['Angular components', 'Dependency injection', 'TypeScript', 'Module system']
+      },
+      nodejs: {
+        title: 'Node.js',
+        description: 'Server-side Node.js integration',
+        complexity: 'Advanced',
+        timeToIntegrate: '20-40 minutes',
+        features: ['REST API', 'WebSocket support', 'Authentication', 'Database integration']
+      },
+      php: {
+        title: 'PHP',
+        description: 'PHP server-side integration',
+        complexity: 'Medium',
+        timeToIntegrate: '15-30 minutes',
+        features: ['Server-side rendering', 'Session management', 'Database integration', 'API endpoints']
+      },
+      python: {
+        title: 'Python',
+        description: 'Python server-side integration',
+        complexity: 'Advanced',
+        timeToIntegrate: '20-40 minutes',
+        features: ['Django/Flask support', 'WebSocket integration', 'Database ORM', 'API development']
+      },
+      swift: {
+        title: 'Swift (iOS)',
+        description: 'iOS mobile app integration',
+        complexity: 'Advanced',
+        timeToIntegrate: '30-60 minutes',
+        features: ['Native iOS UI', 'Push notifications', 'Offline support', 'App Store ready']
+      },
+      kotlin: {
+        title: 'Kotlin (Android)',
+        description: 'Android mobile app integration',
+        complexity: 'Advanced',
+        timeToIntegrate: '30-60 minutes',
+        features: ['Native Android UI', 'Push notifications', 'Offline support', 'Play Store ready']
+      },
+      'mobile-sdk': {
+        title: 'Mobile SDK',
+        description: 'Native mobile app integration for iOS, Android, React Native, and Flutter',
+        complexity: 'Advanced',
+        timeToIntegrate: '30-90 minutes',
+        features: ['Native UI components', 'Push notifications', 'Offline support', 'Cross-platform']
+      }
     };
-    
-    var script = document.createElement('script');
-    script.src = 'https://widget.trichat.com/widget.js';
-    script.async = true;
-    document.head.appendChild(script);
-  })();
-</script>
-
-<!-- Optional: Custom CSS -->
-<style>
-  .trichat-widget {
-    --primary-color: ${widgetConfig.primaryColor};
-    --widget-position: ${widgetConfig.position};
-  }
-</style>`;
+    return info[integrationType] || info.widget;
   };
 
-  const generateButtonCode = () => {
-    return `<!-- TriChat Button Integration -->
+  const generateIntegrationCode = () => {
+    const baseConfig = {
+      widgetId: widgetConfig.id || 'default',
+      title: widgetConfig.title || 'Need Help?',
+      subtitle: widgetConfig.subtitle || 'We\'re here to help you',
+      primaryColor: widgetConfig.primaryColor || '#3B82F6',
+      position: widgetConfig.position || 'bottom-right',
+      welcomeMessage: widgetConfig.welcomeMessage || 'Hello! How can we help you today?',
+      placeholder: widgetConfig.placeholder || 'Type your message...',
+      showAvatar: widgetConfig.showAvatar || true,
+      autoOpen: widgetConfig.autoOpen || false,
+      apiKey: 'YOUR_API_KEY_HERE'
+    };
+
+    switch (integrationType) {
+      case 'widget':
+        return `<!-- TriChat Floating Widget Integration -->
 <script>
-  (function() {
-    window.TriChatConfig = {
-      title: "${widgetConfig.title}",
-      subtitle: "${widgetConfig.subtitle}",
-      primaryColor: "${widgetConfig.primaryColor}",
-      welcomeMessage: "${widgetConfig.welcomeMessage}",
-      placeholder: "${widgetConfig.placeholder}",
-      showAvatar: ${widgetConfig.showAvatar},
-      department: "${widgetConfig.department}",
-      apiKey: "YOUR_API_KEY_HERE",
-      mode: "button"
-    };
-    
-    // Load TriChat script
-    var script = document.createElement('script');
-    script.src = 'https://widget.trichat.com/widget.js';
-    script.async = true;
-    script.onload = function() {
-      // Initialize button integration
-      TriChat.initButtonMode('${widgetConfig.buttonSelector}');
-    };
-    document.head.appendChild(script);
-  })();
+(function() {
+  window.TriChatConfig = ${JSON.stringify(baseConfig, null, 2)};
+  
+  // Load TriChat script
+  var script = document.createElement('script');
+  script.src = 'https://cdn.trichat.com/widget.js';
+  script.async = true;
+  document.head.appendChild(script);
+})();
+</script>`;
+
+      case 'button':
+        return `<!-- TriChat Button Integration -->
+<script>
+(function() {
+  window.TriChatConfig = ${JSON.stringify(baseConfig, null, 2)};
+  
+  // Load TriChat script
+  var script = document.createElement('script');
+  script.src = 'https://cdn.trichat.com/widget.js';
+  script.async = true;
+  document.head.appendChild(script);
+  
+  // Add click handler to your button
+  document.getElementById('trichat-button').addEventListener('click', function() {
+    window.TriChat.open();
+  });
+})();
 </script>
 
-<!-- Add this to your existing help button or create a new one -->
-<button id="help-button" class="trichat-trigger">
-  ${widgetConfig.buttonText}
+<!-- Add this button to your HTML -->
+<button id="trichat-button" style="background-color: ${baseConfig.primaryColor}; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer;">
+  ${baseConfig.title}
+</button>`;
+
+      case 'inline':
+        return `<!-- TriChat Inline Integration -->
+<div id="trichat-inline" style="width: 100%; height: 500px; border: 1px solid #e5e7eb; border-radius: 8px;"></div>
+
+<script>
+(function() {
+  window.TriChatConfig = ${JSON.stringify(baseConfig, null, 2)};
+  window.TriChatConfig.container = '#trichat-inline';
+  
+  // Load TriChat script
+  var script = document.createElement('script');
+  script.src = 'https://cdn.trichat.com/widget.js';
+  script.async = true;
+  document.head.appendChild(script);
+})();
+</script>`;
+
+      case 'popup':
+        return `<!-- TriChat Popup Integration -->
+<script>
+(function() {
+  window.TriChatConfig = ${JSON.stringify(baseConfig, null, 2)};
+  window.TriChatConfig.mode = 'popup';
+  
+  // Load TriChat script
+  var script = document.createElement('script');
+  script.src = 'https://cdn.trichat.com/widget.js';
+  script.async = true;
+  document.head.appendChild(script);
+})();
+</script>
+
+<!-- Trigger popup with this button -->
+<button onclick="window.TriChat.open()" style="background-color: ${baseConfig.primaryColor}; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer;">
+  Open Chat
+</button>`;
+
+      case 'fullscreen':
+        return `<!-- TriChat Fullscreen Integration -->
+<script>
+(function() {
+  window.TriChatConfig = ${JSON.stringify(baseConfig, null, 2)};
+  window.TriChatConfig.mode = 'fullscreen';
+  
+  // Load TriChat script
+  var script = document.createElement('script');
+  script.src = 'https://cdn.trichat.com/widget.js';
+  script.async = true;
+  document.head.appendChild(script);
+})();
+</script>
+
+<!-- Trigger fullscreen with this button -->
+<button onclick="window.TriChat.openFullscreen()" style="background-color: ${baseConfig.primaryColor}; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer;">
+  Fullscreen Chat
+</button>`;
+
+      case 'iframe':
+        return `<!-- TriChat iFrame Integration -->
+<iframe 
+  src="https://app.trichat.com/chat?widgetId=${baseConfig.widgetId}&apiKey=${baseConfig.apiKey}"
+  style="width: 100%; height: 600px; border: none; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);"
+  allow="microphone; camera"
+  title="TriChat Support"
+></iframe>`;
+
+      case 'api':
+        return `// TriChat REST API Integration
+const TRICHAT_API_KEY = '${baseConfig.apiKey}';
+const TRICHAT_BASE_URL = 'https://api.trichat.com/v1';
+
+// Send a message
+async function sendMessage(message, customerId) {
+  const response = await fetch(\`\${TRICHAT_BASE_URL}/messages\`, {
+    method: 'POST',
+    headers: {
+      'Authorization': \`Bearer \${TRICHAT_API_KEY}\`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      message: message,
+      customerId: customerId,
+      widgetId: '${baseConfig.widgetId}'
+    })
+  });
+  
+  return await response.json();
+}
+
+// Get conversation history
+async function getConversation(customerId) {
+  const response = await fetch(\`\${TRICHAT_BASE_URL}/conversations/\${customerId}\`, {
+    headers: {
+      'Authorization': \`Bearer \${TRICHAT_API_KEY}\`
+    }
+  });
+  
+  return await response.json();
+}
+
+// Create a new customer
+async function createCustomer(customerData) {
+  const response = await fetch(\`\${TRICHAT_BASE_URL}/customers\`, {
+    method: 'POST',
+    headers: {
+      'Authorization': \`Bearer \${TRICHAT_API_KEY}\`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(customerData)
+  });
+  
+  return await response.json();
+}`;
+
+      case 'webhook':
+        return `// TriChat Webhook Integration
+const WEBHOOK_SECRET = 'your_webhook_secret_here';
+const WEBHOOK_URL = 'https://your-domain.com/webhooks/trichat';
+
+// Webhook endpoint to receive TriChat events
+app.post('/webhooks/trichat', (req, res) => {
+  const signature = req.headers['x-trichat-signature'];
+  const payload = req.body;
+  
+  // Verify webhook signature
+  if (!verifyWebhookSignature(signature, payload, WEBHOOK_SECRET)) {
+    return res.status(401).json({ error: 'Invalid signature' });
+  }
+  
+  const event = payload.event;
+  
+  switch (event) {
+    case 'message.received':
+      handleNewMessage(payload.data);
+      break;
+    case 'conversation.started':
+      handleConversationStarted(payload.data);
+      break;
+    case 'conversation.ended':
+      handleConversationEnded(payload.data);
+      break;
+    case 'customer.created':
+      handleCustomerCreated(payload.data);
+      break;
+  }
+  
+  res.status(200).json({ received: true });
+});
+
+function handleNewMessage(data) {
+  console.log('New message received:', data);
+  // Handle new message logic
+}
+
+function handleConversationStarted(data) {
+  console.log('Conversation started:', data);
+  // Handle conversation start logic
+}
+
+function handleConversationEnded(data) {
+  console.log('Conversation ended:', data);
+  // Handle conversation end logic
+}
+
+function handleCustomerCreated(data) {
+  console.log('Customer created:', data);
+  // Handle customer creation logic
+}
+
+function verifyWebhookSignature(signature, payload, secret) {
+  const crypto = require('crypto');
+  const expectedSignature = crypto
+    .createHmac('sha256', secret)
+    .update(JSON.stringify(payload))
+    .digest('hex');
+  
+  return signature === expectedSignature;
+}`;
+      case 'wordpress':
+        return `<!-- TriChat WordPress Integration -->
+<!-- Add this code to your theme's footer.php file, just before </body> -->
+<script>
+(function() {
+  window.TriChatConfig = {
+    apiKey: 'YOUR_API_KEY_HERE',
+    title: '${widgetConfig.title || 'Need Help?'}',
+    subtitle: '${widgetConfig.subtitle || 'We\'re here to help you'}',
+    primaryColor: '${widgetConfig.primaryColor || '#3B82F6'}',
+    position: '${widgetConfig.position || 'bottom-right'}',
+    welcomeMessage: '${widgetConfig.welcomeMessage || 'Hello! How can we help you today?'}',
+    placeholder: '${widgetConfig.placeholder || 'Type your message...'}',
+    showAvatar: ${widgetConfig.showAvatar || true},
+    autoOpen: ${widgetConfig.autoOpen || false}
+  };
+  
+  // Load TriChat script
+  var script = document.createElement('script');
+  script.src = 'https://cdn.trichat.com/widget.js';
+  script.async = true;
+  document.head.appendChild(script);
+})();
+</script>
+
+<!-- Alternative: Add to header.php before </head> -->
+<!--
+<script>
+window.TriChatConfig = {
+  apiKey: 'YOUR_API_KEY_HERE',
+  title: '${widgetConfig.title || 'Need Help?'}',
+  subtitle: '${widgetConfig.subtitle || 'We\'re here to help you'}',
+  primaryColor: '${widgetConfig.primaryColor || '#3B82F6'}',
+  position: '${widgetConfig.position || 'bottom-right'}',
+  welcomeMessage: '${widgetConfig.welcomeMessage || 'Hello! How can we help you today?'}',
+  placeholder: '${widgetConfig.placeholder || 'Type your message...'}',
+  showAvatar: ${widgetConfig.showAvatar || true},
+  autoOpen: ${widgetConfig.autoOpen || false}
+};
+</script>
+<script src="https://cdn.trichat.com/widget.js" async></script>
+-->
+
+<!-- Custom CSS for WordPress -->
+<style>
+.trichat-widget {
+  font-family: inherit !important;
+}
+.trichat-button {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+.trichat-chat-window {
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
+}
+</style>`;
+
+      case 'shopify':
+        return `<!-- TriChat Shopify Integration -->
+<!-- Add this code to your theme's layout/theme.liquid file, just before </body> -->
+<script>
+(function() {
+  window.TriChatConfig = {
+    apiKey: 'YOUR_API_KEY_HERE',
+    title: '${widgetConfig.title || 'Need Help?'}',
+    subtitle: '${widgetConfig.subtitle || 'We\'re here to help you'}',
+    primaryColor: '{{ settings.primary_color | default: "${widgetConfig.primaryColor || '#3B82F6'}" }}',
+    position: '${widgetConfig.position || 'bottom-right'}',
+    welcomeMessage: '${widgetConfig.welcomeMessage || 'Hello! How can we help you today?'}',
+    placeholder: '${widgetConfig.placeholder || 'Type your message...'}',
+    showAvatar: ${widgetConfig.showAvatar || true},
+    autoOpen: ${widgetConfig.autoOpen || false},
+    // Shopify-specific options
+    shopify: {
+      shop: '{{ shop.permanent_domain }}',
+      customer: {{ customer | json }},
+      cart: {{ cart | json }},
+      product: {{ product | json }},
+      collection: {{ collection | json }}
+    }
+  };
+  
+  // Load TriChat script
+  var script = document.createElement('script');
+  script.src = 'https://cdn.trichat.com/widget.js';
+  script.async = true;
+  document.head.appendChild(script);
+})();
+</script>
+
+<!-- Alternative: Add to header before </head> -->
+<!--
+<script>
+window.TriChatConfig = {
+  apiKey: 'YOUR_API_KEY_HERE',
+  title: '${widgetConfig.title || 'Need Help?'}',
+  subtitle: '${widgetConfig.subtitle || 'We\'re here to help you'}',
+  primaryColor: '{{ settings.primary_color | default: "${widgetConfig.primaryColor || '#3B82F6'}" }}',
+  position: '${widgetConfig.position || 'bottom-right'}',
+  welcomeMessage: '${widgetConfig.welcomeMessage || 'Hello! How can we help you today?'}',
+  placeholder: '${widgetConfig.placeholder || 'Type your message...'}',
+  showAvatar: ${widgetConfig.showAvatar || true},
+  autoOpen: ${widgetConfig.autoOpen || false},
+  shopify: {
+    shop: '{{ shop.permanent_domain }}',
+    customer: {{ customer | json }},
+    cart: {{ cart | json }},
+    product: {{ product | json }},
+    collection: {{ collection | json }}
+  }
+};
+</script>
+<script src="https://cdn.trichat.com/widget.js" async></script>
+-->
+
+<!-- Customer Information (Optional) -->
+<script>
+window.TriChatCustomer = {
+  id: {{ customer.id | default: 'null' }},
+  email: {{ customer.email | json }},
+  name: {{ customer.name | json }},
+  orders: {{ customer.orders_count | default: 0 }},
+  totalSpent: {{ customer.total_spent | default: 0 }}
+};
+</script>
+
+<!-- Custom CSS for Shopify -->
+<style>
+.trichat-widget {
+  font-family: {{ settings.font_family | default: 'inherit' }} !important;
+}
+.trichat-button {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+.trichat-chat-window {
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
+}
+.trichat-header {
+  background: {{ settings.primary_color | default: '#3B82F6' }} !important;
+}
+</style>`;
+      case 'mobile-sdk':
+        return `# TriChat Mobile SDK Integration
+
+## Download SDK
+Use the download buttons above to get the SDK for your platform:
+- iOS SDK (Swift/Objective-C)
+- Android SDK (Kotlin/Java)
+- React Native SDK (JavaScript/TypeScript)
+- Flutter SDK (Dart)
+
+## Quick Start
+1. Download the appropriate SDK for your platform
+2. Follow the platform-specific installation instructions
+3. Initialize the SDK with your API key: "YOUR_API_KEY_HERE"
+4. Add the chat UI to your app
+5. Configure push notifications
+
+## API Key
+Replace "YOUR_API_KEY_HERE" with your actual API key from the TriChat dashboard.
+
+## Documentation
+Each SDK includes comprehensive documentation and example projects.
+Visit: https://docs.trichat.com/mobile-sdk`;
+
+      default:
+        return `<!-- TriChat ${integrationType} Integration -->
+<script>
+(function() {
+  window.TriChatConfig = ${JSON.stringify(baseConfig, null, 2)};
+  
+  // Load TriChat script
+  var script = document.createElement('script');
+  script.src = 'https://cdn.trichat.com/widget.js';
+  script.async = true;
+  document.head.appendChild(script);
+})();
+</script>`;
+    }
+  };
+
+  const getIntegrationInstructions = () => {
+    const instructions = {
+      widget: {
+        title: 'Floating Widget Setup Guide',
+        steps: [
+          {
+            title: 'Step 1: Access Your Website Files',
+            description: 'You need to edit your website\'s HTML files. This requires access to your website\'s source code.',
+            code: null,
+            details: [
+              'If you have a custom website: You\'ll need access to your web server or hosting control panel',
+              'If you use a website builder (like Wix, Squarespace): Look for "Custom Code" or "HTML" sections',
+              'If you use WordPress: You\'ll need to edit your theme files or use a plugin',
+              'If you\'re not sure: Contact your website developer or hosting provider'
+            ]
+          },
+          {
+            title: 'Step 2: Locate the HTML File',
+            description: 'Find the main HTML file of your website (usually called index.html, default.html, or similar).',
+            code: null,
+            details: [
+              'Look for files with .html extension in your website folder',
+              'Common file names: index.html, default.html, home.html, main.html',
+              'If you have multiple pages, you\'ll need to add the code to each page where you want the chat widget',
+              'For single-page applications, add it to the main HTML file'
+            ]
+          },
+          {
+            title: 'Step 3: Open the HTML File',
+            description: 'Open the HTML file in a text editor or code editor.',
+            code: null,
+            details: [
+              'Use a text editor like Notepad, TextEdit, or VS Code',
+              'Right-click the file and select "Open with" → Choose your text editor',
+              'Make sure you\'re editing the actual file, not a copy',
+              'If you\'re not comfortable editing files, consider asking a developer for help'
+            ]
+          },
+          {
+            title: 'Step 4: Find the Closing Body Tag',
+            description: 'Look for the closing </body> tag near the end of your HTML file.',
+            code: `<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Website</title>
+</head>
+<body>
+    <!-- Your website content goes here -->
+    
+    <!-- Add the TriChat code just before this line -->
+</body> <!-- ← Find this line -->
+</html>`,
+            details: [
+              'The </body> tag is usually near the very end of the HTML file',
+              'It comes after all your website content',
+              'This is the best place to add the chat widget code',
+              'If you can\'t find it, look for </html> and add the code just before that'
+            ]
+          },
+          {
+            title: 'Step 5: Copy the Integration Code',
+            description: 'Copy the generated code from the "Generated Code" tab above.',
+            code: null,
+            details: [
+              'Go back to the "Generated Code" tab in this interface',
+              'Click the "Copy" button to copy all the code',
+              'Or manually select all the code and press Ctrl+C (Cmd+C on Mac)',
+              'Make sure you copy the entire code block, including the <!-- comments -->'
+            ]
+          },
+          {
+            title: 'Step 6: Paste the Code',
+            description: 'Paste the copied code just before the closing </body> tag.',
+            code: `<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Website</title>
+</head>
+<body>
+    <!-- Your website content goes here -->
+    
+    <!-- TriChat Floating Widget Integration -->
+    <script>
+    (function() {
+      window.TriChatConfig = {
+        "widgetId": "default",
+        "title": "Need Help?",
+        "subtitle": "We're here to help you",
+        "primaryColor": "#3B82F6",
+        "position": "bottom-right",
+        "welcomeMessage": "Hello! How can we help you today?",
+        "placeholder": "Type your message...",
+        "showAvatar": true,
+        "autoOpen": false,
+        "apiKey": "YOUR_API_KEY_HERE"
+      };
+      
+      // Load TriChat script
+      var script = document.createElement('script');
+      script.src = 'https://cdn.trichat.com/widget.js';
+      script.async = true;
+      document.head.appendChild(script);
+    })();
+    </script>
+</body> <!-- ← Code goes just before this line -->
+</html>`,
+            details: [
+              'Position your cursor just before the </body> tag',
+              'Press Ctrl+V (Cmd+V on Mac) to paste the code',
+              'Make sure there\'s a line break between your content and the new code',
+              'The code should be properly indented for readability'
+            ]
+          },
+          {
+            title: 'Step 7: Replace Your API Key',
+            description: 'Replace "YOUR_API_KEY_HERE" with your actual TriChat API key.',
+            code: `// Find this line in the code:
+"apiKey": "YOUR_API_KEY_HERE"
+
+// Replace it with your actual API key:
+"apiKey": "trichat_live_abc123def456ghi789"`,
+            details: [
+              'Your API key can be found in your TriChat dashboard under Settings → API Keys',
+              'It will look something like: trichat_live_abc123def456ghi789',
+              'Make sure to keep your API key secure and don\'t share it publicly',
+              'If you don\'t have an API key yet, create one in your dashboard first'
+            ]
+          },
+          {
+            title: 'Step 8: Customize Widget Settings (Optional)',
+            description: 'Modify the configuration options to match your brand and preferences.',
+            code: `window.TriChatConfig = {
+  "widgetId": "default",
+  "title": "Your Custom Title", // ← Change this
+  "subtitle": "Your Custom Subtitle", // ← Change this
+  "primaryColor": "#your_brand_color", // ← Change this (e.g., "#FF6B6B")
+  "position": "bottom-right", // ← Options: "bottom-right", "bottom-left", "top-right", "top-left"
+  "welcomeMessage": "Your custom welcome message", // ← Change this
+  "placeholder": "Your custom placeholder", // ← Change this
+  "showAvatar": true, // ← true or false
+  "autoOpen": false, // ← true or false
+  "apiKey": "your_actual_api_key"
+};`,
+            details: [
+              'title: The text that appears in the chat widget header',
+              'subtitle: The smaller text below the title',
+              'primaryColor: Your brand color in hex format (e.g., "#FF6B6B" for red)',
+              'position: Where the widget appears on the page',
+              'welcomeMessage: The first message visitors see',
+              'placeholder: The text in the input field before typing',
+              'showAvatar: Whether to show a chat icon',
+              'autoOpen: Whether the chat opens automatically'
+            ]
+          },
+          {
+            title: 'Step 9: Save the File',
+            description: 'Save the HTML file with your changes.',
+            code: null,
+            details: [
+              'Press Ctrl+S (Cmd+S on Mac) to save the file',
+              'Make sure you save it with the same name and location',
+              'If you\'re using a text editor, it should show "Saved" or similar',
+              'Don\'t change the file extension - keep it as .html'
+            ]
+          },
+          {
+            title: 'Step 10: Upload to Your Server',
+            description: 'Upload the updated HTML file to your web server.',
+            code: null,
+            details: [
+              'If you\'re editing locally: Upload the file to your web hosting server',
+              'If you\'re using a hosting control panel: Use the file manager to upload',
+              'If you\'re using FTP: Connect to your server and upload the file',
+              'If you\'re using a website builder: The changes should save automatically'
+            ]
+          },
+          {
+            title: 'Step 11: Test the Integration',
+            description: 'Open your website in a browser and verify that the chat widget appears and functions correctly.',
+            code: null,
+            details: [
+              'Open your website in a web browser (Chrome, Firefox, Safari, etc.)',
+              'Look for the chat widget in the position you specified (usually bottom-right)',
+              'Click on the widget to open the chat interface',
+              'Try typing a message to test the functionality',
+              'Test on different devices (desktop, mobile, tablet)',
+              'If the widget doesn\'t appear, check the browser console for errors (F12 → Console)'
+            ]
+          },
+          {
+            title: 'Step 12: Troubleshooting',
+            description: 'If the widget doesn\'t work, here are common solutions.',
+            code: null,
+            details: [
+              'Check that the API key is correct and active',
+              'Verify the code was pasted completely and correctly',
+              'Make sure the file was saved and uploaded properly',
+              'Clear your browser cache and refresh the page',
+              'Check for JavaScript errors in the browser console (F12 → Console)',
+              'Ensure your website allows external JavaScript (some security settings block it)',
+              'If using HTTPS, make sure all resources are also HTTPS'
+            ]
+          }
+        ]
+      },
+      button: {
+        title: 'Button Integration Setup Guide',
+        steps: [
+          {
+            title: 'Step 1: Understand Button Integration',
+            description: 'Button integration allows you to trigger the chat when users click a specific button on your website.',
+            code: null,
+            details: [
+              'This method gives you full control over when the chat appears',
+              'You can style the button to match your website design',
+              'The chat will open in a popup when the button is clicked',
+              'This is great for "Contact Us" or "Get Help" buttons'
+            ]
+          },
+          {
+            title: 'Step 2: Access Your Website Files',
+            description: 'You need to edit your website\'s HTML files to add the integration code.',
+            code: null,
+            details: [
+              'If you have a custom website: Access your web server or hosting control panel',
+              'If you use a website builder: Look for "Custom Code" or "HTML" sections',
+              'If you use WordPress: Edit your theme files or use a plugin',
+              'If you\'re not sure: Contact your website developer or hosting provider'
+            ]
+          },
+          {
+            title: 'Step 3: Add the Integration Code',
+            description: 'Add the TriChat integration code to your website\'s HTML, preferably in the <head> section.',
+            code: `<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Website</title>
+    
+    <!-- TriChat Button Integration -->
+    <script>
+    (function() {
+      window.TriChatConfig = {
+        "widgetId": "default",
+        "title": "Need Help?",
+        "subtitle": "We're here to help you",
+        "primaryColor": "#3B82F6",
+        "position": "bottom-right",
+        "welcomeMessage": "Hello! How can we help you today?",
+        "placeholder": "Type your message...",
+        "showAvatar": true,
+        "autoOpen": false,
+        "apiKey": "YOUR_API_KEY_HERE"
+      };
+      
+      // Load TriChat script
+      var script = document.createElement('script');
+      script.src = 'https://cdn.trichat.com/widget.js';
+      script.async = true;
+      document.head.appendChild(script);
+      
+      // Add click handler to your button
+      document.getElementById('trichat-button').addEventListener('click', function() {
+        window.TriChat.open();
+      });
+    })();
+    </script>
+</head>
+<body>
+    <!-- Your website content goes here -->
+</body>
+</html>`,
+            details: [
+              'Add this code in the <head> section of your HTML file',
+              'The <head> section is between <head> and </head> tags',
+              'This ensures the chat functionality loads before your page content',
+              'Make sure to replace "YOUR_API_KEY_HERE" with your actual API key'
+            ]
+          },
+          {
+            title: 'Step 4: Add the Button Element',
+            description: 'Add the button element to your HTML where you want the chat trigger to appear.',
+            code: `<!-- Add this button where you want it to appear -->
+<button id="trichat-button" class="your-button-classes">
+    Get Help
 </button>
 
-<!-- Optional: Custom CSS -->
-<style>
-  .trichat-modal {
-    --primary-color: ${widgetConfig.primaryColor};
-  }
+<!-- Example with more styling -->
+<button id="trichat-button" style="background-color: #3B82F6; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 500;">
+    Chat with Support
+</button>`,
+            details: [
+              'The button must have the ID "trichat-button" for the integration to work',
+              'You can place this button anywhere in your HTML where you want it to appear',
+              'Common locations: header, footer, sidebar, or within content areas',
+              'You can customize the button text to match your needs (e.g., "Get Help", "Contact Us", "Support")'
+            ]
+          },
+          {
+            title: 'Step 5: Style the Button',
+            description: 'Customize the button styling to match your website\'s design.',
+            code: `/* Add this CSS to your stylesheet or in a <style> tag */
+#trichat-button {
+  background-color: #3B82F6; /* Your brand color */
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#trichat-button:hover {
+  background-color: #2563EB; /* Darker shade for hover */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+#trichat-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}`,
+            details: [
+              'background-color: The button\'s background color (use your brand color)',
+              'color: The text color (usually white for dark backgrounds)',
+              'padding: The space inside the button (12px top/bottom, 24px left/right)',
+              'border-radius: How rounded the corners are (8px for modern look)',
+              'cursor: pointer: Shows a hand cursor when hovering',
+              'font-weight: How bold the text is (500 for medium bold)',
+              'transition: Smooth animation for hover effects',
+              'box-shadow: Adds depth to the button'
+            ]
+          },
+          {
+            title: 'Step 6: Replace Your API Key',
+            description: 'Replace "YOUR_API_KEY_HERE" with your actual TriChat API key.',
+            code: `// Find this line in the code:
+"apiKey": "YOUR_API_KEY_HERE"
+
+// Replace it with your actual API key:
+"apiKey": "trichat_live_abc123def456ghi789"`,
+            details: [
+              'Your API key can be found in your TriChat dashboard under Settings → API Keys',
+              'It will look something like: trichat_live_abc123def456ghi789',
+              'Make sure to keep your API key secure and don\'t share it publicly',
+              'If you don\'t have an API key yet, create one in your dashboard first'
+            ]
+          },
+          {
+            title: 'Step 7: Customize Button Text and Styling',
+            description: 'Modify the button text and styling to match your brand and messaging.',
+            code: `<!-- Example button with custom text and styling -->
+<button id="trichat-button" style="
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 15px 30px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+">
+  💬 Live Chat Support
+</button>`,
+            details: [
+              'You can use emojis in the button text (like 💬 for chat)',
+              'Try different text options: "Live Chat", "Get Help", "Contact Support", "Ask a Question"',
+              'Use your brand colors in the background',
+              'Consider adding icons or emojis to make the button more attractive',
+              'Make sure the button is visible and accessible on all devices'
+            ]
+          },
+          {
+            title: 'Step 8: Test the Integration',
+            description: 'Click the button to verify that the chat opens correctly.',
+            code: null,
+            details: [
+              'Open your website in a web browser',
+              'Look for your button on the page',
+              'Click the button to test if the chat opens',
+              'Try typing a message to test the functionality',
+              'Test on different devices (desktop, mobile, tablet)',
+              'Make sure the button is visible and clickable on all screen sizes',
+              'If the chat doesn\'t open, check the browser console for errors (F12 → Console)'
+            ]
+          },
+          {
+            title: 'Step 9: Advanced Customization (Optional)',
+            description: 'Add advanced features like custom triggers and animations.',
+            code: `// You can trigger the chat from any element
+document.getElementById('chat-link').addEventListener('click', function(e) {
+  e.preventDefault(); // Prevent default link behavior
+  window.TriChat.open();
+});
+
+// Or trigger from a div
+document.getElementById('chat-area').addEventListener('click', function() {
+  window.TriChat.open();
+});
+
+// Add loading state to button
+document.getElementById('trichat-button').addEventListener('click', function() {
+  this.innerHTML = 'Opening...';
+  this.disabled = true;
   
-  .trichat-trigger {
-    /* Style your button as needed */
-    background-color: ${widgetConfig.primaryColor};
-    color: white;
-    padding: 10px 20px;
-    border: none;
+  window.TriChat.open();
+  
+  // Reset button after a delay
+  setTimeout(() => {
+    this.innerHTML = 'Get Help';
+    this.disabled = false;
+  }, 2000);
+});`,
+            details: [
+              'You can trigger the chat from any HTML element, not just buttons',
+              'Add loading states to show users the chat is opening',
+              'Use custom animations or transitions',
+              'Integrate with your existing contact forms or support systems',
+              'Add analytics tracking to see how often the chat is used'
+            ]
+          }
+        ]
+      },
+      inline: {
+        title: 'Inline Chat Setup Guide',
+        steps: [
+          {
+            title: 'Step 1: Understand Inline Chat',
+            description: 'Inline chat embeds the chat interface directly into your page content, rather than as a floating widget.',
+            code: null,
+            details: [
+              'The chat appears as part of your page layout',
+              'Users can see the chat without clicking anything',
+              'Great for dedicated support pages or contact sections',
+              'Takes up space in your page layout (like any other content)',
+              'Can be styled to match your page design perfectly'
+            ]
+          },
+          {
+            title: 'Step 2: Choose the Container Location',
+            description: 'Decide where on your page you want the chat to appear.',
+            code: null,
+            details: [
+              'Common locations: Contact page, Support page, Help section',
+              'Consider the user flow - where would they naturally look for help?',
+              'Make sure there\'s enough space for the chat interface',
+              'Consider mobile responsiveness - the chat needs to fit on smaller screens',
+              'Avoid placing it in areas that might interfere with important content'
+            ]
+          },
+          {
+            title: 'Step 3: Add the Container Element',
+            description: 'Add a container div where you want the chat to appear in your page content.',
+            code: `<!-- Add this where you want the chat to appear -->
+<div id="trichat-inline" style="width: 100%; height: 500px; border: 1px solid #e5e7eb; border-radius: 8px; margin: 20px 0;"></div>
+
+<!-- Example with more styling -->
+<div id="trichat-inline" style="
+  width: 100%;
+  height: 600px;
+  border: 2px solid #3B82F6;
+  border-radius: 12px;
+  margin: 30px 0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+"></div>`,
+            details: [
+              'The container must have the ID "trichat-inline" for the integration to work',
+              'width: 100% makes it responsive to the container width',
+              'height: 500px sets the height (adjust as needed)',
+              'border and border-radius add visual styling',
+              'margin adds space above and below the chat',
+              'You can customize the styling to match your page design'
+            ]
+          },
+          {
+            title: 'Step 4: Add the Integration Code',
+            description: 'Add the TriChat integration code to your website\'s HTML.',
+            code: `<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Website</title>
+</head>
+<body>
+    <!-- Your page content -->
+    
+    <!-- Add the container where you want the chat -->
+    <div id="trichat-inline" style="width: 100%; height: 500px; border: 1px solid #e5e7eb; border-radius: 8px;"></div>
+    
+    <!-- TriChat Inline Integration -->
+    <script>
+    (function() {
+      window.TriChatConfig = {
+        "widgetId": "default",
+        "title": "Need Help?",
+        "subtitle": "We're here to help you",
+        "primaryColor": "#3B82F6",
+        "position": "bottom-right",
+        "welcomeMessage": "Hello! How can we help you today?",
+        "placeholder": "Type your message...",
+        "showAvatar": true,
+        "autoOpen": false,
+        "apiKey": "YOUR_API_KEY_HERE"
+      };
+      window.TriChatConfig.container = '#trichat-inline';
+      
+      // Load TriChat script
+      var script = document.createElement('script');
+      script.src = 'https://cdn.trichat.com/widget.js';
+      script.async = true;
+      document.head.appendChild(script);
+    })();
+    </script>
+</body>
+</html>`,
+            details: [
+              'Add this code just before the closing </body> tag',
+              'The container property tells TriChat where to render the chat',
+              'Make sure the container ID matches exactly: "#trichat-inline"',
+              'Replace "YOUR_API_KEY_HERE" with your actual API key',
+              'The chat will automatically appear in the specified container'
+            ]
+          },
+          {
+            title: 'Step 5: Customize the Container Styling',
+            description: 'Adjust the container size and styling to fit your page layout.',
+            code: `/* Add this CSS to your stylesheet */
+#trichat-inline {
+  width: 100%;
+  height: 500px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin: 20px 0;
+  background-color: #ffffff;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive design for mobile */
+@media (max-width: 768px) {
+  #trichat-inline {
+    height: 400px;
+    margin: 15px 0;
     border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s;
+  }
+}
+
+/* Custom styling for different themes */
+#trichat-inline.dark-theme {
+  background-color: #1f2937;
+  border-color: #374151;
+  color: #f9fafb;
+}
+
+#trichat-inline.branded {
+  border: 2px solid #3B82F6;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1);
+}`,
+            details: [
+              'width: 100% makes it responsive to the container width',
+              'height: Adjust based on your content needs (400px-800px recommended)',
+              'border: Adds visual separation from other content',
+              'border-radius: Rounds the corners for a modern look',
+              'margin: Adds space around the chat container',
+              'box-shadow: Adds depth and visual interest',
+              'Use media queries for responsive design on mobile devices'
+            ]
+          },
+          {
+            title: 'Step 6: Replace Your API Key',
+            description: 'Replace "YOUR_API_KEY_HERE" with your actual TriChat API key.',
+            code: `// Find this line in the code:
+"apiKey": "YOUR_API_KEY_HERE"
+
+// Replace it with your actual API key:
+"apiKey": "trichat_live_abc123def456ghi789"`,
+            details: [
+              'Your API key can be found in your TriChat dashboard under Settings → API Keys',
+              'It will look something like: trichat_live_abc123def456ghi789',
+              'Make sure to keep your API key secure and don\'t share it publicly',
+              'If you don\'t have an API key yet, create one in your dashboard first'
+            ]
+          },
+          {
+            title: 'Step 7: Test the Integration',
+            description: 'Verify that the chat appears in the designated container and functions properly.',
+            code: null,
+            details: [
+              'Open your website in a web browser',
+              'Navigate to the page where you added the inline chat',
+              'Look for the chat interface in the specified container',
+              'Try typing a message to test the functionality',
+              'Test on different devices (desktop, mobile, tablet)',
+              'Make sure the chat is visible and properly sized on all screen sizes',
+              'If the chat doesn\'t appear, check the browser console for errors (F12 → Console)'
+            ]
+          },
+          {
+            title: 'Step 8: Advanced Customization',
+            description: 'Add advanced features and styling to enhance the inline chat experience.',
+            code: `// Customize the chat appearance
+window.TriChatConfig = {
+  "widgetId": "default",
+  "title": "Live Support",
+  "subtitle": "We're here to help 24/7",
+  "primaryColor": "#3B82F6",
+  "position": "bottom-right",
+  "welcomeMessage": "Welcome! How can we assist you today?",
+  "placeholder": "Type your message here...",
+  "showAvatar": true,
+  "autoOpen": false,
+  "apiKey": "your_actual_api_key",
+  "container": "#trichat-inline",
+  // Additional customization options
+  "height": "500px",
+  "width": "100%",
+  "theme": "light", // or "dark"
+  "language": "en",
+  "timezone": "UTC"
+};
+
+// Add custom CSS for better integration
+const style = document.createElement('style');
+style.textContent = \`
+  #trichat-inline {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   }
   
-  .trichat-trigger:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
+  #trichat-inline .chat-header {
+    background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 12px 12px 0 0;
   }
-</style>`;
+\`;
+document.head.appendChild(style);`,
+            details: [
+              'Customize the welcome message to match your brand voice',
+              'Adjust colors to match your website\'s color scheme',
+              'Set the language and timezone for better user experience',
+              'Add custom CSS for advanced styling',
+              'Consider adding a header or title above the chat container',
+              'Use custom fonts to match your website typography'
+            ]
+          }
+        ]
+      },
+      popup: {
+        title: 'Popup Modal Setup Guide',
+        steps: [
+          {
+            title: 'Step 1: Understand Popup Modal Integration',
+            description: 'Popup modal integration opens the chat in a centered overlay window when triggered.',
+            code: null,
+            details: [
+              'The chat appears as a modal overlay on top of your website',
+              'Users can close the modal and return to your website',
+              'Great for "Contact Us" or "Get Support" triggers',
+              'Provides focused attention on the chat without leaving the page',
+              'Works well on both desktop and mobile devices'
+            ]
+          },
+          {
+            title: 'Step 2: Access Your Website Files',
+            description: 'You need to edit your website\'s HTML files to add the popup integration.',
+            code: null,
+            details: [
+              'If you have a custom website: Access your web server or hosting control panel',
+              'If you use a website builder: Look for "Custom Code" or "HTML" sections',
+              'If you use WordPress: Edit your theme files or use a plugin',
+              'If you\'re not sure: Contact your website developer or hosting provider'
+            ]
+          },
+          {
+            title: 'Step 3: Add the Integration Code',
+            description: 'Add the TriChat popup integration code to your website\'s HTML.',
+            code: `<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Website</title>
+</head>
+<body>
+    <!-- Your website content -->
+    
+    <!-- TriChat Popup Integration -->
+    <script>
+    (function() {
+      window.TriChatConfig = {
+        "widgetId": "default",
+        "title": "Need Help?",
+        "subtitle": "We're here to help you",
+        "primaryColor": "#3B82F6",
+        "position": "bottom-right",
+        "welcomeMessage": "Hello! How can we help you today?",
+        "placeholder": "Type your message...",
+        "showAvatar": true,
+        "autoOpen": false,
+        "apiKey": "YOUR_API_KEY_HERE",
+        "mode": "popup"
+      };
+      
+      // Load TriChat script
+      var script = document.createElement('script');
+      script.src = 'https://cdn.trichat.com/widget.js';
+      script.async = true;
+      document.head.appendChild(script);
+    })();
+    </script>
+</body>
+</html>`,
+            details: [
+              'Add this code just before the closing </body> tag',
+              'The mode: "popup" tells TriChat to use popup modal behavior',
+              'Make sure to replace "YOUR_API_KEY_HERE" with your actual API key',
+              'The popup will be triggered by calling window.TriChat.open()'
+            ]
+          },
+          {
+            title: 'Step 4: Add Trigger Elements',
+            description: 'Add buttons, links, or other elements that will trigger the popup chat.',
+            code: `<!-- Button trigger -->
+<button onclick="window.TriChat.open()" style="background-color: #3B82F6; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer;">
+  Open Chat
+</button>
+
+<!-- Link trigger -->
+<a href="#" onclick="window.TriChat.open(); return false;" style="color: #3B82F6; text-decoration: underline;">
+  Chat with us
+</a>
+
+<!-- Div trigger -->
+<div onclick="window.TriChat.open()" style="cursor: pointer; padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px;">
+  Click here to chat
+</div>`,
+            details: [
+              'You can trigger the popup from any HTML element',
+              'Use onclick="window.TriChat.open()" to open the popup',
+              'For links, add return false to prevent page navigation',
+              'Make sure trigger elements are visible and accessible',
+              'Consider adding hover effects for better user experience'
+            ]
+          },
+          {
+            title: 'Step 5: Replace Your API Key',
+            description: 'Replace "YOUR_API_KEY_HERE" with your actual TriChat API key.',
+            code: `// Find this line in the code:
+"apiKey": "YOUR_API_KEY_HERE"
+
+// Replace it with your actual API key:
+"apiKey": "trichat_live_abc123def456ghi789"`,
+            details: [
+              'Your API key can be found in your TriChat dashboard under Settings → API Keys',
+              'It will look something like: trichat_live_abc123def456ghi789',
+              'Make sure to keep your API key secure and don\'t share it publicly',
+              'If you don\'t have an API key yet, create one in your dashboard first'
+            ]
+          },
+          {
+            title: 'Step 6: Customize Popup Behavior',
+            description: 'Customize the popup appearance and behavior to match your needs.',
+            code: `window.TriChatConfig = {
+  "widgetId": "default",
+  "title": "Live Support",
+  "subtitle": "We're here to help 24/7",
+  "primaryColor": "#3B82F6",
+  "position": "bottom-right",
+  "welcomeMessage": "Welcome! How can we assist you today?",
+  "placeholder": "Type your message here...",
+  "showAvatar": true,
+  "autoOpen": false,
+  "apiKey": "your_actual_api_key",
+  "mode": "popup",
+  // Popup-specific options
+  "popupWidth": "400px",
+  "popupHeight": "600px",
+  "popupPosition": "center",
+  "showCloseButton": true,
+  "closeOnOverlayClick": true
+};`,
+            details: [
+              'popupWidth: Width of the popup modal (default: 400px)',
+              'popupHeight: Height of the popup modal (default: 600px)',
+              'popupPosition: Position of popup (center, top, bottom)',
+              'showCloseButton: Whether to show a close button',
+              'closeOnOverlayClick: Whether clicking outside closes the popup'
+            ]
+          },
+          {
+            title: 'Step 7: Test the Integration',
+            description: 'Click the trigger elements to verify that the popup opens correctly.',
+            code: null,
+            details: [
+              'Open your website in a web browser',
+              'Look for your trigger elements on the page',
+              'Click the trigger to test if the popup opens',
+              'Try typing a message to test the functionality',
+              'Test the close button and overlay click behavior',
+              'Test on different devices (desktop, mobile, tablet)',
+              'Make sure the popup is properly centered and sized'
+            ]
+          }
+        ]
+      },
+      fullscreen: {
+        title: 'Fullscreen Chat Setup Guide',
+        steps: [
+          {
+            title: 'Step 1: Understand Fullscreen Chat',
+            description: 'Fullscreen chat provides an immersive experience by taking over the entire browser window.',
+            code: null,
+            details: [
+              'The chat takes over the entire browser window',
+              'Provides a mobile app-like experience',
+              'Great for dedicated support pages or help centers',
+              'Users can exit fullscreen to return to your website',
+              'Ideal for complex support scenarios requiring full attention'
+            ]
+          },
+          {
+            title: 'Step 2: Access Your Website Files',
+            description: 'You need to edit your website\'s HTML files to add the fullscreen integration.',
+            code: null,
+            details: [
+              'If you have a custom website: Access your web server or hosting control panel',
+              'If you use a website builder: Look for "Custom Code" or "HTML" sections',
+              'If you use WordPress: Edit your theme files or use a plugin',
+              'If you\'re not sure: Contact your website developer or hosting provider'
+            ]
+          },
+          {
+            title: 'Step 3: Add the Integration Code',
+            description: 'Add the TriChat fullscreen integration code to your website\'s HTML.',
+            code: `<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Website</title>
+</head>
+<body>
+    <!-- Your website content -->
+    
+    <!-- TriChat Fullscreen Integration -->
+    <script>
+    (function() {
+      window.TriChatConfig = {
+        "widgetId": "default",
+        "title": "Live Support",
+        "subtitle": "We're here to help you",
+        "primaryColor": "#3B82F6",
+        "position": "bottom-right",
+        "welcomeMessage": "Welcome to our support center! How can we help you today?",
+        "placeholder": "Type your message...",
+        "showAvatar": true,
+        "autoOpen": false,
+        "apiKey": "YOUR_API_KEY_HERE",
+        "mode": "fullscreen"
+      };
+      
+      // Load TriChat script
+      var script = document.createElement('script');
+      script.src = 'https://cdn.trichat.com/widget.js';
+      script.async = true;
+      document.head.appendChild(script);
+    })();
+    </script>
+</body>
+</html>`,
+            details: [
+              'Add this code just before the closing </body> tag',
+              'The mode: "fullscreen" tells TriChat to use fullscreen behavior',
+              'Make sure to replace "YOUR_API_KEY_HERE" with your actual API key',
+              'The fullscreen chat will be triggered by calling window.TriChat.openFullscreen()'
+            ]
+          },
+          {
+            title: 'Step 4: Add Trigger Elements',
+            description: 'Add buttons or links that will open the fullscreen chat.',
+            code: `<!-- Button trigger -->
+<button onclick="window.TriChat.openFullscreen()" style="background-color: #3B82F6; color: white; padding: 15px 30px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 500;">
+  Open Fullscreen Chat
+</button>
+
+<!-- Link trigger -->
+<a href="#" onclick="window.TriChat.openFullscreen(); return false;" style="color: #3B82F6; text-decoration: none; font-weight: 500;">
+  Start Fullscreen Support
+</a>
+
+<!-- Programmatic trigger -->
+<script>
+// You can also trigger fullscreen from JavaScript
+document.getElementById('support-button').addEventListener('click', function() {
+  window.TriChat.openFullscreen();
+});
+</script>`,
+            details: [
+              'Use onclick="window.TriChat.openFullscreen()" to open fullscreen chat',
+              'For links, add return false to prevent page navigation',
+              'You can trigger fullscreen from any JavaScript event',
+              'Consider adding loading states or confirmations for better UX',
+              'Make sure trigger elements are clearly visible and accessible'
+            ]
+          },
+          {
+            title: 'Step 5: Replace Your API Key',
+            description: 'Replace "YOUR_API_KEY_HERE" with your actual TriChat API key.',
+            code: `// Find this line in the code:
+"apiKey": "YOUR_API_KEY_HERE"
+
+// Replace it with your actual API key:
+"apiKey": "trichat_live_abc123def456ghi789"`,
+            details: [
+              'Your API key can be found in your TriChat dashboard under Settings → API Keys',
+              'It will look something like: trichat_live_abc123def456ghi789',
+              'Make sure to keep your API key secure and don\'t share it publicly',
+              'If you don\'t have an API key yet, create one in your dashboard first'
+            ]
+          },
+          {
+            title: 'Step 6: Customize Fullscreen Experience',
+            description: 'Customize the fullscreen chat appearance and behavior.',
+            code: `window.TriChatConfig = {
+  "widgetId": "default",
+  "title": "24/7 Support Center",
+  "subtitle": "Get help anytime, anywhere",
+  "primaryColor": "#3B82F6",
+  "position": "bottom-right",
+  "welcomeMessage": "Welcome to our comprehensive support center! Our team is ready to help you with any questions or issues you may have.",
+  "placeholder": "Describe your issue or question...",
+  "showAvatar": true,
+  "autoOpen": false,
+  "apiKey": "your_actual_api_key",
+  "mode": "fullscreen",
+  // Fullscreen-specific options
+  "fullscreenTitle": "Support Center",
+  "showExitButton": true,
+  "exitButtonText": "Return to Website",
+  "enableFileUpload": true,
+  "maxFileSize": "10MB"
+};`,
+            details: [
+              'fullscreenTitle: Title shown in the browser tab when in fullscreen',
+              'showExitButton: Whether to show an exit button',
+              'exitButtonText: Text for the exit button',
+              'enableFileUpload: Allow users to upload files',
+              'maxFileSize: Maximum file size for uploads'
+            ]
+          },
+          {
+            title: 'Step 7: Test the Integration',
+            description: 'Click the trigger to verify that the fullscreen chat opens and functions correctly.',
+            code: null,
+            details: [
+              'Open your website in a web browser',
+              'Look for your trigger elements on the page',
+              'Click the trigger to test if fullscreen chat opens',
+              'Verify that the chat takes over the entire browser window',
+              'Test the exit functionality to return to your website',
+              'Try typing messages and uploading files (if enabled)',
+              'Test on different devices and screen sizes',
+              'Make sure the fullscreen experience is smooth and responsive'
+            ]
+          }
+        ]
+      },
+      iframe: {
+        title: 'iFrame Embed Setup Guide',
+        steps: [
+          {
+            title: 'Step 1: Understand iFrame Integration',
+            description: 'iFrame integration embeds the chat using an HTML iframe element.',
+            code: null,
+            details: [
+              'The chat is embedded as an iframe within your page',
+              'Provides isolation and security through sandboxing',
+              'Works well for embedding in existing content areas',
+              'Can be styled and positioned like any other iframe',
+              'Good for integrating into content management systems'
+            ]
+          },
+          {
+            title: 'Step 2: Access Your Website Files',
+            description: 'You need to edit your website\'s HTML files to add the iframe integration.',
+            code: null,
+            details: [
+              'If you have a custom website: Access your web server or hosting control panel',
+              'If you use a website builder: Look for "Custom Code" or "HTML" sections',
+              'If you use WordPress: Edit your theme files or use a plugin',
+              'If you\'re not sure: Contact your website developer or hosting provider'
+            ]
+          },
+          {
+            title: 'Step 3: Add the iFrame Code',
+            description: 'Add the iframe element to your HTML where you want the chat to appear.',
+            code: `<!-- Basic iframe integration -->
+<iframe 
+  src="https://app.trichat.com/chat?widgetId=default&apiKey=YOUR_API_KEY_HERE"
+  style="width: 100%; height: 600px; border: none; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);"
+  allow="microphone; camera"
+  title="TriChat Support"
+></iframe>
+
+<!-- Responsive iframe with custom styling -->
+<iframe 
+  src="https://app.trichat.com/chat?widgetId=default&apiKey=YOUR_API_KEY_HERE"
+  style="
+    width: 100%;
+    height: 600px;
+    border: 2px solid #3B82F6;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.15);
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  "
+  allow="microphone; camera"
+  title="TriChat Support"
+  frameborder="0"
+  scrolling="no"
+></iframe>`,
+            details: [
+              'The iframe src contains your widget ID and API key',
+              'width: 100% makes it responsive to the container width',
+              'height: 600px sets the height (adjust as needed)',
+              'border: none removes the default iframe border',
+              'border-radius adds rounded corners',
+              'box-shadow adds depth and visual interest',
+              'allow="microphone; camera" enables audio/video features'
+            ]
+          },
+          {
+            title: 'Step 4: Replace Your API Key',
+            description: 'Replace "YOUR_API_KEY_HERE" with your actual TriChat API key.',
+            code: `<!-- Find this in your iframe src: -->
+src="https://app.trichat.com/chat?widgetId=default&apiKey=YOUR_API_KEY_HERE"
+
+<!-- Replace with your actual API key: -->
+src="https://app.trichat.com/chat?widgetId=default&apiKey=trichat_live_abc123def456ghi789"`,
+            details: [
+              'Your API key can be found in your TriChat dashboard under Settings → API Keys',
+              'It will look something like: trichat_live_abc123def456ghi789',
+              'Make sure to keep your API key secure and don\'t share it publicly',
+              'If you don\'t have an API key yet, create one in your dashboard first'
+            ]
+          },
+          {
+            title: 'Step 5: Customize iFrame Styling',
+            description: 'Adjust the iframe dimensions and styling to fit your page layout.',
+            code: `/* Add this CSS to your stylesheet */
+.chat-iframe {
+  width: 100%;
+  height: 600px;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+}
+
+/* Responsive design for mobile */
+@media (max-width: 768px) {
+  .chat-iframe {
+    height: 500px;
+    border-radius: 6px;
+  }
+}
+
+/* Custom styling for different themes */
+.chat-iframe.dark-theme {
+  background-color: #1f2937;
+  border: 1px solid #374151;
+}
+
+.chat-iframe.branded {
+  border: 2px solid #3B82F6;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1);
+}`,
+            details: [
+              'width: 100% makes it responsive to the container width',
+              'height: Adjust based on your content needs (400px-800px recommended)',
+              'border: none removes the default iframe border',
+              'border-radius: Rounds the corners for a modern look',
+              'box-shadow: Adds depth and visual interest',
+              'Use media queries for responsive design on mobile devices',
+              'Add custom classes for different styling themes'
+            ]
+          },
+          {
+            title: 'Step 6: Add URL Parameters (Optional)',
+            description: 'Customize the iframe behavior using URL parameters.',
+            code: `<!-- Basic iframe with parameters -->
+<iframe 
+  src="https://app.trichat.com/chat?widgetId=default&apiKey=YOUR_API_KEY_HERE&theme=dark&language=en&timezone=UTC"
+  style="width: 100%; height: 600px; border: none; border-radius: 8px;"
+  allow="microphone; camera"
+  title="TriChat Support"
+></iframe>
+
+<!-- Advanced iframe with multiple parameters -->
+<iframe 
+  src="https://app.trichat.com/chat?widgetId=default&apiKey=YOUR_API_KEY_HERE&theme=light&language=en&timezone=UTC&autoOpen=false&showAvatar=true&primaryColor=%233B82F6"
+  style="width: 100%; height: 600px; border: none; border-radius: 8px;"
+  allow="microphone; camera"
+  title="TriChat Support"
+></iframe>`,
+            details: [
+              'theme: Set the theme (light, dark)',
+              'language: Set the language (en, es, fr, etc.)',
+              'timezone: Set the timezone (UTC, EST, PST, etc.)',
+              'autoOpen: Whether to open chat automatically (true, false)',
+              'showAvatar: Whether to show avatar (true, false)',
+              'primaryColor: Set the primary color (URL encoded hex)'
+            ]
+          },
+          {
+            title: 'Step 7: Test the Integration',
+            description: 'Verify that the iframe loads correctly and the chat functions properly.',
+            code: null,
+            details: [
+              'Open your website in a web browser',
+              'Navigate to the page where you added the iframe',
+              'Look for the chat interface in the iframe',
+              'Try typing a message to test the functionality',
+              'Test file uploads and other features if enabled',
+              'Test on different devices (desktop, mobile, tablet)',
+              'Make sure the iframe is properly sized and responsive',
+              'Check for any console errors (F12 → Console)',
+              'Verify that the iframe loads without security warnings'
+            ]
+          }
+        ]
+      },
+      api: {
+        title: 'REST API Integration Setup Guide',
+        steps: [
+          {
+            title: 'Step 1: Understand REST API Integration',
+            description: 'REST API integration allows you to interact with TriChat programmatically from your server.',
+            code: null,
+            details: [
+              'You can send and receive messages programmatically',
+              'Integrate chat functionality into your existing applications',
+              'Build custom chat interfaces and workflows',
+              'Automate responses and integrate with other systems',
+              'Requires server-side development knowledge'
+            ]
+          },
+          {
+            title: 'Step 2: Get Your API Key',
+            description: 'Obtain your API key from the TriChat dashboard.',
+            code: null,
+            details: [
+              'Log into your TriChat dashboard',
+              'Navigate to Settings → API Keys',
+              'Click "Create New API Key"',
+              'Give your API key a descriptive name',
+              'Copy the generated API key (it starts with "trichat_live_")',
+              'Store the API key securely - you won\'t be able to see it again',
+              'Set appropriate permissions for your use case'
+            ]
+          },
+          {
+            title: 'Step 3: Set Up Your Development Environment',
+            description: 'Prepare your development environment for API integration.',
+            code: null,
+            details: [
+              'Choose your programming language (Node.js, Python, PHP, etc.)',
+              'Set up a code editor (VS Code, Sublime Text, etc.)',
+              'Install necessary dependencies for HTTP requests',
+              'Set up environment variables for secure API key storage',
+              'Create a new project or add to existing application',
+              'Set up version control (Git) for your code'
+            ]
+          },
+          {
+            title: 'Step 4: Add the API Code',
+            description: 'Add the API integration code to your server-side application.',
+            code: `// TriChat REST API Integration
+const TRICHAT_API_KEY = 'your_api_key_here';
+const TRICHAT_BASE_URL = 'https://api.trichat.com/v1';
+
+// Send a message
+async function sendMessage(message, customerId) {
+  try {
+    const response = await fetch(\`\${TRICHAT_BASE_URL}/messages\`, {
+      method: 'POST',
+      headers: {
+        'Authorization': \`Bearer \${TRICHAT_API_KEY}\`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: message,
+        customerId: customerId,
+        widgetId: 'default'
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(\`HTTP error! status: \${response.status}\`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error sending message:', error);
+    throw error;
+  }
+}
+
+// Get conversation history
+async function getConversation(customerId) {
+  try {
+    const response = await fetch(\`\${TRICHAT_BASE_URL}/conversations/\${customerId}\`, {
+      headers: {
+        'Authorization': \`Bearer \${TRICHAT_API_KEY}\`
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(\`HTTP error! status: \${response.status}\`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error getting conversation:', error);
+    throw error;
+  }
+}
+
+// Create a new customer
+async function createCustomer(customerData) {
+  try {
+    const response = await fetch(\`\${TRICHAT_BASE_URL}/customers\`, {
+      method: 'POST',
+      headers: {
+        'Authorization': \`Bearer \${TRICHAT_API_KEY}\`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(customerData)
+    });
+    
+    if (!response.ok) {
+      throw new Error(\`HTTP error! status: \${response.status}\`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error creating customer:', error);
+    throw error;
+  }
+}`,
+            details: [
+              'Replace "your_api_key_here" with your actual API key',
+              'The base URL is https://api.trichat.com/v1',
+              'All requests require Authorization header with Bearer token',
+              'Use proper error handling for production applications',
+              'Store API key in environment variables for security'
+            ]
+          },
+          {
+            title: 'Step 5: Implement Authentication',
+            description: 'Ensure your API key is securely stored and used in all API requests.',
+            code: `// Using environment variables (recommended)
+const TRICHAT_API_KEY = process.env.TRICHAT_API_KEY;
+
+// Example .env file:
+// TRICHAT_API_KEY=trichat_live_abc123def456ghi789
+
+// Alternative: Using a config file
+const config = {
+  trichat: {
+    apiKey: process.env.TRICHAT_API_KEY,
+    baseUrl: 'https://api.trichat.com/v1'
+  }
+};
+
+// Helper function for API requests
+async function makeApiRequest(endpoint, options = {}) {
+  const url = \`\${config.trichat.baseUrl}\${endpoint}\`;
+  
+  const defaultHeaders = {
+    'Authorization': \`Bearer \${config.trichat.apiKey}\`,
+    'Content-Type': 'application/json'
+  };
+  
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      ...defaultHeaders,
+      ...options.headers
+    }
+  });
+  
+  if (!response.ok) {
+    throw new Error(\`API request failed: \${response.status} \${response.statusText}\`);
+  }
+  
+  return await response.json();
+}`,
+            details: [
+              'Use environment variables to store API keys securely',
+              'Never hardcode API keys in your source code',
+              'Use .env files for local development',
+              'Set environment variables in production servers',
+              'Implement proper error handling for API requests',
+              'Use helper functions to reduce code duplication'
+            ]
+          },
+          {
+            title: 'Step 6: Test API Endpoints',
+            description: 'Test the API endpoints to ensure they\'re working correctly with your application.',
+            code: `// Test script
+async function testApiEndpoints() {
+  try {
+    // Test creating a customer
+    const customer = await createCustomer({
+      name: 'Test User',
+      email: 'test@example.com',
+      phone: '+1234567890'
+    });
+    console.log('Customer created:', customer);
+    
+    // Test sending a message
+    const message = await sendMessage('Hello from API!', customer.id);
+    console.log('Message sent:', message);
+    
+    // Test getting conversation
+    const conversation = await getConversation(customer.id);
+    console.log('Conversation:', conversation);
+    
+  } catch (error) {
+    console.error('API test failed:', error);
+  }
+}
+
+// Run the test
+testApiEndpoints();`,
+            details: [
+              'Create test scripts to verify API functionality',
+              'Test all endpoints you plan to use',
+              'Verify error handling works correctly',
+              'Check response formats and data structures',
+              'Test with different data types and edge cases',
+              'Monitor API rate limits and quotas'
+            ]
+          },
+          {
+            title: 'Step 7: Integrate with Your Application',
+            description: 'Integrate the API calls into your existing application workflow.',
+            code: `// Example: Integrate with a contact form
+app.post('/contact', async (req, res) => {
+  try {
+    const { name, email, message } = req.body;
+    
+    // Create customer in TriChat
+    const customer = await createCustomer({
+      name: name,
+      email: email
+    });
+    
+    // Send initial message
+    await sendMessage(\`New contact form submission from \${name}: \${message}\`, customer.id);
+    
+    // Send confirmation to customer
+    await sendMessage('Thank you for contacting us! We\'ll get back to you soon.', customer.id);
+    
+    res.json({ success: true, customerId: customer.id });
+  } catch (error) {
+    console.error('Contact form error:', error);
+    res.status(500).json({ error: 'Failed to process contact form' });
+  }
+});
+
+// Example: Webhook handler for incoming messages
+app.post('/webhook/trichat', async (req, res) => {
+  const { event, data } = req.body;
+  
+  if (event === 'message.received') {
+    // Handle incoming message
+    console.log('New message:', data.message);
+    
+    // You can implement auto-responses, routing, etc.
+    if (data.message.includes('urgent')) {
+      await sendMessage('We\'ve escalated your urgent request to our team.', data.customerId);
+    }
+  }
+  
+  res.json({ received: true });
+});`,
+            details: [
+              'Integrate API calls into your existing application logic',
+              'Handle incoming messages via webhooks',
+              'Implement auto-responses and routing',
+              'Store customer data in your database',
+              'Add logging and monitoring for API usage',
+              'Implement retry logic for failed requests'
+            ]
+          }
+        ]
+      },
+      webhook: {
+        title: 'Webhook Integration Setup Guide',
+        steps: [
+          {
+            title: 'Step 1: Understand Webhook Integration',
+            description: 'Webhooks allow TriChat to send real-time notifications to your server when events occur.',
+            code: null,
+            details: [
+              'Receive notifications when messages are sent/received',
+              'Get notified when conversations start/end',
+              'Automatically sync data with your systems',
+              'Implement custom workflows and automations',
+              'Requires a publicly accessible server endpoint'
+            ]
+          },
+          {
+            title: 'Step 2: Set Up Your Server',
+            description: 'Prepare your server to receive webhook notifications.',
+            code: null,
+            details: [
+              'Ensure your server is publicly accessible via HTTPS',
+              'Set up a webhook endpoint (e.g., /webhooks/trichat)',
+              'Configure your server to handle POST requests',
+              'Set up SSL certificate for secure communication',
+              'Prepare to handle JSON payloads',
+              'Set up logging and monitoring for webhook events'
+            ]
+          },
+          {
+            title: 'Step 3: Create Webhook Endpoint',
+            description: 'Create an endpoint on your server to receive TriChat webhook events.',
+            code: `// Express.js example
+const express = require('express');
+const crypto = require('crypto');
+const app = express();
+
+app.use(express.json());
+
+const WEBHOOK_SECRET = process.env.TRICHAT_WEBHOOK_SECRET;
+
+// Webhook endpoint to receive TriChat events
+app.post('/webhooks/trichat', (req, res) => {
+  const signature = req.headers['x-trichat-signature'];
+  const payload = req.body;
+  
+  // Verify webhook signature
+  if (!verifyWebhookSignature(signature, payload, WEBHOOK_SECRET)) {
+    console.error('Invalid webhook signature');
+    return res.status(401).json({ error: 'Invalid signature' });
+  }
+  
+  const event = payload.event;
+  console.log('Received webhook event:', event);
+  
+  try {
+    switch (event) {
+      case 'message.received':
+        handleNewMessage(payload.data);
+        break;
+      case 'conversation.started':
+        handleConversationStarted(payload.data);
+        break;
+      case 'conversation.ended':
+        handleConversationEnded(payload.data);
+        break;
+      case 'customer.created':
+        handleCustomerCreated(payload.data);
+        break;
+    }
+    
+    res.status(200).json({ received: true });
+  } catch (error) {
+    console.error('Error processing webhook:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+function verifyWebhookSignature(signature, payload, secret) {
+  const crypto = require('crypto');
+  const expectedSignature = crypto
+    .createHmac('sha256', secret)
+    .update(JSON.stringify(payload))
+    .digest('hex');
+  
+  return signature === expectedSignature;
+}`,
+            details: [
+              'Create a POST endpoint at /webhooks/trichat (or your preferred path)',
+              'Always verify webhook signatures for security',
+              'Handle different event types appropriately',
+              'Return 200 status code to acknowledge receipt',
+              'Implement proper error handling and logging',
+              'Use environment variables for webhook secret'
+            ]
+          },
+          {
+            title: 'Step 4: Configure Webhook URL',
+            description: 'Add your webhook URL to the TriChat dashboard.',
+            code: null,
+            details: [
+              'Log into your TriChat dashboard',
+              'Navigate to Settings → Webhooks',
+              'Click "Add New Webhook"',
+              'Enter your webhook URL (e.g., https://yourdomain.com/webhooks/trichat)',
+              'Select the events you want to receive',
+              'Set the webhook secret (generate a secure random string)',
+              'Test the webhook connection',
+              'Enable the webhook once testing is successful'
+            ]
+          },
+          {
+            title: 'Step 5: Set Webhook Secret',
+            description: 'Generate a secure webhook secret and configure it in both TriChat and your server.',
+            code: `// Generate a secure webhook secret
+const crypto = require('crypto');
+const webhookSecret = crypto.randomBytes(32).toString('hex');
+console.log('Webhook Secret:', webhookSecret);
+
+// Store in environment variables
+// TRICHAT_WEBHOOK_SECRET=your_generated_secret_here
+
+// Verify webhook signature function
+function verifyWebhookSignature(signature, payload, secret) {
+  const crypto = require('crypto');
+  const expectedSignature = crypto
+    .createHmac('sha256', secret)
+    .update(JSON.stringify(payload))
+    .digest('hex');
+  
+  return signature === expectedSignature;
+}
+
+// Example usage in webhook handler
+app.post('/webhooks/trichat', (req, res) => {
+  const signature = req.headers['x-trichat-signature'];
+  const payload = req.body;
+  
+  if (!verifyWebhookSignature(signature, payload, process.env.TRICHAT_WEBHOOK_SECRET)) {
+    return res.status(401).json({ error: 'Invalid signature' });
+  }
+  
+  // Process webhook...
+});`,
+            details: [
+              'Generate a secure random string for your webhook secret',
+              'Store the secret in environment variables',
+              'Never hardcode the secret in your source code',
+              'Use the same secret in both TriChat dashboard and your server',
+              'Implement signature verification for all webhook requests',
+              'Rotate the secret periodically for security'
+            ]
+          },
+          {
+            title: 'Step 6: Handle Webhook Events',
+            description: 'Implement handlers for different webhook event types.',
+            code: `// Event handlers
+function handleNewMessage(data) {
+  console.log('New message received:', data);
+  
+  // Example: Auto-response for specific keywords
+  if (data.message.toLowerCase().includes('urgent')) {
+    // Send auto-response
+    sendAutoResponse(data.customerId, 'We\'ve escalated your urgent request to our team.');
+  }
+  
+  // Example: Log to database
+  logMessageToDatabase(data);
+  
+  // Example: Send notification to team
+  sendTeamNotification(data);
+}
+
+function handleConversationStarted(data) {
+  console.log('Conversation started:', data);
+  
+  // Example: Create ticket in your system
+  createSupportTicket(data.customer);
+  
+  // Example: Send welcome message
+  sendWelcomeMessage(data.customerId);
+}
+
+function handleConversationEnded(data) {
+  console.log('Conversation ended:', data);
+  
+  // Example: Update ticket status
+  updateTicketStatus(data.conversationId, 'closed');
+  
+  // Example: Send satisfaction survey
+  sendSatisfactionSurvey(data.customerId);
+}
+
+function handleCustomerCreated(data) {
+  console.log('Customer created:', data);
+  
+  // Example: Sync customer to your CRM
+  syncCustomerToCRM(data.customer);
+  
+  // Example: Send welcome email
+  sendWelcomeEmail(data.customer.email);
+}
+
+function handleMessageSent(data) {
+  console.log('Message sent:', data);
+  
+  // Example: Log outgoing messages
+  logOutgoingMessage(data);
+  
+  // Example: Update conversation metrics
+  updateConversationMetrics(data);
+}`,
+            details: [
+              'Implement handlers for each event type you want to process',
+              'Add business logic specific to your application',
+              'Integrate with your existing systems (CRM, ticketing, etc.)',
+              'Implement auto-responses and routing logic',
+              'Add logging and monitoring for webhook processing',
+              'Handle errors gracefully and implement retry logic'
+            ]
+          },
+          {
+            title: 'Step 7: Test Webhook Delivery',
+            description: 'Test webhook delivery by creating test conversations in TriChat.',
+            code: `// Test webhook endpoint
+app.get('/webhooks/trichat/test', (req, res) => {
+  res.json({ 
+    status: 'Webhook endpoint is working',
+    timestamp: new Date().toISOString(),
+    events: ['message.received', 'conversation.started', 'conversation.ended', 'customer.created']
+  });
+});
+
+// Manual webhook testing
+app.post('/webhooks/trichat/test', (req, res) => {
+  console.log('Test webhook received:', req.body);
+  res.json({ received: true, test: true });
+});
+
+// Webhook health check
+app.get('/webhooks/trichat/health', (req, res) => {
+  res.json({ 
+    status: 'healthy',
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString()
+  });
+});`,
+            details: [
+              'Create test endpoints to verify webhook functionality',
+              'Use TriChat dashboard to send test webhooks',
+              'Monitor webhook delivery in your server logs',
+              'Check for any delivery failures or errors',
+              'Verify signature verification is working correctly',
+              'Test with different event types and payloads',
+              'Monitor webhook response times and reliability'
+            ]
+          }
+        ]
+      },
+      react: {
+        title: 'React Component Setup Guide',
+        steps: [
+          {
+            title: 'Step 1: Understand React Integration',
+            description: 'React integration allows you to use TriChat as a React component in your application.',
+            code: null,
+            details: [
+              'Install TriChat as a React component',
+              'Use it like any other React component',
+              'Supports all React features (hooks, state, props)',
+              'Fully customizable with React patterns',
+              'Perfect for React-based applications and SPAs'
+            ]
+          },
+          {
+            title: 'Step 2: Install TriChat React Package',
+            description: 'Install the TriChat React package using npm or yarn.',
+            code: `# Using npm
+npm install @trichat/react
+
+# Using yarn
+yarn add @trichat/react
+
+# Using pnpm
+pnpm add @trichat/react`,
+            details: [
+              'Choose your preferred package manager',
+              'The package will be added to your package.json',
+              'Make sure you have React 16.8+ installed',
+              'Check that your project supports ES6 modules',
+              'Verify the installation was successful'
+            ]
+          },
+          {
+            title: 'Step 3: Import and Use the Component',
+            description: 'Import the TriChat component and use it in your React application.',
+            code: `import React from 'react';
+import { TriChat } from '@trichat/react';
+
+function App() {
+  return (
+    <div className="App">
+      <h1>Welcome to My App</h1>
+      
+      {/* Basic TriChat component */}
+      <TriChat
+        apiKey="YOUR_API_KEY_HERE"
+        widgetId="default"
+        position="bottom-right"
+        primaryColor="#3B82F6"
+        title="Need Help?"
+        subtitle="We're here to help you"
+        welcomeMessage="Hello! How can we help you today?"
+        placeholder="Type your message..."
+        showAvatar={true}
+        autoOpen={false}
+      />
+    </div>
+  );
+}
+
+export default App;`,
+            details: [
+              'Import the TriChat component from the package',
+              'Add it to your JSX where you want the chat to appear',
+              'Pass your API key as a prop',
+              'Configure other props as needed',
+              'The component will render the chat widget'
+            ]
+          },
+          {
+            title: 'Step 4: Replace Your API Key',
+            description: 'Replace "YOUR_API_KEY_HERE" with your actual TriChat API key.',
+            code: `// Find this line in your component:
+apiKey="YOUR_API_KEY_HERE"
+
+// Replace it with your actual API key:
+apiKey="trichat_live_abc123def456ghi789"`,
+            details: [
+              'Your API key can be found in your TriChat dashboard under Settings → API Keys',
+              'It will look something like: trichat_live_abc123def456ghi789',
+              'Make sure to keep your API key secure and don\'t share it publicly',
+              'If you don\'t have an API key yet, create one in your dashboard first'
+            ]
+          },
+          {
+            title: 'Step 5: Customize the Component',
+            description: 'Customize the TriChat component with different props and configurations.',
+            code: `import React, { useState } from 'react';
+import { TriChat } from '@trichat/react';
+
+function App() {
+  const [isChatOpen, setIsChatOpen] = useState(false);
+
+  return (
+    <div className="App">
+      <h1>Welcome to My App</h1>
+      
+      {/* Custom trigger button */}
+      <button 
+        onClick={() => setIsChatOpen(true)}
+        style={{
+          backgroundColor: '#3B82F6',
+          color: 'white',
+          padding: '12px 24px',
+          border: 'none',
+          borderRadius: '8px',
+          cursor: 'pointer'
+        }}
+      >
+        Open Chat
+      </button>
+      
+      {/* TriChat component with custom configuration */}
+      <TriChat
+        apiKey="your_actual_api_key"
+        widgetId="default"
+        position="bottom-right"
+        primaryColor="#3B82F6"
+        title="Live Support"
+        subtitle="We're here to help 24/7"
+        welcomeMessage="Welcome! How can we assist you today?"
+        placeholder="Type your message here..."
+        showAvatar={true}
+        autoOpen={false}
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+        onMessage={(message) => console.log('New message:', message)}
+        onConversationStart={(conversation) => console.log('Conversation started:', conversation)}
+        customStyles={{
+          chatContainer: {
+            borderRadius: '12px',
+            boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)'
+          },
+          header: {
+            background: 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)'
+          }
+        }}
+      />
+    </div>
+  );
+}
+
+export default App;`,
+            details: [
+              'Use state to control when the chat is open/closed',
+              'Add custom event handlers for messages and conversations',
+              'Apply custom styles to match your app\'s design',
+              'Use different positions (bottom-right, bottom-left, top-right, top-left)',
+              'Configure auto-open behavior and other settings'
+            ]
+          },
+          {
+            title: 'Step 6: Add Event Handlers',
+            description: 'Add event handlers to respond to chat events and integrate with your app.',
+            code: `import React, { useState, useEffect } from 'react';
+import { TriChat } from '@trichat/react';
+
+function App() {
+  const [messages, setMessages] = useState([]);
+  const [isOnline, setIsOnline] = useState(false);
+
+  const handleNewMessage = (message) => {
+    console.log('New message received:', message);
+    setMessages(prev => [...prev, message]);
+    
+    // Example: Send notification
+    if (Notification.permission === 'granted') {
+      new Notification('New message from TriChat', {
+        body: message.content,
+        icon: '/favicon.ico'
+      });
+    }
   };
 
-  const copyToClipboard = () => {
-    const code = integrationType === 'widget' ? generateWidgetCode() : generateButtonCode();
-    navigator.clipboard.writeText(code);
-    toast({
-      title: "Code Copied!",
-      description: `The ${integrationType} integration code has been copied to your clipboard.`,
+  const handleConversationStart = (conversation) => {
+    console.log('Conversation started:', conversation);
+    // Example: Log to analytics
+    analytics.track('chat_conversation_started', {
+      customerId: conversation.customerId,
+      timestamp: new Date().toISOString()
     });
   };
 
+  const handleAgentStatusChange = (status) => {
+    console.log('Agent status changed:', status);
+    setIsOnline(status === 'online');
+  };
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Code className="w-5 h-5" />
-          Generated Code
-        </CardTitle>
-        <CardDescription>
-          Copy this code and paste it into your website's HTML
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Badge className="bg-green-100 text-green-800">Ready to use</Badge>
-              <Badge className="bg-blue-100 text-blue-800">
-                {integrationType === 'widget' ? 'Widget' : 'Button'} Integration
-              </Badge>
+    <div className="App">
+      <h1>Welcome to My App</h1>
+      
+      {/* Status indicator */}
+      <div style={{ 
+        padding: '8px 16px', 
+        backgroundColor: isOnline ? '#10B981' : '#6B7280',
+        color: 'white',
+        borderRadius: '20px',
+        display: 'inline-block',
+        marginBottom: '20px'
+      }}>
+        {isOnline ? 'Support Online' : 'Support Offline'}
+      </div>
+      
+      <TriChat
+        apiKey="your_actual_api_key"
+        widgetId="default"
+        position="bottom-right"
+        primaryColor="#3B82F6"
+        title="Live Support"
+        subtitle="We're here to help 24/7"
+        welcomeMessage="Welcome! How can we assist you today?"
+        placeholder="Type your message here..."
+        showAvatar={true}
+        autoOpen={false}
+        onMessage={handleNewMessage}
+        onConversationStart={handleConversationStart}
+        onAgentStatusChange={handleAgentStatusChange}
+        onError={(error) => console.error('TriChat error:', error)}
+      />
+    </div>
+  );
+}
+
+export default App;`,
+            details: [
+              'Add event handlers for messages, conversations, and status changes',
+              'Integrate with your app\'s state management',
+              'Send notifications when new messages arrive',
+              'Track analytics events for chat interactions',
+              'Handle errors gracefully',
+              'Update UI based on agent availability'
+            ]
+          },
+          {
+            title: 'Step 7: Test the Integration',
+            description: 'Test the React component to ensure it works correctly in your application.',
+            code: null,
+            details: [
+              'Start your React development server (npm start or yarn start)',
+              'Open your application in a web browser',
+              'Look for the TriChat component on your page',
+              'Click the chat widget to test if it opens',
+              'Try typing a message to test the functionality',
+              'Test the event handlers by checking the console',
+              'Test on different devices and screen sizes',
+              'Verify that the component integrates well with your app\'s design'
+            ]
+          }
+        ]
+      },
+      wordpress: {
+        title: 'WordPress Direct Integration Guide',
+        steps: [
+          {
+            title: 'Step 1: Understand WordPress Integration',
+            description: 'WordPress integration allows you to add TriChat directly to your WordPress website without any plugins.',
+            code: null,
+            details: [
+              'Add TriChat code directly to your theme files',
+              'No plugin installation required',
+              'Full control over widget placement and styling',
+              'Works with any WordPress theme',
+              'Lightweight and fast loading'
+            ]
+          },
+          {
+            title: 'Step 2: Access Your Theme Files',
+            description: 'You\'ll need to edit your WordPress theme files to add the TriChat code.',
+            code: null,
+            details: [
+              'Log into your WordPress admin dashboard',
+              'Go to Appearance → Theme Editor',
+              'Select your active theme from the dropdown',
+              'Choose the appropriate template file (usually footer.php or header.php)',
+              'Make sure you have a backup of your theme files',
+              'Consider using a child theme for safer customization'
+            ]
+          },
+          {
+            title: 'Step 3: Get Your API Key',
+            description: 'Obtain your API key from the TriChat dashboard.',
+            code: null,
+            details: [
+              'Log into your TriChat dashboard',
+              'Navigate to Settings → API Keys',
+              'Click "Create New API Key"',
+              'Give your API key a descriptive name (e.g., "WordPress Site")',
+              'Copy the generated API key (it starts with "trichat_live_")',
+              'Store the API key securely - you won\'t be able to see it again'
+            ]
+          },
+          {
+            title: 'Step 4: Add TriChat Code to Your Theme',
+            description: 'Add the TriChat widget code to your WordPress theme files.',
+            code: `<!-- Add this code to your theme's footer.php file, just before </body> -->
+<script>
+(function() {
+  window.TriChatConfig = {
+    apiKey: 'YOUR_API_KEY_HERE',
+    title: 'Need Help?',
+    subtitle: 'We\'re here to help you',
+    primaryColor: '#3B82F6',
+    position: 'bottom-right',
+    welcomeMessage: 'Hello! How can we help you today?',
+    placeholder: 'Type your message...',
+    showAvatar: true,
+    autoOpen: false
+  };
+  
+  // Load TriChat script
+  var script = document.createElement('script');
+  script.src = 'https://cdn.trichat.com/widget.js';
+  script.async = true;
+  document.head.appendChild(script);
+})();
+</script>`,
+            details: [
+              'Open your theme\'s footer.php file in the Theme Editor',
+              'Add the TriChat code just before the closing </body> tag',
+              'Replace YOUR_API_KEY_HERE with your actual API key',
+              'Customize the widget configuration as needed',
+              'Save the file and check for any syntax errors',
+              'The widget will load from our CDN automatically'
+            ]
+          },
+          {
+            title: 'Step 5: Alternative - Add to Header',
+            description: 'If you prefer to add the code to your header.php file instead.',
+            code: `<!-- Add this code to your theme's header.php file, just before </head> -->
+<script>
+window.TriChatConfig = {
+  apiKey: 'YOUR_API_KEY_HERE',
+  title: 'Need Help?',
+  subtitle: 'We\'re here to help you',
+  primaryColor: '#3B82F6',
+  position: 'bottom-right',
+  welcomeMessage: 'Hello! How can we help you today?',
+  placeholder: 'Type your message...',
+  showAvatar: true,
+  autoOpen: false
+};
+</script>
+<script src="https://cdn.trichat.com/widget.js" async></script>`,
+            details: [
+              'Open your theme\'s header.php file in the Theme Editor',
+              'Add the configuration script just before the closing </head> tag',
+              'Add the widget script tag after the configuration',
+              'This method loads the widget earlier in the page',
+              'May provide slightly faster widget appearance',
+              'Choose this method if you want the widget to load immediately'
+            ]
+          },
+          {
+            title: 'Step 6: Customize Widget Styling',
+            description: 'Add custom CSS to match your WordPress theme design.',
+            code: `/* Add this CSS to your theme's style.css file or Customizer */
+.trichat-widget {
+  font-family: inherit !important;
+}
+
+.trichat-button {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.trichat-chat-window {
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Match your theme's color scheme */
+.trichat-header {
+  background: var(--your-theme-primary-color) !important;
+}
+
+/* Custom animations */
+.trichat-button:hover {
+  transform: scale(1.05) !important;
+  transition: transform 0.2s ease !important;
+}`,
+            details: [
+              'Go to Appearance → Customize → Additional CSS',
+              'Add custom CSS to match your theme\'s design',
+              'Use your theme\'s color variables if available',
+              'Customize fonts, shadows, and animations',
+              'Test the styling on different pages',
+              'Ensure the widget looks good on mobile devices'
+            ]
+          },
+          {
+            title: 'Step 7: Test the Integration',
+            description: 'Test the WordPress integration to ensure the chat widget works correctly.',
+            code: null,
+            details: [
+              'Visit your WordPress website in a web browser',
+              'Look for the TriChat widget on your pages',
+              'Click the widget to test if it opens correctly',
+              'Try typing a message to test the functionality',
+              'Test on different pages where the widget should appear',
+              'Test on mobile devices and different screen sizes',
+              'Check that the widget styling matches your theme',
+              'Verify that the widget loads without errors in browser console'
+            ]
+          },
+          {
+            title: 'Step 8: Troubleshooting',
+            description: 'Common issues and solutions for WordPress integration.',
+            code: null,
+            details: [
+              'If widget doesn\'t appear: Check browser console for JavaScript errors',
+              'If styling is wrong: Verify CSS conflicts with your theme',
+              'If API key doesn\'t work: Double-check the key and ensure it\'s active',
+              'If widget loads slowly: Consider moving code to header.php',
+              'If conflicts with other plugins: Test with plugins disabled',
+              'If mobile issues: Test responsive design and touch interactions',
+              'Backup your theme files before making changes',
+              'Consider using a staging site for testing'
+            ]
+          }
+        ]
+      },
+            shopify: {
+        title: 'Shopify Direct Integration Guide',
+        steps: [
+          {
+            title: 'Step 1: Understand Shopify Integration',
+            description: 'Shopify integration allows you to add TriChat directly to your Shopify store without any apps.',
+            code: null,
+            details: [
+              'Add TriChat code directly to your Shopify theme',
+              'No app installation required',
+              'Full control over widget placement and styling',
+              'Works with all Shopify themes',
+              'No app store approval needed'
+            ]
+          },
+          {
+            title: 'Step 2: Access Your Shopify Theme',
+            description: 'You\'ll need to edit your Shopify theme files to add the TriChat code.',
+            code: null,
+            details: [
+              'Log into your Shopify admin dashboard',
+              'Go to Online Store → Themes',
+              'Click "Actions" → "Edit code" on your active theme',
+              'This opens the theme editor where you can modify theme files',
+              'Make sure you have a backup of your theme',
+              'Consider duplicating your theme before making changes'
+            ]
+          },
+          {
+            title: 'Step 3: Get Your API Key',
+            description: 'Obtain your API key from the TriChat dashboard.',
+            code: null,
+            details: [
+              'Log into your TriChat dashboard',
+              'Navigate to Settings → API Keys',
+              'Click "Create New API Key"',
+              'Give your API key a descriptive name (e.g., "Shopify Store")',
+              'Copy the generated API key (it starts with "trichat_live_")',
+              'Store the API key securely - you won\'t be able to see it again'
+            ]
+          },
+          {
+            title: 'Step 4: Add TriChat Code to Your Theme',
+            description: 'Add the TriChat widget code to your Shopify theme files.',
+            code: `<!-- Add this code to your theme's layout/theme.liquid file, just before </body> -->
+<script>
+(function() {
+  window.TriChatConfig = {
+    apiKey: 'YOUR_API_KEY_HERE',
+    title: 'Need Help?',
+    subtitle: 'We\'re here to help you',
+    primaryColor: '{{ settings.primary_color | default: "#3B82F6" }}',
+    position: 'bottom-right',
+    welcomeMessage: 'Hello! How can we help you today?',
+    placeholder: 'Type your message...',
+    showAvatar: true,
+    autoOpen: false,
+    // Shopify-specific options
+    shopify: {
+      shop: '{{ shop.permanent_domain }}',
+      customer: {{ customer | json }},
+      cart: {{ cart | json }},
+      product: {{ product | json }},
+      collection: {{ collection | json }}
+    }
+  };
+  
+  // Load TriChat script
+  var script = document.createElement('script');
+  script.src = 'https://cdn.trichat.com/widget.js';
+  script.async = true;
+  document.head.appendChild(script);
+})();
+</script>`,
+            details: [
+              'Open your theme\'s layout/theme.liquid file in the Theme Editor',
+              'Add the TriChat code just before the closing </body> tag',
+              'Replace YOUR_API_KEY_HERE with your actual API key',
+              'Customize the widget configuration as needed',
+              'Save the file and check for any syntax errors',
+              'The widget will load from our CDN automatically'
+            ]
+          },
+          {
+            title: 'Step 5: Alternative - Add to Header',
+            description: 'If you prefer to add the code to your header instead.',
+            code: `<!-- Add this code to your theme's layout/theme.liquid file, just before </head> -->
+<script>
+window.TriChatConfig = {
+  apiKey: 'YOUR_API_KEY_HERE',
+  title: 'Need Help?',
+  subtitle: 'We\'re here to help you',
+  primaryColor: '{{ settings.primary_color | default: "#3B82F6" }}',
+  position: 'bottom-right',
+  welcomeMessage: 'Hello! How can we help you today?',
+  placeholder: 'Type your message...',
+  showAvatar: true,
+  autoOpen: false,
+  shopify: {
+    shop: '{{ shop.permanent_domain }}',
+    customer: {{ customer | json }},
+    cart: {{ cart | json }},
+    product: {{ product | json }},
+    collection: {{ collection | json }}
+  }
+};
+</script>
+<script src="https://cdn.trichat.com/widget.js" async></script>`,
+            details: [
+              'Open your theme\'s layout/theme.liquid file in the Theme Editor',
+              'Add the configuration script just before the closing </head> tag',
+              'Add the widget script tag after the configuration',
+              'This method loads the widget earlier in the page',
+              'May provide slightly faster widget appearance',
+              'Choose this method if you want the widget to load immediately'
+            ]
+          },
+          {
+            title: 'Step 6: Add Customer Information (Optional)',
+            description: 'Add customer data integration for better support experience.',
+            code: `<!-- Add this to your theme to pass customer data to TriChat -->
+<script>
+window.TriChatCustomer = {
+  id: {{ customer.id | default: 'null' }},
+  email: {{ customer.email | json }},
+  name: {{ customer.name | json }},
+  orders: {{ customer.orders_count | default: 0 }},
+  totalSpent: {{ customer.total_spent | default: 0 }}
+};
+</script>`,
+            details: [
+              'Add this code after the main TriChat configuration',
+              'This passes customer information to the chat widget',
+              'Support agents can see customer order history',
+              'Enables personalized support experience',
+              'Customer data is only shared when customer is logged in',
+              'This is optional but recommended for better support'
+            ]
+          },
+          {
+            title: 'Step 7: Customize Widget Styling',
+            description: 'Add custom CSS to match your Shopify store design.',
+            code: `/* Add this CSS to your theme's assets/theme.css file */
+.trichat-widget {
+  font-family: {{ settings.font_family | default: 'inherit' }} !important;
+}
+
+.trichat-button {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.trichat-chat-window {
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Match your Shopify theme colors */
+.trichat-header {
+  background: {{ settings.primary_color | default: '#3B82F6' }} !important;
+}
+
+/* Custom animations */
+.trichat-button:hover {
+  transform: scale(1.05) !important;
+  transition: transform 0.2s ease !important;
+}`,
+            details: [
+              'Go to Assets → theme.css in your Theme Editor',
+              'Add custom CSS to match your store\'s design',
+              'Use your theme\'s color variables if available',
+              'Customize fonts, shadows, and animations',
+              'Test the styling on different store pages',
+              'Ensure the widget looks good on mobile devices'
+            ]
+          },
+          {
+            title: 'Step 8: Test the Integration',
+            description: 'Test the Shopify integration to ensure everything works correctly.',
+            code: null,
+            details: [
+              'Visit your Shopify store in a web browser',
+              'Look for the TriChat widget on your store pages',
+              'Test the chat functionality as a customer',
+              'Verify that customer data is being shared correctly',
+              'Test on different store pages (home, product, cart, checkout)',
+              'Test on mobile devices and different screen sizes',
+              'Check that the widget styling matches your store theme',
+              'Verify that e-commerce features are working properly'
+            ]
+          },
+          {
+            title: 'Step 9: Troubleshooting',
+            description: 'Common issues and solutions for Shopify integration.',
+            code: null,
+            details: [
+              'If widget doesn\'t appear: Check browser console for JavaScript errors',
+              'If styling is wrong: Verify CSS conflicts with your theme',
+              'If API key doesn\'t work: Double-check the key and ensure it\'s active',
+              'If customer data not showing: Verify customer is logged in',
+              'If Liquid variables not working: Check theme file syntax',
+              'If mobile issues: Test responsive design and touch interactions',
+              'Backup your theme before making changes',
+              'Consider using a development theme for testing'
+            ]
+          }
+        ]
+      },
+      slack: {
+        title: 'Slack Bot Setup Guide',
+        steps: [
+          {
+            title: 'Step 1: Understand Slack Integration',
+            description: 'Slack integration allows you to receive TriChat messages directly in your Slack workspace.',
+            code: null,
+            details: [
+              'Receive chat messages in Slack channels',
+              'Respond to customers directly from Slack',
+              'Get notifications for new conversations',
+              'Integrate with your existing Slack workflows',
+              'Support for multiple channels and teams'
+            ]
+          },
+          {
+            title: 'Step 2: Create a Slack App',
+            description: 'Create a new Slack app in your workspace.',
+            code: null,
+            details: [
+              'Go to https://api.slack.com/apps',
+              'Click "Create New App"',
+              'Choose "From scratch"',
+              'Enter an app name (e.g., "TriChat Support")',
+              'Select your workspace',
+              'Click "Create App"'
+            ]
+          },
+          {
+            title: 'Step 3: Configure Slack App Permissions',
+            description: 'Set up the necessary permissions for your Slack app.',
+            code: null,
+            details: [
+              'In your Slack app settings, go to "OAuth & Permissions"',
+              'Add the following Bot Token Scopes:',
+              '- chat:write (to send messages)',
+              '- channels:read (to read channel information)',
+              '- channels:history (to read message history)',
+              '- users:read (to read user information)',
+              '- im:write (to send direct messages)',
+              'Click "Install to Workspace"',
+              'Copy the Bot User OAuth Token'
+            ]
+          },
+          {
+            title: 'Step 4: Set Up Webhook URL',
+            description: 'Configure the webhook URL in your TriChat dashboard.',
+            code: null,
+            details: [
+              'Log into your TriChat dashboard',
+              'Navigate to Settings → Integrations → Slack',
+              'Click "Add Slack Integration"',
+              'Enter your Slack Bot User OAuth Token',
+              'Choose which Slack channel to send messages to',
+              'Configure message formatting and notifications',
+              'Test the webhook connection',
+              'Enable the integration'
+            ]
+          },
+          {
+            title: 'Step 5: Configure Message Formatting',
+            description: 'Customize how messages appear in Slack.',
+            code: null,
+            details: [
+              'In the Slack integration settings, go to "Message Formatting"',
+              'Choose how customer messages are displayed',
+              'Configure agent responses and formatting',
+              'Set up notification preferences',
+              'Configure message threading for conversations',
+              'Set up custom emojis and reactions',
+              'Test the message formatting'
+            ]
+          },
+          {
+            title: 'Step 6: Set Up Response Commands',
+            description: 'Configure how agents can respond from Slack.',
+            code: null,
+            details: [
+              'In the Slack integration settings, go to "Response Commands"',
+              'Set up slash commands for quick responses',
+              'Configure message threading for conversations',
+              'Set up quick reply buttons',
+              'Configure file upload handling',
+              'Set up conversation assignment',
+              'Test the response functionality'
+            ]
+          },
+          {
+            title: 'Step 7: Test the Integration',
+            description: 'Test the Slack integration to ensure messages are flowing correctly.',
+            code: null,
+            details: [
+              'Send a test message from your TriChat widget',
+              'Check that the message appears in your Slack channel',
+              'Test responding to the message from Slack',
+              'Verify that the response appears in the chat widget',
+              'Test file uploads and attachments',
+              'Test conversation threading',
+              'Verify notification settings are working',
+              'Test with multiple agents and channels'
+            ]
+          }
+        ]
+      },
+      teams: {
+        title: 'Microsoft Teams Setup Guide',
+        steps: [
+          {
+            title: 'Step 1: Understand Teams Integration',
+            description: 'Microsoft Teams integration allows you to receive TriChat messages in your Teams channels.',
+            code: null,
+            details: [
+              'Receive chat messages in Teams channels',
+              'Respond to customers directly from Teams',
+              'Get notifications for new conversations',
+              'Integrate with Teams workflows and bots',
+              'Support for multiple teams and channels'
+            ]
+          },
+          {
+            title: 'Step 2: Create a Teams App',
+            description: 'Create a new Teams app in your Microsoft 365 account.',
+            code: null,
+            details: [
+              'Go to https://dev.teams.microsoft.com/',
+              'Sign in with your Microsoft 365 account',
+              'Click "Create a new app"',
+              'Choose "Build an app for your organization"',
+              'Enter an app name (e.g., "TriChat Support")',
+              'Click "Create"'
+            ]
+          },
+          {
+            title: 'Step 3: Configure Teams App Manifest',
+            description: 'Set up the app manifest for Teams integration.',
+            code: null,
+            details: [
+              'In your Teams app, go to "App manifest"',
+              'Configure the app details and description',
+              'Set up the bot configuration',
+              'Add necessary permissions and scopes',
+              'Configure messaging endpoints',
+              'Save the manifest configuration'
+            ]
+          },
+          {
+            title: 'Step 4: Set Up Bot Configuration',
+            description: 'Configure the bot settings for Teams integration.',
+            code: null,
+            details: [
+              'In your Teams app, go to "Bot" configuration',
+              'Set up the bot endpoint URL',
+              'Configure bot permissions and scopes',
+              'Set up message handling',
+              'Configure authentication settings',
+              'Test the bot configuration'
+            ]
+          },
+          {
+            title: 'Step 5: Configure TriChat Integration',
+            description: 'Set up the Teams integration in your TriChat dashboard.',
+            code: null,
+            details: [
+              'Log into your TriChat dashboard',
+              'Navigate to Settings → Integrations → Microsoft Teams',
+              'Click "Add Teams Integration"',
+              'Enter your Teams app credentials',
+              'Choose which Teams channel to send messages to',
+              'Configure message formatting and notifications',
+              'Test the integration connection',
+              'Enable the integration'
+            ]
+          },
+          {
+            title: 'Step 6: Set Up Message Handling',
+            description: 'Configure how messages are handled between TriChat and Teams.',
+            code: null,
+            details: [
+              'In the Teams integration settings, go to "Message Handling"',
+              'Configure incoming message processing',
+              'Set up outgoing message formatting',
+              'Configure file and attachment handling',
+              'Set up conversation threading',
+              'Configure notification preferences',
+              'Test message handling'
+            ]
+          },
+          {
+            title: 'Step 7: Test the Integration',
+            description: 'Test the Teams integration to ensure everything works correctly.',
+            code: null,
+            details: [
+              'Send a test message from your TriChat widget',
+              'Check that the message appears in your Teams channel',
+              'Test responding to the message from Teams',
+              'Verify that the response appears in the chat widget',
+              'Test file uploads and attachments',
+              'Test conversation threading',
+              'Verify notification settings are working',
+              'Test with multiple team members and channels'
+            ]
+          }
+        ]
+      },
+      whatsapp: {
+        title: 'WhatsApp Business Setup Guide',
+        steps: [
+          {
+            title: 'Step 1: Understand WhatsApp Integration',
+            description: 'WhatsApp Business integration allows you to receive TriChat messages on WhatsApp.',
+            code: null,
+            details: [
+              'Receive chat messages on WhatsApp Business',
+              'Respond to customers via WhatsApp',
+              'Support for media messages and files',
+              'Integrate with WhatsApp Business API',
+              'Professional business communication'
+            ]
+          },
+          {
+            title: 'Step 2: Set Up WhatsApp Business Account',
+            description: 'Create and configure your WhatsApp Business account.',
+            code: null,
+            details: [
+              'Go to https://business.whatsapp.com/',
+              'Sign up for WhatsApp Business API',
+              'Complete the business verification process',
+              'Set up your business profile',
+              'Configure business hours and auto-replies',
+              'Get your WhatsApp Business phone number'
+            ]
+          },
+          {
+            title: 'Step 3: Configure WhatsApp Business API',
+            description: 'Set up the WhatsApp Business API for integration.',
+            code: null,
+            details: [
+              'In your WhatsApp Business account, go to API settings',
+              'Generate API credentials and tokens',
+              'Set up webhook endpoints',
+              'Configure message templates',
+              'Set up media handling',
+              'Test the API connection'
+            ]
+          },
+          {
+            title: 'Step 4: Configure TriChat Integration',
+            description: 'Set up the WhatsApp integration in your TriChat dashboard.',
+            code: null,
+            details: [
+              'Log into your TriChat dashboard',
+              'Navigate to Settings → Integrations → WhatsApp',
+              'Click "Add WhatsApp Integration"',
+              'Enter your WhatsApp Business API credentials',
+              'Configure webhook endpoints',
+              'Set up message templates',
+              'Test the integration connection',
+              'Enable the integration'
+            ]
+          },
+          {
+            title: 'Step 5: Set Up Message Templates',
+            description: 'Configure message templates for WhatsApp Business.',
+            code: null,
+            details: [
+              'In the WhatsApp integration settings, go to "Message Templates"',
+              'Create welcome message templates',
+              'Set up quick reply templates',
+              'Configure media message templates',
+              'Set up business hours messages',
+              'Test message template delivery'
+            ]
+          },
+          {
+            title: 'Step 6: Configure Media Handling',
+            description: 'Set up handling for media messages and files.',
+            code: null,
+            details: [
+              'In the WhatsApp integration settings, go to "Media Handling"',
+              'Configure image message handling',
+              'Set up document and file sharing',
+              'Configure voice message support',
+              'Set up location sharing',
+              'Test media message functionality'
+            ]
+          },
+          {
+            title: 'Step 7: Test the Integration',
+            description: 'Test the WhatsApp integration to ensure messages are flowing correctly.',
+            code: null,
+            details: [
+              'Send a test message from your TriChat widget',
+              'Check that the message appears on WhatsApp',
+              'Test responding to the message from WhatsApp',
+              'Verify that the response appears in the chat widget',
+              'Test media message uploads and downloads',
+              'Test message templates and quick replies',
+              'Verify business hours and auto-replies',
+              'Test with different message types'
+            ]
+          }
+        ]
+      },
+      messenger: {
+        title: 'Facebook Messenger Setup Guide',
+        steps: [
+          {
+            title: 'Step 1: Understand Messenger Integration',
+            description: 'Facebook Messenger integration allows you to receive TriChat messages on Facebook Messenger.',
+            code: null,
+            details: [
+              'Receive chat messages on Facebook Messenger',
+              'Respond to customers via Messenger',
+              'Support for rich media and quick replies',
+              'Integrate with Facebook Business page',
+              'Professional business communication'
+            ]
+          },
+          {
+            title: 'Step 2: Set Up Facebook Business Page',
+            description: 'Create and configure your Facebook Business page.',
+            code: null,
+            details: [
+              'Go to https://facebook.com/pages/create',
+              'Create a new Facebook Business page',
+              'Complete the business verification process',
+              'Set up your business profile and information',
+              'Configure business hours and contact information',
+              'Enable messaging for your page'
+            ]
+          },
+          {
+            title: 'Step 3: Create Facebook App',
+            description: 'Create a Facebook app for Messenger integration.',
+            code: null,
+            details: [
+              'Go to https://developers.facebook.com/',
+              'Click "Create App"',
+              'Choose "Business" as the app type',
+              'Enter your app name and contact email',
+              'Complete the app creation process',
+              'Add Messenger product to your app'
+            ]
+          },
+          {
+            title: 'Step 4: Configure Messenger Settings',
+            description: 'Set up Messenger settings in your Facebook app.',
+            code: null,
+            details: [
+              'In your Facebook app, go to Messenger settings',
+              'Generate page access token',
+              'Set up webhook URL',
+              'Configure message handling',
+              'Set up page subscription',
+              'Test the Messenger connection'
+            ]
+          },
+          {
+            title: 'Step 5: Configure TriChat Integration',
+            description: 'Set up the Messenger integration in your TriChat dashboard.',
+            code: null,
+            details: [
+              'Log into your TriChat dashboard',
+              'Navigate to Settings → Integrations → Facebook Messenger',
+              'Click "Add Messenger Integration"',
+              'Enter your Facebook app credentials',
+              'Configure webhook endpoints',
+              'Set up message templates',
+              'Test the integration connection',
+              'Enable the integration'
+            ]
+          },
+          {
+            title: 'Step 6: Set Up Rich Media Support',
+            description: 'Configure rich media and quick replies for Messenger.',
+            code: null,
+            details: [
+              'In the Messenger integration settings, go to "Rich Media"',
+              'Configure image and video message handling',
+              'Set up quick reply buttons',
+              'Configure persistent menu',
+              'Set up template messages',
+              'Test rich media functionality'
+            ]
+          },
+          {
+            title: 'Step 7: Test the Integration',
+            description: 'Test the Messenger integration to ensure everything works correctly.',
+            code: null,
+            details: [
+              'Send a test message from your TriChat widget',
+              'Check that the message appears on Facebook Messenger',
+              'Test responding to the message from Messenger',
+              'Verify that the response appears in the chat widget',
+              'Test rich media messages and quick replies',
+              'Test persistent menu and template messages',
+              'Verify business hours and auto-replies',
+              'Test with different message types'
+            ]
+          }
+        ]
+      },
+      telegram: {
+        title: 'Telegram Bot Setup Guide',
+        steps: [
+          {
+            title: 'Step 1: Understand Telegram Integration',
+            description: 'Telegram integration allows you to receive TriChat messages via a Telegram bot.',
+            code: null,
+            details: [
+              'Receive chat messages on Telegram',
+              'Respond to customers via Telegram bot',
+              'Support for media messages and files',
+              'Integrate with Telegram Bot API',
+              'Professional business communication'
+            ]
+          },
+          {
+            title: 'Step 2: Create Telegram Bot',
+            description: 'Create a new Telegram bot using BotFather.',
+            code: null,
+            details: [
+              'Open Telegram and search for @BotFather',
+              'Start a conversation with BotFather',
+              'Send /newbot command',
+              'Enter your bot name (e.g., "My Support Bot")',
+              'Enter your bot username (must end with "bot")',
+              'Copy the bot token provided by BotFather'
+            ]
+          },
+          {
+            title: 'Step 3: Configure Bot Settings',
+            description: 'Configure your Telegram bot settings.',
+            code: null,
+            details: [
+              'In BotFather, use /setdescription to set bot description',
+              'Use /setabouttext to set about text',
+              'Use /setuserpic to set bot profile picture',
+              'Use /setcommands to set bot commands',
+              'Configure privacy settings if needed',
+              'Test the bot by sending /start'
+            ]
+          },
+          {
+            title: 'Step 4: Configure TriChat Integration',
+            description: 'Set up the Telegram integration in your TriChat dashboard.',
+            code: null,
+            details: [
+              'Log into your TriChat dashboard',
+              'Navigate to Settings → Integrations → Telegram',
+              'Click "Add Telegram Integration"',
+              'Enter your Telegram bot token',
+              'Configure webhook endpoints',
+              'Set up message handling',
+              'Test the integration connection',
+              'Enable the integration'
+            ]
+          },
+          {
+            title: 'Step 5: Set Up Bot Commands',
+            description: 'Configure bot commands for better user experience.',
+            code: null,
+            details: [
+              'In the Telegram integration settings, go to "Bot Commands"',
+              'Set up /start command for welcome message',
+              'Configure /help command for assistance',
+              'Set up /contact command for contact information',
+              'Configure custom commands as needed',
+              'Test bot commands functionality'
+            ]
+          },
+          {
+            title: 'Step 6: Configure Media Handling',
+            description: 'Set up handling for media messages and files.',
+            code: null,
+            details: [
+              'In the Telegram integration settings, go to "Media Handling"',
+              'Configure image message handling',
+              'Set up document and file sharing',
+              'Configure voice message support',
+              'Set up location sharing',
+              'Test media message functionality'
+            ]
+          },
+          {
+            title: 'Step 7: Test the Integration',
+            description: 'Test the Telegram integration to ensure messages are flowing correctly.',
+            code: null,
+            details: [
+              'Send a test message from your TriChat widget',
+              'Check that the message appears on Telegram',
+              'Test responding to the message from Telegram',
+              'Verify that the response appears in the chat widget',
+              'Test media message uploads and downloads',
+              'Test bot commands and functionality',
+              'Verify message formatting and delivery',
+              'Test with different message types'
+            ]
+          }
+        ]
+      },
+      discord: {
+        title: 'Discord Bot Setup Guide',
+        steps: [
+          {
+            title: 'Step 1: Understand Discord Integration',
+            description: 'Discord integration allows you to receive TriChat messages in your Discord server.',
+            code: null,
+            details: [
+              'Receive chat messages in Discord channels',
+              'Respond to customers directly from Discord',
+              'Get notifications for new conversations',
+              'Integrate with Discord server workflows',
+              'Support for multiple channels and roles'
+            ]
+          },
+          {
+            title: 'Step 2: Create Discord Application',
+            description: 'Create a new Discord application and bot.',
+            code: null,
+            details: [
+              'Go to https://discord.com/developers/applications',
+              'Click "New Application"',
+              'Enter an application name (e.g., "TriChat Support")',
+              'Click "Create"',
+              'Go to "Bot" section in the left sidebar',
+              'Click "Add Bot"',
+              'Copy the bot token'
+            ]
+          },
+          {
+            title: 'Step 3: Configure Bot Permissions',
+            description: 'Set up the necessary permissions for your Discord bot.',
+            code: null,
+            details: [
+              'In your Discord application, go to "Bot" settings',
+              'Under "Privileged Gateway Intents", enable:',
+              '- Presence Intent',
+              '- Server Members Intent',
+              '- Message Content Intent',
+              'Under "Bot Permissions", enable:',
+              '- Send Messages',
+              '- Read Message History',
+              '- Use Slash Commands',
+              '- Attach Files',
+              'Save the changes'
+            ]
+          },
+          {
+            title: 'Step 4: Invite Bot to Server',
+            description: 'Invite your Discord bot to your server.',
+            code: null,
+            details: [
+              'In your Discord application, go to "OAuth2" → "URL Generator"',
+              'Select "bot" under "Scopes"',
+              'Select the bot permissions you need',
+              'Copy the generated URL',
+              'Open the URL in a browser',
+              'Select your Discord server',
+              'Click "Authorize"',
+              'Verify the bot appears in your server'
+            ]
+          },
+          {
+            title: 'Step 5: Configure TriChat Integration',
+            description: 'Set up the Discord integration in your TriChat dashboard.',
+            code: null,
+            details: [
+              'Log into your TriChat dashboard',
+              'Navigate to Settings → Integrations → Discord',
+              'Click "Add Discord Integration"',
+              'Enter your Discord bot token',
+              'Choose which Discord channel to send messages to',
+              'Configure message formatting and notifications',
+              'Test the integration connection',
+              'Enable the integration'
+            ]
+          },
+          {
+            title: 'Step 6: Set Up Slash Commands',
+            description: 'Configure slash commands for Discord interaction.',
+            code: null,
+            details: [
+              'In the Discord integration settings, go to "Slash Commands"',
+              'Set up /help command for assistance',
+              'Configure /status command for bot status',
+              'Set up /respond command for quick responses',
+              'Configure custom commands as needed',
+              'Test slash commands functionality'
+            ]
+          },
+          {
+            title: 'Step 7: Test the Integration',
+            description: 'Test the Discord integration to ensure everything works correctly.',
+            code: null,
+            details: [
+              'Send a test message from your TriChat widget',
+              'Check that the message appears in your Discord channel',
+              'Test responding to the message from Discord',
+              'Verify that the response appears in the chat widget',
+              'Test file uploads and attachments',
+              'Test slash commands and functionality',
+              'Verify notification settings are working',
+              'Test with multiple channels and roles'
+            ]
+          }
+        ]
+      },
+      mobile: {
+        title: 'Mobile SDK Setup Guide',
+        steps: [
+          {
+            title: 'Step 1: Understand Mobile SDK Integration',
+            description: 'Mobile SDK integration allows you to add TriChat to your iOS and Android apps.',
+            code: null,
+            details: [
+              'Add chat functionality to your mobile apps',
+              'Native iOS and Android SDKs available',
+              'Support for push notifications',
+              'Offline message handling',
+              'Customizable UI components'
+            ]
+          },
+          {
+            title: 'Step 2: Choose Your Platform',
+            description: 'Select the mobile platform you want to integrate with.',
+            code: null,
+            details: [
+              'iOS: Use Swift or Objective-C',
+              'Android: Use Kotlin or Java',
+              'React Native: Use JavaScript/TypeScript',
+              'Flutter: Use Dart',
+              'Choose based on your app\'s technology stack'
+            ]
+          },
+          {
+            title: 'Step 3: Install Mobile SDK',
+            description: 'Install the TriChat SDK for your chosen platform.',
+            code: `# iOS (CocoaPods)
+# Add to your Podfile:
+pod 'TriChat', '~> 1.0'
+
+# Then run:
+pod install
+
+# Android (Gradle)
+# Add to your app/build.gradle:
+implementation 'com.trichat:trichat-sdk:1.0.0'
+
+# React Native
+npm install @trichat/react-native
+
+# Flutter
+# Add to your pubspec.yaml:
+dependencies:
+  trichat_flutter: ^1.0.0`,
+            details: [
+              'Follow the installation guide for your platform',
+              'Make sure to use the latest SDK version',
+              'Check compatibility with your app\'s minimum version',
+              'Verify the installation was successful',
+              'Import the SDK in your project'
+            ]
+          },
+          {
+            title: 'Step 4: Initialize the SDK',
+            description: 'Initialize the TriChat SDK in your mobile app.',
+            code: `// iOS (Swift)
+import TriChat
+
+// In your AppDelegate or main app file:
+TriChat.initialize(apiKey: "YOUR_API_KEY_HERE")
+
+// Android (Kotlin)
+import com.trichat.TriChat
+
+// In your Application class:
+TriChat.initialize(this, "YOUR_API_KEY_HERE")
+
+// React Native
+import { TriChat } from '@trichat/react-native';
+
+// In your App.js:
+TriChat.initialize('YOUR_API_KEY_HERE');
+
+// Flutter
+import 'package:trichat_flutter/trichat_flutter.dart';
+
+// In your main.dart:
+TriChat.initialize('YOUR_API_KEY_HERE');`,
+            details: [
+              'Initialize the SDK early in your app lifecycle',
+              'Replace "YOUR_API_KEY_HERE" with your actual API key',
+              'Make sure to handle initialization errors',
+              'Test the initialization on both debug and release builds',
+              'Verify the SDK is properly initialized'
+            ]
+          },
+          {
+            title: 'Step 5: Add Chat UI',
+            description: 'Add the chat UI components to your mobile app.',
+            code: `// iOS (Swift)
+import TriChat
+
+class ViewController: UIViewController {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        // Add chat button
+        let chatButton = TriChatButton(frame: CGRect(x: 20, y: 100, width: 200, height: 50))
+        chatButton.setTitle("Chat with us", for: .normal)
+        chatButton.addTarget(self, action: #selector(openChat), for: .touchUpInside)
+        view.addSubview(chatButton)
+    }
+    
+    @objc func openChat() {
+        TriChat.presentChat(from: self)
+    }
+}
+
+// Android (Kotlin)
+import com.trichat.TriChat
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        
+        // Add chat button
+        findViewById<Button>(R.id.chat_button).setOnClickListener {
+            TriChat.openChat(this)
+        }
+    }
+}
+
+// React Native
+import { TriChatView } from '@trichat/react-native';
+
+function App() {
+    return (
+        <View style={{ flex: 1 }}>
+            <TriChatView
+                style={{ flex: 1 }}
+                apiKey="YOUR_API_KEY_HERE"
+                widgetId="default"
+            />
+        </View>
+    );
+}
+
+// Flutter
+import 'package:trichat_flutter/trichat_flutter.dart';
+
+class MyApp extends StatelessWidget {
+    @override
+    Widget build(BuildContext context) {
+        return MaterialApp(
+            home: Scaffold(
+                body: TriChatWidget(
+                    apiKey: 'YOUR_API_KEY_HERE',
+                    widgetId: 'default',
+                ),
+            ),
+        );
+    }
+}`,
+            details: [
+              'Add chat UI components to your app screens',
+              'Configure the chat appearance and behavior',
+              'Handle chat events and callbacks',
+              'Test the UI on different screen sizes',
+              'Ensure the chat integrates well with your app design'
+            ]
+          },
+          {
+            title: 'Step 6: Configure Push Notifications',
+            description: 'Set up push notifications for chat messages.',
+            code: `// iOS (Swift)
+import TriChat
+
+// In your AppDelegate:
+func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+    TriChat.setPushToken(deviceToken)
+}
+
+// Android (Kotlin)
+import com.trichat.TriChat
+
+// In your FirebaseMessagingService:
+override fun onNewToken(token: String) {
+    super.onNewToken(token)
+    TriChat.setPushToken(token)
+}
+
+// React Native
+import { TriChat } from '@trichat/react-native';
+
+// Set up push notifications:
+TriChat.setPushToken('your_push_token');
+
+// Flutter
+import 'package:trichat_flutter/trichat_flutter.dart';
+
+// Set up push notifications:
+TriChat.setPushToken('your_push_token');`,
+            details: [
+              'Configure push notification permissions',
+              'Set up Firebase Cloud Messaging (Android)',
+              'Configure Apple Push Notification Service (iOS)',
+              'Handle push notification tokens',
+              'Test push notification delivery'
+            ]
+          },
+          {
+            title: 'Step 7: Test the Integration',
+            description: 'Test the mobile SDK integration to ensure everything works correctly.',
+            code: null,
+            details: [
+              'Build and run your mobile app',
+              'Test the chat functionality on both iOS and Android',
+              'Verify that messages are sent and received correctly',
+              'Test push notifications for new messages',
+              'Test offline message handling',
+              'Test on different devices and screen sizes',
+              'Verify that the chat UI matches your app design',
+              'Test with different network conditions'
+            ]
+          }
+        ]
+      },
+      'mobile-sdk': {
+        title: 'Mobile SDK Integration Setup Guide',
+        steps: [
+          {
+            title: 'Step 1: Choose Your Mobile Platform',
+            description: 'Select the appropriate SDK for your mobile app development platform.',
+            code: null,
+            details: [
+              'iOS: Use Swift or Objective-C with CocoaPods or Swift Package Manager',
+              'Android: Use Kotlin or Java with Gradle or Maven',
+              'React Native: Use JavaScript/TypeScript with npm or yarn',
+              'Flutter: Use Dart with pub package manager',
+              'Each SDK provides the same core functionality with platform-specific optimizations',
+              'All SDKs support real-time messaging, push notifications, and file uploads'
+            ]
+          },
+          {
+            title: 'Step 2: Download the SDK',
+            description: 'Download the appropriate SDK for your platform using the buttons above.',
+            code: null,
+            details: [
+              'Click on the download button for your platform (iOS, Android, React Native, or Flutter)',
+              'The SDK will be downloaded as a ZIP file with comprehensive documentation',
+              'Extract the ZIP file to access the SDK files and documentation',
+              'Each SDK includes example projects and integration guides',
+              'Make sure to read the README file for platform-specific setup instructions'
+            ]
+          },
+          {
+            title: 'Step 3: Install Dependencies',
+            description: 'Add the TriChat SDK to your project using your platform\'s package manager.',
+            code: `# iOS - CocoaPods
+# Add to your Podfile:
+pod 'TriChat', '~> 2.1.0'
+
+# Then run:
+pod install
+
+# Android - Gradle
+# Add to your app/build.gradle:
+dependencies {
+    implementation 'com.trichat:trichat-sdk:2.1.0'
+}
+
+# React Native - npm
+npm install @trichat/react-native
+
+# Flutter - pubspec.yaml
+dependencies:
+  trichat_flutter: ^2.1.0`,
+            details: [
+              'iOS: Add the pod to your Podfile and run "pod install"',
+              'Android: Add the dependency to your build.gradle file',
+              'React Native: Install via npm and link the native modules',
+              'Flutter: Add the dependency to your pubspec.yaml file',
+              'Make sure to sync your project after adding dependencies',
+              'Check the SDK documentation for any additional setup steps'
+            ]
+          },
+          {
+            title: 'Step 4: Initialize the SDK',
+            description: 'Initialize the TriChat SDK in your app with your API key.',
+            code: `// iOS - Swift
+import TriChat
+
+@main
+class AppDelegate: UIResponder, UIApplicationDelegate {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        TriChat.initialize(apiKey: "YOUR_API_KEY_HERE")
+        return true
+    }
+}
+
+// Android - Kotlin
+import com.trichat.TriChat
+
+class MainApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        TriChat.initialize(this, "YOUR_API_KEY_HERE")
+    }
+}
+
+// React Native - JavaScript
+import { TriChat } from '@trichat/react-native';
+
+// In your App.js or index.js
+TriChat.initialize('YOUR_API_KEY_HERE');
+
+// Flutter - Dart
+import 'package:trichat_flutter/trichat_flutter.dart';
+
+void main() {
+  TriChat.initialize('YOUR_API_KEY_HERE');
+  runApp(MyApp());
+}`,
+            details: [
+              'Replace "YOUR_API_KEY_HERE" with your actual API key from the TriChat dashboard',
+              'Initialize the SDK early in your app lifecycle (AppDelegate for iOS, Application class for Android)',
+              'For React Native and Flutter, initialize in your main app file',
+              'The API key is used to authenticate your app with TriChat services',
+              'Make sure to keep your API key secure and never expose it in client-side code'
+            ]
+          },
+          {
+            title: 'Step 5: Add Chat UI to Your App',
+            description: 'Integrate the chat interface into your app\'s user interface.',
+            code: `// iOS - Swift
+import TriChat
+
+class ViewController: UIViewController {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        // Add chat button
+        let chatButton = TriChatButton(frame: CGRect(x: 20, y: 100, width: 200, height: 50))
+        chatButton.setTitle("Chat with us", for: .normal)
+        chatButton.addTarget(self, action: #selector(openChat), for: .touchUpInside)
+        view.addSubview(chatButton)
+    }
+    
+    @objc func openChat() {
+        TriChat.presentChat(from: self)
+    }
+}
+
+// Android - Kotlin
+import com.trichat.TriChat
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        
+        // Add chat button
+        findViewById<Button>(R.id.chat_button).setOnClickListener {
+            TriChat.openChat(this)
+        }
+    }
+}
+
+// React Native - JavaScript
+import { TriChatView } from '@trichat/react-native';
+
+function App() {
+  return (
+    <View style={{ flex: 1 }}>
+      <TriChatView
+        style={{ flex: 1 }}
+        apiKey="YOUR_API_KEY_HERE"
+        widgetId="default"
+        primaryColor="#3B82F6"
+        title="Live Support"
+        welcomeMessage="Welcome! How can we help you today?"
+        showAvatar={true}
+        autoOpen={false}
+      />
+    </View>
+  );
+}
+
+// Flutter - Dart
+import 'package:trichat_flutter/trichat_flutter.dart';
+
+class MyHomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('TriChat Demo')),
+      body: TriChatWidget(
+        apiKey: 'YOUR_API_KEY_HERE',
+        widgetId: 'default',
+        primaryColor: Color(0xFF3B82F6),
+        title: 'Live Support',
+        welcomeMessage: 'Welcome! How can we help you today?',
+        showAvatar: true,
+        autoOpen: false,
+      ),
+    );
+  }
+}`,
+            details: [
+              'iOS: Add a TriChatButton or use TriChat.presentChat() to show the chat interface',
+              'Android: Use TriChat.openChat() to launch the chat activity',
+              'React Native: Use the TriChatView component in your JSX',
+              'Flutter: Use the TriChatWidget in your widget tree',
+              'Customize the appearance using the configuration options',
+              'Test the integration to ensure the chat interface appears correctly'
+            ]
+          },
+          {
+            title: 'Step 6: Configure Push Notifications',
+            description: 'Set up push notifications to receive messages when your app is not active.',
+            code: `// iOS - Swift
+func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+    TriChat.setPushToken(deviceToken)
+}
+
+// Android - Kotlin
+class MyFirebaseMessagingService : FirebaseMessagingService() {
+    override fun onNewToken(token: String) {
+        super.onNewToken(token)
+        TriChat.setPushToken(token)
+    }
+}
+
+// React Native - JavaScript
+import messaging from '@react-native-firebase/messaging';
+
+const requestUserPermission = async () => {
+  const authStatus = await messaging().requestPermission();
+  if (authStatus === messaging.AuthorizationStatus.AUTHORIZED) {
+    const token = await messaging().getToken();
+    TriChat.setPushToken(token);
+  }
+};
+
+// Flutter - Dart
+import 'package:firebase_messaging/firebase_messaging.dart';
+
+class NotificationService {
+  static Future<void> initialize() async {
+    NotificationSettings settings = await FirebaseMessaging.instance.requestPermission();
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      String? token = await FirebaseMessaging.instance.getToken();
+      if (token != null) {
+        TriChat.setPushToken(token);
+      }
+    }
+  }
+}`,
+            details: [
+              'iOS: Configure APNs and call setPushToken with the device token',
+              'Android: Set up Firebase Cloud Messaging and call setPushToken',
+              'React Native: Use @react-native-firebase/messaging for FCM integration',
+              'Flutter: Use firebase_messaging package for push notifications',
+              'Request notification permissions from users',
+              'Test push notifications by sending a test message from the TriChat dashboard'
+            ]
+          },
+          {
+            title: 'Step 7: Customize the Chat Interface',
+            description: 'Customize the appearance and behavior of the chat interface to match your app.',
+            code: `// iOS - Swift
+let config = TriChatConfig()
+config.primaryColor = UIColor(red: 0.23, green: 0.51, blue: 0.95, alpha: 1.0)
+config.title = "Live Support"
+config.welcomeMessage = "Welcome! How can we help you today?"
+config.showAvatar = true
+config.autoOpen = false
+config.enableFileUpload = true
+config.maxFileSize = 10
+
+TriChat.configure(config)
+
+// Android - Kotlin
+val config = TriChatConfig.Builder()
+    .setPrimaryColor(Color.parseColor("#3B82F6"))
+    .setTitle("Live Support")
+    .setWelcomeMessage("Welcome! How can we help you today?")
+    .setShowAvatar(true)
+    .setAutoOpen(false)
+    .setEnableFileUpload(true)
+    .setMaxFileSize(10)
+    .build()
+
+TriChat.configure(config)
+
+// React Native - JavaScript
+const config = {
+  apiKey: 'YOUR_API_KEY_HERE',
+  widgetId: 'default',
+  primaryColor: '#3B82F6',
+  title: 'Live Support',
+  subtitle: 'We\'re here to help 24/7',
+  welcomeMessage: 'Welcome! How can we assist you today?',
+  placeholder: 'Type your message here...',
+  showAvatar: true,
+  autoOpen: false,
+  enableFileUpload: true,
+  maxFileSize: 10,
+  allowedFileTypes: ['image/jpeg', 'image/png', 'application/pdf'],
+  language: 'en',
+  timezone: 'UTC'
+};
+
+TriChat.configure(config)
+
+// Flutter - Dart
+final config = TriChatConfig(
+  apiKey: 'YOUR_API_KEY_HERE',
+  widgetId: 'default',
+  primaryColor: Color(0xFF3B82F6),
+  title: 'Live Support',
+  subtitle: 'We\'re here to help 24/7',
+  welcomeMessage: 'Welcome! How can we assist you today?',
+  placeholder: 'Type your message here...',
+  showAvatar: true,
+  autoOpen: false,
+  enableFileUpload: true,
+  maxFileSize: 10,
+  allowedFileTypes: ['image/jpeg', 'image/png', 'application/pdf'],
+  language: 'en',
+  timezone: 'UTC',
+);
+
+TriChat.configure(config)`,
+            details: [
+              'Customize colors, titles, and messages to match your brand',
+              'Configure file upload settings and restrictions',
+              'Set language and timezone preferences',
+              'Enable or disable features like avatars and auto-open',
+              'Test the customization on different devices and screen sizes',
+              'Ensure the chat interface integrates seamlessly with your app design'
+            ]
+          },
+          {
+            title: 'Step 8: Handle Events and Analytics',
+            description: 'Implement event handling and analytics to track user interactions.',
+            code: `// iOS - Swift
+TriChat.delegate = self
+
+extension ViewController: TriChatDelegate {
+    func trichatDidReceiveMessage(_ message: TriChatMessage) {
+        print("New message: \\(message.content)")
+        // Send local notification
+    }
+    
+    func trichatDidStartConversation(_ conversation: TriChatConversation) {
+        print("Conversation started: \\(conversation.id)")
+        // Track analytics
+    }
+    
+    func trichatDidEndConversation(_ conversation: TriChatConversation) {
+        print("Conversation ended: \\(conversation.id)")
+        // Send satisfaction survey
+    }
+}
+
+// Android - Kotlin
+TriChat.setListener(object : TriChatListener {
+    override fun onMessageReceived(message: TriChatMessage) {
+        Log.d("TriChat", "New message: \${message.content}")
+        // Send local notification
+    }
+    
+    override fun onConversationStarted(conversation: TriChatConversation) {
+        Log.d("TriChat", "Conversation started: \${conversation.id}")
+        // Track analytics
+    }
+    
+    override fun onConversationEnded(conversation: TriChatConversation) {
+        Log.d("TriChat", "Conversation ended: \${conversation.id}")
+        // Send satisfaction survey
+    }
+})
+
+// React Native - JavaScript
+TriChat.addEventListener('messageReceived', (message) => {
+  console.log('New message:', message);
+  // Send local notification
+});
+
+TriChat.addEventListener('conversationStarted', (conversation) => {
+  console.log('Conversation started:', conversation);
+  // Track analytics
+});
+
+TriChat.addEventListener('conversationEnded', (conversation) => {
+  console.log('Conversation ended:', conversation);
+  // Send satisfaction survey
+});
+
+// Flutter - Dart
+TriChat.onMessageReceived.listen((message) {
+  print('New message: \${message.content}');
+  // Send local notification
+});
+
+TriChat.onConversationStarted.listen((conversation) {
+  print('Conversation started: \${conversation.id}');
+  // Track analytics
+});
+
+TriChat.onConversationEnded.listen((conversation) {
+  print('Conversation ended: \${conversation.id}');
+  // Send satisfaction survey
+});`,
+            details: [
+              'Listen for message events to provide real-time updates',
+              'Track conversation lifecycle events for analytics',
+              'Implement local notifications for new messages',
+              'Send satisfaction surveys when conversations end',
+              'Integrate with your analytics platform (Firebase, Mixpanel, etc.)',
+              'Use events to trigger custom workflows in your app'
+            ]
+          },
+          {
+            title: 'Step 9: Test Your Integration',
+            description: 'Thoroughly test the chat integration across different scenarios.',
+            code: null,
+            details: [
+              'Test on different devices and screen sizes',
+              'Verify push notifications work correctly',
+              'Test file uploads with various file types and sizes',
+              'Check offline functionality and message queuing',
+              'Test with different network conditions (WiFi, cellular, slow connections)',
+              'Verify that the chat interface matches your app\'s design and branding',
+              'Test conversation flow and agent responses',
+              'Check analytics and event tracking',
+              'Test on both iOS and Android if using cross-platform frameworks'
+            ]
+          },
+          {
+            title: 'Step 10: Deploy to Production',
+            description: 'Prepare your app for production deployment with the chat integration.',
+            code: null,
+            details: [
+              'Update your API key to use the production key from TriChat dashboard',
+              'Configure production push notification certificates (APNs for iOS, FCM for Android)',
+              'Test the integration in a staging environment before production',
+              'Set up monitoring and error tracking for the chat functionality',
+              'Prepare customer support documentation for the chat feature',
+              'Train your support team on using the TriChat dashboard',
+              'Set up automated testing for the chat integration',
+              'Monitor performance and user feedback after deployment',
+              'Plan for future updates and feature enhancements'
+            ]
+          }
+        ]
+      }
+    };
+    
+    return instructions[integrationType] || instructions.widget;
+  };
+
+  const integrationInfo = getIntegrationInfo();
+  const displayCode = generatedCode || generateIntegrationCode();
+  const instructions = getIntegrationInstructions();
+
+  const getDocumentationUrl = (integrationType: IntegrationType): string => {
+    const baseUrl = 'https://docs.trichat.com/integrations';
+    const urls = {
+      widget: `${baseUrl}/floating-widget`,
+      button: `${baseUrl}/button-trigger`,
+      inline: `${baseUrl}/inline-chat`,
+      popup: `${baseUrl}/popup-modal`,
+      fullscreen: `${baseUrl}/fullscreen-chat`,
+      iframe: `${baseUrl}/iframe-embed`,
+      api: `${baseUrl}/rest-api`,
+      webhook: `${baseUrl}/webhooks`,
+      wordpress: `${baseUrl}/wordpress`,
+      shopify: `${baseUrl}/shopify`,
+      react: `${baseUrl}/react`,
+      vue: `${baseUrl}/vue`,
+      angular: `${baseUrl}/angular`,
+      nodejs: `${baseUrl}/nodejs`,
+      php: `${baseUrl}/php`,
+      python: `${baseUrl}/python`,
+      swift: `${baseUrl}/swift`,
+      kotlin: `${baseUrl}/kotlin`
+    };
+    return urls[integrationType] || `${baseUrl}/floating-widget`;
+  };
+
+  const handleGenerateCode = () => {
+    onGenerateCode();
+    toast({
+      title: "Code Generated!",
+      description: `${integrationInfo.title} integration code has been generated successfully.`,
+    });
+  };
+
+  const handleCopyCode = async () => {
+    try {
+      await navigator.clipboard.writeText(displayCode);
+      toast({
+        title: "Code Copied!",
+        description: "Integration code has been copied to your clipboard.",
+      });
+    } catch (error) {
+      // Fallback for older browsers
+      try {
+        const textArea = document.createElement('textarea');
+        textArea.value = displayCode;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        
+        toast({
+          title: "Code Copied!",
+          description: "Integration code has been copied to your clipboard.",
+        });
+      } catch (fallbackError) {
+        console.error('Copy failed:', fallbackError);
+        toast({
+          title: "Copy Failed",
+          description: "Failed to copy code. Please select and copy manually.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  const handleDownloadCode = () => {
+    try {
+      const codeToDownload = displayCode;
+      const blob = new Blob([codeToDownload], { type: 'text/javascript' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `trichat-${integrationType}-integration.js`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Code Downloaded!",
+        description: "Integration code has been downloaded successfully.",
+      });
+    } catch (error) {
+      console.error('Download failed:', error);
+      toast({
+        title: "Download Failed",
+        description: "Failed to download code. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDownloadMobileSDK = (platform: string) => {
+    try {
+      let sdkContent = '';
+      let fileName = '';
+      let fileType = '';
+
+      switch (platform) {
+        case 'ios':
+          sdkContent = generateIOSSDK();
+          fileName = 'TriChat-iOS-SDK.zip';
+          fileType = 'application/zip';
+          break;
+        case 'android':
+          sdkContent = generateAndroidSDK();
+          fileName = 'TriChat-Android-SDK.zip';
+          fileType = 'application/zip';
+          break;
+        case 'react-native':
+          sdkContent = generateReactNativeSDK();
+          fileName = 'TriChat-ReactNative-SDK.zip';
+          fileType = 'application/zip';
+          break;
+        case 'flutter':
+          sdkContent = generateFlutterSDK();
+          fileName = 'TriChat-Flutter-SDK.zip';
+          fileType = 'application/zip';
+          break;
+        default:
+          throw new Error('Unknown platform');
+      }
+
+      const blob = new Blob([sdkContent], { type: fileType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: `${platform.toUpperCase()} SDK Downloaded!`,
+        description: `${platform.toUpperCase()} SDK has been downloaded successfully.`,
+      });
+    } catch (error) {
+      console.error('SDK download failed:', error);
+      toast({
+        title: "SDK Download Failed",
+        description: "Failed to download SDK. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const generateIOSSDK = () => {
+    return `# TriChat iOS SDK
+
+## Installation
+
+### CocoaPods
+Add to your Podfile:
+\`\`\`ruby
+pod 'TriChat', '~> 2.1.0'
+\`\`\`
+
+### Swift Package Manager
+Add to your Package.swift:
+\`\`\`swift
+dependencies: [
+    .package(url: "https://github.com/trichat/ios-sdk.git", from: "2.1.0")
+]
+\`\`\`
+
+## Quick Start
+
+### 1. Initialize SDK
+\`\`\`swift
+import TriChat
+
+@main
+class AppDelegate: UIResponder, UIApplicationDelegate {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        // Initialize TriChat SDK
+        TriChat.initialize(apiKey: "YOUR_API_KEY_HERE")
+        return true
+    }
+}
+\`\`\`
+
+### 2. Add Chat UI
+\`\`\`swift
+import TriChat
+
+class ViewController: UIViewController {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        // Add chat button
+        let chatButton = TriChatButton(frame: CGRect(x: 20, y: 100, width: 200, height: 50))
+        chatButton.setTitle("Chat with us", for: .normal)
+        chatButton.addTarget(self, action: #selector(openChat), for: .touchUpInside)
+        view.addSubview(chatButton)
+    }
+    
+    @objc func openChat() {
+        TriChat.presentChat(from: self)
+    }
+}
+\`\`\`
+
+### 3. Configure Push Notifications
+\`\`\`swift
+func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+    TriChat.setPushToken(deviceToken)
+}
+\`\`\`
+
+## Advanced Configuration
+
+### Custom Styling
+\`\`\`swift
+let config = TriChatConfig()
+config.primaryColor = UIColor(red: 0.23, green: 0.51, blue: 0.95, alpha: 1.0)
+config.title = "Live Support"
+config.welcomeMessage = "Welcome! How can we help you today?"
+config.showAvatar = true
+config.autoOpen = false
+
+TriChat.configure(config)
+\`\`\`
+
+### Event Handling
+\`\`\`swift
+TriChat.delegate = self
+
+extension ViewController: TriChatDelegate {
+    func trichatDidReceiveMessage(_ message: TriChatMessage) {
+        print("New message: \\(message.content)")
+    }
+    
+    func trichatDidStartConversation(_ conversation: TriChatConversation) {
+        print("Conversation started: \\(conversation.id)")
+    }
+    
+    func trichatDidEndConversation(_ conversation: TriChatConversation) {
+        print("Conversation ended: \\(conversation.id)")
+    }
+}
+\`\`\`
+
+## Features
+- ✅ Real-time messaging
+- ✅ Push notifications
+- ✅ File uploads
+- ✅ Typing indicators
+- ✅ Read receipts
+- ✅ Offline message handling
+- ✅ Custom themes
+- ✅ Multi-language support
+- ✅ Analytics integration
+
+## Requirements
+- iOS 13.0+
+- Swift 5.0+
+- Xcode 12.0+
+
+## Documentation
+Visit: https://docs.trichat.com/ios-sdk`;
+  };
+
+  const generateAndroidSDK = () => {
+    return `# TriChat Android SDK
+
+## Installation
+
+### Gradle
+Add to your app/build.gradle:
+\`\`\`gradle
+dependencies {
+    implementation 'com.trichat:trichat-sdk:2.1.0'
+}
+\`\`\`
+
+### Maven
+Add to your pom.xml:
+\`\`\`xml
+<dependency>
+    <groupId>com.trichat</groupId>
+    <artifactId>trichat-sdk</artifactId>
+    <version>2.1.0</version>
+</dependency>
+\`\`\`
+
+## Quick Start
+
+### 1. Initialize SDK
+\`\`\`kotlin
+import com.trichat.TriChat
+
+class MainApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        
+        // Initialize TriChat SDK
+        TriChat.initialize(this, "YOUR_API_KEY_HERE")
+    }
+}
+\`\`\`
+
+### 2. Add Chat UI
+\`\`\`kotlin
+import com.trichat.TriChat
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        
+        // Add chat button
+        findViewById<Button>(R.id.chat_button).setOnClickListener {
+            TriChat.openChat(this)
+        }
+    }
+}
+\`\`\`
+
+### 3. Configure Push Notifications
+\`\`\`kotlin
+class MyFirebaseMessagingService : FirebaseMessagingService() {
+    override fun onNewToken(token: String) {
+        super.onNewToken(token)
+        TriChat.setPushToken(token)
+    }
+}
+\`\`\`
+
+## Advanced Configuration
+
+### Custom Styling
+\`\`\`kotlin
+val config = TriChatConfig.Builder()
+    .setPrimaryColor(Color.parseColor("#3B82F6"))
+    .setTitle("Live Support")
+    .setWelcomeMessage("Welcome! How can we help you today?")
+    .setShowAvatar(true)
+    .setAutoOpen(false)
+    .build()
+
+TriChat.configure(config)
+\`\`\`
+
+### Event Handling
+\`\`\`kotlin
+TriChat.setListener(object : TriChatListener {
+    override fun onMessageReceived(message: TriChatMessage) {
+        Log.d("TriChat", "New message: \${message.content}")
+    }
+    
+    override fun onConversationStarted(conversation: TriChatConversation) {
+        Log.d("TriChat", "Conversation started: \${conversation.id}")
+    }
+    
+    override fun onConversationEnded(conversation: TriChatConversation) {
+        Log.d("TriChat", "Conversation ended: \${conversation.id}")
+    }
+})
+\`\`\`
+
+## Features
+- ✅ Real-time messaging
+- ✅ Push notifications (FCM)
+- ✅ File uploads
+- ✅ Typing indicators
+- ✅ Read receipts
+- ✅ Offline message handling
+- ✅ Custom themes
+- ✅ Multi-language support
+- ✅ Analytics integration
+
+## Requirements
+- Android API 21+
+- Kotlin 1.5+
+- Android Studio 4.0+
+
+## Documentation
+Visit: https://docs.trichat.com/android-sdk`;
+  };
+
+  const generateReactNativeSDK = () => {
+    return `# TriChat React Native SDK
+
+## Installation
+
+### npm
+\`\`\`bash
+npm install @trichat/react-native
+\`\`\`
+
+### yarn
+\`\`\`bash
+yarn add @trichat/react-native
+\`\`\`
+
+### iOS Setup
+\`\`\`bash
+cd ios && pod install
+\`\`\`
+
+## Quick Start
+
+### 1. Initialize SDK
+\`\`\`javascript
+import { TriChat } from '@trichat/react-native';
+
+// In your App.js or index.js
+TriChat.initialize('YOUR_API_KEY_HERE');
+\`\`\`
+
+### 2. Add Chat Component
+\`\`\`javascript
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
+import { TriChatView } from '@trichat/react-native';
+
+function App() {
+  return (
+    <View style={styles.container}>
+      <TriChatView
+        style={styles.chat}
+        apiKey="YOUR_API_KEY_HERE"
+        widgetId="default"
+        primaryColor="#3B82F6"
+        title="Live Support"
+        welcomeMessage="Welcome! How can we help you today?"
+        showAvatar={true}
+        autoOpen={false}
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  chat: {
+    flex: 1,
+  },
+});
+
+export default App;
+\`\`\`
+
+### 3. Configure Push Notifications
+\`\`\`javascript
+import { TriChat } from '@trichat/react-native';
+import messaging from '@react-native-firebase/messaging';
+
+// Request permission
+const requestUserPermission = async () => {
+  const authStatus = await messaging().requestPermission();
+  const enabled = authStatus === messaging.AuthorizationStatus.AUTHORIZED;
+  
+  if (enabled) {
+    const token = await messaging().getToken();
+    TriChat.setPushToken(token);
+  }
+};
+
+// Handle token refresh
+messaging().onTokenRefresh(token => {
+  TriChat.setPushToken(token);
+});
+\`\`\`
+
+## Advanced Configuration
+
+### Custom Configuration
+\`\`\`javascript
+import { TriChat } from '@trichat/react-native';
+
+const config = {
+  apiKey: 'YOUR_API_KEY_HERE',
+  widgetId: 'default',
+  primaryColor: '#3B82F6',
+  title: 'Live Support',
+  subtitle: 'We\'re here to help 24/7',
+  welcomeMessage: 'Welcome! How can we assist you today?',
+  placeholder: 'Type your message here...',
+  showAvatar: true,
+  autoOpen: false,
+  enableFileUpload: true,
+  maxFileSize: 10,
+  allowedFileTypes: ['image/jpeg', 'image/png', 'application/pdf'],
+  language: 'en',
+  timezone: 'UTC'
+};
+
+TriChat.configure(config);
+\`\`\`
+
+### Event Handling
+\`\`\`javascript
+import { TriChat } from '@trichat/react-native';
+
+// Listen for events
+TriChat.addEventListener('messageReceived', (message) => {
+  console.log('New message:', message);
+});
+
+TriChat.addEventListener('conversationStarted', (conversation) => {
+  console.log('Conversation started:', conversation);
+});
+
+TriChat.addEventListener('conversationEnded', (conversation) => {
+  console.log('Conversation ended:', conversation);
+});
+
+TriChat.addEventListener('agentStatusChanged', (status) => {
+  console.log('Agent status:', status);
+});
+\`\`\`
+
+## Features
+- ✅ Real-time messaging
+- ✅ Push notifications
+- ✅ File uploads
+- ✅ Typing indicators
+- ✅ Read receipts
+- ✅ Offline message handling
+- ✅ Custom themes
+- ✅ Multi-language support
+- ✅ Analytics integration
+- ✅ Cross-platform compatibility
+
+## Requirements
+- React Native 0.63+
+- iOS 13.0+
+- Android API 21+
+
+## Documentation
+Visit: https://docs.trichat.com/react-native-sdk`;
+  };
+
+  const generateFlutterSDK = () => {
+    return `# TriChat Flutter SDK
+
+## Installation
+
+### pubspec.yaml
+\`\`\`yaml
+dependencies:
+  flutter:
+    sdk: flutter
+  trichat_flutter: ^2.1.0
+\`\`\`
+
+### Run
+\`\`\`bash
+flutter pub get
+\`\`\`
+
+## Quick Start
+
+### 1. Initialize SDK
+\`\`\`dart
+import 'package:trichat_flutter/trichat_flutter.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    // Initialize TriChat SDK
+    TriChat.initialize('YOUR_API_KEY_HERE');
+    
+    return MaterialApp(
+      title: 'TriChat Demo',
+      home: MyHomePage(),
+    );
+  }
+}
+\`\`\`
+
+### 2. Add Chat Widget
+\`\`\`dart
+import 'package:flutter/material.dart';
+import 'package:trichat_flutter/trichat_flutter.dart';
+
+class MyHomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('TriChat Demo'),
+      ),
+      body: TriChatWidget(
+        apiKey: 'YOUR_API_KEY_HERE',
+        widgetId: 'default',
+        primaryColor: Color(0xFF3B82F6),
+        title: 'Live Support',
+        welcomeMessage: 'Welcome! How can we help you today?',
+        showAvatar: true,
+        autoOpen: false,
+        onMessageReceived: (message) {
+          print('New message: \${message.content}');
+        },
+        onConversationStarted: (conversation) {
+          print('Conversation started: \${conversation.id}');
+        },
+        onConversationEnded: (conversation) {
+          print('Conversation ended: \${conversation.id}');
+        },
+      ),
+    );
+  }
+}
+\`\`\`
+
+### 3. Configure Push Notifications
+\`\`\`dart
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:trichat_flutter/trichat_flutter.dart';
+
+class NotificationService {
+  static Future<void> initialize() async {
+    // Request permission
+    NotificationSettings settings = await FirebaseMessaging.instance.requestPermission();
+    
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      // Get token
+      String? token = await FirebaseMessaging.instance.getToken();
+      if (token != null) {
+        TriChat.setPushToken(token);
+      }
+      
+      // Listen for token refresh
+      FirebaseMessaging.instance.onTokenRefresh.listen((token) {
+        TriChat.setPushToken(token);
+      });
+    }
+  }
+}
+\`\`\`
+
+## Advanced Configuration
+
+### Custom Configuration
+\`\`\`dart
+import 'package:trichat_flutter/trichat_flutter.dart';
+
+void configureTriChat() {
+  final config = TriChatConfig(
+    apiKey: 'YOUR_API_KEY_HERE',
+    widgetId: 'default',
+    primaryColor: Color(0xFF3B82F6),
+    title: 'Live Support',
+    subtitle: 'We\'re here to help 24/7',
+    welcomeMessage: 'Welcome! How can we assist you today?',
+    placeholder: 'Type your message here...',
+    showAvatar: true,
+    autoOpen: false,
+    enableFileUpload: true,
+    maxFileSize: 10,
+    allowedFileTypes: ['image/jpeg', 'image/png', 'application/pdf'],
+    language: 'en',
+    timezone: 'UTC',
+  );
+  
+  TriChat.configure(config);
+}
+\`\`\`
+
+### Event Handling
+\`\`\`dart
+class ChatPage extends StatefulWidget {
+  @override
+  _ChatPageState createState() => _ChatPageState();
+}
+
+class _ChatPageState extends State<ChatPage> {
+  @override
+  void initState() {
+    super.initState();
+    
+    // Listen for events
+    TriChat.onMessageReceived.listen((message) {
+      print('New message: \${message.content}');
+    });
+    
+    TriChat.onConversationStarted.listen((conversation) {
+      print('Conversation started: \${conversation.id}');
+    });
+    
+    TriChat.onConversationEnded.listen((conversation) {
+      print('Conversation ended: \${conversation.id}');
+    });
+    
+    TriChat.onAgentStatusChanged.listen((status) {
+      print('Agent status: \$status');
+    });
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    return TriChatWidget(
+      apiKey: 'YOUR_API_KEY_HERE',
+      onMessageReceived: (message) {
+        // Handle message
+      },
+    );
+  }
+}
+\`\`\`
+
+## Features
+- ✅ Real-time messaging
+- ✅ Push notifications
+- ✅ File uploads
+- ✅ Typing indicators
+- ✅ Read receipts
+- ✅ Offline message handling
+- ✅ Custom themes
+- ✅ Multi-language support
+- ✅ Analytics integration
+- ✅ Cross-platform (iOS & Android)
+
+## Requirements
+- Flutter 2.0+
+- Dart 2.12+
+- iOS 13.0+
+- Android API 21+
+
+## Documentation
+Visit: https://docs.trichat.com/flutter-sdk`;
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Enhanced Header */}
+      <div className="bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 border border-blue-200 rounded-xl p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+              <Code className="w-5 h-5 text-blue-600" />
             </div>
-            <Button onClick={copyToClipboard} className="flex items-center gap-2">
-              <Copy className="w-4 h-4" />
-              Copy Code
-            </Button>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                {integrationInfo.title} Integration
+                <Badge variant="outline" className="ml-2 bg-white/80">
+                  <Sparkles className="w-3 h-3 mr-1" />
+                  Ready
+                </Badge>
+              </h2>
+              <p className="text-gray-600 mt-1">
+                {integrationInfo.description}
+              </p>
+            </div>
           </div>
-          <div className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto">
-            <pre className="text-sm">
-              <code>{integrationType === 'widget' ? generateWidgetCode() : generateButtonCode()}</code>
-            </pre>
+          <Badge className="bg-green-100 text-green-800 border-green-200">
+            <Rocket className="w-3 h-3 mr-1" />
+            Production Ready
+          </Badge>
+        </div>
+      </div>
+
+      {/* Enhanced Integration Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm hover:shadow-md transition-all">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+              <Zap className="w-4 h-4 text-blue-600" />
+            </div>
+            <span className="font-semibold text-gray-900">Complexity</span>
           </div>
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h4 className="font-semibold text-blue-900 mb-2">Installation Instructions:</h4>
-            <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
-              <li>Copy the code above</li>
-              <li>Paste it before the closing &lt;/body&gt; tag in your HTML</li>
-              <li>Replace "YOUR_API_KEY_HERE" with your actual API key</li>
-              {integrationType === 'button' && (
-                <li>Make sure your button element matches the CSS selector specified</li>
-              )}
-              <li>The {integrationType} will automatically work on your website</li>
-            </ol>
+          <Badge 
+            variant={integrationInfo.complexity === 'Easy' ? 'default' : integrationInfo.complexity === 'Medium' ? 'secondary' : 'destructive'}
+            className="text-sm"
+          >
+            {integrationInfo.complexity}
+          </Badge>
+        </div>
+        
+        <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm hover:shadow-md transition-all">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+              <Clock className="w-4 h-4 text-green-600" />
+            </div>
+            <span className="font-semibold text-gray-900">Time to Integrate</span>
+          </div>
+          <span className="text-sm text-gray-600 font-medium">{integrationInfo.timeToIntegrate}</span>
+        </div>
+        
+        <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm hover:shadow-md transition-all">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+              <CheckCircle className="w-4 h-4 text-purple-600" />
+            </div>
+            <span className="font-semibold text-gray-900">Features</span>
+          </div>
+          <div className="text-sm text-gray-600">
+            {integrationInfo.features.slice(0, 2).join(', ')}
+            {integrationInfo.features.length > 2 && '...'}
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+
+      {/* Enhanced Tabs */}
+      <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50/50">
+        <CardContent className="p-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <div className="bg-white rounded-xl p-1 shadow-sm border border-gray-200">
+              <TabsList className="grid w-full grid-cols-2 bg-transparent">
+                <TabsTrigger 
+                  value="code" 
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
+                >
+                  <FileText className="w-4 h-4 mr-2" />
+                  Generated Code
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="instructions" 
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
+                >
+                  <Layers className="w-4 h-4 mr-2" />
+                  Setup Instructions
+                </TabsTrigger>
+              </TabsList>
+            </div>
+
+            <TabsContent value="code" className="space-y-6">
+              {/* Enhanced Code Header */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <Badge className="bg-green-100 text-green-800 border-green-200">
+                    <Shield className="w-3 h-3 mr-1" />
+                    Production Ready
+                  </Badge>
+                  <Badge className="bg-blue-100 text-blue-800 border-blue-200">
+                    {integrationInfo.title}
+                  </Badge>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button 
+                    onClick={() => {
+                      const codeElement = document.querySelector('.code-display pre');
+                      if (codeElement) {
+                        const range = document.createRange();
+                        range.selectNodeContents(codeElement);
+                        const selection = window.getSelection();
+                        selection?.removeAllRanges();
+                        selection?.addRange(range);
+                        toast({
+                          title: "Code Selected!",
+                          description: "All code has been selected. Press Ctrl+C to copy.",
+                        });
+                      }
+                    }} 
+                    variant="outline" 
+                    size="sm"
+                    className="hover:bg-gray-50 transition-colors"
+                  >
+                    <Copy className="w-4 h-4 mr-2" />
+                    Select All
+                  </Button>
+                  <Button 
+                    onClick={handleCopyCode} 
+                    variant="outline" 
+                    size="sm"
+                    className="hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 transition-colors"
+                  >
+                    <Copy className="w-4 h-4 mr-2" />
+                    Copy
+                  </Button>
+                  <Button 
+                    onClick={handleDownloadCode} 
+                    variant="outline" 
+                    size="sm"
+                    className="hover:bg-green-50 hover:text-green-700 hover:border-green-300 transition-colors"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Download
+                  </Button>
+                </div>
+              </div>
+
+              {/* Enhanced Code Display */}
+              <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-100 p-6 rounded-xl overflow-x-auto code-display border border-gray-700 shadow-2xl">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  </div>
+                  <span className="text-xs text-gray-400 font-mono">trichat-{integrationType}-integration.js</span>
+                </div>
+                <pre className="text-sm font-mono leading-relaxed">
+                  <code className="text-gray-100">{displayCode}</code>
+                </pre>
+              </div>
+
+              {/* Mobile SDK Download Section - Only show for mobile-sdk integration */}
+              {integrationType === 'mobile-sdk' && (
+                <div className="bg-gradient-to-br from-slate-50 to-blue-50/30 border border-slate-200 rounded-xl p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                      <Smartphone className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-900">Mobile SDKs</h3>
+                      <p className="text-sm text-slate-600">Download native SDKs for mobile app integration</p>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <Button
+                      onClick={() => handleDownloadMobileSDK('ios')}
+                      variant="outline"
+                      className="h-auto p-4 flex flex-col items-center gap-2 bg-white/80 backdrop-blur-sm border-slate-200 hover:bg-white hover:border-slate-300 transition-all"
+                    >
+                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                        <Apple className="w-4 h-4 text-white" />
+                      </div>
+                      <div className="text-center">
+                        <div className="font-medium text-slate-900">iOS SDK</div>
+                        <div className="text-xs text-slate-500">Swift & Objective-C</div>
+                      </div>
+                    </Button>
+                    
+                    <Button
+                      onClick={() => handleDownloadMobileSDK('android')}
+                      variant="outline"
+                      className="h-auto p-4 flex flex-col items-center gap-2 bg-white/80 backdrop-blur-sm border-slate-200 hover:bg-white hover:border-slate-300 transition-all"
+                    >
+                      <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                        <Smartphone className="w-4 h-4 text-white" />
+                      </div>
+                      <div className="text-center">
+                        <div className="font-medium text-slate-900">Android SDK</div>
+                        <div className="text-xs text-slate-500">Kotlin & Java</div>
+                      </div>
+                    </Button>
+                    
+                    <Button
+                      onClick={() => handleDownloadMobileSDK('react-native')}
+                      variant="outline"
+                      className="h-auto p-4 flex flex-col items-center gap-2 bg-white/80 backdrop-blur-sm border-slate-200 hover:bg-white hover:border-slate-300 transition-all"
+                    >
+                      <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center">
+                        <Zap className="w-4 h-4 text-white" />
+                      </div>
+                      <div className="text-center">
+                        <div className="font-medium text-slate-900">React Native</div>
+                        <div className="text-xs text-slate-500">JavaScript/TypeScript</div>
+                      </div>
+                    </Button>
+                    
+                    <Button
+                      onClick={() => handleDownloadMobileSDK('flutter')}
+                      variant="outline"
+                      className="h-auto p-4 flex flex-col items-center gap-2 bg-white/80 backdrop-blur-sm border-slate-200 hover:bg-white hover:border-slate-300 transition-all"
+                    >
+                      <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-lg flex items-center justify-center">
+                        <Smartphone className="w-4 h-4 text-white" />
+                      </div>
+                      <div className="text-center">
+                        <div className="font-medium text-slate-900">Flutter SDK</div>
+                        <div className="text-xs text-slate-500">Dart</div>
+                      </div>
+                    </Button>
+                  </div>
+                  
+                  <div className="mt-4 p-3 bg-blue-50/50 border border-blue-200/50 rounded-lg">
+                    <div className="flex items-start gap-2">
+                      <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                      <div className="text-sm text-blue-800">
+                        <strong>SDK Features:</strong> Real-time messaging, push notifications, file uploads, 
+                        offline support, custom themes, and analytics integration. Each SDK includes 
+                        comprehensive documentation and example projects.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Enhanced Alerts */}
+              {integrationType === 'api' && (
+                <Alert className="border-amber-200 bg-amber-50">
+                  <Terminal className="h-4 w-4 text-amber-600" />
+                  <AlertDescription className="text-amber-800">
+                    <strong>API Key Required:</strong> Replace 'YOUR_API_KEY_HERE' with your actual API key from the TriChat dashboard.
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {integrationType === 'webhook' && (
+                <Alert className="border-blue-200 bg-blue-50">
+                  <Globe className="h-4 w-4 text-blue-600" />
+                  <AlertDescription className="text-blue-800">
+                    <strong>Webhook URL:</strong> Update the WEBHOOK_URL to your server endpoint and set a secure WEBHOOK_SECRET.
+                  </AlertDescription>
+                </Alert>
+              )}
+            </TabsContent>
+
+            <TabsContent value="instructions" className="space-y-6">
+              {instructions ? (
+                <div className="space-y-8">
+                  {/* Enhanced Header Section */}
+                  <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <Info className="w-5 h-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-semibold text-gray-900">{instructions.title}</h3>
+                        <p className="text-sm text-gray-600">Complete step-by-step integration guide</p>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-green-600" />
+                        <span>Estimated time: {integrationInfo.timeToIntegrate}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Zap className="w-4 h-4 text-orange-600" />
+                        <span>Complexity: {integrationInfo.complexity}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-purple-600" />
+                        <span>{instructions.steps.length} steps to complete</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Enhanced Prerequisites Section */}
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-6">
+                    <div className="flex items-center gap-2 mb-3">
+                      <AlertCircle className="w-5 h-5 text-amber-600" />
+                      <h4 className="font-semibold text-amber-900">Prerequisites</h4>
+                    </div>
+                    <ul className="text-sm text-amber-800 space-y-2 list-disc list-inside">
+                      <li>Basic knowledge of HTML, CSS, and JavaScript</li>
+                      <li>Access to your website's source code or CMS admin panel</li>
+                      <li>Your TriChat API key (found in your dashboard)</li>
+                      <li>A modern web browser for testing</li>
+                      {integrationType === 'wordpress' && (
+                        <>
+                          <li>WordPress admin access</li>
+                          <li>Ability to install plugins</li>
+                        </>
+                      )}
+                      {integrationType === 'shopify' && (
+                        <>
+                          <li>Shopify store admin access</li>
+                          <li>Ability to install apps from the Shopify App Store</li>
+                        </>
+                      )}
+                      {integrationType === 'api' && (
+                        <>
+                          <li>Server-side development knowledge</li>
+                          <li>Understanding of REST APIs and authentication</li>
+                        </>
+                      )}
+                    </ul>
+                  </div>
+                  
+                  {/* Enhanced Steps */}
+                  <div className="space-y-6">
+                    {instructions.steps.map((step, index) => (
+                      <div key={index} className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-all">
+                        <div className="flex items-start gap-4">
+                          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold text-lg">
+                            {index + 1}
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="text-xl font-semibold text-gray-900 mb-3">{step.title}</h4>
+                            <p className="text-gray-600 mb-4 text-base leading-relaxed">{step.description}</p>
+                            
+                            {/* Step Details */}
+                            {step.details && step.details.length > 0 && (
+                              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                                <h5 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                                  <Info className="w-4 h-4" />
+                                  Important Details
+                                </h5>
+                                <ul className="space-y-2">
+                                  {step.details.map((detail, detailIndex) => (
+                                    <li key={detailIndex} className="text-sm text-blue-800 flex items-start gap-2">
+                                      <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                                      <span>{detail}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                            
+                            {/* Code Example */}
+                            {step.code && (
+                              <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
+                                <div className="flex items-center justify-between mb-3">
+                                  <span className="text-xs text-gray-400 font-mono">Code Example</span>
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                                    <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                                  </div>
+                                </div>
+                                <pre className="text-sm text-gray-100 font-mono leading-relaxed overflow-x-auto">
+                                  <code>{step.code}</code>
+                                </pre>
+                              </div>
+                            )}
+                            
+                            {/* Action Tips */}
+                            <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                              <div className="flex items-center gap-2 mb-2">
+                                <CheckCircle className="w-4 h-4 text-green-600" />
+                                <span className="font-medium text-green-900">Pro Tip</span>
+                              </div>
+                              <p className="text-sm text-green-800">
+                                {index === 0 && "Make sure you have access to edit your website files before starting."}
+                                {index === 1 && "Take a backup of your files before making any changes."}
+                                {index === 2 && "Use a code editor like VS Code, Sublime Text, or even Notepad++ for better editing experience."}
+                                {index === 3 && "The </body> tag is usually the last tag before </html> in your HTML file."}
+                                {index === 4 && "Double-check that you've copied the entire code block, including the comments."}
+                                {index === 5 && "Make sure there's proper spacing and indentation in your HTML file."}
+                                {index === 6 && "Keep your API key secure and never share it publicly or commit it to version control."}
+                                {index === 7 && "Test your changes on a staging environment before deploying to production."}
+                                {index === 8 && "Use browser developer tools (F12) to check for any JavaScript errors."}
+                                {index === 9 && "Consider adding the chat widget to multiple pages for better user accessibility."}
+                                {index === 10 && "Monitor your chat analytics to see how users are engaging with the widget."}
+                                {index === 11 && "If you're still having issues, check our documentation or contact support."}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Enhanced Documentation Link */}
+                  <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                          <ExternalLink className="w-5 h-5 text-purple-600" />
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-semibold text-gray-900">Need More Help?</h4>
+                          <p className="text-sm text-gray-600">Visit our comprehensive documentation for detailed guides and examples.</p>
+                        </div>
+                      </div>
+                      <Button 
+                        onClick={() => window.open(getDocumentationUrl(integrationType), '_blank')}
+                        className="bg-purple-600 hover:bg-purple-700 text-white"
+                      >
+                        <ExternalLink className="w-4 h-4 mr-2" />
+                        View Documentation
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  {/* Additional Resources */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-xl p-6">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <MessageSquare className="w-4 h-4 text-blue-600" />
+                        </div>
+                        <h5 className="font-semibold text-blue-900">Live Support</h5>
+                      </div>
+                      <p className="text-sm text-blue-800 mb-3">
+                        Need immediate help? Our support team is available 24/7 to assist you with integration.
+                      </p>
+                      <Button variant="outline" size="sm" className="border-blue-300 text-blue-700 hover:bg-blue-50">
+                        Contact Support
+                      </Button>
+                    </div>
+                    
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                          <Video className="w-4 h-4 text-green-600" />
+                        </div>
+                        <h5 className="font-semibold text-green-900">Video Tutorials</h5>
+                      </div>
+                      <p className="text-sm text-green-800 mb-3">
+                        Watch step-by-step video guides for visual learners and detailed walkthroughs.
+                      </p>
+                      <Button variant="outline" size="sm" className="border-green-300 text-green-700 hover:bg-green-50">
+                        Watch Videos
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Info className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Instructions Not Available</h3>
+                  <p className="text-gray-600">Setup instructions for this integration type are not yet available.</p>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+    </div>
   );
 };

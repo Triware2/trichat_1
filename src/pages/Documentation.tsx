@@ -5,11 +5,13 @@ import { Input } from '@/components/ui/input';
 import { MessageSquare, Search, BookOpen, Code, Settings, Users, Zap, Shield, FileText, Video, Download, DollarSign, Globe, Headphones, Bot, BarChart3, Lock, Menu, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { useFavicon } from '@/hooks/use-favicon';
 
 const Documentation = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  useFavicon('landing');
 
   const platformCapabilities = [
     {

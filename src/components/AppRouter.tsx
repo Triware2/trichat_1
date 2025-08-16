@@ -18,8 +18,14 @@ import AgentDashboard from '@/pages/AgentDashboard';
 import PlatformControl from '@/pages/PlatformControl';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { TrialGuard } from '@/components/TrialGuard';
+import { useFavicon } from '@/hooks/use-favicon';
 
 export const AppRouter = () => {
+  // Set default favicon for landing pages
+  useFavicon('landing');
+
+  console.log('AppRouter rendering');
+
   return (
     <Router>
       <Routes>
@@ -64,6 +70,8 @@ export const AppRouter = () => {
             </ProtectedRoute>
           } 
         />
+
+
 
         {/* Protected Admin Routes - Limited to pricing features */}
         <Route 

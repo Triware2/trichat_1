@@ -1,43 +1,40 @@
 
 import { Button } from '@/components/ui/button';
-import { Download, Upload, Bot } from 'lucide-react';
+import { Download, Brain, Zap } from 'lucide-react';
 
 interface TrainingHeaderProps {
   onExportRules: () => void;
+  onQuickTrain: () => void;
 }
 
-export const TrainingHeader = ({ onExportRules }: TrainingHeaderProps) => {
+export const TrainingHeader = ({ onExportRules, onQuickTrain }: TrainingHeaderProps) => {
   return (
-    <div className="bg-white rounded-3xl shadow-sm border border-gray-100/50 p-8">
-      <div className="flex justify-between items-start">
-        <div className="flex items-center space-x-6">
-          <div className="w-20 h-20 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 rounded-3xl flex items-center justify-center shadow-lg shadow-blue-500/20">
-            <Bot className="w-10 h-10 text-white" />
+    <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/25">
+            <Brain className="w-8 h-8 text-white" />
           </div>
           <div>
-            <h1 className="text-4xl font-extralight text-gray-900 mb-3 tracking-tight">
-              Bot Training Studio
-            </h1>
-            <p className="text-gray-500 text-lg font-light leading-relaxed">
-              Configure intelligent responses and conversation flows with precision
-            </p>
+            <h1 className="text-3xl font-bold text-slate-900">Bot Training Studio</h1>
+            <p className="text-slate-600">Configure rules, flows, and training parameters for your AI assistants</p>
           </div>
         </div>
-        <div className="flex space-x-4">
-          <Button 
-            variant="outline" 
+        <div className="flex items-center gap-3">
+          <Button
             onClick={onExportRules}
-            className="border-gray-200/70 text-gray-600 hover:bg-gray-50/80 hover:border-gray-300 transition-all duration-300 rounded-2xl px-6 py-3 font-medium shadow-sm"
+            variant="outline"
+            className="bg-white/80 backdrop-blur-sm border border-slate-200 hover:bg-white text-slate-700"
           >
             <Download className="w-4 h-4 mr-2" />
             Export Rules
           </Button>
           <Button 
-            variant="outline"
-            className="border-gray-200/70 text-gray-600 hover:bg-gray-50/80 hover:border-gray-300 transition-all duration-300 rounded-2xl px-6 py-3 font-medium shadow-sm"
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/25"
+            onClick={onQuickTrain}
           >
-            <Upload className="w-4 h-4 mr-2" />
-            Import Rules
+            <Zap className="w-4 h-4 mr-2" />
+            Quick Train
           </Button>
         </div>
       </div>

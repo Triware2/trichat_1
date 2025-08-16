@@ -30,11 +30,11 @@ interface ChatContentProps {
 }
 
 export const ChatContent = ({ 
-  chats,
+  chats, 
   chat,
   onSendMessage,
   agentName,
-  onChatSelect,
+  onChatSelect, 
   onSubjectUpdated
 }: ChatContentProps) => {
   const navigate = useNavigate();
@@ -218,15 +218,15 @@ export const ChatContent = ({
             </CardHeader>
             <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
               <div className="flex-1 overflow-y-auto min-h-0">
-                <ChatList
-                  chats={chats}
+            <ChatList 
+              chats={chats}
                   selectedChat={selectedChatId}
-                  onChatSelect={onChatSelect}
+              onChatSelect={onChatSelect}
                   onFilter={() => setFilterModalOpen(true)}
                   statusFilter={statusFilter}
                   priorityFilter={priorityFilter}
-                />
-              </div>
+            />
+          </div>
             </CardContent>
           </Card>
           {/* Filter Modal */}
@@ -295,7 +295,7 @@ export const ChatContent = ({
                 Please select a conversation from the list to view it here.
               </p>
             </div>
-          </div>
+        </div>
         )}
       </div>
 
@@ -304,17 +304,17 @@ export const ChatContent = ({
         {chat ? (
           <div className="flex-1 overflow-y-auto p-2 space-y-4">
             <Card className="w-full max-w-full border-slate-200 shadow-md rounded-2xl overflow-x-auto px-0 dark:bg-slate-900">
-              <ContactPropertiesPanel 
+          <ContactPropertiesPanel 
                 chatId={selectedChatId}
                 customerName={chat.customer}
-              />
+          />
             </Card>
             <Card className="w-full max-w-full border-slate-200 shadow-md rounded-2xl overflow-x-auto px-0 dark:bg-slate-900">
-              <CustomerComplaintsPreview 
+          <CustomerComplaintsPreview 
                 complaints={complaints}
                 isLoading={loadingComplaints}
-                onViewFullProfile={handleViewCustomerProfile}
-              />
+            onViewFullProfile={handleViewCustomerProfile}
+          />
             </Card>
           </div>
         ) : (
@@ -326,7 +326,7 @@ export const ChatContent = ({
                 Customer information will be displayed here once you select a conversation.
               </p>
             </div>
-          </div>
+        </div>
         )}
       </div>
     </div>

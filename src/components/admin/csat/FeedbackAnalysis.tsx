@@ -1,130 +1,138 @@
 
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
+  MessageSquare, 
   TrendingUp, 
   TrendingDown, 
-  MessageSquare, 
+  Star,
+  Calendar,
+  Download,
+  Search,
+  Filter,
   Eye,
   ThumbsUp,
   ThumbsDown,
   Minus,
-  Filter,
-  Download
+  Users,
+  Clock,
+  Activity,
+  Brain,
+  Target
 } from 'lucide-react';
+import { csatService, CSATResponse, FeedbackTheme } from '@/services/csatService';
 
-export const FeedbackAnalysis = () => {
-  const feedbackThemes = [
-    {
-      theme: 'Response Speed',
-      count: 89,
-      sentiment: 'positive',
-      change: '+12%',
-      keywords: ['fast', 'quick', 'prompt', 'immediate'],
-      examples: [
-        'Agent responded very quickly to my inquiry',
-        'Fast resolution, very satisfied',
-        'Quick turnaround time, great service'
-      ]
-    },
-    {
-      theme: 'Agent Knowledge',
-      count: 67,
-      sentiment: 'positive',
-      change: '+8%',
-      keywords: ['knowledgeable', 'expert', 'helpful', 'experienced'],
-      examples: [
-        'Agent was very knowledgeable about the product',
-        'Expert guidance helped solve my issue',
-        'Professional and well-informed support'
-      ]
-    },
-    {
-      theme: 'Communication',
-      count: 45,
-      sentiment: 'neutral',
-      change: '-3%',
-      keywords: ['unclear', 'confusing', 'complicated', 'jargon'],
-      examples: [
-        'Could use clearer explanations',
-        'Too much technical jargon',
-        'Instructions were somewhat confusing'
-      ]
-    },
-    {
-      theme: 'Wait Time',
-      count: 34,
-      sentiment: 'negative',
-      change: '-15%',
-      keywords: ['slow', 'waiting', 'delayed', 'long'],
-      examples: [
-        'Had to wait too long for response',
-        'Very slow initial response time',
-        'Waited over an hour for help'
-      ]
-    }
-  ];
+interface FeedbackAnalysisProps {
+  onRefresh: () => void;
+}
 
-  const recentFeedback = [
-    {
-      id: '1',
-      customer: 'John Smith',
-      rating: 5,
-      sentiment: 'positive',
-      feedback: 'Excellent service! The agent was very helpful and resolved my issue quickly.',
-      agent: 'Sarah Johnson',
-      department: 'Technical Support',
-      date: '2024-01-15',
-      themes: ['Response Speed', 'Agent Knowledge']
-    },
-    {
-      id: '2',
-      customer: 'Emily Davis',
-      rating: 3,
-      sentiment: 'neutral',
-      feedback: 'The issue was resolved but it took longer than expected. Agent could have been more proactive.',
-      agent: 'Mike Chen',
-      department: 'Billing',
-      date: '2024-01-15',
-      themes: ['Wait Time', 'Communication']
-    },
-    {
-      id: '3',
-      customer: 'David Wilson',
-      rating: 4,
-      sentiment: 'positive',
-      feedback: 'Good service overall. Agent was knowledgeable but explanation could be clearer.',
-      agent: 'Lisa Wang',
-      department: 'General Support',
-      date: '2024-01-14',
-      themes: ['Agent Knowledge', 'Communication']
+export const FeedbackAnalysis = ({ onRefresh }: FeedbackAnalysisProps) => {
+  const [responses, setResponses] = useState<CSATResponse[]>([]);
+  const [themes, setThemes] = useState<FeedbackTheme[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sentimentFilter, setSentimentFilter] = useState('all');
+  const [timeRange, setTimeRange] = useState('30d');
+
+  useEffect(() => {
+    loadData();
+  }, [timeRange]);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const [responsesData, themesData] = await Promise.all([
+        csatService.getResponses({ startDate: getStartDate(timeRange) }),
+        csatService.getFeedbackThemes(timeRange)
+      ]);
+      setResponses(responsesData);
+      setThemes(themesData);
+    } catch (error) {
+      console.error('Failed to load feedback data:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  const getStartDate = (range: string): string => {
+    const now = new Date();
+    switch (range) {
+      case '7d':
+        return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      case '30d':
+        return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      case '90d':
+        return new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      case '1y':
+        return new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      default:
+        return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      const exportData = await csatService.exportResponses({
+        startDate: getStartDate(timeRange),
+        endDate: new Date().toISOString().split('T')[0],
+        sentiment: sentimentFilter === 'all' ? undefined : sentimentFilter
+      });
+
+      // Convert to CSV
+      const headers = Object.keys(exportData[0] || {});
+      const csvContent = [
+        headers.join(','),
+        ...exportData.map(row => 
+          headers.map(header => {
+            const value = row[header];
+            // Escape commas and quotes in CSV
+            return typeof value === 'string' && (value.includes(',') || value.includes('"')) 
+              ? `"${value.replace(/"/g, '""')}"` 
+              : value;
+          }).join(',')
+        )
+      ].join('\n');
+
+      // Create and download file
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `csat-feedback-${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Export failed:', error);
+      alert('Export failed. Please try again.');
+    }
+  };
 
   const getSentimentIcon = (sentiment: string) => {
     switch (sentiment) {
-      case 'positive': return <ThumbsUp className="w-4 h-4 text-green-600" />;
-      case 'negative': return <ThumbsDown className="w-4 h-4 text-red-600" />;
-      default: return <Minus className="w-4 h-4 text-yellow-600" />;
+      case 'positive':
+        return <ThumbsUp className="w-4 h-4 text-emerald-600" />;
+      case 'negative':
+        return <ThumbsDown className="w-4 h-4 text-red-600" />;
+      default:
+        return <Minus className="w-4 h-4 text-gray-400" />;
     }
   };
 
-  const getSentimentColor = (sentiment: string) => {
+  const getSentimentBadge = (sentiment: string) => {
     switch (sentiment) {
-      case 'positive': return 'bg-green-100 text-green-800';
-      case 'negative': return 'bg-red-100 text-red-800';
-      default: return 'bg-yellow-100 text-yellow-800';
+      case 'positive':
+        return <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200">Positive</Badge>;
+      case 'negative':
+        return <Badge className="bg-red-50 text-red-700 border-red-200">Negative</Badge>;
+      default:
+        return <Badge className="bg-gray-50 text-gray-700 border-gray-200">Neutral</Badge>;
     }
-  };
-
-  const getTrendIcon = (change: string) => {
-    const isPositive = change.startsWith('+');
-    const isNegative = change.startsWith('-');
-    
-    if (isPositive) return <TrendingUp className="w-4 h-4 text-green-600" />;
-    if (isNegative) return <TrendingDown className="w-4 h-4 text-red-600" />;
-    return null;
   };
 
   const getRatingStars = (rating: number) => {
@@ -135,143 +143,274 @@ export const FeedbackAnalysis = () => {
     ));
   };
 
+  const filteredResponses = responses.filter(response => {
+    const matchesSearch = !searchTerm || 
+      response.feedback_text?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      response.channel.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesSentiment = sentimentFilter === 'all' || response.sentiment === sentimentFilter;
+    
+    return matchesSearch && matchesSentiment;
+  });
+
+  const sentimentStats = {
+    positive: responses.filter(r => r.sentiment === 'positive').length,
+    neutral: responses.filter(r => r.sentiment === 'neutral').length,
+    negative: responses.filter(r => r.sentiment === 'negative').length,
+    total: responses.length
+  };
+
   return (
-    <div className="space-y-6">
-      {/* Controls */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
-            <Filter className="w-4 h-4 mr-2" />
-            Filter
-          </Button>
-          <select className="px-3 py-2 border border-gray-300 rounded-md bg-white text-sm">
-            <option value="all">All Sentiment</option>
-            <option value="positive">Positive</option>
-            <option value="neutral">Neutral</option>
-            <option value="negative">Negative</option>
-          </select>
-          <select className="px-3 py-2 border border-gray-300 rounded-md bg-white text-sm">
-            <option value="30days">Last 30 Days</option>
-            <option value="90days">Last 3 Months</option>
-            <option value="6months">Last 6 Months</option>
-          </select>
+    <div className="space-y-8">
+      {/* AWS-style neutral header */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl lg:text-2xl font-bold text-slate-900">
+              Feedback Analysis
+            </h2>
+            <p className="text-sm text-slate-600 mt-1">Analyze customer feedback and sentiment trends</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Select value={timeRange} onValueChange={setTimeRange}>
+              <SelectTrigger className="w-40 bg-white border-slate-300 hover:border-slate-400">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="7d">Last 7 days</SelectItem>
+                <SelectItem value="30d">Last 30 days</SelectItem>
+                <SelectItem value="90d">Last 90 days</SelectItem>
+                <SelectItem value="1y">Last year</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button onClick={handleExport} variant="outline" size="sm" className="bg-white border-slate-300 hover:bg-slate-50 hover:border-slate-400">
+              <Download className="w-4 h-4 mr-2" />
+              Export
+            </Button>
+          </div>
         </div>
-        <Button variant="outline" size="sm">
-          <Download className="w-4 h-4 mr-2" />
-          Export Analysis
-        </Button>
       </div>
 
-      {/* Feedback Themes */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Feedback Themes Analysis</CardTitle>
-          <CardDescription>
-            Common themes extracted from customer feedback using NLP
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            {feedbackThemes.map((theme, index) => (
-              <div key={index} className="border rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2">
-                      {getSentimentIcon(theme.sentiment)}
-                      <h4 className="font-medium text-gray-900">{theme.theme}</h4>
-                    </div>
-                    <Badge className={getSentimentColor(theme.sentiment)}>
-                      {theme.sentiment}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg font-semibold">{theme.count}</span>
-                    <span className="text-sm text-gray-600">mentions</span>
-                    {getTrendIcon(theme.change)}
-                    <span className={`text-sm ${theme.change.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
-                      {theme.change}
-                    </span>
-                  </div>
-                </div>
+      {/* Sentiment Overview - AWS-like cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <ThumbsUp className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <p className="text-2xl lg:text-3xl font-bold text-slate-900">
+                {sentimentStats.positive}
+              </p>
+              <p className="text-sm text-slate-600">Positive</p>
+            </div>
+          </div>
+        </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  <div>
-                    <h5 className="text-sm font-medium text-gray-700 mb-2">Keywords</h5>
-                    <div className="flex flex-wrap gap-1">
-                      {theme.keywords.map((keyword, keywordIndex) => (
-                        <Badge key={keywordIndex} variant="outline" className="text-xs">
-                          {keyword}
-                        </Badge>
-                      ))}
-                    </div>
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-gray-500 to-gray-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <Minus className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <p className="text-2xl lg:text-3xl font-bold text-slate-900">
+                {sentimentStats.neutral}
+              </p>
+              <p className="text-sm text-slate-600">Neutral</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <ThumbsDown className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <p className="text-2xl lg:text-3xl font-bold text-slate-900">
+                {sentimentStats.negative}
+              </p>
+              <p className="text-sm text-slate-600">Negative</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Feedback Themes - AWS-like panel */}
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-slate-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900">
+                  Feedback Themes
+                </h3>
+                <p className="text-sm text-slate-600">Most common themes in customer feedback</p>
+              </div>
+              <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200">
+                {themes.length} themes
+              </Badge>
+            </div>
+          </div>
+          <div className="p-6">
+            {loading ? (
+              <div className="flex items-center justify-center h-32">
+                <div className="text-center">
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-3 shadow-sm">
+                    <Activity className="w-4 h-4 animate-spin text-white" />
                   </div>
-                  
-                  <div>
-                    <h5 className="text-sm font-medium text-gray-700 mb-2">Example Feedback</h5>
-                    <div className="space-y-1">
-                      {theme.examples.slice(0, 2).map((example, exampleIndex) => (
-                        <p key={exampleIndex} className="text-xs text-gray-600 italic">
-                          "{example}"
-                        </p>
-                      ))}
-                    </div>
-                  </div>
+                  <p className="text-sm text-slate-500">Loading themes...</p>
                 </div>
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Recent Feedback */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Feedback</CardTitle>
-          <CardDescription>Latest customer feedback with sentiment analysis</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {recentFeedback.map((feedback) => (
-              <div key={feedback.id} className="border rounded-lg p-4">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-medium text-gray-900">{feedback.customer}</h4>
-                        <div className="flex items-center">
-                          {getRatingStars(feedback.rating)}
+            ) : themes.length > 0 ? (
+              <div className="space-y-4">
+                {themes.slice(0, 5).map((theme, index) => (
+                  <div key={theme.theme} className="bg-white rounded-xl border border-slate-200 p-4 hover:bg-slate-50 transition-colors">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shadow-sm ${
+                          theme.sentiment === 'positive' ? 'bg-gradient-to-br from-emerald-500 to-teal-600' :
+                          theme.sentiment === 'negative' ? 'bg-gradient-to-br from-red-500 to-pink-600' :
+                          'bg-gradient-to-br from-gray-500 to-gray-600'
+                        }`}>
+                           <span className="text-sm font-semibold text-white">{index + 1}</span>
                         </div>
-                        <Badge className={getSentimentColor(feedback.sentiment)}>
-                          {feedback.sentiment}
-                        </Badge>
+                        <div>
+                          <h4 className="font-medium text-slate-900">{theme.theme}</h4>
+                          <p className="text-sm text-slate-500">{theme.count} mentions</p>
+                        </div>
                       </div>
-                      <p className="text-sm text-gray-600">
-                        {feedback.department} • {feedback.agent} • {feedback.date}
-                      </p>
+                      {getSentimentBadge(theme.sentiment)}
                     </div>
+                       {theme.keywords.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {theme.keywords.slice(0, 3).map((keyword, idx) => (
+                          <span key={idx} className="text-xs bg-slate-50 px-2 py-1 rounded border border-slate-200">
+                            {keyword}
+                          </span>
+                        ))}
+                        {theme.keywords.length > 3 && (
+                          <span className="text-xs text-gray-500">+{theme.keywords.length - 3} more</span>
+                        )}
+                      </div>
+                    )}
                   </div>
-                  <Button variant="ghost" size="sm">
-                    <Eye className="w-4 h-4" />
-                  </Button>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <div className="w-12 h-12 bg-gradient-to-br from-gray-400 to-gray-500 rounded-lg flex items-center justify-center mx-auto mb-4 shadow-sm">
+                  <Brain className="w-6 h-6 text-white" />
                 </div>
+                <p className="text-slate-500 font-medium">No themes found</p>
+                <p className="text-sm text-slate-400 mt-1">Feedback themes will appear here</p>
+              </div>
+            )}
+          </div>
+        </div>
 
-                <div className="mb-3">
-                  <p className="text-sm text-gray-800 italic">"{feedback.feedback}"</p>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-600">Themes:</span>
-                  {feedback.themes.map((theme, themeIndex) => (
-                    <Badge key={themeIndex} variant="outline" className="text-xs">
-                      {theme}
-                    </Badge>
-                  ))}
+        {/* Recent Responses - AWS-like panel */}
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-slate-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900">
+                  Recent Responses
+                </h3>
+                <p className="text-sm text-slate-600">Latest customer feedback</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <Input
+                  placeholder="Search responses..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-48 bg-white border-slate-300 focus:border-slate-400"
+                />
+                <Select value={sentimentFilter} onValueChange={setSentimentFilter}>
+                  <SelectTrigger className="w-32 bg-white border-slate-300 hover:border-slate-400">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="positive">Positive</SelectItem>
+                    <SelectItem value="neutral">Neutral</SelectItem>
+                    <SelectItem value="negative">Negative</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+          <div className="p-6">
+            {loading ? (
+              <div className="flex items-center justify-center h-32">
+                <div className="text-center">
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-3 shadow-sm">
+                    <Activity className="w-4 h-4 animate-spin text-white" />
+                  </div>
+                  <p className="text-sm text-slate-500">Loading responses...</p>
                 </div>
               </div>
-            ))}
+            ) : filteredResponses.length > 0 ? (
+              <div className="space-y-4 max-h-96 overflow-y-auto">
+                {filteredResponses.slice(0, 10).map((response) => (
+                  <div key={response.id} className="bg-white rounded-xl border border-slate-200 p-4 hover:bg-slate-50 transition-colors">
+                    <div className="flex items-start gap-4">
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center shadow-sm ${
+                        response.sentiment === 'positive' ? 'bg-gradient-to-br from-emerald-500 to-teal-600' :
+                        response.sentiment === 'negative' ? 'bg-gradient-to-br from-red-500 to-pink-600' :
+                        'bg-gradient-to-br from-gray-500 to-gray-600'
+                      }`}>
+                        {getSentimentIcon(response.sentiment)}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="flex items-center gap-1">
+                            {getRatingStars(response.overall_rating)}
+                            <span className="text-sm font-medium text-slate-900 ml-2">
+                              {response.overall_rating}/5
+                            </span>
+                          </div>
+                          {getSentimentBadge(response.sentiment)}
+                          <Badge variant="outline" className="backdrop-blur-sm bg-white/80 border-white/30">
+                            {response.channel}
+                          </Badge>
+                        </div>
+                        {response.feedback_text && (
+                          <p className="text-sm text-slate-700 mb-2">{response.feedback_text}</p>
+                        )}
+                        <div className="flex items-center gap-4 text-xs text-slate-500">
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {new Date(response.submitted_at).toLocaleDateString()}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {new Date(response.submitted_at).toLocaleTimeString()}
+                          </div>
+                          {response.themes?.length > 0 && (
+                            <div className="flex items-center gap-1">
+                              <Brain className="w-3 h-3" />
+                              {response.themes.slice(0, 2).join(', ')}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <div className="w-12 h-12 bg-gradient-to-br from-gray-400 to-gray-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <MessageSquare className="w-6 h-6 text-white" />
+                </div>
+                <p className="text-slate-500 font-medium">No responses found</p>
+                <p className="text-sm text-slate-400 mt-1">Customer responses will appear here</p>
+              </div>
+            )}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };

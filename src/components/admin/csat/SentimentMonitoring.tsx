@@ -1,323 +1,423 @@
 
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
-  Brain, 
-  AlertTriangle, 
+  TrendingUp, 
   TrendingDown, 
-  TrendingUp,
+  MessageSquare, 
+  Star,
+  Calendar,
+  Download,
+  BarChart3,
+  Activity,
+  Target,
   Users,
-  MessageSquare,
   Clock,
-  Bell
+  Brain,
+  ThumbsUp,
+  ThumbsDown,
+  Minus,
+  AlertTriangle,
+  CheckCircle,
+  XCircle
 } from 'lucide-react';
+import { csatService, CSATResponse, CSATMetrics } from '@/services/csatService';
 
-export const SentimentMonitoring = () => {
-  const sentimentAlerts = [
-    {
-      id: '1',
-      type: 'negative_trend',
-      severity: 'high',
-      title: 'Declining Sentiment in Technical Support',
-      description: 'Customer sentiment has dropped 15% in the last 7 days',
-      affectedCustomers: 23,
-      department: 'Technical Support',
-      timestamp: '2 hours ago',
-      action: 'Review recent interactions'
-    },
-    {
-      id: '2',
-      type: 'angry_customer',
-      severity: 'critical',
-      title: 'Highly Negative Customer Detected',
-      description: 'Customer John Smith expressing extreme frustration',
-      affectedCustomers: 1,
-      department: 'Billing',
-      timestamp: '15 minutes ago',
-      action: 'Immediate escalation required'
-    },
-    {
-      id: '3',
-      type: 'positive_spike',
-      severity: 'low',
-      title: 'Positive Sentiment Increase',
-      description: 'Sales team showing 20% improvement in customer satisfaction',
-      affectedCustomers: 45,
-      department: 'Sales',
-      timestamp: '1 day ago',
-      action: 'Analyze success factors'
-    }
-  ];
+interface SentimentMonitoringProps {
+  csatMetrics: CSATMetrics | null;
+  onRefresh: () => void;
+}
 
-  const realtimeMonitoring = [
-    {
-      id: '1',
-      customer: 'Alice Johnson',
-      agent: 'Sarah Johnson',
-      channel: 'Chat',
-      sentiment: 'positive',
-      confidence: 0.89,
-      lastMessage: 'Thank you so much for your help! This solved my problem perfectly.',
-      timestamp: '2 minutes ago',
-      escalated: false
-    },
-    {
-      id: '2',
-      customer: 'Bob Wilson',
-      agent: 'Mike Chen',
-      channel: 'Email',
-      sentiment: 'negative',
-      confidence: 0.92,
-      lastMessage: 'This is the third time I am contacting you about this issue. Very disappointed.',
-      timestamp: '5 minutes ago',
-      escalated: true
-    },
-    {
-      id: '3',
-      customer: 'Carol Davis',
-      agent: 'Emily Rodriguez',
-      channel: 'Chat',
-      sentiment: 'neutral',
-      confidence: 0.76,
-      lastMessage: 'I understand the process now, but it seems quite complicated.',
-      timestamp: '8 minutes ago',
-      escalated: false
-    }
-  ];
+export const SentimentMonitoring = ({ csatMetrics, onRefresh }: SentimentMonitoringProps) => {
+  const [responses, setResponses] = useState<CSATResponse[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [timeRange, setTimeRange] = useState('30d');
+  const [sentimentFilter, setSentimentFilter] = useState('all');
 
-  const sentimentTrends = [
-    { timeframe: 'Last Hour', positive: 72, neutral: 18, negative: 10 },
-    { timeframe: 'Last 4 Hours', positive: 68, neutral: 22, negative: 10 },
-    { timeframe: 'Last 24 Hours', positive: 65, neutral: 25, negative: 10 },
-    { timeframe: 'Last Week', positive: 70, neutral: 20, negative: 10 }
-  ];
+  useEffect(() => {
+    loadData();
+  }, [timeRange]);
 
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
-      case 'critical': return 'bg-red-100 text-red-800 border-red-200';
-      case 'high': return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'low': return 'bg-blue-100 text-blue-800 border-blue-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const responsesData = await csatService.getResponses({ startDate: getStartDate(timeRange) });
+      setResponses(responsesData);
+    } catch (error) {
+      console.error('Failed to load sentiment data:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const getSentimentColor = (sentiment: string) => {
-    switch (sentiment) {
-      case 'positive': return 'bg-green-100 text-green-800';
-      case 'negative': return 'bg-red-100 text-red-800';
-      default: return 'bg-yellow-100 text-yellow-800';
+  const getStartDate = (range: string): string => {
+    const now = new Date();
+    switch (range) {
+      case '7d':
+        return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      case '30d':
+        return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      case '90d':
+        return new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      case '1y':
+        return new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      default:
+        return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
     }
+  };
+
+  const handleExport = () => {
+    // Export functionality would be implemented here
+    console.log('Exporting sentiment monitoring data...');
   };
 
   const getSentimentIcon = (sentiment: string) => {
     switch (sentiment) {
-      case 'positive': return '😊';
-      case 'negative': return '😤';
-      default: return '😐';
+      case 'positive':
+        return <ThumbsUp className="w-4 h-4 text-emerald-600" />;
+      case 'negative':
+        return <ThumbsDown className="w-4 h-4 text-red-600" />;
+      default:
+        return <Minus className="w-4 h-4 text-gray-400" />;
     }
   };
 
+  const getSentimentBadge = (sentiment: string) => {
+    switch (sentiment) {
+      case 'positive':
+        return <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200">Positive</Badge>;
+      case 'negative':
+        return <Badge className="bg-red-50 text-red-700 border-red-200">Negative</Badge>;
+      default:
+        return <Badge className="bg-gray-50 text-gray-700 border-gray-200">Neutral</Badge>;
+    }
+  };
+
+  const getTrendIcon = (trend: number) => {
+    if (trend > 0) {
+      return <TrendingUp className="w-4 h-4 text-emerald-600" />;
+    } else if (trend < 0) {
+      return <TrendingDown className="w-4 h-4 text-red-600" />;
+    }
+    return <Activity className="w-4 h-4 text-gray-400" />;
+  };
+
+  const getTrendColor = (trend: number) => {
+    if (trend > 0) return 'text-emerald-600';
+    if (trend < 0) return 'text-red-600';
+    return 'text-gray-500';
+  };
+
+  const getRatingStars = (rating: number) => {
+    return Array.from({ length: 5 }, (_, i) => (
+      <span key={i} className={`text-sm ${i < rating ? 'text-yellow-400' : 'text-gray-300'}`}>
+        ★
+      </span>
+    ));
+  };
+
+  const filteredResponses = responses.filter(response => {
+    return sentimentFilter === 'all' || response.sentiment === sentimentFilter;
+  });
+
+  const sentimentStats = {
+    positive: responses.filter(r => r.sentiment === 'positive').length,
+    neutral: responses.filter(r => r.sentiment === 'neutral').length,
+    negative: responses.filter(r => r.sentiment === 'negative').length,
+    total: responses.length
+  };
+
+  const averageRating = responses.length > 0 
+    ? responses.reduce((sum, r) => sum + r.overall_rating, 0) / responses.length 
+    : 0;
+
+  const sentimentTrend = {
+    positive: +5.2, // Mock trend data
+    neutral: -1.8,
+    negative: -3.4,
+    overall: +2.1
+  };
+
   return (
-    <div className="space-y-6">
-      {/* Real-time Sentiment Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Positive Sentiment</p>
-                <p className="text-2xl font-bold text-green-600">72%</p>
-                <div className="flex items-center gap-1 mt-1">
-                  <TrendingUp className="w-3 h-3 text-green-600" />
-                  <span className="text-xs text-green-600">+5% from yesterday</span>
-                </div>
-              </div>
-              <div className="text-2xl">😊</div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Neutral Sentiment</p>
-                <p className="text-2xl font-bold text-yellow-600">18%</p>
-                <div className="flex items-center gap-1 mt-1">
-                  <span className="text-xs text-gray-600">-2% from yesterday</span>
-                </div>
-              </div>
-              <div className="text-2xl">😐</div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Negative Sentiment</p>
-                <p className="text-2xl font-bold text-red-600">10%</p>
-                <div className="flex items-center gap-1 mt-1">
-                  <TrendingDown className="w-3 h-3 text-red-600" />
-                  <span className="text-xs text-red-600">-3% from yesterday</span>
-                </div>
-              </div>
-              <div className="text-2xl">😤</div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Active Alerts</p>
-                <p className="text-2xl font-bold text-orange-600">3</p>
-                <div className="flex items-center gap-1 mt-1">
-                  <Bell className="w-3 h-3 text-orange-600" />
-                  <span className="text-xs text-orange-600">1 critical</span>
-                </div>
-              </div>
-              <AlertTriangle className="w-6 h-6 text-orange-600" />
-            </div>
-          </CardContent>
-        </Card>
+    <div className="space-y-8">
+      {/* AWS-style neutral header */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl lg:text-2xl font-bold text-slate-900">
+              Sentiment Monitoring
+            </h2>
+            <p className="text-sm text-slate-600 mt-1">Track customer sentiment trends and patterns</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Select value={timeRange} onValueChange={setTimeRange}>
+              <SelectTrigger className="w-40 bg-white border-slate-300 hover:border-slate-400">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="7d">Last 7 days</SelectItem>
+                <SelectItem value="30d">Last 30 days</SelectItem>
+                <SelectItem value="90d">Last 90 days</SelectItem>
+                <SelectItem value="1y">Last year</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={sentimentFilter} onValueChange={setSentimentFilter}>
+              <SelectTrigger className="w-40 bg-white border-slate-300 hover:border-slate-400">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Sentiment</SelectItem>
+                <SelectItem value="positive">Positive</SelectItem>
+                <SelectItem value="neutral">Neutral</SelectItem>
+                <SelectItem value="negative">Negative</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
       </div>
 
-      {/* Sentiment Alerts */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-orange-600" />
-            Sentiment Alerts
-          </CardTitle>
-          <CardDescription>Real-time alerts based on sentiment analysis</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {sentimentAlerts.map((alert) => (
-              <div key={alert.id} className="border rounded-lg p-4">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-start gap-3">
-                    <AlertTriangle className={`w-5 h-5 mt-0.5 ${
-                      alert.severity === 'critical' ? 'text-red-600' :
-                      alert.severity === 'high' ? 'text-orange-600' :
-                      'text-blue-600'
-                    }`} />
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-medium text-gray-900">{alert.title}</h4>
-                        <Badge className={getSeverityColor(alert.severity)}>
-                          {alert.severity}
-                        </Badge>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Sentiment Trends - AWS-like panel */}
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-slate-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900">
+                  Sentiment Trends
+                </h3>
+                <p className="text-sm text-slate-600">Customer sentiment over time</p>
+              </div>
+              <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200">
+                {filteredResponses.length} responses
+              </Badge>
+            </div>
+          </div>
+          <div className="p-6">
+            {loading ? (
+              <div className="flex items-center justify-center h-32">
+                <div className="text-center">
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-3 shadow-sm">
+                    <Activity className="w-4 h-4 animate-spin text-white" />
+                  </div>
+                  <p className="text-sm text-slate-500">Loading sentiment data...</p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="bg-white rounded-xl border border-slate-200 p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
+                      <span className="text-sm font-medium text-slate-900">Positive</span>
+                    </div>
+                    <span className="text-sm font-bold text-emerald-600">
+                      {sentimentStats.positive} ({((sentimentStats.positive / sentimentStats.total) * 100).toFixed(1)}%)
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-emerald-500 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${(sentimentStats.positive / sentimentStats.total) * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-xl border border-slate-200 p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-slate-500 rounded-full"></div>
+                      <span className="text-sm font-medium text-slate-900">Neutral</span>
+                    </div>
+                    <span className="text-sm font-bold text-slate-600">
+                      {sentimentStats.neutral} ({((sentimentStats.neutral / sentimentStats.total) * 100).toFixed(1)}%)
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-gray-500 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${(sentimentStats.neutral / sentimentStats.total) * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-xl border border-slate-200 p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                      <span className="text-sm font-medium text-slate-900">Negative</span>
+                    </div>
+                    <span className="text-sm font-bold text-red-600">
+                      {sentimentStats.negative} ({((sentimentStats.negative / sentimentStats.total) * 100).toFixed(1)}%)
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-red-500 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${(sentimentStats.negative / sentimentStats.total) * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Response Analysis - AWS-like panel */}
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-slate-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900">
+                  Response Analysis
+                </h3>
+                <p className="text-sm text-slate-600">Detailed response breakdown</p>
+              </div>
+              <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 border-emerald-200">
+                {filteredResponses.length} total
+              </Badge>
+            </div>
+          </div>
+          <div className="p-6">
+            {loading ? (
+              <div className="flex items-center justify-center h-32">
+                <div className="text-center">
+                  <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center mx-auto mb-3 shadow-sm">
+                    <Activity className="w-4 h-4 animate-spin text-white" />
+                  </div>
+                  <p className="text-sm text-slate-500">Loading response data...</p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="bg-white rounded-xl border border-slate-200 p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                        <MessageSquare className="w-5 h-5 text-white" />
                       </div>
-                      <p className="text-sm text-gray-600 mb-2">{alert.description}</p>
-                      <div className="flex items-center gap-4 text-xs text-gray-500">
-                        <span>{alert.department}</span>
-                        <span>{alert.affectedCustomers} customers</span>
-                        <span>{alert.timestamp}</span>
+                      <div>
+                        <p className="font-medium text-slate-900">Total Responses</p>
+                        <p className="text-sm text-slate-500">All feedback received</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl lg:text-3xl font-bold text-slate-900">
+                        {sentimentStats.total}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-xl border border-slate-200 p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
+                        <Star className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-slate-900">Average Rating</p>
+                        <p className="text-sm text-slate-500">Overall satisfaction score</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl lg:text-3xl font-bold text-slate-900">
+                        {averageRating.toFixed(1)}
+                      </p>
+                      <div className="flex items-center gap-1 mt-1">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`w-3 h-3 ${
+                              i < Math.floor(averageRating) 
+                                ? 'text-yellow-400 fill-current' 
+                                : 'text-gray-300'
+                            }`}
+                          />
+                        ))}
                       </div>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm">
-                    {alert.action}
-                  </Button>
                 </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
 
-      {/* Real-time Monitoring */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Brain className="w-5 h-5 text-purple-600" />
-            Real-time Sentiment Monitoring
-          </CardTitle>
-          <CardDescription>Live sentiment analysis of ongoing interactions</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {realtimeMonitoring.map((interaction) => (
-              <div key={interaction.id} className="border rounded-lg p-4">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-start gap-3">
-                    <div className="text-lg">
-                      {getSentimentIcon(interaction.sentiment)}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-medium text-gray-900">{interaction.customer}</h4>
-                        <Badge className={getSentimentColor(interaction.sentiment)}>
-                          {interaction.sentiment}
-                        </Badge>
-                        <Badge variant="outline" className="text-xs">
-                          {Math.round(interaction.confidence * 100)}% confidence
-                        </Badge>
-                        {interaction.escalated && (
-                          <Badge className="bg-red-100 text-red-800">Escalated</Badge>
-                        )}
+                <div className="bg-white rounded-xl border border-slate-200 p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center shadow-lg">
+                        <TrendingUp className="w-5 h-5 text-white" />
                       </div>
-                      <p className="text-sm text-gray-600 mb-2">
-                        Agent: {interaction.agent} • {interaction.channel} • {interaction.timestamp}
-                      </p>
-                      <p className="text-sm text-gray-800 italic">
-                        "{interaction.lastMessage}"
+                      <div>
+                        <p className="font-medium text-slate-900">Response Rate</p>
+                        <p className="text-sm text-slate-500">Engagement percentage</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl lg:text-3xl font-bold text-slate-900">
+                        {sentimentStats.total > 0 ? ((sentimentStats.positive / sentimentStats.total) * 100).toFixed(1) : '0'}%
                       </p>
                     </div>
                   </div>
-                  <Button variant="ghost" size="sm">
-                    <MessageSquare className="w-4 h-4" />
-                  </Button>
                 </div>
               </div>
-            ))}
+            )}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* Sentiment Trends */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Sentiment Trends</CardTitle>
-          <CardDescription>Sentiment distribution over different time periods</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            {sentimentTrends.map((trend, index) => (
-              <div key={index} className="space-y-2">
+      {/* Recent Activity - AWS-like panel */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="p-6 border-b border-slate-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-slate-900">
+                Recent Activity
+              </h3>
+              <p className="text-sm text-slate-600">Latest sentiment changes and trends</p>
+            </div>
+            <Badge variant="secondary" className="bg-purple-50 text-purple-700 border-purple-200">
+              Live updates
+            </Badge>
+          </div>
+        </div>
+        <div className="p-6">
+          <div className="space-y-4">
+            {filteredResponses.slice(0, 5).map((response) => (
+              <div key={response.id} className="bg-white rounded-xl border border-slate-200 p-4 hover:bg-slate-50 transition-colors">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700">{trend.timeframe}</span>
-                  <div className="flex items-center gap-4 text-sm">
-                    <span className="text-green-600">{trend.positive}% Positive</span>
-                    <span className="text-yellow-600">{trend.neutral}% Neutral</span>
-                    <span className="text-red-600">{trend.negative}% Negative</span>
+                  <div className="flex items-center gap-3">
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shadow-sm ${
+                      response.sentiment === 'positive' ? 'bg-gradient-to-br from-emerald-500 to-teal-600' :
+                      response.sentiment === 'negative' ? 'bg-gradient-to-br from-red-500 to-pink-600' :
+                      'bg-gradient-to-br from-gray-500 to-gray-600'
+                    }`}>
+                      {getSentimentIcon(response.sentiment)}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-slate-900">
+                        {response.sentiment.charAt(0).toUpperCase() + response.sentiment.slice(1)} feedback received
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        {new Date(response.submitted_at).toLocaleDateString()} at {new Date(response.submitted_at).toLocaleTimeString()}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-3 flex overflow-hidden">
-                  <div 
-                    className="bg-green-500 h-3"
-                    style={{ width: `${trend.positive}%` }}
-                  />
-                  <div 
-                    className="bg-yellow-500 h-3"
-                    style={{ width: `${trend.neutral}%` }}
-                  />
-                  <div 
-                    className="bg-red-500 h-3"
-                    style={{ width: `${trend.negative}%` }}
-                  />
+                  <div className="text-right">
+                    <div className="flex items-center gap-1">
+                      {getRatingStars(response.overall_rating)}
+                      <span className="text-sm font-medium text-slate-900">
+                        {response.overall_rating}/5
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500">{response.channel}</p>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };

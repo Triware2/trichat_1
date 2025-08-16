@@ -12,6 +12,8 @@ import { useTickets } from '../tickets/useTickets';
 import { useCRMIntegrations } from '../tickets/useCRMIntegrations';
 import { ChatResolution, DispositionField } from './types';
 import { AlertTriangle, CheckCircle } from 'lucide-react';
+import { customizationService } from '@/services/customizationService';
+import { useEffect } from 'react';
 
 interface DispositionModalProps {
   isOpen: boolean;
@@ -28,16 +30,39 @@ export const DispositionModal = ({
   customerName, 
   onResolve 
 }: DispositionModalProps) => {
-  const { dispositions, dispositionFields, loading, getDispositionsByCategory } = useDispositions();
+  const { dispositions, dispositionFields, loading, getDispositionsByCategory, loadPerDispositionFields } = useDispositions();
   const { createTicket, priorities, categories } = useTickets();
   const { integrations, getActiveIntegrations } = useCRMIntegrations();
   const { toast } = useToast();
   
   const [selectedDisposition, setSelectedDisposition] = useState<string>('');
   const [fieldValues, setFieldValues] = useState<Record<string, string | number>>({});
+  const [ticketFieldValues, setTicketFieldValues] = useState<Record<string, string | number>>({});
   const [additionalNotes, setAdditionalNotes] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [actionType, setActionType] = useState<'resolve' | 'ticket'>('resolve');
+  const [ticketFields, setTicketFields] = useState<DispositionField[]>([]);
+
+  useEffect(() => {
+    const loadTicketFields = async () => {
+      const customTicketFields = await customizationService.listFieldsForObject('tickets');
+      if (customTicketFields && customTicketFields.length > 0) {
+        const mapped: DispositionField[] = customTicketFields.map((f: any) => ({
+          id: f.id,
+          name: f.name,
+          type: f.type,
+          label: f.label,
+          required: !!f.required,
+          placeholder: f.placeholder || '',
+          options: f.options || []
+        }));
+        setTicketFields(mapped);
+      } else {
+        setTicketFields([]);
+      }
+    };
+    loadTicketFields();
+  }, []);
 
   const categorizedDispositions = getDispositionsByCategory();
   const activeIntegrations = getActiveIntegrations();
@@ -70,6 +95,11 @@ export const DispositionModal = ({
       if (activeIntegrations.length === 0) {
         newErrors.ticketCRM = 'No CRM integrations available. Please contact admin.';
       }
+      ticketFields.forEach(field => {
+        if (field.required && !ticketFieldValues[field.name]) {
+          newErrors[`ticket_${field.name}`] = `${field.label} is required`;
+        }
+      });
     }
 
     setErrors(newErrors);
@@ -88,6 +118,14 @@ export const DispositionModal = ({
         ...prev,
         [fieldName]: ''
       }));
+    }
+  };
+
+  const handleTicketFieldChange = (fieldName: string, value: string | number) => {
+    setTicketFieldValues(prev => ({ ...prev, [fieldName]: value }));
+    const key = `ticket_${fieldName}`;
+    if (errors[key]) {
+      setErrors(prev => ({ ...prev, [key]: '' }));
     }
   };
 
@@ -143,7 +181,8 @@ export const DispositionModal = ({
           category: selectedCategory!,
           crmIntegration: selectedCRM,
           tags: [],
-          attachments: []
+          attachments: [],
+          customFields: ticketFieldValues
         };
 
         const ticket = await createTicket(newTicketData);
@@ -152,7 +191,7 @@ export const DispositionModal = ({
         const resolution: ChatResolution = {
           chatId,
           dispositionId: selectedDisposition,
-          fields: { ticketNumber: ticket.ticketNumber, ...fieldValues },
+          fields: { ticketNumber: ticket.ticketNumber, ...fieldValues, ...Object.fromEntries(Object.entries(ticketFieldValues).map(([k,v]) => [`ticket_${k}`, v])) },
           notes: `Ticket raised: ${ticket.ticketNumber}. ${additionalNotes}`,
           resolvedBy: 'Current Agent',
           resolvedAt: new Date().toISOString()
@@ -177,6 +216,7 @@ export const DispositionModal = ({
     // Reset form
     setSelectedDisposition('');
     setFieldValues({});
+    setTicketFieldValues({});
     setAdditionalNotes('');
     setActionType('resolve');
     setErrors({});
@@ -244,6 +284,40 @@ export const DispositionModal = ({
     }
   };
 
+  const renderTicketField = (field: DispositionField) => {
+    const value = ticketFieldValues[field.name] || '';
+    const hasError = !!errors[`ticket_${field.name}`];
+    switch (field.type) {
+      case 'text':
+        return (
+          <Input placeholder={field.placeholder} value={value as string} onChange={(e) => handleTicketFieldChange(field.name, e.target.value)} className={hasError ? 'border-red-500' : ''} />
+        );
+      case 'textarea':
+        return (
+          <Textarea placeholder={field.placeholder} value={value as string} onChange={(e) => handleTicketFieldChange(field.name, e.target.value)} className={hasError ? 'border-red-500' : ''} rows={3} />
+        );
+      case 'number':
+        return (
+          <Input type="number" placeholder={field.placeholder} value={value} onChange={(e) => handleTicketFieldChange(field.name, parseInt(e.target.value) || 0)} className={hasError ? 'border-red-500' : ''} />
+        );
+      case 'select':
+        return (
+          <Select value={value as string} onValueChange={(val) => handleTicketFieldChange(field.name, val)}>
+            <SelectTrigger className={hasError ? 'border-red-500' : ''}>
+              <SelectValue placeholder={`Select ${field.label}`} />
+            </SelectTrigger>
+            <SelectContent>
+              {field.options?.map((option) => (
+                <SelectItem key={option} value={option}>{option}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        );
+      default:
+        return null;
+    }
+  };
+
   if (loading) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
@@ -274,7 +348,7 @@ export const DispositionModal = ({
             </Label>
             <RadioGroup
               value={selectedDisposition}
-              onValueChange={setSelectedDisposition}
+              onValueChange={(val) => { setSelectedDisposition(val); loadPerDispositionFields(val); }}
               className="space-y-3"
             >
               {Object.entries(categorizedDispositions).map(([category, categoryDispositions]) => (
@@ -377,6 +451,23 @@ export const DispositionModal = ({
               </div>
               {errors.ticketCRM && (
                 <p className="text-sm text-red-500">{errors.ticketCRM}</p>
+              )}
+              {ticketFields.length > 0 && (
+                <div className="space-y-3">
+                  <h4 className="text-sm font-medium">Additional Ticket Fields</h4>
+                  {ticketFields.map((field) => (
+                    <div key={field.id} className="space-y-2">
+                      <Label className="text-sm font-medium">
+                        {field.label}
+                        {field.required && <span className="text-red-500 ml-1">*</span>}
+                      </Label>
+                      {renderTicketField(field)}
+                      {errors[`ticket_${field.name}`] && (
+                        <p className="text-sm text-red-500">{errors[`ticket_${field.name}`]}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
           )}

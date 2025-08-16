@@ -150,5 +150,6 @@ export const AdminRoutes = () => (
         </ProtectedRoute>
       } 
     />
+
   </>
 );

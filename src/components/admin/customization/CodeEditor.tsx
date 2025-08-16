@@ -5,95 +5,58 @@ import { ScriptStats } from './code-editor/ScriptStats';
 import { CreateScriptDialog } from './code-editor/CreateScriptDialog';
 import { ScriptsList } from './code-editor/ScriptsList';
 import { CustomScript, NewScript } from './code-editor/types';
+import { useEffect } from 'react';
+import { customizationService } from '@/services/customizationService';
 
 export const CodeEditor = () => {
   const { toast } = useToast();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [customScripts, setCustomScripts] = useState<CustomScript[]>([]);
 
-  const [customScripts] = useState<CustomScript[]>([
-    {
-      id: '1',
-      name: 'Customer Data Validator',
-      description: 'Validates customer data on form submission',
-      language: 'javascript',
-      trigger: 'event',
-      code: `function validateCustomer(data) {
-  if (!data.email || !data.email.includes('@')) {
-    throw new Error('Invalid email address');
-  }
-  
-  if (!data.phone || data.phone.length < 10) {
-    throw new Error('Invalid phone number');
-  }
-  
-  return { valid: true, data };
-}`,
-      status: 'active',
-      lastRun: '2 hours ago',
-      executions: 234,
+  useEffect(() => {
+    const load = async () => {
+      const list = await customizationService.listScripts();
+      const mapped: CustomScript[] = (list || []).map((s: any) => ({
+        id: s.id,
+        name: s.name,
+        description: s.description,
+        language: s.language,
+        trigger: s.trigger,
+        code: s.code,
+        status: s.status,
+        lastRun: s.updated_at || 'recently',
+        executions: s.executions || 0,
+        environment: s.environment || 'production'
+      }));
+      setCustomScripts(mapped);
+    };
+    load();
+  }, []);
+
+  const handleCreateScript = async (newScript: NewScript) => {
+    const created = await customizationService.createScript({
+      name: newScript.name,
+      description: newScript.description,
+      language: newScript.language,
+      trigger: newScript.trigger,
+      code: newScript.code,
       environment: 'production'
-    },
-    {
-      id: '2',
-      name: 'Daily Report Generator',
-      description: 'Generates daily performance reports',
-      language: 'python',
-      trigger: 'scheduled',
-      code: `import json
-from datetime import datetime
-
-def generate_daily_report():
-    report = {
-        'date': datetime.now().isoformat(),
-        'total_tickets': get_ticket_count(),
-        'resolved_tickets': get_resolved_count(),
-        'satisfaction_score': calculate_csat()
-    }
-    
-    return json.dumps(report, indent=2)`,
-      status: 'active',
-      lastRun: '1 day ago',
-      executions: 45,
-      environment: 'production'
-    },
-    {
-      id: '3',
-      name: 'Webhook Data Processor',
-      description: 'Processes incoming webhook data from external systems',
-      language: 'typescript',
-      trigger: 'webhook',
-      code: `interface WebhookPayload {
-  event: string;
-  data: any;
-  timestamp: number;
-}
-
-export async function processWebhook(payload: WebhookPayload) {
-  console.log('Processing webhook:', payload.event);
-  
-  switch (payload.event) {
-    case 'customer.created':
-      await handleNewCustomer(payload.data);
-      break;
-    case 'ticket.updated':
-      await handleTicketUpdate(payload.data);
-      break;
-    default:
-      console.warn('Unknown event type:', payload.event);
-  }
-}`,
-      status: 'testing',
-      lastRun: '30 minutes ago',
-      executions: 12,
-      environment: 'sandbox'
-    }
-  ]);
-
-  const handleCreateScript = (newScript: NewScript) => {
-    toast({
-      title: "Script Created",
-      description: `${newScript.name} has been created successfully.`,
     });
+    if (created) {
+      setCustomScripts(prev => [{
+        id: created.id,
+        name: created.name,
+        description: created.description,
+        language: created.language,
+        trigger: created.trigger,
+        code: created.code,
+        status: created.status,
+        lastRun: created.updated_at,
+        executions: created.executions || 0,
+        environment: created.environment
+      }, ...prev]);
+    }
+    toast({ title: 'Script Created', description: `${newScript.name} has been created successfully.` });
   };
 
   return (

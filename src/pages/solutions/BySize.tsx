@@ -4,9 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { MessageSquare, Rocket, Building2, Globe, Crown, Users, TrendingUp, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useFavicon } from '@/hooks/use-favicon';
 
 const BySize = () => {
   const navigate = useNavigate();
+  useFavicon('landing');
 
   const organizationSizes = [
     {

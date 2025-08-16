@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { customizationService } from '@/services/customizationService';
 import { 
   Link, 
   Plus, 
@@ -21,6 +22,8 @@ import {
   CreditCard,
   Users
 } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 
 interface Integration {
   id: string;
@@ -38,7 +41,11 @@ interface Integration {
 export const IntegrationManager = () => {
   const { toast } = useToast();
   const [isConnectOpen, setIsConnectOpen] = useState(false);
-
+  const [editing, setEditing] = useState<any | null>(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+  const [search, setSearch] = useState('');
   const [integrations] = useState<Integration[]>([
     {
       id: '1',
@@ -101,6 +108,8 @@ export const IntegrationManager = () => {
       color: 'orange'
     }
   ]);
+  const total = integrations.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   const availableIntegrations = [
     { name: 'Microsoft Dynamics', category: 'CRM', icon: Database },
@@ -111,8 +120,9 @@ export const IntegrationManager = () => {
     { name: 'AWS Services', category: 'Cloud', icon: Globe }
   ];
 
-  const handleToggleIntegration = (integrationId: string, currentStatus: string) => {
+  const handleToggleIntegration = async (integrationId: string, currentStatus: string) => {
     const newStatus = currentStatus === 'connected' ? 'disconnected' : 'connected';
+    await customizationService.toggleIntegration(integrationId, newStatus as any);
     toast({
       title: `Integration ${newStatus === 'connected' ? 'Connected' : 'Disconnected'}`,
       description: `The integration has been ${newStatus === 'connected' ? 'enabled' : 'disabled'}.`,
@@ -249,8 +259,19 @@ export const IntegrationManager = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="flex items-center justify-between mb-3">
+            <Input placeholder="Search integrations..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} className="max-w-sm" />
+            <div className="flex items-center gap-2 text-sm">
+              <Button variant="outline" size="sm" disabled={page===1} onClick={() => setPage(p => Math.max(1, p-1))}>Prev</Button>
+              <span>Page {page} of {totalPages}</span>
+              <Button variant="outline" size="sm" disabled={page>=totalPages} onClick={() => setPage(p => Math.min(totalPages, p+1))}>Next</Button>
+            </div>
+          </div>
           <div className="space-y-4">
-            {integrations.map((integration) => {
+            {integrations
+              .filter(i => !search || i.name.toLowerCase().includes(search.toLowerCase()) || i.provider.toLowerCase().includes(search.toLowerCase()))
+              .slice((page-1)*pageSize, page*pageSize)
+              .map((integration) => {
               const Icon = integration.icon;
               return (
                 <div key={integration.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
@@ -291,7 +312,7 @@ export const IntegrationManager = () => {
                         <Play className="w-4 h-4" />
                       )}
                     </Button>
-                    <Button variant="ghost" size="sm">
+                    <Button variant="ghost" size="sm" onClick={() => { setEditing(integration); setIsEditOpen(true); }}>
                       <Settings className="w-4 h-4" />
                     </Button>
                   </div>
@@ -355,6 +376,30 @@ export const IntegrationManager = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Edit Integration Dialog */}
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent className="bg-white max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Integration</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Name</Label>
+              <Input value={editing?.name || ''} onChange={(e) => setEditing((prev: any) => prev ? { ...prev, name: e.target.value } : prev)} />
+            </div>
+            <div>
+              <Label>Provider</Label>
+              <Input value={editing?.provider || ''} onChange={(e) => setEditing((prev: any) => prev ? { ...prev, provider: e.target.value } : prev)} />
+            </div>
+            <div>
+              <Label>Category</Label>
+              <Input value={editing?.category || ''} onChange={(e) => setEditing((prev: any) => prev ? { ...prev, category: e.target.value } : prev)} />
+            </div>
+            <Button onClick={async () => { if (!editing) return; await customizationService.updateIntegration(editing.id, { name: editing.name, provider: editing.provider, category: editing.category }); toast({ title: 'Integration Updated', description: 'Changes saved successfully.' }); setIsEditOpen(false); }} className="w-full">Save Changes</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -21,80 +21,193 @@ import {
   Edit,
   Trash2,
   Play,
-  Pause
+  Pause,
+  Loader2
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { ChatChannel } from './types';
+import { chatManagementService, ChatChannel } from '@/services/chatManagementService';
+import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
-export const ChannelManagement = () => {
+interface ChannelManagementProps {
+  onChannelUpdate?: () => void;
+}
+
+export const ChannelManagement = ({ onChannelUpdate }: ChannelManagementProps) => {
   const [channels, setChannels] = useState<ChatChannel[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [editingChannel, setEditingChannel] = useState<ChatChannel | null>(null);
+  const [newChannel, setNewChannel] = useState({
+    name: '',
+    type: 'website' as const,
+    status: 'active' as const,
+    priority: 'medium' as const,
+    max_concurrent_chats: 50,
+    current_active_chats: 0,
+    business_hours: {
+      enabled: false,
+      timezone: 'UTC',
+      schedule: {}
+    },
+    auto_response: {
+      enabled: false,
+      message: '',
+      delay: 0
+    },
+    routing: {
+      type: 'round_robin' as const,
+      fallback_agent: null,
+      skill_requirements: []
+    },
+    config: {},
+    is_active: true
+  });
+  const { toast } = useToast();
 
-  // Fetch channels from Supabase
-  useEffect(() => {
-    const fetchChannels = async () => {
+  // Fetch channels from service
+  const fetchChannels = async () => {
+    try {
       setLoading(true);
       setError(null);
-      const { data, error } = await supabase.from('channels').select('*');
-      if (error) {
-        setError('Failed to fetch channels');
-        setLoading(false);
-        return;
-      }
-      setChannels(data || []);
+      const data = await chatManagementService.getChannels();
+      setChannels(data);
+    } catch (err: any) {
+      setError(err.message);
+      toast({
+        title: "Error",
+        description: "Failed to fetch channels",
+        variant: "destructive"
+      });
+    } finally {
       setLoading(false);
-    };
+    }
+  };
+
+  useEffect(() => {
     fetchChannels();
   }, []);
 
   // Add Channel
-  const addChannel = async (channel: ChatChannel) => {
-    setLoading(true);
-    setError(null);
-    const { error } = await supabase.from('channels').insert(channel);
-    if (error) {
-      setError('Failed to add channel');
+  const addChannel = async (channel: Omit<ChatChannel, 'id' | 'created_at' | 'updated_at'>) => {
+    try {
+      setLoading(true);
+      await chatManagementService.createChannel(channel);
+      await fetchChannels();
+      onChannelUpdate?.();
+      toast({
+        title: "Success",
+        description: "Channel created successfully",
+      });
+      setIsAddDialogOpen(false);
+      // Reset form
+      setNewChannel({
+        name: '',
+        type: 'website' as const,
+        status: 'active' as const,
+        priority: 'medium' as const,
+        max_concurrent_chats: 50,
+        current_active_chats: 0,
+        business_hours: {
+          enabled: false,
+          timezone: 'UTC',
+          schedule: {}
+        },
+        auto_response: {
+          enabled: false,
+          message: '',
+          delay: 0
+        },
+        routing: {
+          type: 'round_robin' as const,
+          fallback_agent: null,
+          skill_requirements: []
+        },
+        config: {},
+        is_active: true
+      });
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message,
+        variant: "destructive"
+      });
+    } finally {
       setLoading(false);
+    }
+  };
+
+  // Handle form submission
+  const handleCreateChannel = async () => {
+    if (!newChannel.name.trim()) {
+      toast({
+        title: "Error",
+        description: "Channel name is required",
+        variant: "destructive"
+      });
       return;
     }
-    // Refetch channels
-    const { data } = await supabase.from('channels').select('*');
-    setChannels(data || []);
-    setLoading(false);
+    
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "User not authenticated",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    await addChannel({
+      ...newChannel,
+      created_by: user.id
+    });
   };
 
   // Update Channel
-  const updateChannel = async (channel: ChatChannel) => {
-    setLoading(true);
-    setError(null);
-    const { error } = await supabase.from('channels').update(channel).eq('id', channel.id);
-    if (error) {
-      setError('Failed to update channel');
+  const updateChannel = async (id: string, updates: Partial<ChatChannel>) => {
+    try {
+      setLoading(true);
+      await chatManagementService.updateChannel(id, updates);
+      await fetchChannels();
+      onChannelUpdate?.();
+      toast({
+        title: "Success",
+        description: "Channel updated successfully",
+      });
+      setEditingChannel(null);
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message,
+        variant: "destructive"
+      });
+    } finally {
       setLoading(false);
-      return;
     }
-    // Refetch channels
-    const { data } = await supabase.from('channels').select('*');
-    setChannels(data || []);
-    setLoading(false);
   };
 
   // Delete Channel
   const deleteChannel = async (channelId: string) => {
-    setLoading(true);
-    setError(null);
-    const { error } = await supabase.from('channels').delete().eq('id', channelId);
-    if (error) {
-      setError('Failed to delete channel');
+    try {
+      setLoading(true);
+      await chatManagementService.deleteChannel(channelId);
+      await fetchChannels();
+      onChannelUpdate?.();
+      toast({
+        title: "Success",
+        description: "Channel deleted successfully",
+      });
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message,
+        variant: "destructive"
+      });
+    } finally {
       setLoading(false);
-      return;
     }
-    // Refetch channels
-    const { data } = await supabase.from('channels').select('*');
-    setChannels(data || []);
-    setLoading(false);
   };
 
   // Toggle Channel Status
@@ -102,7 +215,7 @@ export const ChannelManagement = () => {
     const channel = channels.find((c) => c.id === channelId);
     if (!channel) return;
     const newStatus = channel.status === 'active' ? 'inactive' : 'active';
-    await updateChannel({ ...channel, status: newStatus });
+    await updateChannel(channelId, { status: newStatus });
   };
 
   const getChannelIcon = (type: string) => {
@@ -129,9 +242,8 @@ export const ChannelManagement = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Channel Management</h2>
-        <Dialog>
+      <div className="flex justify-end items-center">
+        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="w-4 h-4 mr-2" />
@@ -145,7 +257,10 @@ export const ChannelManagement = () => {
             <div className="grid grid-cols-2 gap-4 py-4">
               <div className="space-y-2">
                 <Label>Channel Type</Label>
-                <Select>
+                <Select 
+                  value={newChannel.type} 
+                  onValueChange={(value) => setNewChannel(prev => ({ ...prev, type: value as any }))}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select channel type" />
                   </SelectTrigger>
@@ -162,11 +277,18 @@ export const ChannelManagement = () => {
               </div>
               <div className="space-y-2">
                 <Label>Channel Name</Label>
-                <Input placeholder="Enter channel name" />
+                <Input 
+                  placeholder="Enter channel name" 
+                  value={newChannel.name}
+                  onChange={(e) => setNewChannel(prev => ({ ...prev, name: e.target.value }))}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Priority</Label>
-                <Select>
+                <Select 
+                  value={newChannel.priority} 
+                  onValueChange={(value) => setNewChannel(prev => ({ ...prev, priority: value as any }))}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select priority" />
                   </SelectTrigger>
@@ -179,12 +301,28 @@ export const ChannelManagement = () => {
               </div>
               <div className="space-y-2">
                 <Label>Max Concurrent Chats</Label>
-                <Input type="number" placeholder="50" />
+                <Input 
+                  type="number" 
+                  placeholder="50" 
+                  value={newChannel.max_concurrent_chats}
+                  onChange={(e) => setNewChannel(prev => ({ ...prev, max_concurrent_chats: parseInt(e.target.value) || 50 }))}
+                />
               </div>
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline">Cancel</Button>
-              <Button>Create Channel</Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setIsAddDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleCreateChannel}
+                disabled={loading}
+              >
+                {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                Create Channel
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -229,9 +367,9 @@ export const ChannelManagement = () => {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Active Chats</span>
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold">{channel.currentActiveChats}</span>
+                  <span className="font-semibold">{channel.current_active_chats}</span>
                   <span className="text-gray-400">/</span>
-                  <span className="text-gray-600">{channel.maxConcurrentChats}</span>
+                  <span className="text-gray-600">{channel.max_concurrent_chats}</span>
                 </div>
               </div>
 
@@ -240,7 +378,7 @@ export const ChannelManagement = () => {
                 <div 
                   className="bg-blue-600 h-2 rounded-full" 
                   style={{ 
-                    width: `${(channel.currentActiveChats / channel.maxConcurrentChats) * 100}%` 
+                    width: `${(channel.current_active_chats / channel.max_concurrent_chats) * 100}%` 
                   }}
                 />
               </div>
@@ -249,9 +387,11 @@ export const ChannelManagement = () => {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Business Hours</span>
                 <Switch 
-                  checked={channel.businessHours.enabled}
+                  checked={channel.business_hours.enabled}
                   onCheckedChange={(checked) => {
-                    updateChannel({ ...channel, businessHours: { ...channel.businessHours, enabled: checked } });
+                    updateChannel(channel.id, { 
+                      business_hours: { ...channel.business_hours, enabled: checked } 
+                    });
                   }}
                 />
               </div>
@@ -260,9 +400,11 @@ export const ChannelManagement = () => {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Auto Response</span>
                 <Switch 
-                  checked={channel.autoResponse.enabled}
+                  checked={channel.auto_response.enabled}
                   onCheckedChange={(checked) => {
-                    updateChannel({ ...channel, autoResponse: { ...channel.autoResponse, enabled: checked } });
+                    updateChannel(channel.id, { 
+                      auto_response: { ...channel.auto_response, enabled: checked } 
+                    });
                   }}
                 />
               </div>

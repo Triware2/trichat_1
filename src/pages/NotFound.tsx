@@ -1,8 +1,10 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { useFavicon } from '@/hooks/use-favicon';
 
 const NotFound = () => {
   const location = useLocation();
+  useFavicon('landing');
 
   useEffect(() => {
     console.error(

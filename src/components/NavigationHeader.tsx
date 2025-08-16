@@ -16,12 +16,14 @@ import {
   LogOut, 
   User,
   Search,
-  Loader2
+  Loader2,
+  MessageSquare
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/use-auth';
+import { useFavicon } from '@/hooks/use-favicon';
 
 interface Notification {
   id: string;
@@ -46,6 +48,9 @@ export const NavigationHeader = ({ title, role = 'admin', userEmail = 'user@tric
   const [searchLoading, setSearchLoading] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [hasUnread, setHasUnread] = useState(false);
+
+  // Update favicon based on role
+  useFavicon(role);
 
   useEffect(() => {
     if (!user) return;
@@ -109,15 +114,31 @@ export const NavigationHeader = ({ title, role = 'admin', userEmail = 'user@tric
     
     switch (role) {
       case 'admin':
-        return 'from-red-500 to-orange-500';
+        return 'from-orange-500 to-orange-600';
       case 'supervisor':
-        return 'from-blue-500 to-cyan-500';
+        return 'from-blue-500 to-blue-600';
       case 'agent':
-        return 'from-emerald-500 to-teal-500';
+        return 'from-[#11b890] to-[#0ea373]';
       default:
         return 'from-blue-600 to-purple-600';
     }
   };
+
+  // Custom Chat Bubble Logo Component
+  const ChatBubbleLogo = () => (
+    <div className="relative w-5 h-5">
+      {/* Chat bubble shape */}
+      <div className="w-5 h-4 bg-white rounded-lg relative">
+        {/* Two dots inside the bubble */}
+        <div className="absolute inset-0 flex items-center justify-center space-x-1">
+          <div className="w-1 h-1 bg-current rounded-full opacity-60"></div>
+          <div className="w-1 h-1 bg-current rounded-full opacity-60"></div>
+        </div>
+      </div>
+      {/* Chat bubble tail */}
+      <div className="absolute -bottom-0.5 left-1 w-1.5 h-1.5 bg-white transform rotate-45 rounded-br-sm"></div>
+    </div>
+  );
 
   const handleLogout = async () => {
     await signOut();
@@ -187,186 +208,184 @@ export const NavigationHeader = ({ title, role = 'admin', userEmail = 'user@tric
 
   return (
     <header className="bg-white shadow-md sticky top-0 z-50 border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-        {/* Left side */}
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            {/* Google Cloud-inspired Logo */}
+      <div className="w-full flex items-center justify-between h-16">
+          {/* Left side - Logo and Brand */}
+          <div className="flex items-center space-x-4 pl-4 sm:pl-6">
             <div className="flex items-center space-x-3">
-              <div className="relative">
-                <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center shadow-lg">
-                  {/* You can add a cloud icon or keep your current logo here */}
-                  <span className="text-white font-bold text-xl">T</span>
-                </div>
+              {/* Logo with role-based gradient */}
+              <div className={`w-9 h-9 bg-gradient-to-br ${getTrichatLogoGradient(role, title)} rounded-lg flex items-center justify-center shadow-lg`}>
+                <ChatBubbleLogo />
               </div>
               <span className="font-semibold text-xl text-gray-900 tracking-tight">Trichat</span>
-              <span className="ml-2 px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-xs font-semibold">Supervisor Dashboard</span>
+            </div>
+            
+            {/* Title only (desktop) */}
+            <div className="hidden md:flex items-center space-x-2">
+              <span className="text-gray-400">|</span>
+              <h1 className="text-lg font-lexend font-medium text-gray-900">{title}</h1>
             </div>
           </div>
-          <div className="hidden md:flex items-center space-x-2">
-            <span className="text-gray-400">|</span>
-            <h1 className="text-lg font-lexend font-medium text-gray-900">{title}</h1>
-            <Badge className={getRoleBadgeColor(role)}>
-              {role.charAt(0).toUpperCase() + role.slice(1)}
-            </Badge>
-          </div>
-        </div>
 
-        {/* Center - Search (only for agents) */}
-        {role === 'agent' && (
-          <div className="hidden md:flex flex-1 max-w-md mx-8">
-            <form onSubmit={handleSearch} className="w-full">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  placeholder="Search conversations, customers, or content..."
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    if (!e.target.value) setSearchOpen(false);
-                  }}
-                  onFocus={() => searchResults.chats.length + searchResults.messages.length + searchResults.customers.length + searchResults.agents.length > 0 && setSearchOpen(true)}
-                  className="pl-10 border-gray-200 focus:border-emerald-300 focus:ring-emerald-200 bg-gray-50"
-                />
-                {/* Dropdown for search results */}
-                {searchOpen && (
-                  <div className="absolute left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-slate-100 z-50 max-h-96 overflow-y-auto">
-                    {searchLoading ? (
-                      <div className="flex items-center justify-center py-8">
-                        <Loader2 className="animate-spin w-6 h-6 text-emerald-500" />
-                      </div>
-                    ) : (
-                      <>
-                        {searchResults.chats.length > 0 && (
-                          <div>
-                            <div className="px-4 pt-3 pb-1 text-xs font-semibold text-slate-500">Chats</div>
-                            {searchResults.chats.map((chat) => (
-                              <div key={chat.id} className="px-4 py-2 hover:bg-emerald-50 cursor-pointer flex flex-col gap-0.5" onClick={() => handleResultClick('chat', chat.id)}>
-                                <span className="font-medium text-slate-800">{chat.customer}</span>
-                                <span className="text-xs text-slate-400 truncate">{chat.subject}</span>
-                                <span className="text-xs text-slate-300">Chat ID: {chat.id}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        {searchResults.customers && searchResults.customers.length > 0 && (
-                          <div>
-                            <div className="px-4 pt-3 pb-1 text-xs font-semibold text-slate-500">Customers</div>
-                            {searchResults.customers.map((cust) => (
-                              <div key={cust.id} className="px-4 py-2 hover:bg-orange-50 cursor-pointer flex flex-col gap-0.5" onClick={() => handleResultClick('customer', cust.id)}>
-                                <span className="font-medium text-orange-700">{cust.name}</span>
-                                <span className="text-xs text-slate-400">{cust.email || cust.phone}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        {searchResults.agents && searchResults.agents.length > 0 && (
-                          <div>
-                            <div className="px-4 pt-3 pb-1 text-xs font-semibold text-slate-500">Agents</div>
-                            {searchResults.agents.map((agent) => (
-                              <div key={agent.id} className="px-4 py-2 hover:bg-green-50 cursor-pointer flex flex-col gap-0.5" onClick={() => handleResultClick('agent', agent.id)}>
-                                <span className="font-medium text-green-700">{agent.full_name}</span>
-                                <span className="text-xs text-slate-400">{agent.email}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        {searchResults.messages.length > 0 && (
-                          <div>
-                            <div className="px-4 pt-3 pb-1 text-xs font-semibold text-slate-500">Messages</div>
-                            {searchResults.messages.map((msg) => (
-                              <div key={msg.id} className="px-4 py-2 hover:bg-blue-50 cursor-pointer flex flex-col gap-0.5" onClick={() => handleResultClick('message', msg.id, msg)}>
-                                <span className="text-slate-700 text-sm truncate">{msg.content}</span>
-                                <span className="text-xs text-slate-400">In Chat: {msg.chat_id}</span>
-                                <span className="text-xs text-slate-300">{new Date(msg.created_at).toLocaleString()}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        {searchResults.chats.length + searchResults.messages.length + searchResults.customers.length + searchResults.agents.length === 0 && (
-                          <div className="px-4 py-8 text-center text-slate-400">No results found.</div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
-            </form>
-          </div>
-        )}
-
-        {/* Right side */}
-        <div className="flex items-center space-x-4">
-          {/* Mobile search button for agents */}
+          {/* Center - Search (only for agents) */}
           {role === 'agent' && (
-            <Button variant="ghost" size="sm" className="md:hidden">
-              <Search className="w-5 h-5" />
-            </Button>
-          )}
+            <div className="hidden md:flex flex-1 max-w-md mx-8">
+              <form onSubmit={handleSearch} className="w-full">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    type="text"
+                    placeholder="Search conversations, customers, or content..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => setSearchOpen(true)}
+                    className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  {searchLoading && (
+                    <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 animate-spin" />
+                  )}
+                </div>
+              </form>
 
-          {/* Notifications */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative rounded-full w-10 h-10">
-                <Bell className="w-5 h-5" />
-                {hasUnread && (
-                  <span className="absolute top-2 right-2 flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-                  </span>
-                )}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80">
-              <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {notifications.length > 0 ? (
-                notifications.map(n => (
-                  <DropdownMenuItem key={n.id} className="flex flex-col items-start gap-1">
-                    <p className={`text-sm font-medium ${!n.is_read ? 'text-slate-800' : 'text-slate-500'}`}>{n.message}</p>
-                    <p className="text-xs text-slate-400">{new Date(n.created_at).toLocaleString()}</p>
-                  </DropdownMenuItem>
-                ))
-              ) : (
-                <div className="p-4 text-center text-sm text-gray-500">
-                  No new notifications
+              {/* Search Results Dropdown */}
+              {searchOpen && searchQuery && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+                  {searchResults.chats.length === 0 && searchResults.messages.length === 0 && searchResults.customers.length === 0 && searchResults.agents.length === 0 ? (
+                    <div className="p-4 text-center text-gray-500">No results found</div>
+                  ) : (
+                    <div className="p-2">
+                      {searchResults.chats.length > 0 && (
+                        <div className="mb-2">
+                          <div className="px-2 py-1 text-xs font-semibold text-gray-500 uppercase tracking-wide">Chats</div>
+                          {searchResults.chats.map((chat: any) => (
+                            <button
+                              key={chat.id}
+                              onClick={() => handleResultClick('chat', chat.id)}
+                              className="w-full text-left px-2 py-2 hover:bg-gray-100 rounded flex items-center space-x-2"
+                            >
+                              <MessageSquare className="w-4 h-4 text-blue-500" />
+                              <span className="truncate">Chat with {chat.customer_name || 'Unknown'}</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      {searchResults.customers.length > 0 && (
+                        <div className="mb-2">
+                          <div className="px-2 py-1 text-xs font-semibold text-gray-500 uppercase tracking-wide">Customers</div>
+                          {searchResults.customers.map((customer: any) => (
+                            <button
+                              key={customer.id}
+                              onClick={() => handleResultClick('customer', customer.id)}
+                              className="w-full text-left px-2 py-2 hover:bg-gray-100 rounded flex items-center space-x-2"
+                            >
+                              <User className="w-4 h-4 text-green-500" />
+                              <span className="truncate">{customer.name || customer.email}</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      {searchResults.agents.length > 0 && (
+                        <div className="mb-2">
+                          <div className="px-2 py-1 text-xs font-semibold text-gray-500 uppercase tracking-wide">Agents</div>
+                          {searchResults.agents.map((agent: any) => (
+                            <button
+                              key={agent.id}
+                              onClick={() => handleResultClick('agent', agent.id)}
+                              className="w-full text-left px-2 py-2 hover:bg-gray-100 rounded flex items-center space-x-2"
+                            >
+                              <User className="w-4 h-4 text-purple-500" />
+                              <span className="truncate">{agent.full_name || agent.email}</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      {searchResults.messages.length > 0 && (
+                        <div>
+                          <div className="px-2 py-1 text-xs font-semibold text-gray-500 uppercase tracking-wide">Messages</div>
+                          {searchResults.messages.map((message: any) => (
+                            <button
+                              key={message.id}
+                              onClick={() => handleResultClick('message', message.id, { chat_id: message.chat_id })}
+                              className="w-full text-left px-2 py-2 hover:bg-gray-100 rounded"
+                            >
+                              <div className="truncate text-sm">{message.content}</div>
+                              <div className="text-xs text-gray-500">in chat {message.chat_id}</div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+            </div>
+          )}
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+          {/* Right side - Notifications and User */}
+          <div className="flex items-center space-x-4 pr-4 sm:pr-6 lg:pr-8">
+            {/* Notifications */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative rounded-full">
+                  <Bell className="w-5 h-5 text-gray-600" />
+                  {hasUnread && (
+                    <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-80">
+                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <div className="max-h-96 overflow-y-auto">
+                  {notifications.length === 0 ? (
+                    <div className="p-4 text-center text-gray-500">No notifications</div>
+                  ) : (
+                    notifications.slice(0, 10).map((notification) => (
+                      <DropdownMenuItem key={notification.id} className="flex flex-col items-start p-3">
+                        <div className="font-medium text-sm">{notification.message}</div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          {new Date(notification.created_at).toLocaleString()}
+                        </div>
+                      </DropdownMenuItem>
+                    ))
+                  )}
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="rounded-full">
                 <Avatar className="w-9 h-9">
                   <AvatarImage src={user?.user_metadata?.avatar_url} alt={user?.user_metadata?.name} />
                   <AvatarFallback>{user?.email?.[0].toUpperCase()}</AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel>
                 <div className="font-semibold">{user?.user_metadata?.name || 'User'}</div>
                 <div className="text-xs text-gray-500">{user?.email}</div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => navigate('/agent/profile')}>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate(`/${role}/profile`)}>
                 <User className="w-4 h-4 mr-2" />
                 Profile
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate('/agent/settings')}>
+              <DropdownMenuItem onClick={() => navigate(`/${role}/settings`)}>
                 <Settings className="w-4 h-4 mr-2" />
                 Settings
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
+                <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>
                 <LogOut className="w-4 h-4 mr-2" />
                 Logout
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
         </div>
       </div>
     </header>
   );
 };
+
+

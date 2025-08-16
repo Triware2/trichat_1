@@ -4,9 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { MessageSquare, FileText, Video, Users, BookOpen, Download, Calendar, ArrowRight, ExternalLink, DollarSign, Zap, Shield, Globe, Bot, BarChart3, Headphones } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useFavicon } from '@/hooks/use-favicon';
 
 const Resources = () => {
   const navigate = useNavigate();
+  useFavicon('landing');
 
   const platformOverview = {
     totalFeatures: "200+",

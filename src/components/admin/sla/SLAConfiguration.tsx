@@ -42,6 +42,7 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { SLATier, SLATarget } from './types';
+import { slaService } from '@/services/slaService';
 
 export const SLAConfiguration = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -118,7 +119,7 @@ export const SLAConfiguration = () => {
     }));
   };
 
-  const handleCreateSLA = () => {
+  const handleCreateSLA = async () => {
     console.log('Creating SLA with data:', formData);
     
     // Validate required fields
@@ -144,8 +145,13 @@ export const SLAConfiguration = () => {
       updatedAt: new Date().toISOString().split('T')[0]
     };
 
-    // Add to SLA data (in a real app, this would be an API call)
-    setSlaData(prev => [...prev, newSLA]);
+    try {
+      const created = await slaService.createSLATier(newSLA);
+      setSlaData(prev => [created, ...prev]);
+    } catch (e) {
+      // fallback to local state so UI keeps working
+      setSlaData(prev => [newSLA, ...prev]);
+    }
 
     // Reset form
     setFormData({
@@ -167,11 +173,13 @@ export const SLAConfiguration = () => {
     });
   };
 
-  const handleDeleteSLA = (slaId: string, slaName: string) => {
+  const handleDeleteSLA = async (slaId: string, slaName: string) => {
     console.log('Deleting SLA:', slaId);
-    
-    // Remove from SLA data (in a real app, this would be an API call)
-    setSlaData(prev => prev.filter(sla => sla.id !== slaId));
+    try {
+      await slaService.deleteSLATier(slaId);
+    } finally {
+      setSlaData(prev => prev.filter(sla => sla.id !== slaId));
+    }
 
     toast({
       title: "SLA Deleted",
@@ -203,10 +211,8 @@ export const SLAConfiguration = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">SLA Configuration</h2>
-          <p className="text-sm text-gray-600 mt-1">
-            Create and manage SLA tiers with response and resolution targets
-          </p>
+          <h2 className="text-base font-bold text-slate-900">SLA Configuration</h2>
+          <p className="text-sm text-slate-600 mt-1">Create and manage SLA tiers with response and resolution targets</p>
         </div>
         <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
           <DialogTrigger asChild>

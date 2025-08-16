@@ -44,45 +44,20 @@ import {
   Smartphone
 } from 'lucide-react';
 import { EscalationRule } from './types';
+import { slaService } from '@/services/slaService';
+import { useEffect } from 'react';
 
 export const EscalationManagement = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [rules, setRules] = useState<EscalationRule[]>([]);
 
-  const mockEscalationRules: EscalationRule[] = [
-    {
-      id: '1',
-      slaId: '1',
-      name: 'Critical Issue Escalation',
-      triggerType: 'priority-based',
-      triggerCondition: 'priority = critical AND no_response > 15m',
-      escalationLevel: 1,
-      escalateTo: 'senior-agents-team',
-      notificationMethods: ['email', 'sms', 'in-app'],
-      isActive: true
-    },
-    {
-      id: '2',
-      slaId: '1',
-      name: 'SLA Breach Warning',
-      triggerType: 'time-based',
-      triggerCondition: 'time_remaining < 30m',
-      escalationLevel: 1,
-      escalateTo: 'supervisor-team',
-      notificationMethods: ['in-app', 'email'],
-      isActive: true
-    },
-    {
-      id: '3',
-      slaId: '2',
-      name: 'Resolution Delay',
-      triggerType: 'breach-imminent',
-      triggerCondition: 'resolution_time > 90% AND not_resolved',
-      escalationLevel: 2,
-      escalateTo: 'management-team',
-      notificationMethods: ['email', 'sms'],
-      isActive: true
-    }
-  ];
+  useEffect(() => {
+    const load = async () => {
+      const r = await slaService.listEscalationRules();
+      setRules(r);
+    };
+    load();
+  }, []);
 
   const getNotificationIcon = (method: string) => {
     switch (method) {
@@ -107,10 +82,8 @@ export const EscalationManagement = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">Escalation Management</h2>
-          <p className="text-sm text-gray-600 mt-1">
-            Configure automated escalation rules and notification pathways
-          </p>
+          <h2 className="text-base font-bold text-slate-900">Escalation Management</h2>
+          <p className="text-sm text-slate-600 mt-1">Configure automated escalation rules and notification pathways</p>
         </div>
         <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
           <DialogTrigger asChild>
@@ -227,7 +200,20 @@ export const EscalationManagement = () => {
               <Button variant="outline" onClick={() => setIsCreateModalOpen(false)}>
                 Cancel
               </Button>
-              <Button className="bg-blue-600 hover:bg-blue-700">Create Rule</Button>
+              <Button className="bg-blue-600 hover:bg-blue-700" onClick={async () => {
+                const created = await slaService.createEscalationRule({
+                  slaId: '1',
+                  name: 'New Rule',
+                  triggerType: 'time-based',
+                  triggerCondition: 'time_remaining < 15m',
+                  escalationLevel: 1,
+                  escalateTo: 'supervisor-team',
+                  notificationMethods: ['in-app'],
+                  isActive: true
+                });
+                setRules(prev => [created, ...prev]);
+                setIsCreateModalOpen(false);
+              }}>Create Rule</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -236,7 +222,7 @@ export const EscalationManagement = () => {
       {/* Escalation Rules */}
       <Card className="border border-gray-200">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-base font-bold">
             <ArrowUp className="w-5 h-5 text-blue-600" />
             Escalation Rules
           </CardTitle>
@@ -259,7 +245,7 @@ export const EscalationManagement = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mockEscalationRules.map((rule) => (
+              {rules.map((rule) => (
                 <TableRow key={rule.id}>
                   <TableCell className="font-medium">{rule.name}</TableCell>
                   <TableCell>
@@ -275,7 +261,7 @@ export const EscalationManagement = () => {
                   <TableCell>
                     <Badge variant="outline">Level {rule.escalationLevel}</Badge>
                   </TableCell>
-                  <TableCell className="text-sm">{rule.escalateTo.replace('-', ' ')}</TableCell>
+                  <TableCell className="text-sm">{rule.escalateTo?.replace?.('-', ' ') || rule.escalateTo}</TableCell>
                   <TableCell>
                     <div className="flex gap-1">
                       {rule.notificationMethods.map((method, index) => (
@@ -292,10 +278,16 @@ export const EscalationManagement = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-1">
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" onClick={async () => {
+                        await slaService.updateEscalationRule(rule.id, { isActive: !rule.isActive });
+                        setRules(prev => prev.map(r => r.id === rule.id ? { ...r, isActive: !r.isActive } : r));
+                      }}>
                         <Edit className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
+                      <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700" onClick={async () => {
+                        await slaService.deleteEscalationRule(rule.id);
+                        setRules(prev => prev.filter(r => r.id !== rule.id));
+                      }}>
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
@@ -310,7 +302,7 @@ export const EscalationManagement = () => {
       {/* Escalation Paths Visualization */}
       <Card className="border border-gray-200">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-base font-bold">
             <Users className="w-5 h-5 text-blue-600" />
             Escalation Paths
           </CardTitle>

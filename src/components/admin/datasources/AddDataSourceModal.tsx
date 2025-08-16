@@ -251,6 +251,57 @@ export const AddDataSourceModal = ({
                 </div>
               </div>
             )}
+
+            {type === 'crm' && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Provider</Label>
+                    <Input
+                      placeholder="salesforce | hubspot"
+                      value={config.provider || ''}
+                      onChange={(e) => setConfig(prev => ({ ...prev, provider: e.target.value }))}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Access Token</Label>
+                    <Input
+                      type="password"
+                      placeholder="Paste OAuth access token"
+                      value={config.integration?.accessToken || ''}
+                      onChange={(e) => setConfig(prev => ({
+                        ...prev,
+                        integration: { ...(prev.integration||{}), accessToken: e.target.value }
+                      }))}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {type === 'ecommerce' && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Platform</Label>
+                    <Input
+                      placeholder="shopify | woocommerce"
+                      value={config.platform || ''}
+                      onChange={(e) => setConfig(prev => ({ ...prev, platform: e.target.value }))}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>API Key</Label>
+                    <Input
+                      type="password"
+                      placeholder="Your platform API key"
+                      value={config.apiKey || ''}
+                      onChange={(e) => setConfig(prev => ({ ...prev, apiKey: e.target.value }))}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="mapping" className="space-y-4">
@@ -262,8 +313,32 @@ export const AddDataSourceModal = ({
                 {['name', 'email', 'phone', 'company', 'location'].map((field) => (
                   <div key={field} className="grid grid-cols-3 gap-4 items-center">
                     <Label className="capitalize">{field}</Label>
-                    <Input placeholder={`source_${field}_field`} />
-                    <Select defaultValue="string">
+                    <Input
+                      placeholder={`source_${field}_field`}
+                      value={(config.mapping || []).find(m => m.targetField === field)?.sourceField || ''}
+                      onChange={(e) => {
+                        setConfig(prev => {
+                          const mapping = [...(prev.mapping || [])];
+                          const idx = mapping.findIndex(m => m.targetField === field);
+                          const updated = { sourceField: e.target.value, targetField: field, dataType: 'string', required: field === 'email' } as any;
+                          if (idx >= 0) mapping[idx] = { ...mapping[idx], ...updated };
+                          else mapping.push(updated);
+                          return { ...prev, mapping } as any;
+                        });
+                      }}
+                    />
+                    <Select
+                      value={((config.mapping || []).find(m => m.targetField === field)?.dataType as any) || 'string'}
+                      onValueChange={(val) => {
+                        setConfig(prev => {
+                          const mapping = [...(prev.mapping || [])];
+                          const idx = mapping.findIndex(m => m.targetField === field);
+                          if (idx >= 0) mapping[idx] = { ...mapping[idx], dataType: val as any };
+                          else mapping.push({ sourceField: '', targetField: field, dataType: val as any, required: field === 'email' });
+                          return { ...prev, mapping } as any;
+                        });
+                      }}
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>

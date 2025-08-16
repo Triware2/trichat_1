@@ -1,18 +1,20 @@
 
 import { Button } from '@/components/ui/button';
 
+interface Tab {
+  id: string;
+  label: string;
+}
+
 interface HorizontalTabsProps {
-  tabs: Array<{
-    id: string;
-    label: string;
-  }>;
+  tabs: Tab[];
   activeTab: string;
-  onTabChange: (tab: string) => void;
+  onTabChange: (tabId: string) => void;
 }
 
 export const HorizontalTabs = ({ tabs, activeTab, onTabChange }: HorizontalTabsProps) => {
   return (
-    <div className="bg-white border-b border-gray-200">
+    <div className="bg-white border-b border-slate-200">
       <div className="px-4 sm:px-6 lg:px-8">
         <nav className="flex space-x-8">
           {tabs.map((tab) => (
@@ -25,7 +27,7 @@ export const HorizontalTabs = ({ tabs, activeTab, onTabChange }: HorizontalTabsP
                 border-b-2 border-transparent rounded-none
                 ${activeTab === tab.id 
                   ? 'text-blue-600 border-blue-600' 
-                  : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'text-slate-500 hover:text-slate-700 hover:border-slate-300'
                 }
               `}
             >

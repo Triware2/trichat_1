@@ -10,11 +10,15 @@ export const AccessManagement = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Access Management</h1>
-          <p className="text-gray-600 mt-1">Control user permissions and role-based access across the system</p>
+      {/* Header Section */}
+      <div className="space-y-1">
+        <div className="flex items-center gap-3">
+          <Shield className="w-6 h-6 text-blue-600" />
+          <h1 className="text-2xl font-bold text-slate-900">Access Management</h1>
         </div>
+        <p className="text-sm text-slate-600">
+          Configure role-based access control and security policies
+        </p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">

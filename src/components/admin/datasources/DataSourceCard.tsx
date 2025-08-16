@@ -30,6 +30,10 @@ export const DataSourceCard = ({ dataSource, onEdit, onDelete, onSync, onTest }:
       case 'api': return <Globe className="w-4 h-4" />;
       case 'webhook': return <Webhook className="w-4 h-4" />;
       case 'database': return <Database className="w-4 h-4" />;
+      case 'crm': return <Database className="w-4 h-4" />;
+      case 'ecommerce': return <Database className="w-4 h-4" />;
+      case 'helpdesk': return <Database className="w-4 h-4" />;
+      case 'analytics': return <Database className="w-4 h-4" />;
       default: return <Database className="w-4 h-4" />;
     }
   };
@@ -47,12 +51,12 @@ export const DataSourceCard = ({ dataSource, onEdit, onDelete, onSync, onTest }:
   };
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card className="hover:shadow-md transition-shadow border border-slate-200">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             {getTypeIcon(dataSource.type)}
-            <CardTitle className="text-lg">{dataSource.name}</CardTitle>
+            <CardTitle className="text-lg text-slate-900">{dataSource.name}</CardTitle>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -88,7 +92,7 @@ export const DataSourceCard = ({ dataSource, onEdit, onDelete, onSync, onTest }:
         </Badge>
       </CardHeader>
       <CardContent className="space-y-3">
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-slate-600">
           <p>Type: <span className="font-medium">{dataSource.type.toUpperCase()}</span></p>
           <p>Records: <span className="font-medium">{dataSource.recordsCount.toLocaleString()}</span></p>
           <p>Last Sync: <span className="font-medium">{formatLastSync(dataSource.lastSync)}</span></p>
@@ -105,10 +109,10 @@ export const DataSourceCard = ({ dataSource, onEdit, onDelete, onSync, onTest }:
             <RefreshCw className={`w-4 h-4 mr-1 ${dataSource.status === 'syncing' ? 'animate-spin' : ''}`} />
             Sync
           </Button>
-          <Button
+           <Button
             size="sm"
             variant="outline"
-            onClick={() => onEdit(dataSource)}
+             onClick={() => onEdit(dataSource)}
             className="flex-1"
           >
             <Settings className="w-4 h-4 mr-1" />

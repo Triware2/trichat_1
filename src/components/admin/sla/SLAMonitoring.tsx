@@ -28,10 +28,16 @@ import {
   RefreshCw,
   Filter
 } from 'lucide-react';
+import { useEffect } from 'react';
+import { slaService } from '@/services/slaService';
+import { SLABreach, SLAMetrics } from './types';
 
 export const SLAMonitoring = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState('today');
+  const [selectedPeriod, setSelectedPeriod] = useState<'day' | 'week' | 'month'>('day');
   const [selectedSLA, setSelectedSLA] = useState('all');
+  const [breaches, setBreaches] = useState<SLABreach[]>([]);
+  const [metrics, setMetrics] = useState<SLAMetrics[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const realTimeData = [
     {
@@ -84,30 +90,22 @@ export const SLAMonitoring = () => {
     }
   ];
 
-  const breaches = [
-    {
-      id: '1',
-      caseId: 'CASE-2024-005',
-      customer: 'Enterprise Co',
-      sla: 'Enterprise VIP',
-      breachType: 'response',
-      severity: 'major',
-      overdue: '45m',
-      rootCause: 'Agent unavailable',
-      actions: 'Escalated to supervisor'
-    },
-    {
-      id: '2',
-      caseId: 'CASE-2024-006',
-      customer: 'Business Ltd',
-      sla: 'Business Standard',
-      breachType: 'resolution',
-      severity: 'minor',
-      overdue: '15m',
-      rootCause: 'Complex technical issue',
-      actions: 'Expert consulted'
-    }
-  ];
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setLoading(true);
+        const [b, m] = await Promise.all([
+          slaService.listBreaches(selectedSLA, false),
+          slaService.listMetrics(selectedSLA === 'all' ? '' : selectedSLA, selectedPeriod)
+        ]);
+        setBreaches(b);
+        setMetrics(m);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [selectedSLA, selectedPeriod]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -143,10 +141,8 @@ export const SLAMonitoring = () => {
       {/* Header with Filters */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">Real-Time SLA Monitoring</h2>
-          <p className="text-sm text-gray-600 mt-1">
-            Monitor SLA compliance and track cases in real-time
-          </p>
+          <h2 className="text-base font-bold text-slate-900">Real-Time SLA Monitoring</h2>
+          <p className="text-sm text-slate-600 mt-1">Monitor SLA compliance and track cases in real-time</p>
         </div>
         <div className="flex items-center gap-3">
           <Select value={selectedSLA} onValueChange={setSelectedSLA}>
@@ -160,12 +156,12 @@ export const SLAMonitoring = () => {
               <SelectItem value="basic">Basic Support</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+          <Select value={selectedPeriod} onValueChange={(v) => setSelectedPeriod(v as any)}>
             <SelectTrigger className="w-32">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="today">Today</SelectItem>
+              <SelectItem value="day">Today</SelectItem>
               <SelectItem value="week">This Week</SelectItem>
               <SelectItem value="month">This Month</SelectItem>
             </SelectContent>
@@ -322,21 +318,19 @@ export const SLAMonitoring = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Case ID</TableHead>
-                <TableHead>Customer</TableHead>
                 <TableHead>SLA</TableHead>
                 <TableHead>Breach Type</TableHead>
                 <TableHead>Severity</TableHead>
-                <TableHead>Overdue By</TableHead>
-                <TableHead>Root Cause</TableHead>
-                <TableHead>Actions Taken</TableHead>
+                <TableHead>Expected</TableHead>
+                <TableHead>Actual</TableHead>
+                <TableHead>Resolved</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {breaches.map((breach) => (
                 <TableRow key={breach.id}>
                   <TableCell className="font-medium">{breach.caseId}</TableCell>
-                  <TableCell>{breach.customer}</TableCell>
-                  <TableCell className="text-sm">{breach.sla}</TableCell>
+                  <TableCell className="text-sm">{breach.slaId || '—'}</TableCell>
                   <TableCell>
                     <Badge variant="outline">{breach.breachType}</Badge>
                   </TableCell>
@@ -345,9 +339,9 @@ export const SLAMonitoring = () => {
                       {breach.severity}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-red-600 font-medium">{breach.overdue}</TableCell>
-                  <TableCell className="text-sm">{breach.rootCause}</TableCell>
-                  <TableCell className="text-sm">{breach.actions}</TableCell>
+                  <TableCell className="text-sm">{breach.expectedTime || '—'}</TableCell>
+                  <TableCell className="text-sm">{breach.actualTime || '—'}</TableCell>
+                  <TableCell className="text-sm">{breach.isResolved ? 'Yes' : 'No'}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

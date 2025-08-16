@@ -7,6 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { useEffect } from 'react';
+import { customizationService } from '@/services/customizationService';
 import { 
   FormInput, 
   Plus, 
@@ -22,6 +24,7 @@ import {
   Grip,
   Move
 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface FormField {
   id: string;
@@ -48,36 +51,30 @@ export const FormBuilder = () => {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedForm, setSelectedForm] = useState<CustomForm | null>(null);
   const [isBuilderOpen, setIsBuilderOpen] = useState(false);
+  const [forms, setForms] = useState<CustomForm[]>([]);
+  const [editingForm, setEditingForm] = useState<CustomForm | null>(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
 
-  const [forms] = useState<CustomForm[]>([
-    {
-      id: '1',
-      name: 'Customer Feedback Form',
-      description: 'Collect customer feedback and satisfaction ratings',
-      fields: [
-        { id: '1', label: 'Customer Name', type: 'text', required: true, order: 1 },
-        { id: '2', label: 'Email', type: 'email', required: true, order: 2 },
-        { id: '3', label: 'Rating', type: 'select', required: true, options: ['1', '2', '3', '4', '5'], order: 3 },
-        { id: '4', label: 'Comments', type: 'textarea', required: false, order: 4 }
-      ],
-      status: 'published',
-      responses: 142,
-      lastModified: '2 hours ago'
-    },
-    {
-      id: '2',
-      name: 'Lead Qualification Form',
-      description: 'Qualify potential leads and gather contact information',
-      fields: [
-        { id: '1', label: 'Company Name', type: 'text', required: true, order: 1 },
-        { id: '2', label: 'Industry', type: 'select', required: true, options: ['Technology', 'Healthcare', 'Finance', 'Manufacturing'], order: 2 },
-        { id: '3', label: 'Budget Range', type: 'select', required: true, options: ['<$10k', '$10k-$50k', '$50k-$100k', '>$100k'], order: 3 }
-      ],
-      status: 'draft',
-      responses: 0,
-      lastModified: '1 day ago'
-    }
-  ]);
+  useEffect(() => {
+    const load = async () => {
+      const list = await customizationService.listForms({ from: (page-1)*pageSize, to: (page*pageSize)-1, search });
+      // Map to local shape if needed
+      const mapped: CustomForm[] = (list || []).map((f: any) => ({
+        id: f.id,
+        name: f.name,
+        description: f.description,
+        fields: [],
+        status: (f.status as any) || 'draft',
+        responses: f.responses || 0,
+        lastModified: f.last_modified || 'recently'
+      }));
+      setForms(mapped);
+    };
+    load();
+  }, [page, search]);
 
   const fieldTypes = [
     { value: 'text', label: 'Text Input', icon: Type },
@@ -90,19 +87,35 @@ export const FormBuilder = () => {
     { value: 'file', label: 'File Upload', icon: Upload }
   ];
 
-  const handleCreateForm = () => {
-    toast({
-      title: "Form Created",
-      description: "New form has been created successfully.",
-    });
+  const handleCreateForm = async () => {
+    const nameEl = document.getElementById('form-name') as HTMLInputElement | null;
+    const descEl = document.getElementById('form-description') as HTMLInputElement | null;
+    const name = nameEl?.value?.trim();
+    const description = descEl?.value?.trim() || '';
+    if (!name) {
+      toast({ title: 'Form name is required', variant: 'destructive' });
+      return;
+    }
+    const created = await customizationService.createForm({ name, description });
+    if (created) {
+      setForms(prev => [{
+        id: created.id,
+        name: created.name,
+        description: created.description,
+        fields: [],
+        status: created.status,
+        responses: created.responses || 0,
+        lastModified: created.last_modified
+      }, ...prev]);
+    }
+    toast({ title: 'Form Created', description: 'New form has been created successfully.' });
     setIsCreateOpen(false);
   };
 
-  const handleDeleteForm = (formId: string, formName: string) => {
-    toast({
-      title: "Form Deleted",
-      description: `${formName} has been removed.`,
-    });
+  const handleDeleteForm = async (formId: string, formName: string) => {
+    await customizationService.deleteForm(formId);
+    setForms(prev => prev.filter(f => f.id !== formId));
+    toast({ title: 'Form Deleted', description: `${formName} has been removed.` });
   };
 
   const openFormBuilder = (form: CustomForm) => {
@@ -213,7 +226,9 @@ export const FormBuilder = () => {
 
       {/* Forms List */}
       <Card>
-        <CardHeader>
+        <CardHeader className="border-b border-slate-100 bg-slate-50/50">
+          <div className="flex items-center justify-between">
+            <div>
           <CardTitle className="flex items-center gap-2">
             <FormInput className="w-5 h-5" />
             Custom Forms
@@ -221,10 +236,19 @@ export const FormBuilder = () => {
           <CardDescription>
             Manage your custom forms and their configurations
           </CardDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              <Input placeholder="Search forms..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
+              <Button variant="outline" size="sm" disabled={page===1} onClick={() => setPage(p => Math.max(1, p-1))}>Prev</Button>
+              <Button variant="outline" size="sm" onClick={() => setPage(p => p+1)}>Next</Button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {forms.map((form) => (
+            {forms
+              .filter(f => !search || f.name.toLowerCase().includes(search.toLowerCase()) || f.description.toLowerCase().includes(search.toLowerCase()))
+              .map((form) => (
               <div key={form.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
                 <div className="flex items-center gap-4">
                   <div className="p-2 bg-blue-100 rounded-lg">
@@ -248,13 +272,7 @@ export const FormBuilder = () => {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => openFormBuilder(form)}
-                  >
-                    <Edit className="w-4 h-4" />
-                  </Button>
+                    <Button variant="ghost" size="sm" onClick={() => { setEditingForm(form); setIsEditOpen(true); }}><Edit className="w-4 h-4" /></Button>
                   <Button variant="ghost" size="sm">
                     <Eye className="w-4 h-4" />
                   </Button>
@@ -272,6 +290,44 @@ export const FormBuilder = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Edit Form Dialog */}
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent className="bg-white max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Form</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Form Name</Label>
+              <Input value={editingForm?.name || ''} onChange={(e) => setEditingForm(prev => prev ? { ...prev, name: e.target.value } : prev)} />
+            </div>
+            <div>
+              <Label>Description</Label>
+              <Input value={editingForm?.description || ''} onChange={(e) => setEditingForm(prev => prev ? { ...prev, description: e.target.value } : prev)} />
+            </div>
+            <div>
+              <Label>Status</Label>
+              <Select value={editingForm?.status || 'draft'} onValueChange={(v) => setEditingForm(prev => prev ? { ...prev, status: v as any } : prev)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent className="bg-white">
+                  <SelectItem value="draft">Draft</SelectItem>
+                  <SelectItem value="published">Published</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Button onClick={async () => {
+              if (!editingForm) return;
+              const updated = await customizationService.updateForm(editingForm.id, { name: editingForm.name, description: editingForm.description, status: editingForm.status });
+              if (updated) {
+                setForms(prev => prev.map(f => f.id === editingForm.id ? { ...f, name: editingForm.name, description: editingForm.description, status: editingForm.status } : f));
+              }
+              toast({ title: 'Form Updated', description: 'Changes saved successfully.' });
+              setIsEditOpen(false);
+            }} className="w-full">Save Changes</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Form Builder Modal */}
       <Dialog open={isBuilderOpen} onOpenChange={setIsBuilderOpen}>

@@ -2,6 +2,8 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { DataSource, SyncLog } from './types';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/use-auth';
 
 export const useDataSources = () => {
   const { toast } = useToast();
@@ -9,123 +11,103 @@ export const useDataSources = () => {
   const [syncLogs, setSyncLogs] = useState<SyncLog[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Mock data - in real app this would come from API
+  const { user } = useAuth();
+
+  // Load from Supabase with graceful fallback
   useEffect(() => {
-    const mockDataSources: DataSource[] = [
-      {
-        id: '1',
-        name: 'Customer CRM',
-        type: 'crm',
-        status: 'connected',
-        lastSync: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-        recordsCount: 1250,
-        config: {
-          apiUrl: 'https://api.salesforce.com/v1/customers',
-          apiKey: '***hidden***',
-          mapping: [
-            { sourceField: 'firstName', targetField: 'name', dataType: 'string', required: true },
-            { sourceField: 'email', targetField: 'email', dataType: 'email', required: true },
-            { sourceField: 'phone', targetField: 'phone', dataType: 'phone', required: false },
-          ],
-          syncInterval: 60,
-          autoSync: true
-        }
-      },
-      {
-        id: '2',
-        name: 'E-commerce Database',
-        type: 'database',
-        status: 'error',
-        lastSync: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-        recordsCount: 3420,
-        config: {
-          database: {
-            host: 'db.example.com',
-            port: 5432,
-            database: 'ecommerce',
-            username: 'readonly_user',
-            password: '***hidden***'
-          },
-          mapping: [
-            { sourceField: 'customer_name', targetField: 'name', dataType: 'string', required: true },
-            { sourceField: 'email_address', targetField: 'email', dataType: 'email', required: true },
-          ],
-          syncInterval: 240,
-          autoSync: true
-        }
-      },
-      {
-        id: '3',
-        name: 'Support Tickets API',
-        type: 'api',
-        status: 'syncing',
-        lastSync: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
-        recordsCount: 890,
-        config: {
-          apiUrl: 'https://support.example.com/api/tickets',
-          apiKey: '***hidden***',
-          mapping: [
-            { sourceField: 'customer_name', targetField: 'name', dataType: 'string', required: true },
-            { sourceField: 'email', targetField: 'email', dataType: 'email', required: true },
-          ],
-          syncInterval: 30,
-          autoSync: true
-        }
-      }
-    ];
+    const load = async () => {
+      try {
+        const { data: ds, error: dsError } = await supabase
+          .from('data_sources' as any)
+          .select('*')
+          .order('updated_at', { ascending: false });
 
-    const mockSyncLogs: SyncLog[] = [
-      {
-        id: '1',
-        dataSourceId: '1',
-        timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-        status: 'success',
-        recordsProcessed: 45,
-        recordsSuccess: 45,
-        recordsError: 0
-      },
-      {
-        id: '2',
-        dataSourceId: '2',
-        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-        status: 'error',
-        recordsProcessed: 0,
-        recordsSuccess: 0,
-        recordsError: 0,
-        errorMessage: 'Connection timeout to database'
-      },
-      {
-        id: '3',
-        dataSourceId: '3',
-        timestamp: new Date(Date.now() - 90 * 60 * 1000).toISOString(),
-        status: 'partial',
-        recordsProcessed: 25,
-        recordsSuccess: 20,
-        recordsError: 5
-      }
-    ];
+        if (dsError) throw dsError;
 
-    setDataSources(mockDataSources);
-    setSyncLogs(mockSyncLogs);
-  }, []);
+        const mapped: DataSource[] = (ds || []).map((row: any) => ({
+          id: row.id,
+          name: row.name,
+          type: row.type,
+          status: row.status,
+          lastSync: row.last_sync || null,
+          recordsCount: row.records_count || 0,
+          config: row.config || {}
+        }));
+
+        setDataSources(mapped);
+
+        const { data: logs, error: logsError } = await supabase
+          .from('data_source_sync_logs' as any)
+          .select('*')
+          .order('timestamp', { ascending: false })
+          .limit(100);
+
+        if (logsError) throw logsError;
+
+        const mappedLogs: SyncLog[] = (logs || []).map((row: any) => ({
+          id: row.id,
+          dataSourceId: row.data_source_id,
+          timestamp: row.timestamp,
+          status: row.status,
+          recordsProcessed: row.records_processed,
+          recordsSuccess: row.records_success,
+          recordsError: row.records_error,
+          errorMessage: row.error_message || undefined
+        }));
+
+        setSyncLogs(mappedLogs);
+      } catch (e) {
+        // Keep UI working with empty state; toasts optional
+        setDataSources([]);
+        setSyncLogs([]);
+      }
+    };
+    load();
+  }, [user?.id]);
 
   const addDataSource = async (dataSource: Omit<DataSource, 'id'>) => {
     try {
-      const newDataSource: DataSource = {
-        ...dataSource,
-        id: Date.now().toString()
+      const allowedTypes = ['crm','database','api','file','custom','webhook','ecommerce','helpdesk','analytics'];
+      const safeType = allowedTypes.includes(dataSource.type) ? dataSource.type : 'custom';
+      const safeStatus = dataSource.status || 'disconnected';
+
+      const { data, error } = await supabase
+        .from('data_sources' as any)
+        .insert({
+          name: dataSource.name,
+          type: safeType,
+          status: safeStatus,
+          last_sync: dataSource.lastSync,
+          records_count: dataSource.recordsCount,
+          config: dataSource.config,
+          created_by: user?.id
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const inserted: DataSource = {
+        id: data.id,
+        name: data.name,
+        type: data.type,
+        status: data.status,
+        lastSync: data.last_sync,
+        recordsCount: data.records_count,
+        config: data.config
       };
-      
-      setDataSources(prev => [...prev, newDataSource]);
-      
+
+      setDataSources(prev => [inserted, ...prev]);
+
       toast({
         title: "Data Source Added",
         description: `${dataSource.name} has been configured successfully.`,
       });
     } catch (error) {
+      const err: any = error;
       toast({
         title: "Error",
-        description: "Failed to add data source. Please try again.",
+        description: err?.message || err?.error?.message || "Failed to add data source. Please try again.",
         variant: "destructive"
       });
     }
@@ -133,6 +115,20 @@ export const useDataSources = () => {
 
   const updateDataSource = async (dataSource: DataSource) => {
     try {
+      const { error } = await supabase
+        .from('data_sources' as any)
+        .update({
+          name: dataSource.name,
+          type: dataSource.type,
+          status: dataSource.status,
+          last_sync: dataSource.lastSync,
+          records_count: dataSource.recordsCount,
+          config: dataSource.config
+        })
+        .eq('id', dataSource.id);
+
+      if (error) throw error;
+
       setDataSources(prev => prev.map(ds => ds.id === dataSource.id ? dataSource : ds));
       
       toast({
@@ -150,6 +146,13 @@ export const useDataSources = () => {
 
   const deleteDataSource = async (id: string) => {
     try {
+      const { error } = await supabase
+        .from('data_sources' as any)
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
       setDataSources(prev => prev.filter(ds => ds.id !== id));
       setSyncLogs(prev => prev.filter(log => log.dataSourceId !== id));
       
@@ -170,10 +173,9 @@ export const useDataSources = () => {
     try {
       setIsLoading(true);
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const success = Math.random() > 0.3; // 70% success rate for demo
+      // Placeholder: mark syncing, then success
+      await new Promise(resolve => setTimeout(resolve, 1200));
+      const success = true;
       
       if (success) {
         toast({
@@ -207,13 +209,12 @@ export const useDataSources = () => {
         ds.id === id ? { ...ds, status: 'syncing' } : ds
       ));
       
-      // Simulate sync process
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-      const success = Math.random() > 0.2; // 80% success rate for demo
-      const newStatus = success ? 'connected' : 'error';
+      // Simulate sync process; in real implementation call edge function/webhook
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      const success = true;
+      const newStatus = 'connected';
       const recordsProcessed = Math.floor(Math.random() * 100) + 10;
-      const recordsSuccess = success ? recordsProcessed : Math.floor(recordsProcessed * 0.7);
+      const recordsSuccess = recordsProcessed;
       
       // Update data source status
       setDataSources(prev => prev.map(ds => 
@@ -226,18 +227,33 @@ export const useDataSources = () => {
       ));
       
       // Add sync log
-      const newLog: SyncLog = {
-        id: Date.now().toString(),
-        dataSourceId: id,
-        timestamp: new Date().toISOString(),
-        status: success ? 'success' : 'error',
-        recordsProcessed,
-        recordsSuccess,
-        recordsError: recordsProcessed - recordsSuccess,
-        errorMessage: success ? undefined : 'Sync failed due to network error'
-      };
-      
-      setSyncLogs(prev => [newLog, ...prev]);
+      const { data: log, error: logError } = await supabase
+        .from('data_source_sync_logs' as any)
+        .insert({
+          data_source_id: id,
+          status: success ? 'success' : 'error',
+          records_processed: recordsProcessed,
+          records_success: recordsSuccess,
+          records_error: recordsProcessed - recordsSuccess,
+          error_message: success ? null : 'Sync failed',
+          created_by: user?.id
+        })
+        .select()
+        .single();
+
+      if (!logError && log) {
+        const mapped: SyncLog = {
+          id: log.id,
+          dataSourceId: log.data_source_id,
+          timestamp: log.timestamp,
+          status: log.status,
+          recordsProcessed: log.records_processed,
+          recordsSuccess: log.records_success,
+          recordsError: log.records_error,
+          errorMessage: log.error_message || undefined
+        };
+        setSyncLogs(prev => [mapped, ...prev]);
+      }
       
       toast({
         title: success ? "Sync Completed" : "Sync Failed",

@@ -11,70 +11,94 @@ export const ChatManagementTabs = () => {
   const [activeTab, setActiveTab] = useState('channels');
 
   return (
-    <div className="min-h-screen bg-gray-50/30">
-      <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Chat Management</h1>
-              <p className="text-gray-600 mt-1">Manage chat channels, routing, and operations</p>
-            </div>
-          </div>
-
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <div className="bg-white border-b border-gray-200">
-              <div className="px-4 sm:px-6 lg:px-8">
-                <TabsList className="h-auto p-0 bg-transparent">
-                  <TabsTrigger 
-                    value="channels" 
-                    className="flex items-center gap-2 px-1 py-4 text-sm font-medium transition-colors border-b-2 border-transparent rounded-none data-[state=active]:text-blue-600 data-[state=active]:border-blue-600 data-[state=inactive]:text-gray-500 data-[state=inactive]:hover:text-gray-700 data-[state=inactive]:hover:border-gray-300 bg-transparent shadow-none"
-                  >
-                    <MessageSquare className="w-4 h-4" />
-                    Channel Control
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="rules" 
-                    className="flex items-center gap-2 px-1 py-4 text-sm font-medium transition-colors border-b-2 border-transparent rounded-none data-[state=active]:text-blue-600 data-[state=active]:border-blue-600 data-[state=inactive]:text-gray-500 data-[state=inactive]:hover:text-gray-700 data-[state=inactive]:hover:border-gray-300 bg-transparent shadow-none ml-8"
-                  >
-                    <Settings className="w-4 h-4" />
-                    Chat Rules
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="bulk" 
-                    className="flex items-center gap-2 px-1 py-4 text-sm font-medium transition-colors border-b-2 border-transparent rounded-none data-[state=active]:text-blue-600 data-[state=active]:border-blue-600 data-[state=inactive]:text-gray-500 data-[state=inactive]:hover:text-gray-700 data-[state=inactive]:hover:border-gray-300 bg-transparent shadow-none ml-8"
-                  >
-                    <Users className="w-4 h-4" />
-                    Bulk Operations
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="analytics" 
-                    className="flex items-center gap-2 px-1 py-4 text-sm font-medium transition-colors border-b-2 border-transparent rounded-none data-[state=active]:text-blue-600 data-[state=active]:border-blue-600 data-[state=inactive]:text-gray-500 data-[state=inactive]:hover:text-gray-700 data-[state=inactive]:hover:border-gray-300 bg-transparent shadow-none ml-8"
-                  >
-                    <BarChart3 className="w-4 h-4" />
-                    Analytics
-                  </TabsTrigger>
-                </TabsList>
-              </div>
-            </div>
-
-            <TabsContent value="channels">
-              <ChannelManagement />
-            </TabsContent>
-
-            <TabsContent value="rules">
-              <ChatRules />
-            </TabsContent>
-
-            <TabsContent value="bulk">
-              <BulkChatOperations />
-            </TabsContent>
-
-            <TabsContent value="analytics">
-              <ChatAnalytics />
-            </TabsContent>
-          </Tabs>
+    <div className="space-y-6">
+      {/* Header Section */}
+      <div className="space-y-1">
+        <div className="flex items-center gap-3">
+          <MessageSquare className="w-6 h-6 text-blue-600" />
+          <h1 className="text-2xl font-bold text-slate-900">Chat Management</h1>
         </div>
+        <p className="text-sm text-slate-600">Manage chat channels, routing, and operations</p>
       </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-0">
+        <div className="border-b border-slate-200">
+          <TabsList className="h-auto bg-transparent p-0 space-x-0">
+            <div className="flex">
+              <TabsTrigger 
+                value="channels" 
+                className="flex items-center gap-2 px-6 py-4 text-sm font-medium transition-all duration-200 border-b-2 bg-transparent rounded-none border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300 data-[state=active]:bg-blue-50/50 data-[state=active]:text-blue-600 data-[state=active]:border-blue-600 data-[state=active]:shadow-none"
+              >
+                <MessageSquare className="w-4 h-4" />
+                Channels
+              </TabsTrigger>
+              <TabsTrigger 
+                value="rules" 
+                className="flex items-center gap-2 px-6 py-4 text-sm font-medium transition-all duration-200 border-b-2 bg-transparent rounded-none border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300 data-[state=active]:bg-blue-50/50 data-[state=active]:text-blue-600 data-[state=active]:border-blue-600 data-[state=active]:shadow-none"
+              >
+                <Settings className="w-4 h-4" />
+                Rules
+              </TabsTrigger>
+              <TabsTrigger 
+                value="bulk" 
+                className="flex items-center gap-2 px-6 py-4 text-sm font-medium transition-all duration-200 border-b-2 bg-transparent rounded-none border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300 data-[state=active]:bg-blue-50/50 data-[state=active]:text-blue-600 data-[state=active]:border-blue-600 data-[state=active]:shadow-none"
+              >
+                <Users className="w-4 h-4" />
+                Bulk Operations
+              </TabsTrigger>
+              <TabsTrigger 
+                value="analytics" 
+                className="flex items-center gap-2 px-6 py-4 text-sm font-medium transition-all duration-200 border-b-2 bg-transparent rounded-none border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300 data-[state=active]:bg-blue-50/50 data-[state=active]:text-blue-600 data-[state=active]:border-blue-600 data-[state=active]:shadow-none"
+              >
+                <BarChart3 className="w-4 h-4" />
+                Analytics
+              </TabsTrigger>
+            </div>
+          </TabsList>
+        </div>
+
+        <div className="bg-white rounded-lg border border-slate-200 shadow-sm">
+          <TabsContent value="channels" className="mt-0 p-6">
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900">Channel Management</h3>
+                <p className="text-gray-600 mt-1">Configure and manage your communication channels</p>
+              </div>
+              <ChannelManagement />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="rules" className="mt-0 p-6">
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900">Chat Rules</h3>
+                <p className="text-gray-600 mt-1">Set up automated routing and response rules</p>
+              </div>
+              <ChatRules />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="bulk" className="mt-0 p-6">
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900">Bulk Operations</h3>
+                <p className="text-gray-600 mt-1">Perform actions on multiple conversations</p>
+              </div>
+              <BulkChatOperations />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="analytics" className="mt-0 p-6">
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900">Chat Analytics</h3>
+                <p className="text-gray-600 mt-1">Analyze conversation patterns and performance</p>
+              </div>
+              <ChatAnalytics />
+            </div>
+          </TabsContent>
+        </div>
+      </Tabs>
     </div>
   );
 };

@@ -106,12 +106,8 @@ export const ChatAnalytics = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-xl font-semibold">Chat Analytics & Insights</h2>
-          <p className="text-gray-600">Monitor chat performance and trends</p>
-        </div>
-        <div className="flex gap-2">
+      <div className="flex items-center justify-end">
+        <div className="flex items-center gap-3">
           <Select defaultValue="7d">
             <SelectTrigger className="w-32">
               <SelectValue />
@@ -209,7 +205,7 @@ export const ChatAnalytics = () => {
         {/* Channel Distribution */}
         <Card>
           <CardHeader>
-            <CardTitle>Chat Distribution by Channel</CardTitle>
+            <CardTitle className="text-base font-bold">Chat Distribution by Channel</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -237,7 +233,7 @@ export const ChatAnalytics = () => {
         {/* Peak Hours */}
         <Card>
           <CardHeader>
-            <CardTitle>Chat Volume by Hour</CardTitle>
+            <CardTitle className="text-base font-bold">Chat Volume by Hour</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -255,7 +251,7 @@ export const ChatAnalytics = () => {
         {/* Response Time Trend */}
         <Card>
           <CardHeader>
-            <CardTitle>Average Response Time Trend</CardTitle>
+            <CardTitle className="text-base font-bold">Average Response Time Trend</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -279,7 +275,7 @@ export const ChatAnalytics = () => {
         {/* Channel Performance */}
         <Card>
           <CardHeader>
-            <CardTitle>Channel Performance</CardTitle>
+            <CardTitle className="text-base font-bold">Channel Performance</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -307,7 +303,7 @@ export const ChatAnalytics = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-base font-bold">
               <Calendar className="w-5 h-5" />
               Today's Activity
             </CardTitle>
@@ -334,7 +330,7 @@ export const ChatAnalytics = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-base font-bold">
               <Users className="w-5 h-5" />
               Agent Performance
             </CardTitle>
@@ -361,7 +357,7 @@ export const ChatAnalytics = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-base font-bold">
               <Filter className="w-5 h-5" />
               Quality Metrics
             </CardTitle>

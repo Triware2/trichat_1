@@ -4,9 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { MessageSquare, ArrowRight, Users, Building, Briefcase, TrendingUp, Shield, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useFavicon } from '@/hooks/use-favicon';
 
 const Solutions = () => {
   const navigate = useNavigate();
+  useFavicon('landing');
 
   const solutionCategories = [
     {

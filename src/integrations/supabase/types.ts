@@ -11,42 +11,97 @@ export type Database = {
     Tables: {
       analytics_events: {
         Row: {
-          chat_id: string | null
-          data: Json
-          event_type: string
           id: string
+          event_type: string
+          data: Json | null
           timestamp: string | null
-          user_id: string | null
+          created_by: string | null
+          metadata: Json | null
         }
         Insert: {
-          chat_id?: string | null
-          data: Json
-          event_type: string
           id?: string
+          event_type: string
+          data?: Json | null
           timestamp?: string | null
-          user_id?: string | null
+          created_by?: string | null
+          metadata?: Json | null
         }
         Update: {
-          chat_id?: string | null
-          data?: Json
-          event_type?: string
           id?: string
+          event_type?: string
+          data?: Json | null
           timestamp?: string | null
-          user_id?: string | null
+          created_by?: string | null
+          metadata?: Json | null
         }
         Relationships: [
           {
-            foreignKeyName: "analytics_events_chat_id_fkey"
-            columns: ["chat_id"]
+            foreignKeyName: "analytics_events_created_by_fkey"
+            columns: ["created_by"]
             isOneToOne: false
-            referencedRelation: "chats"
+            referencedRelation: "auth.users"
             referencedColumns: ["id"]
           },
+        ]
+      }
+      custom_analytics: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          metrics: Json
+          filters: Json | null
+          time_range: string | null
+          chart_type: string | null
+          data_source: string | null
+          query: string | null
+          status: string | null
+          created_by: string | null
+          created_at: string | null
+          updated_at: string | null
+          last_run: string | null
+          results: Json | null
+        }
+        Insert: {
+          id?: string
+          name: string
+          description?: string | null
+          metrics: Json
+          filters?: Json | null
+          time_range?: string | null
+          chart_type?: string | null
+          data_source?: string | null
+          query?: string | null
+          status?: string | null
+          created_by?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+          last_run?: string | null
+          results?: Json | null
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string | null
+          metrics?: Json
+          filters?: Json | null
+          time_range?: string | null
+          chart_type?: string | null
+          data_source?: string | null
+          query?: string | null
+          status?: string | null
+          created_by?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+          last_run?: string | null
+          results?: Json | null
+        }
+        Relationships: [
           {
-            foreignKeyName: "analytics_events_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "custom_analytics_created_by_fkey"
+            columns: ["created_by"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "auth.users"
             referencedColumns: ["id"]
           },
         ]
@@ -616,6 +671,227 @@ export type Database = {
           },
         ]
       }
+      email_queue: {
+        Row: {
+          id: string
+          to_email: string
+          subject: string
+          body: string
+          html_body: string | null
+          status: string
+          type: string
+          error_message: string | null
+          sent_at: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          to_email: string
+          subject: string
+          body: string
+          html_body?: string | null
+          status?: string
+          type?: string
+          error_message?: string | null
+          sent_at?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          to_email?: string
+          subject?: string
+          body?: string
+          html_body?: string | null
+          status?: string
+          type?: string
+          error_message?: string | null
+          sent_at?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      billing_events: {
+        Row: {
+          id: string
+          user_id: string
+          event_type: string
+          event_data: Json | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          event_type: string
+          event_data?: Json | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          event_type?: string
+          event_data?: Json | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      checkout_sessions: {
+        Row: {
+          id: string
+          user_id: string
+          plan_id: string
+          status: Database["public"]["Enums"]["checkout_session_status"]
+          stripe_session_id: string | null
+          success_url: string
+          cancel_url: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          plan_id: string
+          status?: Database["public"]["Enums"]["checkout_session_status"]
+          stripe_session_id?: string | null
+          success_url: string
+          cancel_url: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          plan_id?: string
+          status?: Database["public"]["Enums"]["checkout_session_status"]
+          stripe_session_id?: string | null
+          success_url?: string
+          cancel_url?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checkout_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      invoices: {
+        Row: {
+          id: string
+          user_id: string
+          stripe_invoice_id: string | null
+          number: string
+          amount: number
+          currency: string
+          status: Database["public"]["Enums"]["invoice_status"]
+          due_date: string | null
+          paid_at: string | null
+          pdf_url: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          stripe_invoice_id?: string | null
+          number: string
+          amount: number
+          currency?: string
+          status?: Database["public"]["Enums"]["invoice_status"]
+          due_date?: string | null
+          paid_at?: string | null
+          pdf_url?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          stripe_invoice_id?: string | null
+          number?: string
+          amount?: number
+          currency?: string
+          status?: Database["public"]["Enums"]["invoice_status"]
+          due_date?: string | null
+          paid_at?: string | null
+          pdf_url?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      payment_methods: {
+        Row: {
+          id: string
+          user_id: string
+          type: Database["public"]["Enums"]["payment_method_type"]
+          last4: string
+          brand: string | null
+          exp_month: number | null
+          exp_year: number | null
+          is_default: boolean
+          stripe_payment_method_id: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          type: Database["public"]["Enums"]["payment_method_type"]
+          last4: string
+          brand?: string | null
+          exp_month?: number | null
+          exp_year?: number | null
+          is_default?: boolean
+          stripe_payment_method_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          type?: Database["public"]["Enums"]["payment_method_type"]
+          last4?: string
+          brand?: string | null
+          exp_month?: number | null
+          exp_year?: number | null
+          is_default?: boolean
+          stripe_payment_method_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_methods_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -660,6 +936,9 @@ export type Database = {
         | "system_alert"
       subscription_status: "trial" | "active" | "expired" | "cancelled" | "free"
       user_role: "admin" | "supervisor" | "agent"
+      checkout_session_status: "open" | "completed" | "expired" | "canceled"
+      invoice_status: "open" | "paid" | "unpaid" | "void" | "draft"
+      payment_method_type: "card" | "bank_account" | "sepa_debit" | "ideal" | "p24" | "sofort" | "bancontact" | "alipay" | "wechat_pay"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -787,6 +1066,9 @@ export const Constants = {
       ],
       subscription_status: ["trial", "active", "expired", "cancelled", "free"],
       user_role: ["admin", "supervisor", "agent"],
+      checkout_session_status: ["open", "completed", "expired", "canceled"],
+      invoice_status: ["open", "paid", "unpaid", "void", "draft"],
+      payment_method_type: ["card", "bank_account", "sepa_debit", "ideal", "p24", "sofort", "bancontact", "alipay", "wechat_pay"],
     },
   },
 } as const

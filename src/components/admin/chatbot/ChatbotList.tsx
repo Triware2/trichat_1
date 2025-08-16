@@ -1,321 +1,328 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { chatbotService, Chatbot } from '@/services/chatbotService';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Bot, 
-  Brain, 
-  MessageSquare, 
   Settings, 
-  Play, 
-  Pause,
-  Zap,
-  Database,
-  Trash2,
-  Copy,
-  Edit,
-  Activity,
-  Shield
+  Trash2, 
+  Edit, 
+  Search, 
+  Filter,
+  Plus,
+  AlertCircle,
+  Brain
 } from 'lucide-react';
-
-interface Chatbot {
-  id: string;
-  name: string;
-  type: 'standard' | 'llm';
-  status: 'active' | 'inactive' | 'training';
-  model?: string;
-  resolutionRate: number;
-  totalChats: number;
-  lastUpdated: string;
-  sopCount?: number;
-}
+import { toast } from 'sonner';
 
 interface ChatbotListProps {
-  onOpenTraining?: (botId: string, botType: 'standard' | 'llm') => void;
-  onOpenConfiguration?: (botId: string) => void;
+  onSelectChatbot: (chatbot: Chatbot) => void;
+  onEditChatbot: (chatbot: Chatbot) => void;
+  onDeleteChatbot: (chatbotId: string) => void;
+  onCreateNew: () => void;
 }
 
-export const ChatbotList = ({ onOpenTraining, onOpenConfiguration }: ChatbotListProps) => {
-  const { toast } = useToast();
-  const [chatbots, setChatbots] = useState<Chatbot[]>([
-    {
-      id: '1',
-      name: 'Customer Support Bot',
-      type: 'llm',
-      status: 'active',
-      model: 'GPT-4',
-      resolutionRate: 94,
-      totalChats: 1247,
-      lastUpdated: '2024-06-14',
-      sopCount: 5
-    },
-    {
-      id: '2',
-      name: 'FAQ Assistant',
-      type: 'standard',
-      status: 'active',
-      resolutionRate: 87,
-      totalChats: 892,
-      lastUpdated: '2024-06-13'
-    },
-    {
-      id: '3',
-      name: 'Technical Support AI',
-      type: 'llm',
-      status: 'training',
-      model: 'Claude-3',
-      resolutionRate: 96,
-      totalChats: 534,
-      lastUpdated: '2024-06-14',
-      sopCount: 8
-    },
-    {
-      id: '4',
-      name: 'Billing Inquiries Bot',
-      type: 'standard',
-      status: 'active',
-      resolutionRate: 91,
-      totalChats: 423,
-      lastUpdated: '2024-06-12'
+export default function ChatbotList({
+  onSelectChatbot,
+  onEditChatbot,
+  onDeleteChatbot,
+  onCreateNew
+}: ChatbotListProps) {
+  const [chatbots, setChatbots] = useState<Chatbot[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [typeFilter, setTypeFilter] = useState<string>('all');
+
+  useEffect(() => {
+    loadChatbots();
+  }, []);
+
+  const loadChatbots = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await chatbotService.getChatbots();
+      setChatbots(data);
+    } catch (err) {
+      console.error('Error loading chatbots:', err);
+      setError('Failed to load chatbots. Please try again.');
+      toast.error('Failed to load chatbots');
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
+
+  const handleDelete = async (chatbotId: string) => {
+    try {
+      await chatbotService.deleteChatbot(chatbotId);
+      setChatbots(chatbots.filter(bot => bot.id !== chatbotId));
+      toast.success('Chatbot deleted successfully');
+    } catch (err) {
+      console.error('Error deleting chatbot:', err);
+      toast.error('Failed to delete chatbot');
+    }
+  };
+
+  const filteredChatbots = chatbots.filter(chatbot => {
+    const matchesSearch = chatbot.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || chatbot.status === statusFilter;
+    
+    // Handle both LLM and rule-based bot filtering
+    let matchesType = true;
+    if (typeFilter !== 'all') {
+      if (typeFilter === 'llm') {
+        matchesType = chatbot.type === 'llm';
+      } else if (typeFilter === 'rule-based') {
+        matchesType = chatbot.type === 'standard';
+      }
+    }
+    
+    return matchesSearch && matchesStatus && matchesType;
+  });
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active':
-        return 'bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm';
-      case 'inactive':
-        return 'bg-gray-50 text-gray-700 border-gray-200 shadow-sm';
-      case 'training':
-        return 'bg-blue-50 text-blue-700 border-blue-200 shadow-sm';
-      default:
-        return 'bg-gray-50 text-gray-700 border-gray-200 shadow-sm';
+      case 'active': return 'bg-green-100 text-green-800';
+      case 'inactive': return 'bg-gray-100 text-gray-800';
+      case 'training': return 'bg-yellow-100 text-yellow-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const getTypeIcon = (type: string) => {
-    return type === 'llm' ? (
-      <div className="p-2 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg shadow-md">
-        <Brain className="w-4 h-4 text-white" />
-      </div>
-    ) : (
-      <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg shadow-md">
-        <MessageSquare className="w-4 h-4 text-white" />
-      </div>
-    );
-  };
-
-  const handleToggleStatus = (botId: string) => {
-    setChatbots(chatbots.map(bot => {
-      if (bot.id === botId) {
-        const newStatus = bot.status === 'active' ? 'inactive' : 'active';
-        toast({
-          title: `Bot ${newStatus === 'active' ? 'Activated' : 'Deactivated'}`,
-          description: `${bot.name} is now ${newStatus}`,
-        });
-        return { ...bot, status: newStatus };
-      }
-      return bot;
-    }));
-  };
-
-  const handleDeleteBot = (botId: string) => {
-    const bot = chatbots.find(b => b.id === botId);
-    setChatbots(chatbots.filter(b => b.id !== botId));
-    toast({
-      title: "Bot Deleted",
-      description: `${bot?.name} has been deleted successfully`,
-      variant: "destructive"
-    });
-  };
-
-  const handleCloneBot = (botId: string) => {
-    const bot = chatbots.find(b => b.id === botId);
-    if (bot) {
-      const clonedBot = {
-        ...bot,
-        id: Date.now().toString(),
-        name: `${bot.name} (Copy)`,
-        status: 'inactive' as const,
-        totalChats: 0
+  const getBotTypeInfo = (type: string) => {
+    if (type === 'standard') {
+      return {
+        icon: <Settings className="w-4 h-4" />,
+        type: 'Rule-Based',
+        color: 'text-orange-600',
+        bgColor: 'bg-orange-100'
       };
-      setChatbots([...chatbots, clonedBot]);
-      toast({
-        title: "Bot Cloned",
-        description: `${bot.name} has been cloned successfully`,
-      });
-    }
-  };
-
-  const handleConfigureBot = (botId: string) => {
-    const bot = chatbots.find(b => b.id === botId);
-    if (onOpenConfiguration) {
-      onOpenConfiguration(botId);
     } else {
-      toast({
-        title: "Opening Configuration",
-        description: `Configuring ${bot?.name}...`,
-      });
+      return {
+        icon: <Brain className="w-4 h-4" />,
+        type: 'LLM-Powered',
+        color: 'text-blue-600',
+        bgColor: 'bg-blue-100'
+      };
     }
   };
 
-  const handleTrainingBot = (botId: string) => {
-    const bot = chatbots.find(b => b.id === botId);
-    if (bot && onOpenTraining) {
-      onOpenTraining(botId, bot.type);
+  const getModelDisplayName = (model: string) => {
+    if (!model) return 'Not specified';
+    
+    if (model.startsWith('rule-based-')) {
+      const engineType = model.replace('rule-based-', '');
+      switch (engineType) {
+        case 'rule-engine': return 'Rule Engine';
+        case 'decision-tree': return 'Decision Tree';
+        case 'pattern-matching': return 'Pattern Matching';
+        case 'custom-rules': return 'Custom Rules';
+        default: return engineType;
+      }
     } else {
-      toast({
-        title: "Opening Training",
-        description: `Training interface for ${bot?.name}...`,
-      });
+      switch (model) {
+        case 'gpt-4': return 'GPT-4';
+        case 'gpt-3.5-turbo': return 'GPT-3.5 Turbo';
+        case 'claude-3': return 'Claude 3';
+        case 'custom': return 'Custom Model';
+        default: return model;
+      }
     }
   };
 
-  return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-semibold text-gray-900 tracking-tight">Deployed Chatbots</h2>
-          <p className="text-blue-600 font-medium mt-1">Active AI assistants across your organization</p>
-        </div>
-        <div className="flex gap-3">
-          <Button variant="outline" size="sm" className="border-blue-200 text-blue-700 hover:bg-blue-50">
-            <Settings className="w-4 h-4 mr-2" />
-            Bulk Actions
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold">Chatbot Management</h2>
+          <Button disabled>
+            <Plus className="w-4 h-4 mr-2" />
+            Create New Bot
           </Button>
         </div>
+        <div className="grid gap-4">
+          {[1, 2, 3].map((i) => (
+            <Card key={i} className="animate-pulse">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
+                    <div className="space-y-2">
+                      <div className="h-4 bg-gray-200 rounded w-32"></div>
+                      <div className="h-3 bg-gray-200 rounded w-24"></div>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-6 bg-gray-200 rounded w-16"></div>
+                    <div className="h-4 bg-gray-200 rounded w-20"></div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">Chatbot Management</h2>
+          <p className="text-gray-600">Manage and configure your AI assistants</p>
+        </div>
+        <Button onClick={onCreateNew}>
+          <Plus className="w-4 h-4 mr-2" />
+          Create New Bot
+        </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {chatbots.map((bot) => (
-          <Card key={bot.id} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-white/80 backdrop-blur-sm overflow-hidden group">
-            <CardHeader className="pb-4 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 border-b border-blue-100/50">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-4">
-                  {getTypeIcon(bot.type)}
-                  <div>
-                    <CardTitle className="text-xl font-semibold text-gray-900 group-hover:text-blue-800 transition-colors">
-                      {bot.name}
-                    </CardTitle>
-                    <div className="flex items-center gap-3 mt-2">
-                      <Badge variant="outline" className="text-xs bg-white/80 border-blue-200 text-blue-700 font-medium px-3 py-1">
-                        {bot.type === 'llm' ? 'AI-Powered' : 'Rule-Based Engine'}
-                      </Badge>
-                      {bot.model && (
-                        <Badge variant="outline" className="text-xs bg-gradient-to-r from-purple-50 to-indigo-50 text-purple-700 border-purple-200 font-medium px-3 py-1">
-                          {bot.model}
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <Badge className={`${getStatusColor(bot.status)} font-medium px-3 py-1 rounded-full`}>
-                  <Activity className="w-3 h-3 mr-1" />
-                  {bot.status}
-                </Badge>
-              </div>
-            </CardHeader>
-            
-            <CardContent className="space-y-6 p-6">
-              <div className="grid grid-cols-2 gap-6">
-                <div className="text-center p-4 bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl border border-emerald-100">
-                  <p className="text-sm text-emerald-600 font-medium">Success Rate</p>
-                  <p className="text-2xl font-bold text-emerald-700 mt-1">{bot.resolutionRate}%</p>
-                </div>
-                <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl border border-blue-100">
-                  <p className="text-sm text-blue-600 font-medium">Total Conversations</p>
-                  <p className="text-2xl font-bold text-blue-700 mt-1">{bot.totalChats.toLocaleString()}</p>
-                </div>
-                {bot.sopCount && (
-                  <>
-                    <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl border border-purple-100">
-                      <p className="text-sm text-purple-600 font-medium">Knowledge Base</p>
-                      <p className="text-2xl font-bold text-purple-700 mt-1">{bot.sopCount} SOPs</p>
-                    </div>
-                    <div className="text-center p-4 bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl border border-gray-100">
-                      <p className="text-sm text-gray-600 font-medium">Last Updated</p>
-                      <p className="text-sm font-semibold text-gray-700 mt-1">{bot.lastUpdated}</p>
-                    </div>
-                  </>
-                )}
-              </div>
-
-              {bot.type === 'llm' && (
-                <div className="bg-gradient-to-r from-purple-50 via-blue-50 to-indigo-50 p-4 rounded-xl border border-purple-100/50">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="p-1.5 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg">
-                      <Zap className="w-4 h-4 text-white" />
-                    </div>
-                    <span className="text-sm font-semibold text-purple-800">AI Capabilities</span>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant="outline" className="text-xs bg-white/70 border-purple-200 text-purple-700">
-                      <Shield className="w-3 h-3 mr-1" />
-                      Intent Recognition
-                    </Badge>
-                    <Badge variant="outline" className="text-xs bg-white/70 border-blue-200 text-blue-700">
-                      <Database className="w-3 h-3 mr-1" />
-                      Knowledge Mining
-                    </Badge>
-                    <Badge variant="outline" className="text-xs bg-white/70 border-indigo-200 text-indigo-700">
-                      <Activity className="w-3 h-3 mr-1" />
-                      Auto Escalation
-                    </Badge>
-                  </div>
-                </div>
-              )}
-
-              <div className="flex gap-2 pt-4 border-t border-gray-100">
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  className="flex-1 border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300"
-                  onClick={() => handleConfigureBot(bot.id)}
-                >
-                  <Settings className="w-3 h-3 mr-1" />
-                  Configure
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  className="flex-1 border-indigo-200 text-indigo-700 hover:bg-indigo-50 hover:border-indigo-300"
-                  onClick={() => handleTrainingBot(bot.id)}
-                >
-                  <Database className="w-3 h-3 mr-1" />
-                  Training
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  className={`border-2 ${bot.status === 'active' 
-                    ? 'border-red-200 text-red-700 hover:bg-red-50 hover:border-red-300' 
-                    : 'border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300'}`}
-                  onClick={() => handleToggleStatus(bot.id)}
-                >
-                  {bot.status === 'active' ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  className="border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300"
-                  onClick={() => handleCloneBot(bot.id)}
-                >
-                  <Copy className="w-3 h-3" />
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  onClick={() => handleDeleteBot(bot.id)}
-                  className="border-red-200 text-red-700 hover:bg-red-50 hover:border-red-300"
-                >
-                  <Trash2 className="w-3 h-3" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <Input
+            placeholder="Search chatbots..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-full sm:w-40">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="inactive">Inactive</SelectItem>
+            <SelectItem value="training">Training</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={typeFilter} onValueChange={setTypeFilter}>
+          <SelectTrigger className="w-full sm:w-40">
+            <SelectValue placeholder="Type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Types</SelectItem>
+            <SelectItem value="llm">LLM-Powered</SelectItem>
+            <SelectItem value="rule-based">Rule-Based</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
+
+      {/* Error State */}
+      {error && (
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <AlertCircle className="w-4 h-4 text-red-600" />
+              <span className="text-sm text-red-800">{error}</span>
+              <Button variant="outline" size="sm" onClick={loadChatbots}>
+                Retry
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Chatbots List */}
+      {filteredChatbots.length === 0 && !error ? (
+        <Card>
+          <CardContent className="p-8 text-center">
+            <Bot className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No chatbots found</h3>
+            <p className="text-gray-600 mb-4">
+              {searchTerm || statusFilter !== 'all' || typeFilter !== 'all'
+                ? 'Try adjusting your search or filters'
+                : 'Get started by creating your first chatbot'}
+            </p>
+            {!searchTerm && statusFilter === 'all' && typeFilter === 'all' && (
+              <Button onClick={onCreateNew}>
+                <Plus className="w-4 h-4 mr-2" />
+                Create Your First Bot
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-4">
+          {filteredChatbots.map((chatbot) => {
+            const botTypeInfo = getBotTypeInfo(chatbot.type);
+            return (
+              <Card key={chatbot.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => onSelectChatbot(chatbot)}>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className={`w-12 h-12 ${botTypeInfo.bgColor} rounded-lg flex items-center justify-center`}>
+                        {botTypeInfo.icon}
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-lg">{chatbot.name}</h3>
+                        <div className="flex items-center space-x-2 mt-1">
+                          <Badge variant="outline" className={getStatusColor(chatbot.status)}>
+                            {chatbot.status}
+                          </Badge>
+                          <Badge variant="outline" className={`${botTypeInfo.color} bg-opacity-10`}>
+                            {botTypeInfo.type}
+                          </Badge>
+                          <span className="text-sm text-gray-500">
+                            {getModelDisplayName(chatbot.model || '')}
+                          </span>
+                        </div>
+                        {chatbot.system_prompt && (
+                          <p className="text-sm text-gray-600 mt-1">{chatbot.system_prompt}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-4">
+                      <div className="text-right">
+                        <div className="text-sm text-gray-500">Resolution Rate</div>
+                        <div className="font-semibold">{chatbot.resolution_rate || 0}%</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm text-gray-500">Total Chats</div>
+                        <div className="font-semibold">{chatbot.total_chats || 0}</div>
+                      </div>
+                      <div className="flex space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onEditChatbot(chatbot);
+                          }}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(chatbot.id);
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
-};
+}
+
+export { ChatbotList };

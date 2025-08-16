@@ -73,5 +73,27 @@ export const SupervisorRoutes = () => (
         </ProtectedRoute>
       } 
     />
+    <Route 
+      path="/supervisor/profile" 
+      element={
+        <ProtectedRoute allowedRoles={['supervisor', 'admin']}>
+          <TrialGuard>
+            <TrialBanner />
+            <SupervisorDashboard />
+          </TrialGuard>
+        </ProtectedRoute>
+      } 
+    />
+    <Route 
+      path="/supervisor/settings" 
+      element={
+        <ProtectedRoute allowedRoles={['supervisor', 'admin']}>
+          <TrialGuard>
+            <TrialBanner />
+            <SupervisorDashboard />
+          </TrialGuard>
+        </ProtectedRoute>
+      } 
+    />
   </>
 );

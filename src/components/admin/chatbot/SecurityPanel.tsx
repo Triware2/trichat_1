@@ -1,335 +1,653 @@
-
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Separator } from '@/components/ui/separator';
 import { 
-  Shield, 
   Key, 
-  Users, 
-  Lock, 
+  Shield, 
   Eye, 
-  EyeOff,
+  EyeOff, 
+  Copy, 
+  RefreshCw, 
+  Trash2, 
   Plus,
-  Trash2,
+  Activity,
+  Users,
+  Lock,
+  FileText,
   AlertTriangle,
-  CheckCircle
+  CheckCircle,
+  Clock,
+  Settings,
+  Download,
+  Upload,
+  Search,
+  Filter,
+  Calendar,
+  BarChart3,
+  ShieldCheck,
+  KeyRound,
+  Database,
+  Network,
+  Globe,
+  Smartphone,
+  Monitor,
+  Server
 } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
+import { chatbotService } from '@/services/chatbotService';
 
-export const SecurityPanel = () => {
-  const [showApiKey, setShowApiKey] = useState(false);
-  const [apiKeys, setApiKeys] = useState([
-    { id: '1', name: 'OpenAI Production', provider: 'OpenAI', masked: 'sk-...x7j9', created: '2024-06-01', status: 'active' },
-    { id: '2', name: 'Anthropic Dev', provider: 'Anthropic', masked: 'sk-ant-...k8m2', created: '2024-06-05', status: 'active' }
-  ]);
+interface ApiKey {
+  id: string;
+  name: string;
+  key: string;
+  status: 'active' | 'inactive' | 'expired';
+  permissions: string[];
+  lastUsed: string;
+  createdAt: string;
+  expiresAt?: string;
+  usageCount: number;
+  ipWhitelist?: string[];
+  rateLimit?: number;
+}
 
-  const [accessRoles] = useState([
-    { id: '1', name: 'Bot Administrator', permissions: ['create', 'edit', 'delete', 'view_keys'], users: 3 },
-    { id: '2', name: 'Bot Editor', permissions: ['edit', 'view'], users: 7 },
-    { id: '3', name: 'Bot Viewer', permissions: ['view'], users: 12 }
-  ]);
+interface SecuritySettings {
+  mfaEnabled: boolean;
+  sessionTimeout: number;
+  ipWhitelist: string[];
+  encryptionLevel: 'standard' | 'enhanced' | 'enterprise';
+  auditLogging: boolean;
+  dataRetention: number;
+}
 
-  const [securitySettings, setSecuritySettings] = useState({
-    encryptSOPs: true,
-    auditLogging: true,
-    mfaRequired: false,
+interface AuditLog {
+  id: string;
+  action: string;
+  userId: string;
+  userEmail: string;
+  timestamp: string;
+  ipAddress: string;
+  userAgent: string;
+  details: any;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+}
+
+export function SecurityPanel() {
+  const [activeTab, setActiveTab] = useState('api-keys');
+  const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
+  const [securitySettings, setSecuritySettings] = useState<SecuritySettings>({
+    mfaEnabled: false,
     sessionTimeout: 30,
-    ipWhitelist: false
+    ipWhitelist: [],
+    encryptionLevel: 'standard',
+    auditLogging: true,
+    dataRetention: 90
   });
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [showKey, setShowKey] = useState<string | null>(null);
+  const [newKeyName, setNewKeyName] = useState('');
+  const [newKeyPermissions, setNewKeyPermissions] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
 
-  const handleDeleteApiKey = (id: string) => {
-    setApiKeys(apiKeys.filter(key => key.id !== id));
+  // Available permissions
+  const availablePermissions = [
+    { id: 'chat:read', label: 'Read Chat Data', description: 'Access to read chat conversations' },
+    { id: 'chat:write', label: 'Write Chat Data', description: 'Ability to send messages' },
+    { id: 'analytics:read', label: 'Read Analytics', description: 'Access to analytics data' },
+    { id: 'settings:read', label: 'Read Settings', description: 'View system settings' },
+    { id: 'settings:write', label: 'Write Settings', description: 'Modify system settings' },
+    { id: 'users:read', label: 'Read Users', description: 'View user information' },
+    { id: 'users:write', label: 'Write Users', description: 'Manage users' },
+    { id: 'admin:full', label: 'Full Admin Access', description: 'Complete system access' }
+  ];
+
+  useEffect(() => {
+    loadSecurityData();
+  }, []);
+
+  const loadSecurityData = async () => {
+    setLoading(true);
+    try {
+      // Load API keys
+      const keys = await chatbotService.getApiKeys();
+      setApiKeys(keys || []);
+
+      // Load security settings
+      const settings = await chatbotService.getSecuritySettings();
+      if (settings) {
+        setSecuritySettings({
+          mfaEnabled: settings.mfa_enabled || false,
+          sessionTimeout: settings.session_timeout || 30,
+          ipWhitelist: settings.ip_whitelist || [],
+          encryptionLevel: settings.encryption_level || 'standard',
+          auditLogging: settings.audit_logging !== false,
+          dataRetention: settings.data_retention || 90
+        });
+      }
+
+      // Load audit logs
+      const logs = await chatbotService.getAuditLogs();
+      setAuditLogs(logs || []);
+    } catch (error) {
+      console.error('Error loading security data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load security data",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const updateSecuritySetting = (key: string, value: boolean | number) => {
-    setSecuritySettings({
-      ...securitySettings,
-      [key]: value
+  const generateApiKey = async () => {
+    if (!newKeyName.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a key name",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const newKey = await chatbotService.generateApiKey({
+        name: newKeyName,
+        permissions: newKeyPermissions
+      });
+      
+      setApiKeys(prev => [newKey, ...prev]);
+      setNewKeyName('');
+      setNewKeyPermissions([]);
+      
+      toast({
+        title: "Success",
+        description: "API key generated successfully"
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to generate API key",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const revokeApiKey = async (keyId: string) => {
+    try {
+      await chatbotService.revokeApiKey(keyId);
+      setApiKeys(prev => prev.filter(key => key.id !== keyId));
+      
+      toast({
+        title: "Success",
+        description: "API key revoked successfully"
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to revoke API key",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Copied",
+      description: "API key copied to clipboard"
     });
   };
 
+  const updateSecuritySettings = async (settings: Partial<SecuritySettings>) => {
+    try {
+      const updated = await chatbotService.updateSecuritySettings({
+        ...securitySettings,
+        ...settings
+      });
+      setSecuritySettings(updated);
+      
+      toast({
+        title: "Success",
+        description: "Security settings updated"
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update security settings",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const filteredApiKeys = (apiKeys || []).filter(key => {
+    if (!key) return false;
+    const matchesSearch = key.name?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
+    const matchesStatus = filterStatus === 'all' || key.status === filterStatus;
+    return matchesSearch && matchesStatus;
+  });
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active': return 'bg-green-100 text-green-800';
+      case 'inactive': return 'bg-gray-100 text-gray-800';
+      case 'expired': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getSeverityColor = (severity: string) => {
+    switch (severity) {
+      case 'low': return 'bg-blue-100 text-blue-800';
+      case 'medium': return 'bg-yellow-100 text-yellow-800';
+      case 'high': return 'bg-orange-100 text-orange-800';
+      case 'critical': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-gray-900">Security & Access Controls</h2>
-          <p className="text-gray-600 mt-1">Manage API keys, SOP access, and role-based permissions</p>
+          <h2 className="text-xl font-bold text-slate-900">Security Center</h2>
+          <p className="text-slate-600 mt-1">Manage API keys, access control, and security settings</p>
         </div>
-        <div className="flex items-center gap-2">
-          <CheckCircle className="w-5 h-5 text-green-500" />
-          <span className="text-sm text-green-600 font-medium">Security Status: Good</span>
+        <div className="flex items-center space-x-2">
+          <Button variant="outline" onClick={loadSecurityData} disabled={loading}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
         </div>
       </div>
 
-      <Tabs defaultValue="api-keys" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="api-keys" className="flex items-center gap-2">
-            <Key className="w-4 h-4" />
-            API Keys
-          </TabsTrigger>
-          <TabsTrigger value="access-control" className="flex items-center gap-2">
-            <Users className="w-4 h-4" />
-            Access Control
-          </TabsTrigger>
-          <TabsTrigger value="data-security" className="flex items-center gap-2">
-            <Lock className="w-4 h-4" />
-            Data Security
-          </TabsTrigger>
-          <TabsTrigger value="audit-logs" className="flex items-center gap-2">
-            <Shield className="w-4 h-4" />
-            Audit Logs
-          </TabsTrigger>
-        </TabsList>
+      {loading && (
+        <div className="flex items-center justify-center py-8">
+          <div className="text-center">
+            <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-2 text-blue-600" />
+            <p className="text-slate-600">Loading security data...</p>
+          </div>
+        </div>
+      )}
 
-        {/* API Keys Tab */}
-        <TabsContent value="api-keys" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle>LLM Provider API Keys</CardTitle>
-                <Button className="bg-blue-600 hover:bg-blue-700">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add API Key
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {apiKeys.map(key => (
-                  <div key={key.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
-                        <Key className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="font-medium">{key.name}</h3>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Badge variant="outline">{key.provider}</Badge>
-                          <span className="text-sm text-gray-500">{key.masked}</span>
-                          <Badge className={key.status === 'active' ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}>
-                            {key.status}
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-gray-500 mt-1">Created: {key.created}</p>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline">
-                        {showApiKey ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => handleDeleteApiKey(key.id)}>
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+      {!loading && (
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+          <div className="sticky top-0 z-10">
+            <TabsList className="flex w-full justify-start gap-2 bg-gradient-to-r from-slate-50/90 to-blue-50/80 shadow-md rounded-full px-2 py-2 mb-4">
+              <TabsTrigger
+                value="api-keys"
+                className="flex items-center gap-2 px-6 py-3 rounded-xl transition-all duration-200 font-medium data-[state=active]:font-bold data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm data-[state=active]:ring-2 data-[state=active]:ring-blue-200 data-[state=active]:ring-inset text-slate-600 hover:bg-white/70 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
+              >
+                <Key className="h-5 w-5 transition-colors duration-200 data-[state=active]:text-blue-600 text-slate-400" />
+                <span>API Keys</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="access-control"
+                className="flex items-center gap-2 px-6 py-3 rounded-xl transition-all duration-200 font-medium data-[state=active]:font-bold data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm data-[state=active]:ring-2 data-[state=active]:ring-blue-200 data-[state=active]:ring-inset text-slate-600 hover:bg-white/70 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
+              >
+                <Users className="h-5 w-5 transition-colors duration-200 data-[state=active]:text-blue-600 text-slate-400" />
+                <span>Access Control</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="data-security"
+                className="flex items-center gap-2 px-6 py-3 rounded-xl transition-all duration-200 font-medium data-[state=active]:font-bold data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm data-[state=active]:ring-2 data-[state=active]:ring-blue-200 data-[state=active]:ring-inset text-slate-600 hover:bg-white/70 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
+              >
+                <Shield className="h-5 w-5 transition-colors duration-200 data-[state=active]:text-blue-600 text-slate-400" />
+                <span>Data Security</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="audit-logs"
+                className="flex items-center gap-2 px-6 py-3 rounded-xl transition-all duration-200 font-medium data-[state=active]:font-bold data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm data-[state=active]:ring-2 data-[state=active]:ring-blue-200 data-[state=active]:ring-inset text-slate-600 hover:bg-white/70 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
+              >
+                <FileText className="h-5 w-5 transition-colors duration-200 data-[state=active]:text-blue-600 text-slate-400" />
+                <span>Audit Logs</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>API Key Security Settings</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>Rotate Keys Automatically</Label>
-                  <p className="text-sm text-gray-600">Auto-rotate API keys every 90 days</p>
-                </div>
-                <Switch 
-                  checked={securitySettings.encryptSOPs}
-                  onCheckedChange={(checked) => updateSecuritySetting('encryptSOPs', checked)}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>Key Usage Monitoring</Label>
-                  <p className="text-sm text-gray-600">Monitor and alert on unusual API usage</p>
-                </div>
-                <Switch 
-                  checked={securitySettings.auditLogging}
-                  onCheckedChange={(checked) => updateSecuritySetting('auditLogging', checked)}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Access Control Tab */}
-        <TabsContent value="access-control" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle>Role-Based Access Control</CardTitle>
-                <Button className="bg-blue-600 hover:bg-blue-700">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create Role
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {accessRoles.map(role => (
-                  <div key={role.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+          {/* API Keys Tab */}
+          <TabsContent value="api-keys" className="space-y-8">
+            <Card className="bg-white/80 backdrop-blur-sm border border-slate-200 shadow-sm rounded-3xl">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-xl font-bold text-slate-900">
+                  <Key className="h-5 w-5" />
+                  <span>API Key Management</span>
+                </CardTitle>
+                <CardDescription className="text-slate-600">
+                  Generate and manage API keys for secure access to your chatbot services
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-8">
+                {/* Generate New Key */}
+                <div className="border rounded-2xl p-6 bg-slate-50">
+                  <h3 className="font-semibold text-slate-900 mb-4 text-lg">Generate New API Key</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <h3 className="font-medium">{role.name}</h3>
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {role.permissions.map(permission => (
-                          <Badge key={permission} variant="outline" className="text-xs">
-                            {permission}
-                          </Badge>
+                      <Label htmlFor="keyName" className="text-sm font-medium text-slate-700">Key Name</Label>
+                      <Input
+                        id="keyName"
+                        value={newKeyName}
+                        onChange={(e) => setNewKeyName(e.target.value)}
+                        placeholder="Enter a descriptive name"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-slate-700">Permissions</Label>
+                      <div className="grid grid-cols-2 gap-2 mt-2">
+                        {availablePermissions.map(permission => (
+                          <div key={permission.id} className="flex items-center space-x-2">
+                            <input
+                              type="checkbox"
+                              id={permission.id}
+                              checked={newKeyPermissions.includes(permission.id)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setNewKeyPermissions(prev => [...prev, permission.id]);
+                                } else {
+                                  setNewKeyPermissions(prev => prev.filter(p => p !== permission.id));
+                                }
+                              }}
+                              className="rounded"
+                            />
+                            <Label htmlFor={permission.id} className="text-sm text-slate-700">
+                              {permission.label}
+                            </Label>
+                          </div>
                         ))}
                       </div>
-                      <p className="text-sm text-gray-500 mt-1">{role.users} users assigned</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline">Edit</Button>
-                      <Button size="sm" variant="outline">
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
                     </div>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                  <Button onClick={generateApiKey} className="mt-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Generate API Key
+                  </Button>
+                </div>
 
-        {/* Data Security Tab */}
-        <TabsContent value="data-security" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Data Protection Settings</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>Encrypt SOP Documents</Label>
-                  <p className="text-sm text-gray-600">Encrypt all uploaded SOP files at rest</p>
+                {/* Search and Filter */}
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex-1">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        placeholder="Search API keys..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+                  <select
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                    className="px-3 py-2 border rounded-md"
+                  >
+                    <option value="all">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="expired">Expired</option>
+                  </select>
                 </div>
-                <Switch 
-                  checked={securitySettings.encryptSOPs}
-                  onCheckedChange={(checked) => updateSecuritySetting('encryptSOPs', checked)}
-                />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>Enable Audit Logging</Label>
-                  <p className="text-sm text-gray-600">Log all chatbot interactions and admin actions</p>
-                </div>
-                <Switch 
-                  checked={securitySettings.auditLogging}
-                  onCheckedChange={(checked) => updateSecuritySetting('auditLogging', checked)}
-                />
-              </div>
 
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>Require Multi-Factor Authentication</Label>
-                  <p className="text-sm text-gray-600">Require MFA for all admin users</p>
+                {/* API Keys List */}
+                <div className="space-y-4">
+                  {filteredApiKeys.map(key => {
+                    if (!key) return null;
+                    return (
+                      <Card key={key.id || Math.random()} className="border-l-4 border-l-blue-500 bg-white/80 backdrop-blur-sm border border-slate-200 shadow-sm rounded-2xl">
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-3">
+                                <h4 className="font-semibold text-slate-900">{key.name || 'Unnamed Key'}</h4>
+                                <Badge className={getStatusColor(key.status || 'inactive')}>
+                                  {key.status || 'inactive'}
+                                </Badge>
+                              </div>
+                              <div className="mt-2 space-y-1">
+                                <div className="flex items-center space-x-2">
+                                  <span className="text-sm text-slate-600">Key:</span>
+                                  <code className="text-sm bg-gray-100 px-2 py-1 rounded">
+                                    {showKey === key.id ? (key.key || 'No key') : `${(key.key || '').substring(0, 8)}...`}
+                                  </code>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setShowKey(showKey === key.id ? null : key.id)}
+                                  >
+                                    {showKey === key.id ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => copyToClipboard(key.key || '')}
+                                  >
+                                    <Copy className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                                <div className="text-sm text-slate-600">
+                                  Created: {key.createdAt ? new Date(key.createdAt).toLocaleDateString() : 'Unknown'} | 
+                                  Last used: {key.lastUsed ? new Date(key.lastUsed).toLocaleDateString() : 'Never'} |
+                                  Usage: {key.usageCount || 0} times
+                                </div>
+                                <div className="flex flex-wrap gap-1">
+                                  {(key.permissions || []).map(permission => (
+                                    <Badge key={permission} variant="outline" className="text-xs">
+                                      {permission}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => revokeApiKey(key.id || '')}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
                 </div>
-                <Switch 
-                  checked={securitySettings.mfaRequired}
-                  onCheckedChange={(checked) => updateSecuritySetting('mfaRequired', checked)}
-                />
-              </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-              <div className="space-y-2">
-                <Label>Session Timeout (minutes)</Label>
-                <Input
-                  type="number"
-                  value={securitySettings.sessionTimeout}
-                  onChange={(e) => updateSecuritySetting('sessionTimeout', parseInt(e.target.value))}
-                  className="w-32"
-                />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>IP Whitelist</Label>
-                  <p className="text-sm text-gray-600">Restrict access to specific IP addresses</p>
-                </div>
-                <Switch 
-                  checked={securitySettings.ipWhitelist}
-                  onCheckedChange={(checked) => updateSecuritySetting('ipWhitelist', checked)}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Compliance & Certifications</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
-                  <CheckCircle className="w-8 h-8 text-green-600 mx-auto mb-2" />
-                  <p className="font-medium text-green-800">SOC 2</p>
-                  <p className="text-xs text-green-600">Compliant</p>
-                </div>
-                <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
-                  <CheckCircle className="w-8 h-8 text-green-600 mx-auto mb-2" />
-                  <p className="font-medium text-green-800">GDPR</p>
-                  <p className="text-xs text-green-600">Compliant</p>
-                </div>
-                <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
-                  <CheckCircle className="w-8 h-8 text-green-600 mx-auto mb-2" />
-                  <p className="font-medium text-green-800">HIPAA</p>
-                  <p className="text-xs text-green-600">Ready</p>
-                </div>
-                <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <Shield className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                  <p className="font-medium text-blue-800">ISO 27001</p>
-                  <p className="text-xs text-blue-600">Certified</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Audit Logs Tab */}
-        <TabsContent value="audit-logs" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Security Audit Logs</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {[
-                  { time: '2024-06-15 14:30:25', action: 'API Key Created', user: 'admin@company.com', severity: 'info' },
-                  { time: '2024-06-15 13:45:12', action: 'SOP Document Uploaded', user: 'manager@company.com', severity: 'info' },
-                  { time: '2024-06-15 12:20:33', action: 'Failed Login Attempt', user: 'unknown@domain.com', severity: 'warning' },
-                  { time: '2024-06-15 11:15:45', action: 'Chatbot Configuration Modified', user: 'admin@company.com', severity: 'info' }
-                ].map((log, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      {log.severity === 'warning' ? (
-                        <AlertTriangle className="w-4 h-4 text-yellow-500" />
-                      ) : (
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                      )}
+          {/* Access Control Tab */}
+          <TabsContent value="access-control" className="space-y-8">
+            <Card className="bg-white/80 backdrop-blur-sm border border-slate-200 shadow-sm rounded-3xl">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-xl font-bold text-slate-900">
+                  <Users className="h-5 w-5" />
+                  <span>Access Control</span>
+                </CardTitle>
+                <CardDescription className="text-slate-600">
+                  Configure role-based access control and user permissions
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-slate-900 text-lg">Multi-Factor Authentication</h3>
+                    <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium">{log.action}</p>
-                        <p className="text-xs text-gray-500">{log.user} • {log.time}</p>
+                        <p className="text-sm font-medium text-slate-700">Enable MFA</p>
+                        <p className="text-sm text-slate-600">Require two-factor authentication for all users</p>
                       </div>
+                      <Switch
+                        checked={securitySettings.mfaEnabled}
+                        onCheckedChange={(checked) => updateSecuritySettings({ mfaEnabled: checked })}
+                      />
                     </div>
-                    <Badge className={log.severity === 'warning' ? "bg-yellow-100 text-yellow-800" : "bg-green-100 text-green-800"}>
-                      {log.severity}
-                    </Badge>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-slate-900 text-lg">Session Management</h3>
+                    <div>
+                      <Label htmlFor="sessionTimeout" className="text-sm font-medium text-slate-700">Session Timeout (minutes)</Label>
+                      <Input
+                        id="sessionTimeout"
+                        type="number"
+                        value={securitySettings.sessionTimeout}
+                        onChange={(e) => updateSecuritySettings({ sessionTimeout: parseInt(e.target.value) })}
+                        min="5"
+                        max="480"
+                        className="mt-1"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-slate-900 text-lg">IP Whitelist</h3>
+                  <div className="space-y-2">
+                    {securitySettings.ipWhitelist.map((ip, index) => (
+                      <div key={index} className="flex items-center space-x-2">
+                        <Input value={ip} readOnly className="bg-white/80 border border-slate-200" />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            const newList = securitySettings.ipWhitelist.filter((_, i) => i !== index);
+                            updateSecuritySettings({ ipWhitelist: newList });
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                    <Button variant="outline" size="sm">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add IP Address
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Data Security Tab */}
+          <TabsContent value="data-security" className="space-y-8">
+            <Card className="bg-white/80 backdrop-blur-sm border border-slate-200 shadow-sm rounded-3xl">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-xl font-bold text-slate-900">
+                  <Shield className="h-5 w-5" />
+                  <span>Data Security</span>
+                </CardTitle>
+                <CardDescription className="text-slate-600">
+                  Configure encryption, data retention, and security policies
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-slate-900 text-lg">Encryption Level</h3>
+                    <select
+                      value={securitySettings.encryptionLevel}
+                      onChange={(e) => updateSecuritySettings({ encryptionLevel: e.target.value as any })}
+                      className="w-full px-3 py-2 border rounded-md"
+                    >
+                      <option value="standard">Standard (AES-256)</option>
+                      <option value="enhanced">Enhanced (AES-256 + Key Rotation)</option>
+                      <option value="enterprise">Enterprise (AES-256 + Hardware Security)</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-slate-900 text-lg">Data Retention</h3>
+                    <div>
+                      <Label htmlFor="dataRetention" className="text-sm font-medium text-slate-700">Retention Period (days)</Label>
+                      <Input
+                        id="dataRetention"
+                        type="number"
+                        value={securitySettings.dataRetention}
+                        onChange={(e) => updateSecuritySettings({ dataRetention: parseInt(e.target.value) })}
+                        min="30"
+                        max="3650"
+                        className="mt-1"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-slate-900 text-lg">Audit Logging</h3>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-slate-700">Enable Audit Logs</p>
+                      <p className="text-sm text-slate-600">Log all security-related activities</p>
+                    </div>
+                    <Switch
+                      checked={securitySettings.auditLogging}
+                      onCheckedChange={(checked) => updateSecuritySettings({ auditLogging: checked })}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Audit Logs Tab */}
+          <TabsContent value="audit-logs" className="space-y-8">
+            <Card className="bg-white/80 backdrop-blur-sm border border-slate-200 shadow-sm rounded-3xl">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-xl font-bold text-slate-900">
+                  <FileText className="h-5 w-5" />
+                  <span>Audit Logs</span>
+                </CardTitle>
+                <CardDescription className="text-slate-600">
+                  Monitor and review security events and user activities
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {(auditLogs || []).map(log => {
+                    if (!log) return null;
+                    return (
+                      <div key={log.id || Math.random()} className="border rounded-lg p-4 bg-white/70">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <Badge className={getSeverityColor(log.severity || 'low')}>
+                              {log.severity || 'low'}
+                            </Badge>
+                            <span className="font-medium text-slate-900">{log.action || 'Unknown Action'}</span>
+                          </div>
+                          <span className="text-sm text-slate-600">
+                            {log.timestamp ? new Date(log.timestamp).toLocaleString() : 'Unknown Time'}
+                          </span>
+                        </div>
+                        <div className="mt-2 text-sm text-slate-600">
+                          <p>User: {log.userEmail || 'Unknown User'}</p>
+                          <p>IP: {log.ipAddress || 'Unknown IP'}</p>
+                          <p>Details: {log.details ? JSON.stringify(log.details) : 'No details'}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      )}
     </div>
   );
-};
+} 

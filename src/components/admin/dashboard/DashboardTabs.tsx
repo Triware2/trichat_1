@@ -14,6 +14,12 @@ import {
   Palette
 } from 'lucide-react';
 
+interface Tab {
+  id: string;
+  label: string;
+  icon: any;
+}
+
 interface DashboardTabsProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
@@ -37,7 +43,7 @@ export const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) =>
   ];
 
   return (
-    <div className="border-b border-gray-200 bg-white px-6">
+    <div className="border-b border-slate-200 bg-white px-6">
       <TabsList className="grid grid-cols-13 w-full bg-transparent gap-0 h-auto p-0">
         {tabs.map((tab) => {
           const Icon = tab.icon;
@@ -46,7 +52,7 @@ export const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) =>
               key={tab.id}
               value={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className="flex items-center gap-2 px-4 py-3 text-sm font-medium text-gray-600 border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent hover:text-gray-900 hover:border-gray-300 transition-all rounded-none"
+              className="flex items-center gap-2 px-4 py-3 text-sm font-medium text-slate-600 border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent hover:text-slate-900 hover:border-slate-300 transition-all rounded-none"
             >
               <Icon className="w-4 h-4" />
               {tab.label}

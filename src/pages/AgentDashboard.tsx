@@ -16,6 +16,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { CustomerData } from '@/components/agent/customer/CustomerDataTypes';
 import { AgentProfile } from '@/pages/AgentProfile';
 import { Customer360 } from '@/components/agent/dashboard/Customer360';
+import { useFavicon } from '@/hooks/use-favicon';
 
   const getTabFromPath = (pathname: string) => {
   if (pathname.startsWith('/agent/active-chat/')) return 'chat';
@@ -46,6 +47,9 @@ const AgentDashboard = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  
+  // Ensure agent favicon is loaded
+  useFavicon('agent');
   
   const { activeTab, selectedChatId } = useMemo(() => {
     const path = location.pathname;
@@ -182,7 +186,7 @@ const AgentDashboard = () => {
         const avgWaitTime = agentChats.length > 0 ? (agentChats.reduce((acc, c) => acc + (c.wait_time || 0), 0) / agentChats.length / 60).toFixed(1) : '0';
 
         setStats([
-          { title: 'Open Tickets', value: openTickets.toString(), icon: MessageSquare, color: 'bg-blue-500 text-white' },
+          { title: 'Open Chats', value: openTickets.toString(), icon: MessageSquare, color: 'bg-blue-500 text-white' },
           { title: 'Active Agents', value: (activeAgentsCount || 0).toString(), icon: Users, color: 'bg-emerald-500 text-white' },
           { title: 'Avg. Wait Time', value: `${avgWaitTime} mins`, icon: Clock, color: 'bg-amber-400 text-white' },
           { title: 'Resolution Rate', value: `${resolutionRate}%`, icon: CheckCircle, color: 'bg-violet-500 text-white' },
@@ -243,7 +247,16 @@ const AgentDashboard = () => {
 
     switch (activeTab) {
       case 'dashboard':
-        return <DashboardContent stats={stats} agentName={user?.email || ''} activities={activities} queue={agentChats} todayPerformance={todayPerformance} onQueueAction={handleQueueAction} onStatClick={()=>{}} feedback={{csat:0, dsat:0, totalResponses:0, recentFeedback:[]}} />;
+        return <DashboardContent 
+                  stats={stats} 
+                  agentName={user?.email || ''} 
+                  activities={activities} 
+                  queue={agentChats} 
+                  todayPerformance={todayPerformance} 
+                  onQueueAction={handleQueueAction} 
+                  onStatClick={()=>{}} 
+                  feedback={{csat:0, dsat:0, totalResponses:0, recentFeedback:[]}} 
+                />;
       case 'chat':
         return <ChatContent 
                   chats={agentChats}
@@ -295,7 +308,7 @@ const AgentDashboard = () => {
               activeTab={activeTab}
             />
 
-            <SidebarInset className="flex-1">
+            <SidebarInset className="flex-1 overflow-y-auto">
               {renderTabContent()}
             </SidebarInset>
           </div>

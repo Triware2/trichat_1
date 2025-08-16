@@ -4,54 +4,33 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { TestTube, Send, RefreshCw } from 'lucide-react';
-
-interface TestResult {
-  id: string;
-  input: string;
-  matchedRule?: string;
-  response: string;
-  confidence: number;
-  timestamp: Date;
-}
+import { TestTube, Send, RotateCcw } from 'lucide-react';
 
 export const RuleTestingInterface = () => {
   const [testInput, setTestInput] = useState('');
-  const [testResults, setTestResults] = useState<TestResult[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [testResults, setTestResults] = useState<any[]>([]);
 
-  const mockRules = [
-    { id: '1', trigger: 'billing', response: 'I can help you with billing questions. What specific billing issue do you have?' },
-    { id: '2', trigger: 'order', response: 'To check your order status, please provide your order number.' },
-    { id: '3', trigger: 'support', response: 'I\'m here to help! What can I assist you with today?' }
-  ];
-
-  const handleTest = async () => {
+  const handleTestRule = () => {
     if (!testInput.trim()) return;
 
-    setIsLoading(true);
-
-    // Simulate rule matching
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    const matchedRule = mockRules.find(rule => 
-      testInput.toLowerCase().includes(rule.trigger.toLowerCase())
-    );
-
-    const result: TestResult = {
-      id: Date.now().toString(),
+    // Mock test result
+    const mockResult = {
+      id: Date.now(),
       input: testInput,
-      matchedRule: matchedRule?.trigger,
-      response: matchedRule?.response || 'I didn\'t understand that. Could you please rephrase?',
-      confidence: matchedRule ? Math.random() * 0.3 + 0.7 : Math.random() * 0.3,
-      timestamp: new Date()
+      matchedRules: [
+        {
+          ruleName: 'Sample Response Rule',
+          confidence: 0.95,
+          response: 'This is a sample response based on your input.',
+          executionTime: '12ms'
+        }
+      ],
+      timestamp: new Date().toISOString()
     };
 
-    setTestResults([result, ...testResults]);
+    setTestResults([mockResult, ...testResults]);
     setTestInput('');
-    setIsLoading(false);
   };
 
   const clearResults = () => {
@@ -60,95 +39,113 @@ export const RuleTestingInterface = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Rule Testing Interface</h3>
-        <Button variant="outline" onClick={clearResults} disabled={testResults.length === 0}>
-          <RefreshCw className="w-4 h-4 mr-2" />
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-xl font-bold text-slate-900">Rule Testing Interface</h3>
+          <p className="text-slate-600">Test your rules with sample inputs and see how they perform</p>
+        </div>
+        <Button
+          variant="outline"
+          onClick={clearResults}
+          className="bg-white/80 backdrop-blur-sm border border-slate-200 hover:bg-white text-slate-700"
+        >
+          <RotateCcw className="w-4 h-4 mr-2" />
           Clear Results
         </Button>
       </div>
 
-      <Card>
+      {/* Test Input */}
+      <Card className="bg-white/80 backdrop-blur-sm border border-slate-200 shadow-sm">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TestTube className="w-5 h-5 text-blue-600" />
-            Test Your Bot Rules
+          <CardTitle className="flex items-center gap-3 text-lg font-bold text-slate-900">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg flex items-center justify-center">
+              <TestTube className="w-4 h-4 text-blue-600" />
+            </div>
+            Test Input
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div>
-            <Label htmlFor="test-input">Test Message</Label>
-            <div className="flex gap-2 mt-2">
+          <div className="space-y-2">
+            <Label htmlFor="test-input" className="text-sm font-medium text-slate-700">
+              Enter test message
+            </Label>
+            <div className="flex gap-3">
               <Input
                 id="test-input"
+                placeholder="Type a message to test your rules..."
                 value={testInput}
                 onChange={(e) => setTestInput(e.target.value)}
-                placeholder="Type a message to test against your rules..."
-                onKeyPress={(e) => e.key === 'Enter' && handleTest()}
+                onKeyPress={(e) => e.key === 'Enter' && handleTestRule()}
+                className="flex-1 bg-white/80 backdrop-blur-sm border border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
               />
-              <Button onClick={handleTest} disabled={!testInput.trim() || isLoading}>
-                <Send className="w-4 h-4" />
+              <Button
+                onClick={handleTestRule}
+                disabled={!testInput.trim()}
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/25"
+              >
+                <Send className="w-4 h-4 mr-2" />
+                Test
               </Button>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {testResults.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Test Results</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {testResults.map(result => (
-                <div key={result.id} className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-xs">
-                        {result.timestamp.toLocaleTimeString()}
-                      </Badge>
-                      {result.matchedRule && (
-                        <Badge className="bg-green-100 text-green-800 text-xs">
-                          Matched: {result.matchedRule}
-                        </Badge>
-                      )}
-                      <Badge 
-                        className={`text-xs ${
-                          result.confidence > 0.7 ? 'bg-green-100 text-green-800' : 
-                          result.confidence > 0.4 ? 'bg-yellow-100 text-yellow-800' : 
-                          'bg-red-100 text-red-800'
-                        }`}
-                      >
-                        {Math.round(result.confidence * 100)}% confidence
-                      </Badge>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <div>
-                      <p className="text-sm font-medium text-gray-700">Input:</p>
-                      <p className="text-sm bg-gray-50 p-2 rounded">{result.input}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-700">Bot Response:</p>
-                      <p className="text-sm bg-blue-50 p-2 rounded">{result.response}</p>
-                    </div>
+      {/* Test Results */}
+      <Card className="bg-white/80 backdrop-blur-sm border border-slate-200 shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-lg font-bold text-slate-900">
+            Test Results ({testResults.length})
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {testResults.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                <TestTube className="w-8 h-8 text-slate-400" />
+              </div>
+              <p className="text-slate-600">No test results yet. Start testing your rules above.</p>
+            </div>
+          ) : (
+            testResults.map((result) => (
+              <div
+                key={result.id}
+                className="bg-slate-50/80 rounded-xl p-4 border border-slate-200"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="bg-blue-50/80 text-blue-700 border-blue-200/50">
+                      Test Input
+                    </Badge>
+                    <span className="text-sm text-slate-500">
+                      {new Date(result.timestamp).toLocaleTimeString()}
+                    </span>
                   </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+                
+                <div className="bg-white/80 rounded-lg p-3 mb-3">
+                  <p className="text-slate-900 font-medium">{result.input}</p>
+                </div>
 
-      {testResults.length === 0 && (
-        <Card>
-          <CardContent className="text-center py-8">
-            <TestTube className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-            <p className="text-gray-500">No test results yet. Enter a message above to test your bot rules.</p>
-          </CardContent>
-        </Card>
-      )}
+                {result.matchedRules.map((rule: any, index: number) => (
+                  <div key={index} className="bg-green-50/80 rounded-lg p-3 border border-green-200/50">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-semibold text-green-800">{rule.ruleName}</h4>
+                      <Badge variant="outline" className="bg-green-100/80 text-green-700 border-green-200/50">
+                        {rule.confidence * 100}% confidence
+                      </Badge>
+                    </div>
+                    <p className="text-green-700 mb-2">{rule.response}</p>
+                    <div className="flex items-center gap-4 text-xs text-green-600">
+                      <span>Execution time: {rule.executionTime}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ))
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

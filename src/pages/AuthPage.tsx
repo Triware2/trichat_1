@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
+import { useFavicon } from '@/hooks/use-favicon';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,6 +13,8 @@ import { Shield, CheckCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 const AuthPage = () => {
+  console.log('AuthPage component is rendering');
+
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -20,8 +23,12 @@ const AuthPage = () => {
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  useFavicon('landing');
+
+  console.log('AuthPage - User:', user, 'Loading:', loading);
 
   useEffect(() => {
+    console.log('AuthPage useEffect - checking for stored plan');
     // Check if user came from pricing page with a selected plan
     const storedPlan = localStorage.getItem('selectedPlan');
     if (storedPlan) {
